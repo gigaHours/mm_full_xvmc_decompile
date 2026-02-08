@@ -1,0 +1,259 @@
+module veh_stat_analyzer
+import @45098D7D
+import @58351C01
+import @B79BE9DF
+
+def EstimateFrontCompressionDamping(self, arg1):
+    local2 = EstimateCriticalDamping(arg1, 0.0, true)
+    return local2
+
+def CalculateMassOnAxle(self, arg1, arg2):
+    local3 = 1.0 - self.FrontAxleToCoMDistance / (self.FrontAxleToCoMDistance + self.RearAxleToCoMDistance)
+    local4 = 0.0
+    if arg2 == 0.0:
+        local4 = arg1 * local3
+    elif arg2 == 1.0:
+        local4 = arg1 * (1.0 - local3)
+    else:
+        debug.LogError("vehicle stat analyzer", "unsupported axle")
+    return local4
+
+def EstimateRearRelaxationDamping(self, arg1):
+    local2 = EstimateCriticalDamping(arg1, 1.0, false)
+    return local2
+
+def EstimateRearArbedFrequency(self, arg1):
+    local2 = EstimateNaturalFrequency(arg1, 1.0, true)
+    return local2
+
+def EstimateFrontNaturalFrequency(self, arg1):
+    local2 = EstimateNaturalFrequency(arg1, 0.0, false)
+    return local2
+
+def SimulateRammingVehicle(self, arg1):
+    local2 = lib_entity_proxy.SafeGetChild(arg1, "script.physics.gameplay")
+    local3 = scriptgo.GetProperties(lib_entity_proxy.SafeGetChild(arg1, "script.physics.drivetrain.properties"))
+    local4 = lib_entity_proxy.SafeGetChild(arg1, "script.physics.aerodynamics")
+    local5 = vehicle.GetChassis(arg1)
+    local6 = local5.Wheels
+    local7 = vehicle.GetMass(arg1)
+    local8 = local5.Drivetrain
+    local9 = local8.EngineRpms
+    local10 = local8.EngineInertia
+    local11 = local8.GearRatios
+    local12 = local8.AutoUpshifts
+    local13 = lib_entity_proxy.GetBoost(arg1)
+    local14 = 0.5
+    local15 = 0.0
+    if local13:
+        local16 = scriptgo.Call(local13, @74E3AC7C)
+        if local16 != local14:
+            debug.LogError("vehicle stat analyzer", "boost burst time does not match the one set in stat analyzer, stats will fail")
+        local15 = scriptgo.Call(local13, @09AC45F8)
+    local17 = 1.0
+    local18 = 20.0
+    local19 = 50.0 / 3.6
+    local20 = 0.0
+    local21 = 1.0 / 30.0
+    local22 = 0.0
+    local23 = 0.0
+    local25 = 0.0
+    local26 = 1.0
+    local24 = len(local6)
+    while local24 > local25:
+        local22 = local22 + local6[local25].Inertia
+        local23 = local23 + local6[local25].Radius
+        local25 = local26 + local25
+    local23 = local23 / len(local6)
+    local27 = 1.0
+    local28 = local8.NeutralGearIndex + local27
+    local29 = local11[local28]
+    local30 = local22 + local10 * local29 * local29
+    local31 = local7 + local30 / local23 / local23
+    local32 = local12[local27 - 1.0]
+    local33 = len(local12) + 1.0
+    local34 = local9[0.0]
+    local35 = local9[len(local9) - 1.0]
+    while local14 > local20:
+        if local19 > local32 and local33 > local27:
+            local27 = local27 + 1.0
+            local28 = local28 + 1.0
+            local29 = local11[local28]
+            local30 = local22 + local10 * local29 * local29
+            local31 = local7 + local30 / local23 / local23
+            if local27 == local33:
+                local32 = 1E+08
+            else:
+                local32 = local12[local27 - 1.0]
+        local36 = math.Clamp(9.549296 * local19 / local23 * local29, local34, local35)
+        local37 = vehicle.GenerateEngineTorque(arg1, local36)
+        local38 = local37 * local36 / 9.549296
+        local39 = scriptgo.Call2(local2, @07365990, local19, local15)
+        local40 = 0.013 * local7 * 9.81
+        local41 = vector.Set(local19, 0.0, 0.0, 0.0)
+        local42 = scriptgo.Call2(local4, @29E932B7, arg1, local41)
+        if not local42:
+            return 0.0
+        local43 = (local38 + (local39 - (local40 + local42)) * local19) / (local31 * local19)
+        local19 = local19 + local43 * local21
+        local20 = local20 + local21
+    local44 = lib_entity_proxy.GetCollision(arg1)
+    local45 = scriptgo.GetProperties(local44)
+    local46 = local45.rammingDamageScale + local45.additionalRammingDamageScale
+    local47 = lib_damage.CalculateRammingDamage(local19, local7, local46, local18 / 3.6, local17)
+    return local47
+
+def EstimateRideHeight(self, arg1):
+    local2 = vehicle.GetMass(self)
+    local3 = vehicle.GetChassis(self)
+    local4 = local3.Axles[arg1]
+    local5 = local4.SuspensionSpringStrength
+    local6 = CalculateMassOnAxle(local3, local2, arg1)
+    local7 = (local5 * local4.SuspensionMaxLength - local6 / 2.0 * 9.81) / local5
+    return local7
+
+def EstimateFrontRideHeight(self, arg1):
+    local2 = EstimateRideHeight(arg1, 0.0)
+    return local2
+
+def EstimateNaturalFrequency(self, arg1, arg2):
+    local3 = vehicle.GetMass(self)
+    local4 = vehicle.GetChassis(self)
+    local5 = local4.Axles[arg1]
+    local6 = local5.SuspensionSpringStrength
+    if arg2:
+        local6 = local6 + local5.AntiRollBarStiffness
+    local7 = CalculateMassOnAxle(local4, local3, arg1)
+    local8 = 1.0 / (2.0 * math.Pi()) * math.Sqrt(local6 / (local7 / 2.0))
+    return local8
+
+def EstimateRearCompressionDamping(self, arg1):
+    local2 = EstimateCriticalDamping(arg1, 1.0, true)
+    return local2
+
+def Init(self):
+    vehiclemanager.SetStatAnalyzerScriptGameObject(self)
+    vehiclemanager.AddEstimateFunction("RammingVehicle", "SimulateRammingVehicle")
+    vehiclemanager.AddEstimateFunction("GettingRammed", "SimulateGettingRammed")
+    vehiclemanager.AddEstimateFunction("TopSpeed", "EstimateTopSpeed")
+    vehiclemanager.AddEstimateFunction("Acceleration", "SimulateAcceleration")
+    vehiclemanager.AddEstimateFunction("Front Natural Frequency", "EstimateFrontNaturalFrequency")
+    vehiclemanager.AddEstimateFunction("Rear Natural Frequency", "EstimateRearNaturalFrequency")
+    vehiclemanager.AddEstimateFunction("Front ARBed Frequency", "EstimateFrontArbedFrequency")
+    vehiclemanager.AddEstimateFunction("Rear ARBed Frequency", "EstimateRearArbedFrequency")
+    vehiclemanager.AddEstimateFunction("Front Ride Height", "EstimateFrontRideHeight")
+    vehiclemanager.AddEstimateFunction("Rear Ride Height", "EstimateRearRideHeight")
+    vehiclemanager.AddEstimateFunction("Front Compression Damping", "EstimateFrontCompressionDamping")
+    vehiclemanager.AddEstimateFunction("Front Relaxation Damping", "EstimateFrontRelaxationDamping")
+    vehiclemanager.AddEstimateFunction("Rear Compression Damping", "EstimateRearCompressionDamping")
+    vehiclemanager.AddEstimateFunction("Rear Relaxation Damping", "EstimateRearRelaxationDamping")
+
+def EstimateTopSpeed(self, arg1):
+    local2 = 0.0
+    local3 = vehicle.GetChassis(arg1)
+    local2 = local3.AeroSpeedCap
+    return local2
+
+def EstimateRearRideHeight(self, arg1):
+    local2 = EstimateRideHeight(arg1, 1.0)
+    return local2
+
+def EstimateFrontArbedFrequency(self, arg1):
+    local2 = EstimateNaturalFrequency(arg1, 0.0, true)
+    return local2
+
+def SimulateGettingRammed(self, arg1):
+    local2 = 100.0 / 3.6
+    local3 = 2000.0
+    local4 = 1.0
+    local5 = lib_entity_proxy.GetCollision(arg1)
+    local6 = lib_entity_proxy.GetBodyHealth(arg1)
+    local7 = scriptgo.GetProperties(local5)
+    local4 = local4 * local7.rammingDamageUpgradeReduction
+    local8 = scriptgo.Call(local6, @F48A1A14)
+    local9 = scriptgo.Call(local6, @209F9B50)
+    local10 = lib_damage.CalculateRammingDamage(local2, local3, local4, local9 / 3.6, local8)
+    local11 = scriptgo.Call1(local6, @4158F26C, local10)
+    return local11
+
+def SimulateAcceleration(self, arg1):
+    local2 = scriptgo.GetProperties(lib_entity_proxy.SafeGetChild(arg1, "script.physics.drivetrain.properties"))
+    if local2 == none:
+        return 1000.0
+    local3 = lib_entity_proxy.SafeGetChild(arg1, "script.physics.aerodynamics")
+    local4 = vehicle.GetChassis(arg1)
+    local5 = local4.Wheels
+    local6 = vehicle.GetMass(arg1)
+    local7 = local4.Drivetrain
+    local8 = local7.EngineRpms
+    local9 = local7.EngineInertia
+    local10 = local7.GearRatios
+    local11 = local7.AutoUpshifts
+    local12 = 1.0
+    local13 = 100.0 / 3.6
+    local14 = 0.0
+    local15 = 1.0 / 30.0
+    local16 = 0.0
+    local17 = 0.0
+    local19 = 0.0
+    local20 = 1.0
+    local18 = len(local5)
+    while local18 > local19:
+        local16 = local16 + local5[local19].Inertia
+        local17 = local17 + local5[local19].Radius
+        local19 = local20 + local19
+    local17 = local17 / len(local5)
+    local21 = 1.0
+    local22 = local7.NeutralGearIndex + local21
+    local23 = local10[local22]
+    local24 = local16 + local9 * local23 * local23
+    local25 = local6 + local24 / local17 / local17
+    local26 = local11[local21 - 1.0]
+    local27 = len(local11) + 1.0
+    local28 = local8[0.0]
+    local29 = local8[len(local8) - 1.0]
+    while local13 > local12:
+        if local12 > local26 and local27 > local21:
+            local21 = local21 + 1.0
+            local22 = local22 + 1.0
+            local23 = local10[local22]
+            local24 = local16 + local9 * local23 * local23
+            local25 = local6 + local24 / local17 / local17
+            if local21 == local27:
+                local26 = 1E+08
+            else:
+                local26 = local11[local21 - 1.0]
+        local30 = math.Clamp(9.549296 * local12 / local17 * local23, local28, local29)
+        local31 = vehicle.GenerateEngineTorque(arg1, local30)
+        local32 = local31 * local30 / 9.549296
+        local33 = 0.013 * local6 * 9.81
+        local34 = vector.Set(local12, 0.0, 0.0, 0.0)
+        local35 = scriptgo.Call2(local3, @29E932B7, arg1, local34)
+        if not local35:
+            return 0.0
+        local36 = (local32 - (local33 + local35) * local12) / (local25 * local12)
+        local12 = local12 + local36 * local15
+        local14 = local14 + local15
+    return local14
+
+def EstimateFrontRelaxationDamping(self, arg1):
+    local2 = EstimateCriticalDamping(arg1, 0.0, false)
+    return local2
+
+def EstimateCriticalDamping(self, arg1, arg2):
+    local3 = vehicle.GetMass(self)
+    local4 = vehicle.GetChassis(self)
+    local5 = local4.Axles[arg1]
+    local6 = local5.SuspensionSpringStrength
+    local7 = 0.0
+    if arg2:
+        local7 = local5.SuspensionCompressionDamper
+    else:
+        local7 = local5.SuspensionRelaxationDamper
+    local8 = CalculateMassOnAxle(local4, local3, arg1)
+    local9 = 2.0 * math.Sqrt(local8 / 2.0 * local6)
+    return local7 / local9
+
+def EstimateRearNaturalFrequency(self, arg1):
+    local2 = EstimateNaturalFrequency(arg1, 1.0, false)
+    return local2

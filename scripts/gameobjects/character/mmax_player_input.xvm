@@ -1,0 +1,43 @@
+module mmax_player_input
+import @58351C01
+import @3BDB5A3B
+
+def ForceThrowOutFromVehicle(self):
+    game.QueueAct(character.GetPlayer(), "ACT_FORCE_EJECT")
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+
+def EnableSprinting(self):
+    local1 = scriptgo.GetProperties(self)
+    game.ClearBlackboardValueFromObject(local1.max, @0079255B)
+
+def OnPlayerEnterVehicle(self):
+    scriptgo.SetUpdateFunction(self, "")
+
+def Destroy(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "")
+
+def OnPlayerExitVehicle(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def DisableSprinting(self):
+    local1 = scriptgo.GetProperties(self)
+    game.SetBlackboardValueToObject(local1.max, @0079255B, 1.0)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if none != local2.weapon_handling:
+        if none == character.GetVehicle(local2.max):
+            if not character.IsStateBitSet(local2.max, 36.0):
+                if input.IsButtonClicked(@EDB57921):
+                    game.SendEventNone("player.flashlight.toggle")
+                if not character.IsContextBitSet(local2.max, 3.0):
+                    lib_player_input.CheckWeaponInput(self, false, arg1)
+    else:
+        local2.weapon_handling = lib_entity_proxy.GetPlayerWeaponHandling()

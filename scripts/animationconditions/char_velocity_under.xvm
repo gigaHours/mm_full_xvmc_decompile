@@ -1,0 +1,7 @@
+module char_velocity_under
+
+def Evaluate(self, arg1):
+    local2 = vector.Length(character.GetVelocityLS(self))
+    if arg1.Property0 > local2:
+        return 1.0
+    return 0.0

@@ -1,0 +1,17 @@
+module send_event_if_register_is_value
+
+def Enter(self, arg1):
+    doAction(self, arg1)
+
+def Exit(self, arg1):
+    doAction(self, arg1)
+
+def doAction(self, arg1):
+    local2 = character.GetFloatRegister(self, arg1.RegisterIndex)
+    if local2 == arg1.RegisterValue and arg1.EventOnTrue:
+        game.PostEventNone(arg1.EventOnTrue)
+    elif arg1.EventOnFalse:
+        game.PostEventNone(arg1.EventOnFalse)
+
+def Update(self, arg1):
+    doAction(self, arg1)

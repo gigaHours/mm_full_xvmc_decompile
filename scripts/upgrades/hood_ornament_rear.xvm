@@ -1,0 +1,10 @@
+module hood_ornament_rear
+import @D44EFFF4
+import @46F71871
+
+def DeactivateEnhacementLevel(self, arg1):
+    lib_hoodornament.DeactivateHoodOrnamentUpgrade(self, arg1)
+
+def ActivateEnhacementLevel(self, arg1):
+    lib_hoodornament.ActivateHoodOrnamentUpgrade(self, arg1)
+    game.SendEvent("hood_ornament_rear.loaded", "")

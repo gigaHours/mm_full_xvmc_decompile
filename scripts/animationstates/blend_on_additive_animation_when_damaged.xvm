@@ -1,0 +1,40 @@
+module blend_on_additive_animation_when_damaged
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    if animation.GetSamplerCount(arg3) > 1.0:
+        local4 = animation.GetSampler(arg3, 0.0)
+        local5 = animation.GetSampler(arg3, 1.0)
+        local6 = local4.Time / local4.Length
+        local5.Time = local6 * local5.Length
+        if local5.Time > 0.1:
+            local7 = character.GetGlobalXvmFloat(self, 15.0)
+            local8 = character.GetAbsoluteHealth(self)
+            character.SetGlobalXvmFloat(self, 15.0, local8)
+            if local7 > local8:
+                if false:
+                    debug.LogInfo("lost health!", [])
+                character.SetGlobalXvmFloat(self, 16.0, 1.0)
+                character.SendTrackEvent(self, "snd_scav_takehit_critical", "")
+                character.SendTrackEvent(self, "dia_npc_hitreaction_head_heavy", "")
+            local9 = character.GetGlobalXvmFloat(self, 16.0)
+            if false:
+                debug.LogInfo("desired_additive_weight %f", [local9])
+            if local5.Weight == local9:
+                character.SetGlobalXvmFloat(self, 16.0, 0.0)
+            if local9 > local5.Weight:
+                local5.Weight = math.Clamp01(math.SpeedLerp(local5.Weight, local9, 15.0, arg2))
+                if false:
+                    debug.LogInfo("going up!", [])
+            elif local5.Weight > local9:
+                local5.Weight = math.Clamp01(math.SpeedLerp(local5.Weight, local9, 1.0, arg2))
+                if false:
+                    debug.LogInfo("going down!", [])
+            elif false:
+                debug.LogInfo("correct weight!", [])
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    if animation.GetSamplerCount(arg4) > 1.0:
+        animation.GetSampler(arg4, 1.0).Weight = 0.0
+        local5 = character.GetAbsoluteHealth(self)
+        character.SetGlobalXvmFloat(self, 15.0, local5)
+        character.SetGlobalXvmFloat(self, 16.0, 0.0)

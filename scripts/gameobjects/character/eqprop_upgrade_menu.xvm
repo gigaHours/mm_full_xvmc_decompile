@@ -1,0 +1,184 @@
+module eqprop_upgrade_menu
+
+def COL_YELLOW(self):
+    return vector.Set(1.0, 1.0, 0.0, self)
+
+def GetSelectedId(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.selected_id
+
+def GetMenuLevel(self):
+    return [string.FormatFloat("%s %f", [self, 0.0], "%1.0f"), string.FormatFloat("%s %f", [self, 1.0], "%1.0f"), string.FormatFloat("%s %f", [self, 2.0], "%1.0f"), string.FormatFloat("%s %f", [self, 3.0], "%1.0f"), string.FormatFloat("%s %f", [self, 4.0], "%1.0f"), string.FormatFloat("%s %f", [self, 5.0], "%1.0f")]
+
+def Unload(self):
+    pass
+
+def COL_WHITE(self):
+    return vector.Set(1.0, 1.0, 1.0, self)
+
+def GetMenuIndexLimit(self):
+    local1 = scriptgo.GetProperties(self)
+    return len(local1.menu_levels[local1.menu_level]) - 1.0
+
+def COL_BLACK(self):
+    return vector.Set(0.0, 0.0, 0.0, self)
+
+def GoEnter(self):
+    local1 = scriptgo.GetProperties(self)
+    Debug(self, "GoEnter", [])
+    local2 = GetSelectedId(self)
+    if local1.menu_level == 0.0:
+        local1.menu_level = local2 + 1.0
+    else:
+        character.SetUpgradeLevel(character.GetPlayer(), local1.upgrade_names[local1.menu_level], local2)
+        GoExit(self)
+    SetSelectedId(self, 0.0)
+
+def GoExit(self):
+    local1 = scriptgo.GetProperties(self)
+    Debug(self, "GoExit", [])
+    if local1.menu_level == 0.0:
+        MenuEnd(self)
+    else:
+        local1.menu_level = 0.0
+    SetSelectedId(self, 0.0)
+
+def GoDown(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetMenuIndexLimit(self)
+    local3 = GetSelectedId(self)
+    if local3 >= local2:
+        SetSelectedId(self, 0.0)
+    else:
+        local4 = math.Clamp(local3 + 1.0, 0.0, local2)
+        SetSelectedId(self, local4)
+
+def PrintUpgradeLevel(self, arg1, arg2):
+    local3 = vector.Set(self.x + 0.19, self.y, self.z, 0.0)
+    debug.DrawText(self, arg1, [], COL_WHITE(1.0))
+    debug.DrawText(local3, "%f", [character.GetUpgradeLevel(character.GetPlayer(), arg2)], COL_WHITE(1.0))
+    return self.y + 0.025
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.enabled = false
+
+def SetSelectedId(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.selected_id = arg1
+
+def Debug(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.debug_enabled:
+        debug.LogInfo(arg1, arg2)
+
+def GoUp(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetMenuIndexLimit(self)
+    local3 = GetSelectedId(self)
+    if 0.0 >= local3:
+        SetSelectedId(self, local2)
+    else:
+        local4 = math.Clamp(local3 - 1.0, 0.0, local2)
+        SetSelectedId(self, local4)
+
+def COL_RED(self):
+    return vector.Set(1.0, 0.0, 0.0, self)
+
+def UpdateRender(self, arg1):
+    arg1 = 1.0 / 30.0
+    local2 = scriptgo.GetProperties(self)
+    local2.time_enabled = local2.time_enabled + arg1
+    local2.time_since_btn = local2.time_since_btn + arg1
+    local3 = input.GetButtonInput(@B7CF8677)
+    local4 = input.GetButtonInput(@BA3735A7)
+    local5 = input.GetButtonInput(@CC4952E6)
+    local6 = input.GetButtonInput(@32A374DF)
+    if local3 == 0.0 and local4 == 0.0:
+        local2.wait_for_btn_release = false
+    if local2.time_since_btn > 0.25:
+        if local3 and (not local2.wait_for_btn_release):
+            GoEnter(self)
+            local2.time_since_btn = 0.0
+            local2.wait_for_btn_release = true
+        elif local2.time_enabled > 1.0 and local4 > 0.0 and (not local2.wait_for_btn_release):
+            GoExit(self)
+            local2.time_since_btn = 0.0
+            local2.wait_for_btn_release = true
+        elif local5 > 0.0:
+            GoUp(self)
+            local2.time_since_btn = 0.0
+        elif local6 > 0.0:
+            GoDown(self)
+            local2.time_since_btn = 0.0
+    local7 = vector.Set(0.2, 0.0, 0.0, 0.0)
+    local8 = vector.Set(0.2, 0.0, 0.0, 0.0)
+    debug.DrawRect(local7, 0.26, 1.0, COL_BLACK(0.4), true)
+    debug.DrawText(local8, local2.upgrade_names[local2.menu_level], [], COL_YELLOW(1.0))
+    local8.y = local8.y + 0.03
+    local9 = 0.0
+    local10 = GetMenuIndexLimit(self)
+    local11 = GetSelectedId(self)
+    while local10 >= local9:
+        local12 = vector.Set(local8.x + 0.1, local8.y, 0.0, 0.0)
+        local13 = COL_WHITE(1.0)
+        if local11 == local9:
+            local13 = COL_RED(1.0)
+        debug.DrawText(local8, local2.menu_levels[local2.menu_level][local9], [], local13)
+        local8.y = local8.y + 0.025
+        local9 = local9 + 1.0
+    local7 = vector.Set(0.5, 0.0, 0.0, 0.0)
+    local14 = vector.Set(0.5, 0.0, 0.0, 0.0)
+    debug.DrawRect(local7, 0.26, 1.0, COL_BLACK(0.4), true)
+    debug.DrawText(local14, "STATS", [], COL_YELLOW(1.0))
+    local14.y = local14.y + 0.03
+    local15 = local2.upgrade_names
+    local9 = 0.0
+    local17 = 1.0
+    local16 = len(local15) - 1.0
+    while local16 > local9:
+        local14.y = PrintUpgradeLevel(local14, local15[local9 + 1.0], local15[local9 + 1.0])
+        local9 = local17 + local9
+
+def MenuStart(self):
+    local1 = scriptgo.GetProperties(self)
+    Debug(self, "MENU START sdfaegaegaeg", [])
+    scriptgo.SetUpdateFunction(self, "Update")
+    scriptgo.SetRenderFunction(self, "UpdateRender")
+    local1.start_before_pause = true
+    local1.start_before_pause_timer = 0.1
+    local1.enabled = true
+    local1.debug_enabled = true
+    local1.time_enabled = 0.0
+    local1.time_since_btn = 0.0
+    local1.wait_for_btn_release = false
+    local1.menu_level = 0.0
+    local1.selected_id = 0.0
+    local1.selected_id_last = 0.0
+    local1.upgrade_names = ["- MENU -", "Melee", "Bullet", "Fire", "Piercing", "Explosive", "Impact", "BrutalityCap", "JawBreakerBrutality", "PerfectParryBrutality", "crit_chance_level", "critical_damage_level", "bleed_chance_level", "bleed_damage_level", "fists_damage_level", "counter_damage_level", "meleeweapon_damage_level", "berserk_chance_level", "furious_chance_level", "brutal_chance_level", "focused_chance_level", "protective_chance_level", "weapon_mastery_level", "guard_protection_level", "melee_weapon_guard_break_level", "SEG_JAWBREAKER", "BrutalityMultiplier", "perfect_parry_level", "jaw_breaker_level", "melee_weapon_disarm_level", "knife_disarm_level", "strangle_level", "retaliation_chance_level"]
+    local1.menu_levels = [[local1.upgrade_names[1.0], local1.upgrade_names[2.0], local1.upgrade_names[3.0], local1.upgrade_names[4.0], local1.upgrade_names[5.0], local1.upgrade_names[6.0], local1.upgrade_names[7.0], local1.upgrade_names[8.0], local1.upgrade_names[9.0], local1.upgrade_names[10.0], local1.upgrade_names[11.0], local1.upgrade_names[12.0], local1.upgrade_names[13.0], local1.upgrade_names[14.0], local1.upgrade_names[15.0], local1.upgrade_names[16.0], local1.upgrade_names[17.0], local1.upgrade_names[18.0], local1.upgrade_names[19.0], local1.upgrade_names[20.0], local1.upgrade_names[21.0], local1.upgrade_names[22.0], local1.upgrade_names[23.0], local1.upgrade_names[24.0], local1.upgrade_names[25.0], local1.upgrade_names[26.0], local1.upgrade_names[27.0], local1.upgrade_names[28.0], local1.upgrade_names[29.0], local1.upgrade_names[30.0], local1.upgrade_names[31.0], local1.upgrade_names[32.0]], GetMenuLevel(local1.upgrade_names[1.0]), GetMenuLevel(local1.upgrade_names[2.0]), GetMenuLevel(local1.upgrade_names[3.0]), GetMenuLevel(local1.upgrade_names[4.0]), GetMenuLevel(local1.upgrade_names[5.0]), GetMenuLevel(local1.upgrade_names[6.0]), GetMenuLevel(local1.upgrade_names[7.0]), GetMenuLevel(local1.upgrade_names[8.0]), GetMenuLevel(local1.upgrade_names[9.0]), GetMenuLevel(local1.upgrade_names[10.0]), GetMenuLevel(local1.upgrade_names[11.0]), GetMenuLevel(local1.upgrade_names[12.0]), GetMenuLevel(local1.upgrade_names[13.0]), GetMenuLevel(local1.upgrade_names[14.0]), GetMenuLevel(local1.upgrade_names[15.0]), GetMenuLevel(local1.upgrade_names[16.0]), GetMenuLevel(local1.upgrade_names[17.0]), GetMenuLevel(local1.upgrade_names[18.0]), GetMenuLevel(local1.upgrade_names[19.0]), GetMenuLevel(local1.upgrade_names[20.0]), GetMenuLevel(local1.upgrade_names[21.0]), GetMenuLevel(local1.upgrade_names[22.0]), GetMenuLevel(local1.upgrade_names[23.0]), GetMenuLevel(local1.upgrade_names[24.0]), GetMenuLevel(local1.upgrade_names[25.0]), GetMenuLevel(local1.upgrade_names[26.0]), GetMenuLevel(local1.upgrade_names[27.0]), GetMenuLevel(local1.upgrade_names[28.0]), GetMenuLevel(local1.upgrade_names[29.0]), GetMenuLevel(local1.upgrade_names[30.0]), GetMenuLevel(local1.upgrade_names[31.0]), GetMenuLevel(local1.upgrade_names[32.0])]
+
+def MenuEnd(self):
+    local1 = scriptgo.GetProperties(self)
+    Debug(self, "MENU END", [])
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.SetRenderFunction(self, "")
+    game.SendEvent("resume_game", "")
+    game.SendEvent("menu.eqprop.upgrade.end", "")
+    local1.enabled = false
+    local1.menu_level = 0.0
+
+def Reset(self):
+    pass
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.start_before_pause:
+        if local2.start_before_pause_timer > 0.0:
+            local2.start_before_pause_timer = local2.start_before_pause_timer - arg1
+        else:
+            game.SendEvent("pause_game", "")
+            local2.start_before_pause = false
+
+def COL_GREY(self):
+    return vector.Set(0.7, 0.7, 0.7, self)

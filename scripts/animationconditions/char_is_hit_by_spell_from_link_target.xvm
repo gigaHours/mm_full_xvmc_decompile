@@ -1,0 +1,16 @@
+module char_is_hit_by_spell_from_link_target
+
+def Evaluate(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    if local2:
+        local3 = character.GetLatestSpellInfo(self)
+        if local3.IsCurrent > 0.0:
+            if local3.CollidedObject:
+                if game.IsObjectEqualTo(local2, local3.CollidedObject):
+                    if arg1.Property0:
+                        if local3.SpellName:
+                            if local3.SpellName == game.GameHashString(arg1.Property0):
+                                return 1.0
+                            return 0.0
+                    return 1.0
+    return 0.0

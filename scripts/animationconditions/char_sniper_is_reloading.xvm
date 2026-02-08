@@ -1,0 +1,10 @@
+module char_sniper_is_reloading
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    if local2:
+        local3 = lib_entity_proxy.GetSniper(local2)
+        if local3:
+            if scriptgo.Call(local3, @681DA6FC):
+                return 1.0
+    return 0.0

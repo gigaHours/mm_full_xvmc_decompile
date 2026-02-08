@@ -1,0 +1,7 @@
+module thunderstab_detect_stab
+
+def DoIt(self, arg1):
+    local2 = character.GetWieldedObject(arg1)
+    if local2:
+        character.RemoveObject(arg1, local2)
+        scriptgo.PostEvent(self, @8A1816DE)

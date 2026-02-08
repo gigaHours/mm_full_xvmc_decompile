@@ -1,0 +1,126 @@
+module exploration_balloon
+import @78DDD3EE
+import @42D0E955
+
+def EnterAlignedTransition(self, arg1, arg2):
+    local3 = GET_MIN_ELEVATION(self)
+    local4 = GET_MAX_ELEVATION(self)
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    if lib_camera.ALIGN_CURR_SRC_AZIM_INIT_DST_ELEV() == self.EnterTransitionAlignmentType:
+        camera.SetOffsetDeltaOrbit(self, 0.0, self.InitialOffsetElevation - self.OffsetElevation)
+    else:
+        lib_camera.AlignElevationToSourceCameraClamped(self, arg1, arg2, local3, local4)
+    TransitionResetState(self, arg2)
+    lib_camera.ResetDamping(self)
+
+def Init(self):
+    self.Properties.SmoothFOV = 50.0
+    ResetState(self)
+    lib_camera.ResetDamping(self)
+    self.Properties.initial_height = 0.0
+
+def PropertyWithDefault(self, arg1):
+    if self == none:
+        return arg1
+    return self
+
+def TransitionResetState(self, arg1):
+    ResetState(self)
+    if PropertyWithDefault(self.Properties.auto_align_vista_target, false):
+        lib_camera.VistaCameraReset(self, false, arg1)
+        lib_camera.UpdateVistaCam(self, arg1, 0.0, false, 0.0)
+
+def EnterUnalignedTransition(self, arg1):
+    TransitionResetState(self, arg1)
+    lib_camera.ResetDamping(self)
+
+def GET_MAX_ELEVATION(self):
+    return math.DegToRad(PropertyWithDefault(self.Properties.max_elevation, 75.0))
+
+def GET_MIN_ELEVATION(self):
+    return math.DegToRad(PropertyWithDefault(self.Properties.min_elevation, -30.0))
+
+def ResetState(self):
+    self.Properties.TimeSinceAngInput = 0.0
+    self.Properties.TimeSpentMoving = 0.0
+    self.Properties.AccelerationProgress = 0.0
+    self.Properties.in_camera_reset = false
+    self.Properties.use_delta_min_value = false
+    self.Properties.has_been_up = false
+
+def Update(self, arg1):
+    local2 = PropertyWithDefault(self.Properties.angular_damping, 0.0)
+    local3 = PropertyWithDefault(self.Properties.min_direct_speed, 0.025)
+    local4 = PropertyWithDefault(self.Properties.max_direct_speed, 2.0)
+    local5 = PropertyWithDefault(self.Properties.min_top_speed, 0.1)
+    local6 = PropertyWithDefault(self.Properties.max_top_speed, 5.0)
+    local7 = 0.0
+    local8 = 1.0
+    local9 = 2.0
+    local10 = math.DegToRad(110.0)
+    local11 = GET_MIN_ELEVATION(self)
+    local12 = GET_MAX_ELEVATION(self)
+    local13 = self.Dt
+    local14 = game.GetUpdateSpeed()
+    if local14 > 0.0:
+        local13 = self.Dt / local14
+    local15 = 1000000.0
+    if local13 > 0.0:
+        local15 = 1.0 / local13
+    local16 = character.GetPlayer()
+    if animation.IsWithinSegment(local16, @E063F6A0, @3B1B7E2B):
+        return
+    local17 = input.GetLookInput()
+    input.DebugInputHistory(local17, local17)
+    if self.EnterTransitionBlendOption == lib_camera.BLEND_OPTION_DESTINATION_ACTIVE():
+        local17 = vector.Scale(local17, self.RotationWeight)
+    local18 = self.RotationWeight != 1.0 or self.TranslationWeight != 1.0
+    self.Properties.TimeSinceAngInput = self.Properties.TimeSinceAngInput + local13
+    self.Properties.TimeSpentMoving = self.Properties.TimeSpentMoving + local13
+    local19 = vector.Sub(self.CameraBaseTransform.r3, self.PreviousBaseTransform.r3)
+    local19 = vector.Scale(local19, local15)
+    local19.y = 0.0
+    local20 = vector.Length(local19)
+    local21 = vector.Dot(self.CameraBaseTransform.r2, self.PreviousBaseTransform.r0) * local15
+    local22 = math.Abs(local17.x) + math.Abs(local17.y)
+    local23 = local20 >= 1.0 or local21 > 7.0
+    if local22 > 0.0:
+        self.Properties.TimeSinceAngInput = 0.0
+        self.Properties.AccelerationProgress = math.Clamp(self.Properties.AccelerationProgress + local13 * 1.25, 0.2, 1.0)
+    else:
+        self.Properties.AccelerationProgress = 0.0
+    if not local23:
+        self.Properties.TimeSpentMoving = 0.0
+    local24 = self.Properties.TimeSinceAngInput
+    local25 = self.Properties.TimeSpentMoving
+    local26 = input.GetSensitivity()
+    local27 = local6
+    local28 = local6 * 0.8
+    local29 = -local17.x * local26.x * local13 * local27 * self.Properties.AccelerationProgress
+    local30 = -local17.y * local26.y * local13 * local28 * self.Properties.AccelerationProgress
+    if local2 != 0.0:
+        local31 = lib_camera.GetDeltaAzElDamped(self, local29, local30, local2, local13)
+        local29 = local31[0.0]
+        local30 = local31[1.0]
+    local32 = game.GetBlackboardValueFromObject(character.GetPlayer(), @878B6C77)
+    local33 = game.GetTransform(character.GetPlayer()).r3.y - local32
+    if local33 > self.Properties.max_offset:
+        local33 = self.Properties.max_offset
+        self.Properties.has_been_up = true
+    elif self.Properties.has_been_up:
+        self.Properties.has_been_up = false
+        self.Properties.use_delta_min_value = true
+    if 0.0 > local33:
+        local33 = 0.0
+    camera.SetOffsetDistance(self, local33 + self.InitialOffsetDistance)
+    local34 = self.OffsetElevation
+    local35 = local30 + local34
+    if local35 > local12:
+        local30 = local12 - local34
+    elif local11 > local35:
+        local30 = local11 - local34
+    local36 = camera.GetInitialOffsetDistance(self)
+    camera.SetOffsetDeltaOrbit(self, local29, local30)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    arg1.FOV = self.Properties.SmoothFOV
+    self.Properties.FirstUpdateSinceEnter = false

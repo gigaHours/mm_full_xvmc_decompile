@@ -1,0 +1,23 @@
+module chum_veh_can_relax
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    if none != local2:
+        local3 = game.GetTransform(local2)
+        local4 = character.GetPlayer()
+        if none != local4:
+            local5 = vector.Distance(local3.r3, game.GetTransform(local4).r3)
+            if 5.0 > local5:
+                return 0.0
+        local6 = vector.Dot(local3.r1, vector.Set(0.0, 1.0, 0.0, 0.0))
+        if 0.9 > local6:
+            return 0.0
+        local7 = lib_entity_proxy.GetHarpoon(local2)
+        if none != local7:
+            if not scriptgo.Call(local7, @6F05B46B):
+                return 0.0
+        if scriptgo.GetProperties(lib_entity_proxy.GetChumGameplay(self)).vehicle_is_hot:
+            return 0.0
+    else:
+        return 0.0
+    return 1.0

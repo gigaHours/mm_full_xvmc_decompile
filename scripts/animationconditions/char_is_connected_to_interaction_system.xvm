@@ -1,0 +1,8 @@
+module char_is_connected_to_interaction_system
+
+def Evaluate(self, arg1):
+    local2 = character.GetInteractionUserProxy(self)
+    local3 = interaction.GetCurrentContext(local2)
+    if local3:
+        return 1.0
+    return 0.0

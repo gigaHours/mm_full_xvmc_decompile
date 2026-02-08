@@ -1,0 +1,9 @@
+module send_act_on_input
+import @BAFDB405
+
+def Enter(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    if input.IsButtonClickedBuffered(game.GameHashString(arg1.InputButton), 0.3):
+        game.QueueAct(self, arg1.ActSuccess)

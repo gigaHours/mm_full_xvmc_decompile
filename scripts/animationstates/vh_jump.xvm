@@ -1,0 +1,47 @@
+module vh_jump
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = vehicle.GetProperties(self)
+    if vehicle.IsPlayerVehicle(self):
+        if vehicle.GetWheelContactRatio(self) == 0.0:
+            local4.jump_inair = 1.0
+            local5 = 10.5 + 100.0 * vehicle.GetWheelContactRatio(self)
+            local6 = 1.5 + 10.0 * vehicle.GetWheelContactRatio(self)
+            if local5 > 0.0:
+                local7 = local5 * arg2
+                local8 = local6 * arg2
+                local9 = game.GetTransform(self)
+                local10 = 0.0 > local9.r1.y
+                local11 = 0.25 * local9.r0.y
+                if local10:
+                    if local11 > 0.0:
+                        local11 = 2.0 - local11
+                    else:
+                        local11 = -2.0 - local11
+                local12 = local11 * -local8
+                local13 = local9.r2.y
+                local14 = 0.025 + 0.05 * math.Abs(local13) + math.Clamp(local13 * local7, 0.0, 0.1)
+                if -0.2 > local13 or local13 > 0.2:
+                    local14 = 0.0
+                if vehicle.GetWheelContactRatio(self) > 0.0:
+                    local14 = 1500.0
+                local15 = 0.0
+                if vehicle.GetWheelContactRatio(self) == 0.0:
+                    local15 = vector.Length(vehicle.GetAngularVelocity(self))
+                local16 = 1.0 / (1.0 + local15 / local8)
+                local17 = 1.0 / (1.0 + local15 / local7)
+                local16 = local16 * math.Sqrt(math.Abs(local13))
+                if vehicle.GetWheelContactRatio(self) > 0.0:
+                    local16 = 0.5
+                local17 = local17 * math.Sqrt(math.Abs(local11))
+                local18 = vector.Set(0.0, 0.0, 0.0, 0.0)
+                local19 = vector.Set(local16, 0.0, local17, 0.0)
+                vehicle.SetAnimCmdWeights(self, local18, local19)
+                local20 = matrix.RotationMatrix(0.0, local14, local12)
+                vehicle.SetAnimCmdDeltaFrame(self, local20)
+
+def OnEnter(self, arg1):
+    vehicle.StartAnimCmd(self)
+    vehicle.SetAnimCmdInAirMotion(self, true)
+    local2 = vehicle.GetProperties(self)
+    local2.jump_inair = 0.0

@@ -1,0 +1,158 @@
+module harp_state_shoot
+import @9B4F6985
+import @3D3D0D9B
+import @F76070AE
+
+def Enter(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.weapon = arg1
+    local3 = scriptgo.GetProperties(arg1)
+    local3.manual_target_pos = none
+    if local3.use_thunderstick_ammo:
+        local3.fired_thunderstick = true
+        if not local3.input_aim_held:
+            lib_weapon.StopCam(arg1, lib_harpoon.CAM_AIM())
+    else:
+        local3.fired_thunderstick = false
+        if not local3.input_aim_held:
+            lib_weapon.StartCam(arg1, lib_harpoon.CAM_TETH())
+    lib_harpoon.ShowAnchorPoint(arg1)
+    lib_weapon.StopSlowMo(arg1, 0.0)
+    if none != local3.projectile_robj:
+        rigidobject.Show(local3.projectile_robj)
+    local4 = lib_harpoon.GetProjectileTransformByGun(arg1)
+    if not local3.target:
+        local5 = camera.GetCameraTransform()
+        local6 = scriptgo.Call(arg1, @241A610A) * 1.5
+        local7 = lib_harpoon.GetAimSourcePos(arg1)
+        local8 = vector.Add(local5.r3, vector.Scale(local5.r2, -local6))
+        local9 = lib_weapon.RayCastPosition(arg1, none, local7, local8)
+        local3.manual_target_pos = local9
+    else:
+        local9 = lib_harpoon.GetTargetPos(arg1)
+    local10 = local4.r3
+    local11 = vector.Sub(local9, local10)
+    local12 = vector.Length(local11)
+    local13 = vector.Normalize(local11)
+    local3.projectile_dir_last = local13
+    local3.projectile_path_height = lib_harpoon.GetProjectilePathHeight(arg1, local12)
+    local3.projectile_path_start_distance = local12
+    local3.projectile_base_velocity = 40.0
+    local3.projectile_acceleration = 25.0
+    local14 = vector.Add(local10, vector.Scale(local13, 0.5))
+    local15 = matrix.MatrixY(vector.Set(0.0, 1.0, 0.0, 0.0), local13, local14)
+    if local3.muzzle_effect != none:
+        effect.EffectPlayAttached(local3.car, local15, local3.muzzle_effect)
+    vehicle.SendVehicleSoundEvent(local3.car, @0BA8E2EB)
+    local16 = vector.Scale(local13, -1000.0)
+    physics.ApplyImpulse(local3.car, local16, local10)
+    local3.projectile_cam_pos = local10
+    local3.projectile_target = local10
+    local17 = false
+    if local3.target:
+        local17 = scriptgo.Call(local3.target, "\rt9,")
+    if local3.fired_thunderstick:
+        character.ConsumeInventoryItem(character.GetPlayer(), "thunderstick_cap", 1.0)
+        effect.SpawnerSetWorldTransform(local2.thunderstick_trail_effect, local15)
+        effect.SpawnerPlay(local2.thunderstick_trail_effect)
+    hydra.HydraSendVehicleEvent(10.0)
+
+def UpdateProjectilePos(self, arg1):
+    local2 = 0.3
+    local3 = scriptgo.GetProperties(self)
+    local4 = local3.weapon
+    local5 = scriptgo.GetProperties(local4)
+    local6 = game.GetRenderTransform(local5.projectile_robj, arg1).r3
+    local7 = local5.fired_thunderstick
+    local8 = lib_harpoon.GetAttachRenderPos(local4, arg1)
+    local9 = lib_harpoon.GetProjectileRenderTransformByGun(local4, arg1).r3
+    if local5.target:
+        local10 = lib_harpoon.GetTargetRenderPos(local4, arg1)
+    elif local5.manual_target_pos:
+        local10 = local5.manual_target_pos
+    if not local10:
+        return false
+    local11 = vector.Sub(local10, local8)
+    local12 = vector.Length(local11)
+    local12 = math.Max(local12 - lib_harpoon.HOOK_LENGTH(), 0.0)
+    local13 = vector.Normalize(local11)
+    local14 = local5.state_time * local5.projectile_base_velocity + local5.state_time * local5.state_time * local5.projectile_acceleration / 2.0
+    local15 = local14
+    if local14 > local12:
+        local14 = local12
+        if local7:
+            lib_weapon.ChangeState(local4, local5.state_explode)
+        elif local5.target:
+            local16 = scriptgo.Call(local5.target, @D281A61A)
+            if none != local16:
+                if vehicle.IsVehicle(local16):
+                    ai.SetAiEntityBlackboardObject(local5.car, "HarpoonVictim", local16)
+            else:
+                debug.LogWarning("veh_harpoon", "NO targetPhysObj to attach to")
+            local17 = game.GetTransform(local16)
+            local5.proj_attach_dir_local = matrix.DirectionWorldToLocal(local17, local13)
+            scriptgo.Call1(local5.target, @71067BFB, local4)
+            lib_harpoon.EnableConstraintToTarget(local4)
+            lib_weapon.ChangeState(local4, local5.state_hooked)
+        else:
+            lib_weapon.ChangeState(local4, local5.state_rollback)
+    local18 = lib_harpoon.CAMERA_STOP_MARGIN()
+    if local15 > local12 - local18:
+        local15 = local12 - local18
+    local19 = vector.Set(0.0, 1.0, 0.0, 0.0)
+    local20 = vector.Add(vector.Scale(local13, local14), local9)
+    local21 = vector.Sub(local6, local20)
+    local22 = local5.projectile_dir_last
+    if vector.Length(local21) > 0.05:
+        local22 = vector.Normalize(local21)
+    if none != local5.projectile_robj:
+        local23 = matrix.Matrix(local22, local19, local20)
+        game.SetTransform(local5.projectile_robj, local23)
+        if local7:
+            effect.SpawnerSetWorldTransform(local3.thunderstick_trail_effect, local23)
+    local5.projectile_dir_last = local22
+    local5.projectile_cam_pos = vector.Add(vector.Scale(local13, local15 - lib_harpoon.CAMERA_OFFSET_BWD()), local8)
+    local5.projectile_cam_pos = vector.Add(local5.projectile_cam_pos, vector.Scale(local19, local2))
+    local5.projectile_target = local20
+    if local7:
+        rope.Clear(local5.rope)
+    else:
+        local24 = vector.Add(local20, vector.Scale(local13, lib_harpoon.ROPE_TO_HOOK_FWD_OFFSET()))
+        rope.SetEndPoints(local5.rope, local24, local8)
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.GetProperties(arg1)
+    if (not lib_weapon.IsNextState(arg1, lib_harpoon.STATE_HOOKED_ID())) and (not lib_weapon.IsNextState(arg1, lib_harpoon.STATE_EXPLODE_ID())):
+        if none != local3.projectile_robj:
+            rigidobject.Hide(local3.projectile_robj)
+        lib_weapon.StopCam(arg1, lib_harpoon.CAM_TETH())
+    if local3.fired_thunderstick:
+        effect.SpawnerStop(local2.thunderstick_trail_effect)
+    lib_harpoon.HideAnchorPoint(arg1)
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    UpdateProjectilePos(self, arg1)
+
+def GetId(self):
+    return lib_harpoon.STATE_SHOOT_ID()
+
+def CalcProjectileDir(self, arg1):
+    local2 = vector.Sub(arg1, self)
+    if vector.Length(local2) == 0.0:
+        return vector.Set(1.0, 0.0, 0.0, 0.0)
+    return vector.Normalize(local2)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    lib_harpoon.UpdateAimCameraInput(local2, local3)
+    if local3.fired_thunderstick and (not local3.input_aim_held):
+        lib_weapon.StopSlowMo(local2, 0.0)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "SHOOT"

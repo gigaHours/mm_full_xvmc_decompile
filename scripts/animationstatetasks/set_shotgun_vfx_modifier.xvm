@@ -1,0 +1,17 @@
+module set_shotgun_vfx_modifier
+
+def Enter(self, arg1):
+    doCheck(self, arg1)
+
+def doCheck(self, arg1):
+    local2 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel("shotgun", "shotgun")
+    if local2 == 0.0 or local2 == 3.0:
+        animation.SetModifier(self, @E063F6A0, @ACE57530, true)
+    elif local2 == 1.0 or local2 == 2.0:
+        animation.SetModifier(self, @E063F6A0, @49DFDE98, true)
+    elif local2 == 4.0:
+        animation.SetModifier(self, @E063F6A0, @332032A7, true)
+    elif local2 == 5.0:
+        animation.SetModifier(self, @E063F6A0, @475EC923, true)
+    else:
+        animation.SetModifier(self, @E063F6A0, @ACE57530, true)

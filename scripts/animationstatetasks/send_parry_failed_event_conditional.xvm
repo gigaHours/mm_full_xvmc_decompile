@@ -1,0 +1,8 @@
+module send_parry_failed_event_conditional
+
+def Enter(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    if local2:
+        if animation.IsWithinSegment(local2, @E063F6A0, @CAA63B19) or character.GetFloatRegister(self, 2.0) == 2.0:
+            game.PostEventNone("ply.evade.failed")
+            character.SetFloatRegister(self, 2.0, 0.0)

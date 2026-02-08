@@ -1,0 +1,15 @@
+module send_event_if_has_atleast_level_upgrade
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.is_tool:
+        local2 = visibleplayerupgrades.HasTool(local1.has_atleast_attr_id)
+        if local2:
+            local2 = 1.0
+        else:
+            local2 = 0.0
+    else:
+        local2 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel(local1.has_atleast_part_id, local1.has_atleast_attr_id)
+    if local2 >= local1.has_atleast_level:
+        game.PostEvent(local1.send_event, "")
+    game.SendEvent(local1.send_event_unload_location, "")

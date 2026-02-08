@@ -1,0 +1,36 @@
+module frame_base_anchor
+
+def DistanceFOVConstraint(self, arg1, arg2, arg3, arg4, arg5, arg6):
+    local7 = ProjectOnCameraPlane(arg2, self)
+    local8 = ProjectOnCameraPlane(arg2, arg1)
+    local9 = vector.Sub(vector.Set(0.0, 0.0, 0.0, 0.0), arg2.r2)
+    local10 = math.Abs(local7.y) / math.Tan(arg3 / 2.0)
+    local11 = math.Abs(local8.y) / math.Tan(arg3 / 2.0)
+    local12 = vector.Dot(local9, vector.Sub(self, arg2.r3)) - local10
+    local13 = vector.Dot(local9, vector.Sub(arg1, arg2.r3)) - local11
+    local14 = vector.Dot(local9, vector.Sub(arg4, arg2.r3))
+    local15 = math.Clamp(math.Min(local12, local13), local14 - arg6, local14 - arg5)
+    return vector.Add(arg2.r3, vector.Scale(local9, local15))
+
+def ProjectOnCameraPlane(self, arg1):
+    local2 = vector.Sub(arg1, self.r3)
+    return vector.Set(vector.Dot(self.r0, local2), vector.Dot(self.r1, local2), 0.0, 0.0)
+
+def EnterAlignedTransition(self, arg1, arg2):
+    self.Properties.anchor_pos = vector.Clone(self.CameraBaseTransform.r3)
+    Update(self, arg2)
+
+def EnterUnalignedTransition(self, arg1):
+    self.Properties.anchor_pos = vector.Clone(self.CameraBaseTransform.r3)
+    Update(self, arg1)
+
+def Update(self, arg1):
+    local2 = self.Properties.anchor_pos
+    local3 = vector.Clone(self.CameraBaseTransform.r3)
+    self.CameraBaseTransform.r3 = vector.Add(local3, vector.Scale(vector.Sub(local2, local3), 0.5))
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    if self.Properties.max_distance_to_base == none:
+        self.Properties.max_distance_to_base = self.InitialOffsetDistance
+    if self.Properties.fov_padding == none:
+        self.Properties.fov_padding = math.DegToRad(0.0)
+    arg1.CameraTransform.r3 = DistanceFOVConstraint(local2, local3, arg1.CameraTransform, math.DegToRad(arg1.FOV) - math.DegToRad(self.Properties.fov_padding), self.CameraBaseTransform.r3, self.InitialOffsetDistance, self.Properties.max_distance_to_base)

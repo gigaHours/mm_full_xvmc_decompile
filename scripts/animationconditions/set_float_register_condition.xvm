@@ -1,0 +1,8 @@
+module set_float_register_condition
+
+def Evaluate(self, arg1):
+    local2 = self
+    if arg1.Property2 == 1.0:
+        local2 = animation.GetLinkTarget(self)
+    character.SetFloatRegister(local2, arg1.Property0, arg1.Property1)
+    return 1.0

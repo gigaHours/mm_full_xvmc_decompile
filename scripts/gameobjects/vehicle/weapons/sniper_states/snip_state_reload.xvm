@@ -1,0 +1,46 @@
+module snip_state_reload
+import @9B4F6985
+import @30EFB40F
+
+def UpdatePost(self, arg1):
+    pass
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local2.reload_time_left = local2.reload_time
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    if none != local1.UI_reload_time_for_bb:
+        local2.weapon_sniper_reload_time = local1.UI_reload_time_for_bb
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    UpdateGuiBB(local2)
+
+def GetId(self):
+    return lib_sniper.STATE_RELOAD_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = arg1 / game.GetUpdateSpeed()
+    if local3.delay_show:
+        lib_sniper.ShowRifle(local2)
+        local3.delay_show = false
+    local3.reload_time_left = local3.reload_time_left - arg1
+    local3.UI_reload_time_for_bb = math.Clamp(local3.reload_time_left / local3.reload_time, 0.0, 1.0)
+    if 0.0 >= local3.reload_time_left:
+        lib_sniper.DoReload(local2)
+        lib_weapon.ChangeState(local2, local3.state_idle)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "RELOAD"

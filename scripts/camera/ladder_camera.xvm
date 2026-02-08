@@ -1,0 +1,84 @@
+module ladder_camera
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    self.Properties.TSinceTransition = 0.0
+    self.Properties.AutoAlignActive = false
+    self.Properties.SustainedInputTime = 0.0
+    lib_camera.AlignAzimuthToSourceCameraClamped(self, arg1, arg2, -180.0, 180.0)
+    self.Properties.playerCameraPosition = vector.Distance(arg1.CameraTransform.r3, game.GetTransform(character.GetPlayer()).r3)
+    self.Properties.fromCamera = arg1.CameraTransform
+
+def Init(self):
+    self.Properties.TimeSinceInput = 43235.0
+    self.Properties.TSinceTransition = 0.0
+    self.Properties.AutoAlignActive = true
+    self.Properties.SustainedInputTime = 0.0
+
+def EnterUnalignedTransition(self, arg1):
+    self.Properties.TSinceTransition = 0.0
+    self.Properties.AutoAlignActive = true
+    self.Properties.SustainedInputTime = 0.0
+
+def Update(self, arg1):
+    if self.Properties.auto_align_start_time == none:
+        self.Properties.auto_align_start_time = 0.0
+    if self.Properties.auto_align_blend_speed == none:
+        self.Properties.auto_align_blend_speed = 1.0
+    local2 = self.Properties.auto_align_blend_speed
+    if self.Properties.auto_align_input_threshold_time == none:
+        self.Properties.auto_align_input_threshold_time = 0.0
+    local3 = self.Properties.max_top_speed
+    if self.Properties.limits_ease_in_time == none:
+        self.Properties.limits_ease_in_time = 2.0
+    if self.Properties.limits_ease_in_start_time == none:
+        self.Properties.limits_ease_in_start_time = 1.0
+    local4 = true
+    local5 = math.Clamp((self.Properties.TSinceTransition - self.Properties.limits_ease_in_start_time) / self.Properties.limits_ease_in_time, 0.0, 1.0)
+    self.Properties.TSinceTransition = self.Properties.TSinceTransition + self.Dt
+    local6 = math.DegToRad(math.Lerp(local5, -90.0, self.Properties.min_elevation))
+    local7 = math.DegToRad(math.Lerp(local5, 90.0, self.Properties.max_elevation))
+    local8 = math.DegToRad(math.Lerp(local5, -180.0, self.Properties.min_azimuth))
+    local9 = math.DegToRad(math.Lerp(local5, 180.0, self.Properties.max_azimuth))
+    local10 = input.GetLookInput()
+    local11 = math.Abs(local10.x) + math.Abs(local10.y)
+    self.Properties.TimeSinceInput = self.Properties.TimeSinceInput + self.Dt
+    if local11 > 0.0:
+        self.Properties.TimeSinceInput = 0.0
+        self.Properties.SustainedInputTime = self.Properties.SustainedInputTime + self.Dt
+    else:
+        self.Properties.SustainedInputTime = 0.0
+    if self.Properties.auto_align_input_threshold_time > 0.0 and self.Properties.SustainedInputTime > self.Properties.auto_align_input_threshold_time:
+        self.Properties.AutoAlignActive = false
+    local12 = self.Properties.TimeSinceInput
+    local13 = input.GetSensitivity()
+    local14 = self.RotationWeight * self.TranslationWeight
+    local15 = -local10.x * local13.x * self.Dt * local14 * local3
+    local16 = -local10.y * local13.y * self.Dt * local14 * local3
+    local17 = 1000000.0
+    if self.Dt > 0.0:
+        local17 = 1.0 / self.Dt
+    local18 = self.OffsetElevation
+    local19 = self.OffsetAzimuth
+    if local19 > 1.222 or -1.222 > local19:
+        local20 = local2
+        local21 = self.InitialOffsetAzimuth
+        local22 = self.InitialOffsetElevation
+        local16 = (local22 - local18) * local20 * self.Dt
+        local15 = (local21 - local19) * local20 * self.Dt
+        local4 = false
+    else:
+        local4 = true
+    local23 = local16 + local18
+    if local23 > local7:
+        local16 = local7 - local18
+    elif local6 > local23:
+        local16 = local6 - local18
+    local24 = local15 + local19
+    if local24 > local9:
+        local15 = local9 - local19
+    elif local8 > local24:
+        local15 = local8 - local19
+    local25 = vector.Distance(self.Properties.fromCamera.r3, game.GetTransform(character.GetPlayer()).r3)
+    camera.SetOffsetDeltaOrbit(self, local15, local16)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)

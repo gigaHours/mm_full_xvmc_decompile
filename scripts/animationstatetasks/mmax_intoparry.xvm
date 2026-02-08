@@ -1,0 +1,15 @@
+module mmax_intoparry
+
+def Enter(self, arg1):
+    character.SetFloatRegister(self, 14.0, 0.0)
+
+def Update(self, arg1, arg2):
+    local3 = input.GetButtonInput(@AD1009FA)
+    local4 = input.GetButtonInput(@08AFF40D)
+    local5 = input.GetButtonInput(@6809F897)
+    if local3 > 0.0:
+        character.SetFloatRegister(self, 14.0, 1.0)
+    if local4 > 0.0:
+        character.SetFloatRegister(self, 14.0, 2.0)
+    if local5 > 0.0:
+        character.SetFloatRegister(self, 14.0, 3.0)

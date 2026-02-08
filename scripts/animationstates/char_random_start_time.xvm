@@ -1,0 +1,5 @@
+module char_random_start_time
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    animation.GetSampler(arg4, 0.0).Time = math.Rand() * animation.GetLength(self)
+    animation.GetSampler(arg4, 0.0).Speed = math.Scale(math.Rand(), 0.0, 2.0, 0.8, 1.2)

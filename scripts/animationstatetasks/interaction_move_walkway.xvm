@@ -1,0 +1,16 @@
+module interaction_move_walkway
+
+def Enter(self, arg1):
+    pass
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = character.GetInteractionUserProxy(self)
+    local4 = interaction.GetCurrentContext(local3)
+    local5 = game.GetChild(local4, "Walkway")
+    local6 = character.GetWorldMatrix(self)
+    local7 = animation.GetPoseTransformById(self, "TargetRef")
+    local8 = matrix.Mul(local7, local6)
+    game.SetTransform(local5, local8)

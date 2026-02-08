@@ -1,0 +1,28 @@
+module veh_camera_upgrade_points
+import @42D0E955
+
+def Disable(self):
+    local1 = scriptgo.GetProperties(self)
+    debug.LogInfo("DISABLE. Scrip.Camera.Upgrade.Points", [])
+    scriptgo.SetUpdateFunction(self, "")
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    debug.LogInfo("ENABLE. Scrip.Camera.Upgrade.Points", [])
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    gui.Show3dIcon(local2.point1_gui_id, game.GetTransform(local2.point1_object).r3)
+    gui.Show3dIcon(local2.point2_gui_id, game.GetTransform(local2.point2_object).r3)
+    gui.Show3dIcon(local2.point3_gui_id, game.GetTransform(local2.point3_object).r3)
+    gui.Show3dIcon(local2.point4_gui_id, game.GetTransform(local2.point4_object).r3)
+    gui.Show3dIcon(local2.point5_gui_id, game.GetTransform(local2.point5_object).r3)
+    gui.Show3dIcon(local2.point6_gui_id, game.GetTransform(local2.point6_object).r3)
+    if false:
+        debug.Sphere(game.GetTransform(local2.point1_object).r3, 0.3, lib_color.RED(0.4))
+        debug.Sphere(game.GetTransform(local2.point2_object).r3, 0.3, lib_color.YELLOW(0.4))
+        debug.Sphere(game.GetTransform(local2.point3_object).r3, 0.3, lib_color.BLUE(0.4))
+        debug.Sphere(game.GetTransform(local2.point4_object).r3, 0.3, lib_color.GREEN(0.4))
+        debug.Sphere(game.GetTransform(local2.point5_object).r3, 0.3, lib_color.WHITE(0.4))
+        debug.Sphere(game.GetTransform(local2.point6_object).r3, 0.3, lib_color.ORANGE(0.4))

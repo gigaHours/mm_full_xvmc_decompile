@@ -1,0 +1,11 @@
+module veh_upgrade_decal_coloring
+
+def Init(self):
+    local1 = vehicle.GetSignatureVehicleDecalColor()
+    scriptgo.SendEvent(self, @86C8E758)
+    if local1.x >= 255.0 and 0.0 >= local1.y and 0.0 >= local1.z:
+        scriptgo.SendEvent(self, @CD4D9170)
+    elif 0.0 >= local1.x and 0.0 >= local1.y and local1.z >= 255.0:
+        scriptgo.SendEvent(self, @0F1EA29D)
+    else:
+        scriptgo.SendEvent(self, @27AF25AE)

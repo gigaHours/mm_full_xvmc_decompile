@@ -1,0 +1,804 @@
+# XVM Engine Globals
+# One global name per line. Lines starting with # are comments.
+# These names are accessed via ldglob opcode in XVM bytecode.
+#
+# To add a new global, simply add its name on a new line.
+# The compiler uses this list to distinguish globals (ldglob)
+# from local variables (ldloc/stloc).
+#
+# Source: extracted from game modules dump (51 native C-modules).
+# Format reference: each module exposes methods and types.
+# Methods: name(args) -> return  |  args/return: 0=void 1=bool 3=float 4=hash 7=object F=any
+# Types listed after methods are return/parameter types (e.g. HitInfo, Character).
+
+# ============================================================
+# Built-in functions (not globals, compiled as direct calls)
+# ============================================================
+# builtins: len(any)->float, float(any)->float, int(any)->float, abs(float)->float
+# Types: __module__, __cmodule__, Vector4, Matrix4
+
+# ============================================================
+# Core engine
+# ============================================================
+
+# scriptgo — Script runtime, events, properties
+#   .Call(obj, hash) -> any
+#   .Call1(obj, hash, any) -> any
+#   .Call2(obj, hash, any, any) -> any
+#   .Call3(obj, hash, any, any, any) -> any
+#   .Call4(obj, hash, any, any, any, any) -> any
+#   .SendEvent(obj, hash)
+#   .PostEvent(obj, hash)
+#   .SetUpdateFunction(obj, hash)
+#   .SetPostSimFunction(obj, hash)
+#   .SetRenderFunction(obj, hash)
+#   .IsUpdateFunction(obj, hash) -> bool
+#   .IsPostSimFunction(obj, hash) -> bool
+#   .IsRenderFunction(obj, hash) -> bool
+#   .GetProperties(obj) -> object
+#   .RegisterEventHandler1f(obj, hash, hash)
+#   .RegisterEventHandler(obj, hash, hash)
+#   .IsScriptGameObject(obj) -> bool
+#   .LoadGameObjectData(obj, hash) -> bool
+#   .SaveGameObjectData(obj, hash, hash)
+scriptgo
+
+# game — Game state, transforms, cloning, economy, events
+#   .SendEventNone(hash)
+#   .PostEventNone(hash)
+#   .SendEvent(obj, hash)
+#   .PostEvent(obj, hash)
+#   .SendEventFloat(obj, float)
+#   .PostEventFloat(obj, float)
+#   .SendEventInt(obj, float)
+#   .PostEventInt(obj, float)
+#   .QueueAct(obj, hash)
+#   .DoAct(obj, hash) -> bool
+#   .SendAnimationEvents(obj, hash, hash)
+#   .GetRelativePosition(obj, obj) -> object
+#   .GetTransform(obj) -> object
+#   .SetTransform(obj, object)
+#   .SetLocalTransform(obj, object)
+#   .GetRenderTransform(obj, float) -> object
+#   .AddChildObjectSimple(obj, object)
+#   .RemoveChildObject(obj, object)
+#   .GetSqDistance(obj, obj) -> float
+#   .GetDistanceXZ(obj, obj) -> float
+#   .GetName(obj) -> hash
+#   .GetNameHash(obj) -> hash
+#   .GetClassName(obj) -> hash
+#   .GetParent(obj) -> object
+#   .GetChild(obj, hash) -> object
+#   .GetChildWithNameHash(obj, hash) -> object
+#   .GetNbChilds(obj) -> float
+#   .GetChildByIndex(obj, float) -> object
+#   .GetChildByScriptName(obj, hash) -> object
+#   .GetGameObjectByAlias(hash) -> object
+#   .GetAlias(obj) -> hash
+#   .IsTaged(obj, hash) -> bool
+#   .GameObjectToFloat(obj) -> float
+#   .IsObjectEqualTo(obj, obj) -> bool
+#   .GetUpdateSpeed() -> float
+#   .EaseInCustomUpdateSpeed(float, float) -> float
+#   .EaseOutCustomUpdateSpeed(float, float)
+#   .GameHashString(hash) -> hash
+#   .GameHashFloat(hash) -> hash
+#   .IsGamePaused() -> bool
+#   .IsNextgen() -> bool
+#   .GetBlackboardValueFromObject(obj, hash) -> any
+#   .SetBlackboardValueToObject(obj, hash, any)
+#   .ClearBlackboardValueFromObject(obj, hash) -> any
+#   .GetWindOcclusion() -> object
+#   .GetWindVelocityEffects() -> object
+#   .GetWindVelocityPhysics() -> object
+#   .IsWeatherActive(bool) -> bool
+#   .GetRegionThreat(obj) -> float
+#   .GetTerritoryThreat(obj) -> float
+#   .GetTerritoryForCharacter(obj) -> hash
+#   .GetRegionForCharacter(obj) -> hash
+#   .GetRegionDifficultyForCharacter(obj) -> float
+#   .GetBulletFiredFromWeapon(obj) -> object
+#   .RecordFuryEvent(hash)
+#   .ClearFuryEventCounters()
+#   .GetFuryEventVariationMultiplier(hash) -> float
+#   .GetFuryEventCount(hash) -> float
+#   .GetFuryEventSize() -> float
+#   .GetItemAnimationModifier(obj) -> object
+#   .GetItemPickupable(obj, float) -> bool
+#   .GetRegisteredAttackers() -> list
+#   .CloneFactoryCreateInstance(obj, hash) -> object
+#   .CloneFactoryCreateInstanceAt(obj, hash, obj) -> object
+#   .CloneFactoryCreateInstanceWithParent(obj, hash, obj) -> object
+#   .CloneFactoryTakeOwnership(obj, hash, obj) -> object
+#   .DestructibleMakeDynamic(obj)
+#   .WreckingBallDisarm(obj)
+#   .WreckingBallPrimeWithDelay(obj)
+#   .SetHitByPlayer(obj)
+#   .WasHitByPlayer(obj, float) -> bool
+#   .SetForcePulseFaction(obj, float)
+#   .SetFlameObjectFaction(obj, float)
+#   .StartForcePulse(obj)
+#   .FindClosestLocationInfo(obj) -> object
+#   .IsCampMainMissionCompleted(obj) -> bool
+#   .GetCurrentActiveLocationDifficulty() -> float
+#   .GetRealTime() -> float
+#   .GetGameTime(obj) -> bool
+#   .GetTimeOfDay() -> float
+#   .StateContainerUpdate(obj, float)
+#   .StateContainerRender(obj, float)
+#   .IsEditor() -> bool
+#   .GetGriffaTokens() -> float
+#   .GetLegendLevel() -> float
+#   .GetLegendRank() -> float
+#   .GetEconomyResourceId(obj) -> float
+#   .GetEconomyResourceAmount(obj, float) -> float
+#   .GetEconomyResourceScrapAmount() -> float
+#   .InflictDamage(obj, hash, obj, hash, obj) -> bool
+#   .GetUnitHealth(obj) -> float
+#   .GetMaxHealth(obj) -> float
+#   .SetDictionaryFloat(obj, float)
+#   Types: GameObject, SaveContext
+game
+
+# input — Input system, buttons, sticks
+#   .InitInput()
+#   .GetSensitivity() -> object
+#   .GetRawInput() -> object
+#   .GetLeftStickInput() -> object
+#   .GetEWMAInput() -> object
+#   .GetMoviecamInput() -> object
+#   .GetLookInput() -> object
+#   .GetGarageLookInputGui() -> object
+#   .UnitCircleNormalize(float) -> float
+#   .ClampAngleToLimits(float, float, float, float) -> float
+#   .GetButtonInput(hash) -> float
+#   .GetButtonInputGui(hash) -> float
+#   .SquareInputToCircle(obj) -> object
+#   .IsButtonClicked(hash) -> bool
+#   .IsButtonReleased(hash) -> bool
+#   .GetButtonHoldTime(hash) -> float
+#   .IsButtonClickedBuffered(hash, float) -> bool
+#   .IsButtonReleasedBuffered(hash, float) -> bool
+#   .GetRawMoveInput() -> object
+#   .GetFilteredMoveInput() -> object
+#   .GetRawMoveInputVelocity() -> object
+#   .GetFilteredMoveInputVelocity() -> object
+#   .TransformInputDirToLocalDir(obj) -> object
+#   .DebugInputHistory(obj, obj)
+#   .IsUsingGamePad() -> object
+#   .GetButtonHashFromInputAction(hash) -> hash
+#   .GetButtonLocalizedStringFromButtonHash(hash) -> hash
+input
+
+# gui — GUI system, 3D icons, events
+#   .Show3dIcon(obj, hash)
+#   .Show3dIconFloat(obj, hash, float)
+#   .Show3dIconString(obj, hash, hash)
+#   .Show3dIconFloatString(obj, hash, float, hash)
+#   .PostEvent(hash)
+#   .PostEventFloat(obj, float)
+#   .PostEventFloatFloat(obj, float, float)
+#   .GetBlackboard() -> list
+#   .ShowScene(hash)
+#   .HideScene(hash)
+#   .MakeLocalizationHashFromTag(hash) -> hash
+#   .CreateDebugLogWindow(obj, hash)
+#   .FuryEventCallout(obj, hash, hash)
+#   .DisplayDebugLog(obj, hash, hash, hash)
+#   .GetGuiMessageData() -> object
+#   .SendGuiMessage(obj)
+#   .SetActiveButtonPrompt(hash) -> float
+#   .SetActiveButtonPromptFromHash(hash) -> float
+#   .SetActiveButtonText(hash) -> float
+gui
+
+# ============================================================
+# Entity systems
+# ============================================================
+
+# character — Character management, combat, inventory
+#   .IsCharacter(obj) -> bool
+#   .GetPlayer() -> object
+#   .GetCharacterByName(hash) -> object
+#   .GetFloatRegister(obj, float) -> float
+#   .SetFloatRegister(obj, float, hash)
+#   .IsStateBitSet(obj, float) -> bool
+#   .IsContextBitSet(obj, float) -> bool
+#   .GetVelocityLS(obj) -> object
+#   .RotateToward(obj, float, obj, float)
+#   .RotateInstantly(obj, object)
+#   .RotateInstantlyMat(obj, object)
+#   .GetWorldMatrix(obj) -> object
+#   .GetGlobalXvmFloat(obj, float) -> float
+#   .SetGlobalXvmFloat(obj, float, hash)
+#   .GetGroundInfo(obj) -> object
+#   .GetCharacterCollisionInfo(obj, float) -> object
+#   .GetCharacterCollisionInfoCount(obj) -> float
+#   .GetRagdollCollisionInfo(obj, float) -> object
+#   .GetRagdollCollisionInfoCount(obj) -> float
+#   .UpdateDeltaReferenceFrame(obj, float)
+#   .GetAnimationVelocityLS(obj) -> object
+#   .SetAnimationVelocityLS(obj, obj, obj)
+#   .GetMeasuredWorldVelocity(obj) -> object
+#   .GetMeasuredAngularVelocity(obj) -> object
+#   .SetOpacity(obj, float)
+#   .GetLookAtTarget(obj) -> object
+#   .SetLookAtTarget(obj, object)
+#   .GetVehicle(obj) -> object
+#   .CanSee(obj, obj) -> bool
+#   .IsDead(obj) -> bool
+#   .IsInvulnerable(obj) -> bool
+#   .GetUnitHealth(obj) -> float
+#   .GetAbsoluteHealth(obj) -> float
+#   .GetFaction(obj) -> float
+#   .GetInventoryAmmo(obj, obj) -> float
+#   .GetInventoryItemCount(obj, hash) -> float
+#   .InflictDamage(obj, hash, obj) -> bool
+#   .InstantDeath(obj)
+#   .GetInteractionUserProxy(obj) -> object
+#   .IsTalking(obj) -> bool
+#   Types: Character, GroundInfo, CharacterCollisionInfo, LatestSpellInfo,
+#          HitByExplosionData, HitByBulletData, CharacterList
+character
+
+# vehicle — Vehicle system (175 methods)
+#   .IsVehicle(obj) -> bool
+#   .IsPlayerVehicle(obj) -> bool
+#   .IsAIVehicle(obj) -> bool
+#   .GetSignatureVehicle() -> object
+#   .GetVelocity(obj) -> object
+#   .GetLocalVelocity(obj) -> object
+#   .SetVelocity(obj, object)
+#   .GetMass(obj) -> float
+#   .SetMass(obj, float)
+#   .GetHealth(obj) -> float
+#   .SetHealth(obj, float)
+#   .GetTopSpeed(obj) -> float
+#   .SetTopSpeed(obj, float)
+#   .GetAcceleratorInput(obj) -> float
+#   .SetAcceleratorInput(obj, float)
+#   .GetSteeringInput(obj) -> float
+#   .SetSteeringInput(obj, float)
+#   .GetHandbrakeInput(obj) -> float
+#   .SetHandbrakeInput(obj, float)
+#   .SetBoost(obj, bool)
+#   .IsBoostEnabled(obj) -> bool
+#   .GetCurrentGear(obj) -> float
+#   .GetNumWheels(obj) -> float
+#   .Destroy(obj)
+#   .EnableDriving(obj)
+#   .DisableDriving(obj)
+#   .IsDrivingEnabled(obj) -> bool
+#   .StartEngine(obj)
+#   .StopEngine(obj)
+#   .GetVehicleDriver(obj) -> object
+#   .GetVehiclePassenger(obj) -> object
+#   .GetProperties(obj) -> object
+#   .GetHitInfo(obj) -> object
+#   .GetChassis(obj) -> object
+#   .GetTweakVariables() -> object
+#   Types: CarCombatDirector, HitInfo, HingedPart, PhysicsVehicleDrivetrain,
+#          PhysicsChassis, PhysicsVehicleAxle, PhysicsWheel, PhysicsTire,
+#          VehicleTweakVariables
+vehicle
+
+# animation — Animation state machine
+#   .GetSamplerCount(obj) -> float
+#   .GetSampler(obj, float) -> object
+#   .EaseIn(obj, float)
+#   .EaseOut(obj, float)
+#   .GetRootTransform(obj) -> object
+#   .GetPoseTransform(obj, float) -> object
+#   .SetPoseTransform(obj, float, obj) -> object
+#   .GetPoseTransformById(obj, hash) -> object
+#   .GetPoseJointIndex(obj, hash) -> float
+#   .GetFloatSlotValue(obj, hash) -> float
+#   .IsInAnimationState(obj, hash, hash) -> bool
+#   .GetStateBit(obj, float) -> float
+#   .SetStateBit(obj, float, hash)
+#   .GetLinkTarget(obj) -> object
+#   .SetLinkTarget(obj, obj) -> object
+#   .ClearLinkTarget(obj) -> object
+#   .GetTime(obj) -> float
+#   .GetLength(obj) -> float
+#   .GetSpeed(obj) -> float
+#   Types: SamplerVec, Sampler, StateProperties, ConditionProperties,
+#          StateTaskProperties, SegmentInfo
+animation
+
+# physics — Physics engine
+#   .GetGravity() -> object
+#   .IsPhysicsObject(obj) -> bool
+#   .GetMass(obj) -> float
+#   .GetPointVelocity(obj, obj) -> object
+#   .ApplyImpulse(obj, obj, obj)
+#   .ApplyAngularImpulse(obj, object)
+#   .SetVelocity(obj, object)
+#   .GetAngularVelocity(obj) -> object
+#   .SetAngularVelocity(obj, object)
+#   .EnableDestructibleObject(obj)
+#   .IsDestructibleObject(obj) -> bool
+#   .IsBroken(obj) -> bool
+#   .WeakspotExplodesWith(obj, obj, obj) -> bool
+#   .TrajectoryWarningStart(obj, obj, obj, obj, float, float)
+#   Types: PhysicsObject, Material, CollisionHit, ExplosionHit, BulletHit, FireHit
+physics
+
+# ai — AI blackboard
+#   .SetAiEntityBlackboardObject(obj, hash, obj)
+#   .GetAiEntityBlackboardCounter(obj, hash) -> float
+#   .ClearAiEntityBlackboard(obj, hash)
+#   .IncreaseAiEntityBlackboardCounter(obj, hash, obj)
+#   .SetAiEntityBlackboardFlag(obj, hash)
+#   .GetAiEntityBlackboardFlag(obj, hash) -> bool
+#   Types: GameObject
+ai
+
+# ============================================================
+# Math / utility
+# ============================================================
+
+# math — Math functions
+#   .Lerp(float, float, float) -> float
+#   .SpeedLerp(float, float, float, float) -> float
+#   .Clamp(float, float, float) -> float
+#   .Clamp01(float) -> float
+#   .Scale(float, float, float, float, float) -> float
+#   .Scale01(float, float, float) -> float
+#   .Max(float, float) -> float
+#   .Min(float, float) -> float
+#   .Abs(float) -> float
+#   .Sin(float) -> float
+#   .Cos(float) -> float
+#   .Tan(float) -> float
+#   .ASin(float) -> float
+#   .ACos(float) -> float
+#   .ATan(float) -> float
+#   .ATan2(float, float) -> float
+#   .Pi() -> float
+#   .Sqrt(float) -> float
+#   .Pow(float, float) -> float
+#   .Exp(float) -> float
+#   .Log(float) -> float
+#   .Log10(float) -> float
+#   .Mod(float, float) -> float
+#   .Sign(float) -> float
+#   .Floor(float) -> float
+#   .Ceil(float) -> float
+#   .DegToRad(float) -> float
+#   .RadToDeg(float) -> float
+#   .IntToFloat(float) -> float
+#   .FloatToInt(float) -> float
+#   .Rand() -> float
+#   .BezierCurve(float, float, float, float, float) -> float
+#   .BezierCurveDerivative(float, float, float, float, float) -> float
+#   .AnglesFromPoints(float, float, obj) -> float
+#   .PerlinNoise1D(float, float, float, float) -> float
+math
+
+# vector — Vector operations
+#   .Set(float, float, float, float) -> object
+#   .Normalize(obj) -> object
+#   .Dot(obj, obj) -> float
+#   .DotXZ(obj, obj) -> float
+#   .Cross(obj, obj) -> object
+#   .Distance(obj, obj) -> float
+#   .Length(obj) -> float
+#   .Add(obj, obj) -> object
+#   .Sub(obj, obj) -> object
+#   .Scale(obj, float) -> object
+#   .Lerp(obj, obj, float) -> object
+#   .SpeedSlerp2(obj, obj, float, float) -> object
+#   .Clone(obj) -> object
+#   .AngleBetween(obj, obj) -> float
+#   .IntersectionXZ(obj, obj, obj, obj) -> object
+vector
+
+# matrix — Matrix operations
+#   .CopyMatrix(obj) -> object
+#   .IdentityMatrix() -> object
+#   .Matrix(obj, float, obj) -> object
+#   .MatrixY(obj, float, obj) -> object
+#   .LookAtMatrix(obj, float, obj) -> object
+#   .RotationMatrix(float, float, obj) -> object
+#   .RotationAxisMatrix(obj, float) -> object
+#   .TranslationAt(obj, obj) -> object
+#   .Mul(obj, obj) -> object
+#   .ToAngles(obj) -> object
+#   .Offset(obj, obj) -> object
+#   .Inverse(obj) -> object
+#   .MulVec(obj, obj) -> object
+#   .Slerp(obj, obj, float) -> object
+#   .DirectionWorldToLocal(obj, obj) -> object
+#   .DirectionLocalToWorld(obj, obj) -> object
+#   .PositionWorldToLocal(obj, obj) -> object
+#   .PositionLocalToWorld(obj, obj) -> object
+#   .Rotate(obj, obj) -> object
+#   .OrthoNormalize(obj) -> object
+matrix
+
+# random — Random number generation
+#   .random() -> float
+random
+
+# string — String operations
+#   .Cat(hash, hash) -> hash
+#   .Format(hash, hash) -> hash
+#   .FormatFloat(hash, hash, hash) -> hash
+string
+
+# list — List operations
+#   .MakeList(float, any) -> list
+#   .SortList(list, hash) -> list
+list
+
+# spring — Spring functions
+#   .VectorSpringFunction(obj, obj, float) -> object
+#   .FloatSpringFunction(float, float, float) -> float
+#   .FloatSpringNonLinearFunction(float, float, float) -> float
+spring
+
+# ============================================================
+# Camera / UI / audio
+# ============================================================
+
+# camera — Camera control
+#   .SetBaseTransform(obj, object)
+#   .GetInitialOffsetDistance(obj) -> float
+#   .SetOffsetDistance(obj, float)
+#   .SetOffsetTransform(obj, object)
+#   .SetOffsetDeltaOrbit(obj, float, hash)
+#   .Shake(obj, float, hash)
+#   .GetCameraTransform() -> object
+#   .CalculateCameraTransform(obj) -> object
+#   .ProjectPosition(obj) -> object
+#   .IsPointVisible(obj) -> bool
+#   .IsSphereVisible(obj, float) -> bool
+#   .ClampAngle(float) -> float
+#   .IsSelectedCamera(hash) -> bool
+#   .GetCameraStackSize() -> bool
+#   Types: CameraScriptContext, CameraContext
+camera
+
+# soundscripting — Sound system
+#   .Set(obj, hash)
+#   .SetIntegers(obj, hash, hash, hash, hash, hash)
+#   .SetFloats(obj, hash, hash, hash, hash, hash)
+#   .SetString(obj, hash, hash)
+#   .SetHash(obj, hash, hash)
+#   .SetVariableInteger(obj, hash, hash, hash)
+#   .SetVariableFloat(obj, hash, hash, hash)
+#   .SetVariableString(obj, hash, hash, hash)
+#   .SetVariableHash(obj, hash, hash, hash)
+#   .GetInteger(obj, hash) -> float
+#   .GetFloat(obj, hash) -> float
+#   .GetHash(obj, hash) -> hash
+#   .GetVariableInteger(obj, hash, hash) -> float
+#   .GetVariableFloat(obj, hash, hash) -> float
+#   .GetVariableHash(obj, hash, hash) -> hash
+soundscripting
+
+# ============================================================
+# World / interaction / objects
+# ============================================================
+
+# collision — Collision detection
+#   .CastRay(obj, obj, float) -> object
+#   .GetClosestPointOnLine(obj, obj, obj) -> object
+#   .CheckCollision(obj, obj, obj, obj, obj) -> object
+#   .SetCloserNearPlane(float)
+#   .CastSphere(obj, obj, obj, float) -> object
+#   Types: ContactPoint
+collision
+
+# raycast — Ray casting
+#   .IsRayCaster(obj) -> bool
+#   .ClearRays(obj)
+#   .AddRay(obj, obj, obj) -> object
+#   .CastRays(obj)
+#   .CastBulletRay(obj, obj, obj) -> object
+#   .GetRay(obj, float) -> object
+#   Types: RayCaster, Ray, RayHit
+raycast
+
+# interaction — Interaction system
+#   .GetCurrentContext(obj) -> object
+#   .GetCurrentContextParent(obj) -> object
+#   .GetGraphTransform(obj) -> object
+#   .GetEntryContext(obj, float) -> object
+#   .GetValidEntryContext(obj, float) -> object
+#   .GetCharacter(obj) -> object
+#   .GetNodeCount(obj) -> float
+#   .GetNodeTransform(obj, float) -> object
+#   .GetInteractionGraph(obj, hash) -> object
+#   .GetInteractionGraphUserCount(obj) -> float
+#   .GetInteractionGraphUser(obj, float) -> object
+#   .InteractionComponentScriptCall1(obj, hash, any) -> any
+#   .FindLinkedResourceId(obj) -> float
+#   Types: InteractionUserProxy, InteractionGraph
+interaction
+
+# constraint — Physics constraints
+#   .SetConstrainedObject1(obj, object)
+#   .SetConstrainedObject2(obj, object)
+#   .GetConstrainedObject1(obj) -> object
+#   .GetConstrainedObject2(obj) -> object
+#   .ConnectConstraint(obj)
+#   .DisconnectConstraint(obj)
+#   .SetConstraintLength(obj, float)
+#   .SetConstraintMaxLength(obj, float)
+#   .IsEnabled(obj) -> bool
+#   .GetAppliedImpulse(obj) -> float
+constraint
+
+# rope — Rope system
+#   .Clear(obj)
+#   .SetEndPoints(obj, obj, obj)
+#   .SetEndPointsWithAttachedObject(obj, obj, obj, obj)
+#   .SetSlackEndPoints(obj, obj, obj, obj, obj)
+rope
+
+# rigidobject — Rigid body control
+#   .MakeDynamic(obj)
+#   .MakeKeyframed(obj)
+#   .EnableCollision(obj)
+#   .DisableCollision(obj)
+#   .Show(obj)
+#   .Hide(obj)
+rigidobject
+
+# effect — Particle effects
+#   .IsEffectSpawner(obj) -> bool
+#   .IsEffectSpawnerInstance(obj) -> bool
+#   .SpawnerPlay(obj) -> object
+#   .SpawnerStop(obj)
+#   .SpawnerRestart(obj, bool)
+#   .SpawnerSetParameter(obj, hash, obj)
+#   .SpawnerSetAttachObject(obj, object)
+#   .SpawnerSetVelocity(obj, object)
+#   .SpawnerSetWorldTransform(obj, object)
+#   .SpawnerIsPlaying(obj) -> bool
+#   .EffectPlayInteraction(obj, obj, obj)
+#   .EffectPlayAttached(obj, obj, obj)
+#   .PlayPointEmitter(obj)
+#   .StopPointEmitter(obj)
+effect
+
+# ragdoll — Ragdoll physics
+#   .GetRagdoll(obj) -> object
+#   .SetCurrentRagdoll(obj, hash)
+#   .ResetCurrentRagdoll(obj)
+#   .SetBlendedRagdollParams(obj, float, obj, float)
+#   .GetRagdollPositionForBone(obj, float) -> object
+#   Types: Ragdoll
+ragdoll
+
+# model — Model rendering, outlines
+#   .IsOutline(obj) -> bool
+#   .SetOutlineVisible(obj, bool)
+#   .SetOutlineEnabled(obj, bool)
+#   .OutlineFadeIn(obj, float, hash)
+#   .OutlineFadeOut(obj, float)
+#   .SetOutlineColor(obj, float, obj)
+#   .SetOutlineWidth(obj, float)
+#   .SetOutlineAnimationStrength(obj, float)
+#   .SetOutlineModelIndex(obj, float)
+model
+
+# flame — Fire system
+#   .Activate(obj)
+#   .Deactivate(obj)
+#   .SetSourceHeat(obj, float)
+#   .GetSourceHeat(obj) -> float
+flame
+
+# motiontracker — Motion tracking
+#   .IsMotionTracker(obj) -> bool
+#   .GetMotionTracker(obj) -> object
+#   .Reset(obj)
+#   Types: MotionTracker
+motiontracker
+
+# golist — Game object list
+#   .Clear(obj)
+#   .Add(obj, object)
+#   .Rem(obj, object)
+#   .Get(obj, float) -> object
+#   .NbGameObjects(obj) -> float
+#   .HasObject(obj, obj) -> bool
+golist
+
+# xlsbook — Spreadsheet data
+#   .GetXlsSheetRowMajor(obj, float) -> object
+#   .GetXlsSheetColumnMajor(obj, float) -> object
+#   .GetXlsSheetIndex(obj, hash) -> float
+xlsbook
+
+# ============================================================
+# Game systems
+# ============================================================
+
+# vehiclemanager — Vehicle management
+#   .SetStatAnalyzerScriptGameObject(obj)
+#   .AddEstimateFunction(obj, hash)
+#   .Estimate(obj, hash) -> float
+#   .GetCallSignatureSettings() -> object
+#   .GetAllVehicles() -> list
+#   .SendVehicleDefeatedEvent(obj, float, obj, hash)
+#   .StartComboTarget(obj, hash)
+#   .StartCombo(hash)
+#   .ProgressComboTarget(obj, hash)
+#   .ProgressCombo(hash)
+#   .GetComboTargetProgress(obj, hash) -> float
+#   .GetComboProgress(hash) -> float
+#   .IsComboActive(hash) -> bool
+#   .SetPlayerEnvironmentDamageScale(float)
+#   .GetPlayerEnvironmentDamageScale() -> float
+#   Types: CallSignatureVehicle
+vehiclemanager
+
+# playermodule — Player state
+#   .IsInGodMode() -> bool
+#   .IsInJesusMode() -> bool
+playermodule
+
+# mission — Mission system
+#   .IsMissionCompleted(hash) -> float
+#   .IsMissionActivated(hash) -> float
+#   .IsParentEventReceived(hash) -> float
+#   .UnlockMission(hash)
+#   .CountActiveSideMissions() -> float
+mission
+
+# ogccoord — Target coordination
+#   .GetAllWithAttackType(obj, hash, obj) -> object
+#   .GetClosest(obj, hash, obj) -> float
+#   .GetCharacterFromTarget(obj, obj) -> object
+#   .GetCharacterFromAttackers(obj, float) -> object
+#   .GetDistanceToTarget(obj, hash, obj) -> float
+#   .GetTimeSincePickup(obj, float) -> float
+#   .GetTimeInsideCamera(obj, float) -> float
+#   .GetPositionOnScreenScore(obj, float) -> float
+#   .GetCurrentAttacker(obj) -> object
+#   Types: OgcCoordTarget
+ogccoord
+
+# playerstats — Player statistics
+#   .GetPlayerStats() -> object
+#   Types: PlayerStats
+playerstats
+
+# graphscript — Graph scripting
+#   .FireGraphOutput(obj, hash)
+#   .GetVariables(obj) -> object
+#   Types: GraphNode
+graphscript
+
+# sc — Scouted collectibles
+#   .Clear(obj)
+#   .Add(obj, obj, obj, obj, obj, hash) -> bool
+#   .RemIdx(obj, float)
+#   .NbScoutedObjects(obj) -> float
+#   .GetFirstInUse(obj) -> float
+#   .GetWorldPos(obj, float) -> object
+#   .GetInfluence(obj, float) -> float
+#   .GetScrap(obj, float) -> float
+#   .GetFood(obj, float) -> float
+#   .GetFuel(obj, float) -> float
+#   .SetCollectionState(obj, float, hash)
+sc
+
+# garagestate — Garage/upgrade system
+#   .RelockAttributeLevel(obj, hash, obj)
+#   .DebugSetUpgrade(obj, hash, obj)
+#   .GetUpgradeLevel(obj, hash) -> float
+#   .UnhideAttributeLevel(obj, hash, obj)
+#   .ReinstallUpgrade(obj, hash)
+#   .LockGarage(obj, hash, hash)
+#   .UnlockGarage(obj, float)
+#   .LockArchangels(obj)
+#   .UnlockArchangels(obj)
+garagestate
+
+# legendsystem — Legend/progression
+#   .LockScreen(obj, hash)
+#   .UnlockScreen(obj)
+legendsystem
+
+# healthbar — Health bar UI
+#   .UpdateArmour(obj, float, hash)
+#   .SetArmourWeighting(obj, float)
+healthbar
+
+# gamedirector — Game AI director
+#   .GetAiGameStateHashInRangeCount(obj, float, float) -> float
+gamedirector
+
+# visibleplayerupgrades — Player upgrade visuals
+#   .DebugSetVisiblePlayerUpgrade(obj, float, hash)
+#   .GetVisiblePlayerUpgradeLevel(obj, hash) -> float
+#   .DebugSetPerk(obj, float)
+#   .DebugSetTool(obj, float)
+#   .HasTool(hash) -> bool
+#   .StoreSetup()
+#   .RestoreSetup()
+#   .LockMaxUpgrades(obj, hash)
+#   .UnlockMaxUpgrades(float)
+#   .LockSpecificMaxUpgrade(obj, hash)
+#   .LockSpecificMaxTool(obj, hash)
+#   .UnlockSpecificMaxUpgrade(hash)
+#   .UnlockSpecificMaxTool(hash)
+#   .SetUpgradeLevelShown(obj, float, hash)
+visibleplayerupgrades
+
+# racetrophies — Race trophy system
+#   .GetNrRaceTrophies() -> float
+#   .CompleteDeathrun(hash)
+#   .GetNrRaceTrophiesPossible() -> float
+#   .GetCompletedDeathruns() -> float
+racetrophies
+
+# relicsystem — Relic/collectible system
+#   .InstallHoodOrnament(obj, float)
+#   .PickupHoodOrnament(hash)
+#   .PickupPictureRelic(hash)
+#   .HasRelic(hash)
+#   .GetNumFoundRelics(float) -> float
+relicsystem
+
+# upgradeablevaluesmanager — Upgradeable values
+#   .GetUpgradeableValue(hash) -> float
+#   .HasUpgradeableValue(hash) -> bool
+upgradeablevaluesmanager
+
+# hydra — Analytics/telemetry
+#   .HydraSendDifficulty(float)
+#   .HydraSendGroundCombatEvent(float, float)
+#   .HydraSendFuryEndEvent(float)
+#   .HydraSendFuryBeginEvent(float)
+#   .HydraSendVehicleEvent(float)
+#   .HydraUpdateKmDriven(float)
+#   .HydraSendCombatEndEvent(float, float, float, float, float)
+#   .HydraSendEnemiesKilledInARowWithoutDamageEvent(float)
+hydra
+
+# logbook — Logbook/journal system
+#   .IsMissionCompleted(hash) -> bool
+logbook
+
+# debug — Debug output, drawing
+#   .PlotPosition(obj, hash, obj)
+#   .PlotMatrix(obj, hash, obj)
+#   .PrintValue(obj, hash, obj)
+#   .DrawLine(obj, obj, obj)
+#   .DrawLine2d(obj, obj, obj)
+#   .DrawRect(obj, obj, obj, obj, obj)
+#   .DrawText(obj, hash, hash, hash)
+#   .DrawText3d(obj, hash, hash, hash)
+#   .DrawTextScaled(obj, hash, hash, hash, hash)
+#   .DrawFloatFmt(obj, hash, hash, float, hash)
+#   .ProjectPosition(obj) -> object
+#   .Sphere(obj, obj, obj)
+#   .Star(obj, obj, obj)
+#   .StarNoZ(obj, obj, obj)
+#   .Circle(obj, obj, obj, obj)
+#   .Arrow(obj, obj, obj, obj)
+#   .LogError(obj, hash)
+#   .LogWarning(obj, hash)
+#   .LogInfo(obj, hash)
+#   .GetCurve(hash) -> object
+#   .AddDebugMenuItem(obj, hash)
+#   .VdbDrawString(obj, hash, hash, hash)
+#   .VdbDrawLine(obj, obj, obj)
+#   .PushProfileScope(hash)
+#   .PopProfileScope()
+#   .GetTweakVariables() -> object
+#   Types: Curve, TweakVariables
+debug
+
+# ============================================================
+# Library modules (script-side globals)
+# ============================================================
+lib_entity_proxy
+lib_player_input
+lib_vehicle

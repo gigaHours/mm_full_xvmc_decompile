@@ -1,0 +1,30 @@
+module veh_shotguntarget_type_armor
+
+def GetAutoTargetPrio(self):
+    return 0.0
+
+def CanBeTargeted(self, arg1):
+    return true
+
+def Init(self):
+    pass
+
+def ShowAsUnavailable(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetInventoryItem(local1, "shotgun")
+    local3 = math.Max(character.GetItemObjectFloat(local2, "level"), 0.0)
+    return 0.0 >= local3
+
+def GetAimDotLimit(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.aimDotLimit
+
+def FireAt(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if not lib_weakspot.IsBulletBlocked(local3.weakspot):
+        local4 = scriptgo.Call(local3.weakspot, @22385FC9)
+        if arg2 != none:
+            local5 = math.Max(character.GetItemObjectFloat(arg2, "level"), 0.0)
+            if local4 != none:
+                scriptgo.Call1(local4, @BA528FB8, local5)
+        scriptgo.Call(local3.weakspot, @6871E934)

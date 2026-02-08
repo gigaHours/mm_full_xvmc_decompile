@@ -1,0 +1,15 @@
+module warcrier_segment_actions
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "UpdateSamplers")
+
+def UpdateSamplers(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = animation.GetSegmentInfo(local2.character, @E063F6A0, "nO;|")
+    if local3 != none:
+        if local3.Inside > 0.0:
+            scriptgo.PostEvent(self, @05F6FD38)
+    local4 = animation.GetSegmentInfo(local2.character, @E063F6A0, @26200497)
+    if local4 != none:
+        if local4.Inside > 0.0:
+            scriptgo.PostEvent(self, @EC861CB6)

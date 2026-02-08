@@ -1,0 +1,53 @@
+module lookat_set_configuration
+import @05896E5A
+
+def Enter(self, arg1):
+    arg1.LookatHasActivated = false
+    if arg1.SnapOffOnEnter:
+        setConfigurationSnapOff(self, arg1)
+    else:
+        setConfiguration(self, arg1)
+
+def setConfiguration(self, arg1):
+    if false == true:
+        debug.LogInfo("speed %f, effectors %f", [arg1.Speed, arg1.Effectors])
+    if arg1.Speed == 0.0:
+        lib_lookat.SetSuperSoftBlendSpeeds(self)
+    elif arg1.Speed == 1.0:
+        lib_lookat.SetSoftBlendSpeeds(self)
+    elif arg1.Speed == 2.0:
+        lib_lookat.SetMediumBlendSpeeds(self)
+    elif arg1.Speed == 3.0:
+        lib_lookat.SetHardBlendSpeeds(self)
+    elif arg1.Speed == 4.0:
+        lib_lookat.SetSoftInMediumOutBlendSpeeds(self)
+    elif arg1.Speed == 5.0:
+        lib_lookat.SetSnapSpeeds(self)
+    if arg1.Effectors == 0.0:
+        lib_lookat.SetUseOnlyHead(self)
+    elif arg1.Effectors == 1.0:
+        lib_lookat.SetUseMostlyHead(self)
+    elif arg1.Effectors == 2.0:
+        lib_lookat.SetUseMuchHeadBitOSpine(self)
+    elif arg1.Effectors == 3.0:
+        lib_lookat.SetUseCombatHead(self)
+    elif arg1.Effectors == 4.0:
+        lib_lookat.SetUseNone(self)
+    elif arg1.Effectors == 5.0:
+        lib_lookat.SetUseBalancedHeadAndSpine(self)
+    elif arg1.Effectors == 6.0:
+        lib_lookat.SetUseDog(self)
+    elif arg1.Effectors == 7.0:
+        lib_lookat.SetUseMuchHeadAndSpine(self)
+    elif arg1.Effectors == 8.0:
+        lib_lookat.SetSittingOrLayingDown(self)
+
+def setConfigurationSnapOff(self, arg1):
+    lib_lookat.SetSnapSpeeds(self)
+    lib_lookat.SetUseNone(self)
+
+def Update(self, arg1, arg2):
+    if not arg1.LookatHasActivated:
+        if lib_lookat.LookAtIsAccepted(self):
+            arg1.LookatHasActivated = true
+            setConfiguration(self, arg1)

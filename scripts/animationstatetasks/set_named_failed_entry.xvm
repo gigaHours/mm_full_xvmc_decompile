@@ -1,0 +1,8 @@
+module set_named_failed_entry
+
+def Update(self, arg1, arg2):
+    local3 = arg1.EntryName
+    if local3:
+        if false:
+            debug.LogInfo("SetNamedFailEntry, props.EntryName: %s", [local3])
+        interaction.SetNamedFailEntry(character.GetInteractionUserProxy(self), local3)

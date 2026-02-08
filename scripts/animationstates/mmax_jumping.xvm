@@ -1,0 +1,68 @@
+module mmax_jumping
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = 1.33
+    local5 = 1.0
+    local6 = 0.85
+    local7 = 15.0
+    local8 = 15.0
+    local9 = 50.0
+    local10 = 5.0
+    local11 = 5.0
+    local12 = 1.0 == int(arg1.Property0)
+    local13 = character.GetWorldMatrix(self)
+    local14 = lib_character.GetFilteredMoveInputWorldDir()
+    local15 = input.GetFilteredMoveInput()
+    if vector.Length(local14) > 0.0:
+        local14 = vector.Normalize(local14)
+    local16 = game.GetBlackboardValueFromObject(self, @F88048B5)
+    local17 = vector.Scale(lib_character.GetFilteredMoveInputWorldDir(), -1.0)
+    if vector.Length(local17) > 0.0:
+        local18 = animation.GetSegmentInfo(self, @E063F6A0, @DDC941B2)
+        if local18:
+            if local18.Inside > 0.0:
+                local19 = local13.r1
+                local20 = vector.Add(local13.r3, vector.Set(0.0, 1.0, 0.0, 0.0))
+                local21 = matrix.Slerp(matrix.Matrix(local16, local19, local20), matrix.Matrix(local17, local19, local20), local18.LocalTime)
+                character.RotateInstantlyMat(self, local21)
+                if false:
+                    debug.Arrow(local20, vector.Add(local20, local16), 0.1, lib_color.BLUE(0.5))
+                    debug.Arrow(local20, vector.Add(local20, local17), 0.1, lib_color.GREEN(0.5))
+                    debug.Arrow(local20, vector.Add(local20, local21.r2), 0.1, lib_color.YELLOW(0.5))
+                    debug.LogInfo("segRotation.LocalTime: %f", [local18.LocalTime])
+    local22 = lib_character.SegmentNonExistentOrWithin(self, @E063F6A0, @4B86EFD8)
+    local23 = animation.IsWithinSegment(self, @E063F6A0, @84F113F5)
+    if local22 or local23:
+        character.UpdateDeltaReferenceFrame(self, arg2)
+        local24 = character.GetAnimationVelocityLS(self)
+        local25 = vector.Set(0.0, 0.0, 0.0, 0.0)
+        if local22:
+            local26 = character.GetGlobalXvmFloat(self, 3.0)
+            if local24.y > 0.0:
+                local24.y = local24.y * local4
+            local24.z = local24.z * local5 * local26
+            local27 = 0.0
+            if math.Abs(local15.z) > 0.0:
+                local27 = local9
+                if local12:
+                    local27 = local8
+            else:
+                local24.z = local24.z * local6
+            local25 = vector.Set(local7 * arg2 * local15.x, 0.0, local27 * arg2 * local15.z, 0.0)
+        if local23:
+            local24.z = local24.z * 0.5
+        local28 = vector.Add(local24, local25)
+        character.SetAnimationVelocityLS(self, arg2, local28)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = 0.5
+    local6 = 6.5
+    local7 = 0.75
+    local8 = 1.3
+    local9 = vector.Length(character.GetVelocityLS(self))
+    local10 = math.Clamp((local9 - local5) / (local6 - local5), 0.0, 1.0)
+    local11 = local7 + (local8 - local7) * local10
+    character.SetGlobalXvmFloat(self, 3.0, local11)
+    game.SetBlackboardValueToObject(self, @F88048B5, game.GetTransform(self).r2)
+    game.SetBlackboardValueToObject(self, @C5CA4B39, vector.Scale(lib_character.GetFilteredMoveInputWorldDir(), -1.0))

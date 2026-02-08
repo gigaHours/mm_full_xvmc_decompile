@@ -1,0 +1,275 @@
+module shot_state_shoot
+import @9B4F6985
+import @83195642
+import @58351C01
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local2.buffered_shoot = false
+    local2.buffered_shoot_act = none
+    local2.buffered_shoot_timer = 0.0
+    if local2.quickfiring:
+        lib_weapon.ForceOutlineUpdate(arg1, true)
+    if lib_weapon.IsInOgc(arg1):
+        if not local2.quickfiring:
+            pass
+    elif not local2.quickfiring:
+        lib_weapon.StartSlowMo(arg1, lib_shotgun.SLOWMO_SHOOT_VEHICLE())
+    local2.manualAimCamEnabled = false
+    if local2.target:
+        local3 = scriptgo.GetProperties(local2.target)
+        if local3.showAimCameraOnFireAt:
+            if lib_weapon.IsInOgc(arg1):
+                lib_weapon.StartCam(arg1, lib_shotgun.CAM_OGC_AIM())
+                local2.manualAimCamEnabled = true
+    gui.PostEvent("gui_weapon_aim_mode_off")
+    local2.has_shot = false
+    PlayShootAnim(self, arg1)
+    game.SendEventNone("shotgun.shoot.start")
+
+def NotifyCompanionToDodgeShotgunblast():
+    local0 = vehicle.GetSignatureVehicleCompanion()
+    if local0:
+        game.QueueAct(local0, "ACT_HIDE_MORE")
+
+def UpdateTargetBBPosition(self, arg1, arg2):
+    if arg2.character_point_to_test_from:
+        local3 = character.GetWorldMatrix(arg1)
+        local4 = vector.Scale(local3.r2, -1.0)
+        local5 = arg2.current_target_pos
+        if not local5:
+            if arg2.target:
+                local5 = scriptgo.Call(arg2.target, @0C537298)
+        if local5 and arg2.character_point_to_test_from:
+            local6 = matrix.MulVec(local3, arg2.character_point_to_test_from)
+            local4 = vector.Normalize(vector.Sub(local5, local6))
+            game.SetBlackboardValueToObject(arg1, @6E3715F9, local4)
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.StopSlowMo(arg1, 0.0)
+    if not lib_weapon.IsNextState(arg1, lib_shotgun.STATE_AIM_ID()):
+        lib_shotgun.StopAimCameras(arg1)
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_shotgun.STATE_SHOOT_ID()
+
+def PlayShootAnim(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    local3 = local2.wielding_character
+    if lib_weapon.IsInOgc(arg1):
+        local4 = 0.0
+        local5 = character.GetWorldMatrix(local3)
+        local6 = local5.r3
+        local7 = lib_character.GetFlattenedCameraDir(local5.r1)
+        if none != local2.target:
+            local8 = scriptgo.Call(local2.target, @0C537298)
+            local9 = vector.Set(local8.x, local6.y, local8.z, 0.0)
+            local10 = vector.Sub(local8, local6)
+            local7 = vector.Sub(local9, local6)
+        local11 = vector.Scale(local5.r2, -1.0)
+        local12 = vector.Dot(local7, local11)
+        local13 = vector.Dot(local7, local5.r0)
+        local14 = none
+        if local2.input_fire_held:
+            if local12 > local4:
+                local14 = "ACT_SHOTGUN_SHOOT_FWD"
+            elif local13 > 0.0:
+                local14 = "ACT_SHOTGUN_SHOOT_BWD_RIGHT"
+            else:
+                local14 = "ACT_SHOTGUN_SHOOT_BWD_LEFT"
+        elif local2.input_throw_held:
+            local15 = character.GetWieldedObject(local3)
+            local16 = character.GetInventoryItem(local3, "scrotus_thunderstick")
+            local17 = character.GetInventoryItem(local3, "jerrycan")
+            if game.IsObjectEqualTo(local15, local16):
+                local14 = "ACT_THROW_THUNDERSTICK"
+            if game.IsObjectEqualTo(local15, local17):
+                local14 = "ACT_THROW_JERRYCAN"
+            if local14 == none:
+                local14 = "ACT_THROW_OBJECT"
+        if local14:
+            game.QueueAct(local3, local14)
+            local2.buffered_shoot_act = local14
+            local2.buffered_shoot = true
+        local18 = camera.GetCameraTransform()
+        local19 = lib_shotgun.MAX_SHOT_RANGE()
+        local20 = lib_shotgun.GetAimSourcePos(arg1)
+        local21 = vector.Add(local18.r3, vector.Scale(local18.r2, -local19))
+        local8 = lib_weapon.RayCastPosition(arg1, none, local20, local21)
+        local2.current_target_pos = local8
+    else:
+        local22 = true
+        local14 = none
+        local23 = none
+        local8 = none
+        local2.current_target_pos = none
+        if local2.target:
+            local23 = scriptgo.GetProperties(local2.target)
+            local8 = scriptgo.Call(local2.target, @0C537298)
+            local22 = false
+            if local23.char == none:
+                local22 = true
+            elif lib_vehicle.CheckBoarderInPosition(local23.char, 22.0):
+                local14 = "ACT_SHOTGUN_FIRE_UP"
+            elif lib_vehicle.CheckBoarderInPosition(local23.char, 24.0):
+                local14 = "ACT_SHOTGUN_FIRE_POSITION_CORNER_FRONT_RIGHT"
+            elif lib_vehicle.CheckBoarderInPosition(local23.char, 27.0):
+                local14 = "ACT_SHOTGUN_FIRE_POSITION_DOOR_RIGHT"
+            elif lib_vehicle.CheckBoarderInPosition(local23.char, 26.0):
+                local14 = "ACT_SHOTGUN_FIRE_POSITION_BACK_RIGHT"
+            else:
+                local22 = true
+        if local22:
+            local5 = character.GetWorldMatrix(local3)
+            local6 = local5.r3
+            if local2.target:
+                local8 = scriptgo.Call(local2.target, @0C537298)
+            else:
+                local18 = camera.GetCameraTransform()
+                local19 = lib_shotgun.MAX_SHOT_RANGE()
+                local20 = lib_shotgun.GetAimSourcePos(arg1)
+                local21 = vector.Add(local18.r3, vector.Scale(local18.r2, -local19))
+                local8 = lib_weapon.RayCastPosition(arg1, none, local20, local21)
+            local9 = vector.Set(local8.x, local6.y, local8.z, 0.0)
+            local10 = vector.Sub(local8, local6)
+            local7 = vector.Sub(local9, local6)
+            local24 = vector.Dot(local7, local5.r0)
+            local25 = vector.Dot(local7, local5.r2)
+            if local24 > 0.0:
+                if 0.0 > local25:
+                    local14 = "ACT_SHOTGUN_RIGHT_FRONT_TB"
+                else:
+                    local14 = "ACT_SHOTGUN_RIGHT_BACK_TB"
+                local2.character_point_to_test_from = vector.Set(0.2, 0.54, 0.0, 0.0)
+            else:
+                local26 = vector.Set(0.0, 0.94, 0.0, 0.0)
+                local27 = matrix.MulVec(local5, local26)
+                local28 = vector.Normalize(vector.Sub(local8, local27))
+                local29 = vector.Dot(local28, local5.r1)
+                if local29 > 0.13:
+                    local2.character_point_to_test_from = vector.Set(0.2, 0.94, 0.0, 0.0)
+                    if 0.0 > local25:
+                        local14 = "ACT_SHOTGUN_LEFT_HIGH_FRONT_TB"
+                    else:
+                        local14 = "ACT_SHOTGUN_LEFT_HIGH_BACK_TB"
+                else:
+                    local2.character_point_to_test_from = vector.Set(0.0, 0.4, 0.0, 0.0)
+                    NotifyCompanionToDodgeShotgunblast()
+                    if 0.0 > local25:
+                        local14 = "ACT_SHOTGUN_LEFT_LOW_FRONT_TB"
+                    else:
+                        local14 = "ACT_SHOTGUN_LEFT_LOW_BACK_TB"
+            if local23:
+                if local23.char != none:
+                    if lib_vehicle.CheckBoarderInPosition(local23.char, 22.0):
+                        if 0.0 > local25:
+                            local14 = "ACT_SHOTGUN_LEFT_HIGH_FRONT_TB"
+                        else:
+                            local14 = "ACT_SHOTGUN_LEFT_HIGH_BACK_TB"
+            if local8:
+                local2.current_target_pos = local8
+            UpdateTargetBBPosition(self, local3, local2)
+        if local14:
+            game.QueueAct(local3, local14)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = local3.wielding_character
+    if local3.buffered_shoot:
+        game.QueueAct(local4, local3.buffered_shoot_act)
+        local3.buffered_shoot_timer = local3.buffered_shoot_timer + arg1
+        if local3.buffered_shoot_timer > 0.3:
+            local3.buffered_shoot = false
+            local3.buffered_shoot_act = none
+            local3.buffered_shoot_timer = 0.0
+    local5 = animation.IsWithinSegment(local4, @E063F6A0, @BFBDBDC4)
+    local6 = animation.IsWithinSegment(local4, @E063F6A0, @61234F04)
+    if (not local3.input_aim_held) and (not local3.manualAimCamEnabled):
+        lib_shotgun.StopAimCameras(local2)
+    if local6:
+        UpdateTargetBBPosition(self, local4, local3)
+        local3.has_shot = false
+        if (not local3.buffered_shoot) and (not local5):
+            lib_weapon.ChangeState(local2, local3.state_idle)
+            return
+    elif not local3.has_shot:
+        local7 = character.GetWieldedObject(local4)
+        local8 = character.GetInventoryItem(local4, "shotgun")
+        local9 = character.GetInventoryItem(local4, "scrotus_thunderstick")
+        local10 = character.GetInventoryItem(local4, "jerrycan")
+        if game.IsObjectEqualTo(local7, local10):
+            if local3.target != none:
+                local11 = scriptgo.Call(local3.target, @0C537298)
+                character.WeaponSetAimTargetPosition(local10, local11)
+            elif local3.current_target_pos:
+                character.WeaponSetAimTargetPosition(local10, local3.current_target_pos)
+            else:
+                character.WeaponSetAimTargetPosition(local10, vector.Set(0.0, 0.0, 0.0, 0.0))
+            hydra.HydraSendVehicleEvent(13.0)
+            local3.has_shot = true
+            local3.target = game.GetChildByScriptName(local10, "shotgun_target.xpy")
+        if game.IsObjectEqualTo(local7, local9):
+            if local3.target != none:
+                local12 = scriptgo.GetProperties(local3.target)
+                if local12.char == none:
+                    local11 = scriptgo.Call(local3.target, @0C537298)
+                else:
+                    local13 = game.GetTransform(local12.char)
+                    local11 = local13.r3
+                character.WeaponSetAimTargetPosition(local9, local11)
+            elif local3.current_target_pos:
+                character.WeaponSetAimTargetPosition(local9, local3.current_target_pos)
+            else:
+                character.WeaponSetAimTargetPosition(local9, vector.Set(0.0, 0.0, 0.0, 0.0))
+            hydra.HydraSendVehicleEvent(12.0)
+            local3.has_shot = true
+            lib_weapon.ResetTarget(local2)
+        elif game.IsObjectEqualTo(local7, local8) and lib_shotgun.IsLoaded(local2):
+            local14 = character.GetVehicle(local4)
+            if local14:
+                character.WeaponAddObjectToIgnore(local8, local14)
+            local15 = vehicle.GetSignatureVehicleCompanion()
+            if local15:
+                character.WeaponAddObjectToIgnore(local8, local15)
+            if none != local3.target:
+                local11 = scriptgo.Call(local3.target, @0C537298)
+                character.WeaponSetAimTargetPosition(local8, local11)
+                character.WeaponFireAtAimTarget(local8, local4)
+                scriptgo.Call2(local3.target, @DDEF473F, local4, local8)
+            elif local3.current_target_pos:
+                character.WeaponSetAimTargetPosition(local8, local3.current_target_pos)
+                character.WeaponFireAtAimTarget(local8, local4)
+            else:
+                character.WeaponFireStraightAhead(local8, local4)
+            hydra.HydraSendVehicleEvent(11.0)
+            game.SendEventNone("shotgun.fired")
+            local3.has_shot = true
+            lib_weapon.ResetTarget(local2)
+            lib_weapon.StopSlowMo(local2, 0.3)
+        elif (not local3.buffered_shoot) and (not local5):
+            lib_weapon.ChangeState(local2, local3.state_idle)
+    elif local3.has_shot or not lib_shotgun.IsLoaded(local2):
+        if not local5:
+            if local3.input_aim_held and lib_shotgun.IsLoaded(local2):
+                lib_weapon.ChangeState(local2, local3.state_aim)
+                return
+            if (not lib_shotgun.IsLoaded(local2)) and lib_shotgun.CanReload(local2):
+                lib_weapon.ChangeState(local2, local3.state_reload)
+                return
+            if local3.weapon_selected:
+                lib_weapon.ChangeState(local2, local3.state_auto)
+                return
+            lib_weapon.ChangeState(local2, local3.state_idle)
+            return
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "SHOOT"

@@ -1,0 +1,26 @@
+module balloon_initial_scouting
+
+def EnterAlignedTransition(self, arg1, arg2):
+    local3 = math.DegToRad(self.Properties.pitch_limit_min)
+    local4 = math.DegToRad(self.Properties.pitch_limit_max)
+    lib_camera.AlignElevationToSourceCameraClamped(self, arg1, arg2, local3, local4)
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    lib_camera.ResetDamping(self)
+    self.Properties.time_passed = 0.0
+
+def OnActivate(self):
+    pass
+
+def OnDeactivate(self):
+    pass
+
+def Init(self):
+    lib_camera.ResetDamping(self)
+    self.Properties.AccelerationProgress = 0.0
+
+def EnterUnalignedTransition(self, arg1):
+    lib_camera.ResetDamping(self)
+    self.Properties.time_passed = 0.0
+
+def Update(self, arg1):
+    game.SendEventNone("cam.activate.binocular")

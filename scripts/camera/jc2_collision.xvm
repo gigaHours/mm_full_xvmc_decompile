@@ -1,0 +1,16 @@
+module jc2_collision
+
+def OnActivate(self):
+    pass
+
+def OnDeactivate(self):
+    pass
+
+def Update(self, arg1):
+    local2 = collision.CheckCollision(arg1.CameraTransform, self.CameraBaseTransform.r3, 0.0, 1.0, self.Properties.ignore_characters)
+    if 1.0 > local2.Distance:
+        local3 = vector.Sub(arg1.CameraTransform.r3, self.CameraBaseTransform.r3)
+        local4 = 1.05
+        local5 = math.Max(vector.Length(local3) * local2.Distance, local4)
+        local3 = vector.Normalize(local3)
+        arg1.CameraTransform.r3 = vector.Add(self.CameraBaseTransform.r3, vector.Scale(local3, local5))

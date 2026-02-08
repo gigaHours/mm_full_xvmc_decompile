@@ -1,0 +1,47 @@
+module mmax_jawbreaker_buildup
+
+def Enter(self, arg1):
+    game.SetBlackboardValueToObject(self, @2B30ED38, 0.0)
+
+def DoStopJawbreakerBuildupEffect(self):
+    game.PostEventNone("cam.deactivate.wasteland.brutality.medium")
+
+def DoStartJawbreakerBuildupEffect(self):
+    game.PostEventNone("cam.activate.wasteland.brutality.medium")
+
+def Exit(self, arg1):
+    if game.GetBlackboardValueFromObject(self, @2B30ED38) == 1.0:
+        DoStopJawbreakerBuildupEffect(self)
+
+def StartJawbreakerBuildUpValidation(self, arg1):
+    if animation.IsWithinSegment(self, @E063F6A0, @1B4D89F2):
+        local2 = animation.GetLinkTarget(self)
+        if local2:
+            local3 = animation.GetSegmentInfo(local2, @E063F6A0, @1FB3D6B9)
+            if local3:
+                local4 = (arg1 - animation.GetTime(self)) / animation.GetSpeed(self)
+                local5 = local3.End - 2.0 / 30.0 - animation.GetTime(local2)
+                if local5 > 0.0:
+                    local5 = local5 / animation.GetSpeed(local2)
+                    if local5 > local4:
+                        return true
+    return false
+
+def Update(self, arg1, arg2):
+    local3 = arg1.ConnectFrame
+    if game.GetBlackboardValueFromObject(self, @2B30ED38) == 0.0:
+        if StartJawbreakerBuildUpValidation(self, local3):
+            DoStartJawbreakerBuildupEffect(self)
+            game.SetBlackboardValueToObject(self, @2B30ED38, 1.0)
+    elif game.GetBlackboardValueFromObject(self, @2B30ED38) == 1.0:
+        if StopJawbreakerBuildUpValidation(self):
+            DoStopJawbreakerBuildupEffect(self)
+            game.SetBlackboardValueToObject(self, @2B30ED38, 2.0)
+
+def StopJawbreakerBuildUpValidation(self):
+    local1 = animation.GetLinkTarget(self)
+    if not local1:
+        return true
+    if not animation.IsWithinSegment(self, @E063F6A0, @1B4D89F2):
+        return true
+    return false

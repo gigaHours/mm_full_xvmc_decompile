@@ -1,0 +1,5 @@
+module set_health
+
+def SetHealth(self):
+    local1 = character.GetPlayer()
+    character.SetHealthBlockFullRatio(local1, "Health", 0.5)

@@ -1,0 +1,11 @@
+module part_control
+
+def Hide(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetPart(local1.car, local1.physicsPartName)
+    local2.Visible = false
+
+def Show(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetPart(local1.car, local1.physicsPartName)
+    local2.Visible = true

@@ -1,0 +1,28 @@
+module vh_detect_jump_state
+
+def Update(self, arg1, arg2):
+    if vehicle.IsPlayerVehicle(self):
+        local3 = vehicle.GetVehicleContext()
+        local4 = vector.Dot(local3.At, local3.Velocity)
+        local5 = vehicle.GetWheelContact(self, 0.0)
+        local6 = vehicle.GetWheelContact(self, 1.0)
+        local7 = vehicle.GetWheelContact(self, 2.0)
+        local8 = vehicle.GetWheelContact(self, 3.0)
+        local9 = 0.0
+        if 0.5 >= vehicle.GetWheelContactRatio(self):
+            if local5 + local7 == 0.0 and local6 + local8 != 0.0:
+                local9 = 1.0
+            if local5 + local7 != 0.0 and local6 + local8 == 0.0:
+                local9 = 1.0
+        local10 = 0.0
+        if local5 + local6 == 0.0 and local7 + local8 != 0.0:
+            local10 = 1.0
+        local11 = 20.0
+        local11 = local11 - 5.0 * local10
+        if local9 == 0.0 and game.GetTransform(self).r1.y > 0.25:
+            if 0.5 >= vehicle.GetWheelContactRatio(self) and math.Abs(vector.Length(local3.Velocity)) > local11 and local10 == 1.0:
+                game.QueueAct(self, "ACT_JUMP")
+            if 0.5 > vehicle.GetWheelContactRatio(self) and math.Abs(vector.Length(local3.Velocity)) > local11:
+                game.QueueAct(self, "ACT_JUMP")
+        if 0.5 >= vehicle.GetWheelContactRatio(self) and 0.25 > game.GetTransform(self).r1.y and 1.0 > vector.Length(local3.Velocity):
+            game.QueueAct(self, "ACT_TURTLE")

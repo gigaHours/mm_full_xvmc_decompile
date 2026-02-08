@@ -1,0 +1,16 @@
+module lib_flamethrower
+
+def STATE_AIM_ID():
+    return 1.0
+
+def STATE_SHOOT_ID():
+    return 2.0
+
+def STATE_IDLE_ID():
+    return 0.0
+
+def SLOWMO_AIM():
+    return [0.3, 1.0, 0.5]
+
+def CAM_AIM():
+    return ["cam.activate.flamethrower.aim", "cam.deactivate.flamethrower.aim"]

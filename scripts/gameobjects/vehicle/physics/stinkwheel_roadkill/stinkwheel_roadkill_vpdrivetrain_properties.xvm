@@ -1,0 +1,16 @@
+module stinkwheel_roadkill_vpdrivetrain_properties
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.DifferentialPreload = 0.0
+    local1.DifferentialPowerRampCoeff = 0.25
+    local1.DifferentialCoastRampCoeff = 0.25
+    local1.DifferentialStartFadeDiffSpeed = 2.05128217
+    local1.DifferentialMaxFadeDiffSpeed = 10.2564106
+    local1.DifferentialPreFadeStiffness = 1.0
+    local1.WheelRadiusTunedTo = 0.39
+    local1.TcsStartSlip = 0.5
+    local1.TcsMaxSlip = 1.0
+    local1.PeakTorque = 450.0
+    local1.PeakTorqueRpm = 2000.0
+    local1.PeakPowerRpm = 3000.0

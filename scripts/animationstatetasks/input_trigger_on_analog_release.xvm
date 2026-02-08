@@ -1,0 +1,35 @@
+module input_trigger_on_analog_release
+
+def Update(self, arg1, arg2):
+    local3 = game.GetBlackboardValueFromObject(self, @B237B94E)
+    if local3 == none:
+        local3 = 0.0
+    local4 = false
+    local5 = input.GetButtonInput(@6809F897)
+    local6 = local5 - local3
+    local7 = game.GetRealTime()
+    local8 = game.GetBlackboardValueFromObject(self, @87656040)
+    if local8 == none:
+        local8 = 0.0
+    local9 = local7 - local8
+    if local6 > 0.1:
+        game.SetBlackboardValueToObject(self, @87656040, local7)
+    elif 0.0 > local6:
+        if false:
+            debug.DrawText(vector.Set(0.3, 0.27, 0.0, 0.0), "delta: %f, timeDif: %f", [local6, local9], lib_color.RED(1.0))
+        if -1.0 * 0.1 > local6:
+            local4 = true
+            if false:
+                debug.Sphere(game.GetTransform(self).r3, 1.0, lib_color.CYAN(0.6))
+            if 0.65 > local9:
+                game.SetBlackboardValueToObject(self, @B67D62ED, local7)
+    if local4 or local6 >= 0.0 or 0.0 >= local5:
+        local10 = local5
+        if local4:
+            local10 = 0.0
+        game.SetBlackboardValueToObject(self, @B237B94E, local10)
+    local11 = game.GetBlackboardValueFromObject(self, @B67D62ED)
+    if none != local11:
+        local9 = local7 - local11
+        if 0.3 > local9:
+            game.QueueAct(self, "ACT_PRESS_JUMP")

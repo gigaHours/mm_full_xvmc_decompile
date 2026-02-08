@@ -1,0 +1,31 @@
+module veh_companion
+import @46F71871
+
+def SetCurrentCompanion(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("vehicle.upgrade.manager")
+    if not local2:
+        debug.LogInfo("UPGRADES MENU: no vehicle upgrade manager", [])
+        return
+    vehicle.SetCurrentSignatureVehicleCompanion(local2, local1.companion)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.companion_type
+    SetCurrentCompanion(self)
+    if local2 == 0.0:
+        ChumbucketSpecific()
+    elif local2 == 1.0:
+        TenderloinSpecific()
+    scriptgo.SendEvent(self, @AB77F8D0)
+
+def ChumbucketSpecific():
+    game.SendEventNone("player.weapon.shotgun.show")
+    game.SendEventNone("player.weapon.harpoon.show")
+    game.SendEventNone("player.weapon.thunderstick.show")
+
+def TenderloinSpecific():
+    game.SendEventNone("player.weapon.shotgun.hide")
+    game.SendEventNone("player.weapon.harpoon.hide")
+    game.SendEventNone("player.weapon.thunderstick.show")
+    game.SendEventNone("vehicle.thunderstick.select")

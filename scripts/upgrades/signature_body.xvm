@@ -1,0 +1,11 @@
+module signature_body
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate signature_body level %f", [self])
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate signature_body level %f", [self])

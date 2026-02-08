@@ -1,0 +1,40 @@
+module encampment_buggy
+
+def ConfigureHealthComponent(self, arg1, arg2, arg3, arg4, arg5, arg6):
+    if false:
+        debug.LogInfo("----------------------------------------------------------------------------------------------", [])
+        debug.LogInfo("%s component config found.", [arg1])
+    scriptgo.Call2(self, @3F98B310, arg3, arg2)
+    scriptgo.Call1(self, @003FB0FF, arg5)
+    scriptgo.Call2(self, @4BC7717D, arg4, true)
+    scriptgo.Call1(self, @63648211, arg6)
+
+def ConfigureDamageSettings(self, arg1, arg2):
+    if false:
+        debug.LogInfo("Configuring %s ...", [game.GetName(self)])
+    if arg2 == "COLLISION_DAMAGE":
+        if false:
+            debug.LogInfo("%s component config found.", [arg2])
+        scriptgo.Call2(arg1, @ECD819C0, 0.0, 1.0)
+        scriptgo.Call1(arg1, @E679D8AC, 0.0)
+        scriptgo.Call2(arg1, @86C4B9D8, 0.25, 40.0)
+    elif arg2 == "BODY":
+        ConfigureHealthComponent(arg1, arg2, 1.0, 20.0, 400.0, 100.0, 0.0)
+    elif arg2 == "WHEEL":
+        ConfigureHealthComponent(arg1, arg2, 0.3, 20.0, 60.0, 15.0, 0.0)
+    else:
+        if not arg2:
+            arg2 = "(None)"
+        debug.LogWarning("No dmg cfg component", arg2)
+
+def Init(self):
+    local1 = lib_vehicle.GetParentVehicle(self)
+    local2 = lib_entity_proxy.GetWeakspotList(local1)
+    local4 = 0.0
+    local5 = 1.0
+    local3 = golist.NbGameObjects(local2)
+    while local3 > local4:
+        local6 = golist.Get(local2, local4)
+        local7 = game.WeakspotGetHealthScript(weakspot)
+        scriptgo.Call1(local7, @6E3A45E2, local6)
+        local4 = local5 + local4

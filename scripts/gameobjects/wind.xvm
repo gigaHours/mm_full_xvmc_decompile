@@ -1,0 +1,10 @@
+module wind
+
+def UpdateWind(self, arg1):
+    local2 = vector.Length(game.GetWindVelocityPhysics())
+    local3 = vector.Add(vector.Set(0.0, local2 / 8.0, 0.0, 0.0), game.GetWindVelocityPhysics())
+    physics.SetWindVelocity(local3)
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "UpdateWind")
+    physics.SetWindEnabled(true)

@@ -1,0 +1,13 @@
+module char_acquire_source_in_seg_as_linktarget
+
+def Evaluate(self, arg1):
+    local3 = 0.0
+    local4 = 1.0
+    local2 = animation.GetLinkSourceCount(self)
+    while local2 > local3:
+        local5 = animation.GetLinkSource(self, local3)
+        if animation.IsWithinSegment(local5, @E063F6A0, @B8728FDD):
+            animation.SetLinkTarget(self, local5)
+            return 1.0
+        local3 = local4 + local3
+    return 0.0

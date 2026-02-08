@@ -1,0 +1,24 @@
+module death_camera
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+
+def Init(self):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    pass
+
+def Update(self, arg1):
+    local2 = matrix.MatrixY(self.CameraBaseTransform.r2, vector.Set(0.0, 1.0, 0.0, 0.0), self.CameraBaseTransform.r3)
+    arg1.CameraTransform = matrix.Mul(self.InitialOffsetTransform, local2)
+    local3 = 0.5
+    local4 = vector.Add(self.CameraBaseTransform.r3, vector.Set(0.0, local3, 0.0, 0.0))
+    local5 = collision.CheckCollision(arg1.CameraTransform, self.CameraBaseTransform.r3, 0.0, 1.0, 0.0)
+    if 1.0 > local5.Distance:
+        local6 = vector.Sub(arg1.CameraTransform.r3, local4)
+        local7 = 1.05
+        local8 = math.Max(vector.Length(local6) * local5.Distance, local7)
+        local6 = vector.Normalize(local6)
+        arg1.CameraTransform.r3 = vector.Add(local4, vector.Scale(local6, local8))

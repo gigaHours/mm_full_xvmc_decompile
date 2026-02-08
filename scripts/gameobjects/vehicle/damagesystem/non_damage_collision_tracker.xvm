@@ -1,0 +1,166 @@
+module non_damage_collision_tracker
+
+def OnNonDamageCollision(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if arg2:
+        local4 = false
+        if arg2.GameObject:
+            local4 = vehicle.IsVehicle(arg2.GameObject)
+            if local4:
+                if vehicle.IsPlayerVehicle(arg2.GameObject):
+                    return
+        if not vehicle.IsPlayerVehicle(local3.car):
+            if arg2.OtherApproachSpeed > arg2.SelfApproachSpeed:
+                return
+        local5 = false
+        local6 = vehicle.GetVelocity(local3.car)
+        local7 = vector.Length(local6)
+        local8 = arg2.Impulse
+        local9 = vector.Scale(arg2.Normal, -1.0)
+        local10 = game.GetTransform(local3.car)
+        local11 = local10.r1
+        local12 = DetermineCollisionType(self, arg2)
+        if local12 == 1.0 and local8 > local3.current_impact_threshold and local7 > 0.5 and local8 > 6.0:
+            local3.current_impact_threshold = local8 * 1.5
+            if local3.down_dot > 0.5:
+                local12 = 2.0
+            else:
+                local12 = 1.0
+        elif local12 == 3.0 and local7 > 0.5:
+            local5 = false
+        else:
+            local5 = true
+        if (not local5) and (not local3.collision_handled):
+            local3.collision_handled = true
+            local3.collision_type = local12
+            local3.timeSinceLastCollision = 0.0
+            local3.impulse = local8
+            local3.normal = local9
+            local3.position = arg2.Position
+            local3.material = arg2.OtherMaterial
+            local3.velocity = arg2.OtherPointVelocity
+            local6 = vehicle.GetVelocity(local3.car)
+            local3.speed = local7
+            if arg1:
+                local3.angularspeed = vector.Length(vehicle.GetAngularVelocity(arg1))
+            scriptgo.SendEvent(self, @8ADABCDF)
+            local13 = vehicle.GetGlobalProperties()
+            if local13.print_nondmg_debug:
+                local14 = GetDebugText(local3)
+                debug.LogInfo(local14, [])
+                scriptgo.SetRenderFunction(self, "UpdateRender")
+        scriptgo.SetUpdateFunction(self, "Update")
+
+def DetermineCollisionType(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1:
+        if arg1.OtherMaterial == 22.0:
+            local3 = vehicle.GetPartByShapeKey(local2.car, arg1.SelfShapeKey)
+            if local3:
+                if local3.IsWheel:
+                    local2.groundNormal = vehicle.GetChassis(local2.car).Wheels[local3.WheelIndex].SurfaceNormal
+                    return 5.0
+        local4 = arg1.SelfPointVelocity
+        if arg1.GameObject:
+            local4 = vector.Sub(local4, arg1.OtherPointVelocity)
+        local5 = vector.Set(0.0, -1.0, 0.0, 0.0)
+        local6 = vector.Set(arg1.AABBNormal.x, arg1.AABBNormal.y, arg1.AABBNormal.z, 0.0)
+        local7 = vector.Dot(local6, local5)
+        local2.down_dot = local7
+        local8 = vector.Length(local4)
+        local9 = math.Abs(vector.Dot(local4, arg1.Normal))
+        local10 = vector.Scale(arg1.Normal, local9)
+        local11 = vector.Sub(local4, local10)
+        local12 = vector.Length(local11)
+        local13 = vector.Scale(arg1.Normal, vector.Dot(arg1.SelfPointVelocity, arg1.Normal))
+        local13 = vector.Sub(local13, arg1.SelfPointVelocity)
+        local14 = vector.Length(local13)
+        local2.slide_speed = local12
+        if 0.9 > local9 and local12 > 1.2 and 0.2 > local7:
+            return 3.0
+        if 0.2 > local8:
+            if local14 > 0.2:
+                return 4.0
+        else:
+            return 1.0
+    return 0.0
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    DebugLastDamage(self, arg1)
+
+def CheckNonDamageCollision(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.collision_handled = false
+    local3 = graphscript.GetVariables(self)
+    local3.position = local2.position
+    local3.normal = local2.normal
+    local3.impulse = local2.impulse
+    local3.velocity = local2.velocity
+    local3.speed = local2.speed
+    local3.slide_speed = local2.slide_speed
+    local3.material = local2.material
+    local3.angularspeed = local2.angularspeed
+    local3.vehicle = local2.car
+    if local2.collision_type == 1.0:
+        graphscript.FireGraphOutput(arg1, "OnCollisionImpact")
+    elif local2.collision_type == 2.0:
+        graphscript.FireGraphOutput(arg1, "OnCollisionImpactUnderside")
+    elif local2.collision_type == 3.0:
+        graphscript.FireGraphOutput(arg1, "OnCollisionSlide")
+    elif local2.collision_type == 4.0:
+        graphscript.FireGraphOutput(arg1, "OnCollisionRoll")
+    elif local2.collision_type == 5.0:
+        local3.normal = local2.groundNormal
+        graphscript.FireGraphOutput(arg1, "OnCharacterRunover")
+
+def GetDebugText(self):
+    local1 = ""
+    if self.collision_type == 1.0:
+        local1 = string.Format("Collision Impact. Impulse: %f Material: %f", [self.impulse, self.material])
+    elif self.collision_type == 2.0:
+        local1 = string.Format("Collision Underside Impact. Impulse: %f Material: %f", [self.impulse, self.material])
+    elif self.collision_type == 3.0:
+        local1 = string.Format("Collision Slide. Impact: %f Slidespeed: %f Material: %f Down: %f", [self.impulse, self.slide_speed, self.material, self.down_dot])
+    elif self.collision_type == 4.0:
+        local1 = string.Format("Collision Roll. Impact: %f Material: %f", [self.impulse, self.material])
+    elif self.collision_type == 5.0:
+        local1 = string.Format("Character Runover. Impact: %f Material: %f", [self.impulse, self.material])
+    return local1
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.impulse = 0.0
+    local1.position = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.normal = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.velocity = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.speed = 0.0
+    local1.printDebug = false
+    local1.collision_type = 0.0
+    local1.timeSinceLastCollision = 100.0
+    local1.slide_speed = 0.0
+    local1.material = 0.0
+    local1.angularspeed = 0.0
+    local1.current_impact_threshold = 0.0
+    local1.down_dot = 0.0
+    local1.collision_handled = false
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def DebugLastDamage(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if 5.0 > local2.timeSinceLastCollision:
+        local3 = GetDebugText(local2)
+        local4 = debug.ProjectPosition(local2.position)
+        debug.DrawText(local4, local3, [], lib_color.WHITE(1.0))
+    else:
+        scriptgo.SetRenderFunction(self, "")
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.timeSinceLastCollision = local2.timeSinceLastCollision + arg1
+    if local2.current_impact_threshold > 0.1:
+        local2.current_impact_threshold = local2.current_impact_threshold - 0.7 * arg1 * local2.current_impact_threshold
+    else:
+        local2.current_impact_threshold = 0.0
+    if local2.timeSinceLastCollision > 5.0 and 0.0 >= local2.current_impact_threshold:
+        scriptgo.SetUpdateFunction(self, "")

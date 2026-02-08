@@ -1,0 +1,14 @@
+module sync_with_hope
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = game.GetGameObjectByAlias("mm1040_cs_hope")
+    if local4:
+        local5 = animation.GetTime(local4)
+        local6 = animation.GetLength(local4)
+        local7 = local5 / local6
+        local8 = animation.GetSampler(arg3, 0.0)
+        local8.Time = local8.Length * local7
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    pass

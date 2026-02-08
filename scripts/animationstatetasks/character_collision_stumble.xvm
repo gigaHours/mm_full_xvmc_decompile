@@ -1,0 +1,31 @@
+module character_collision_stumble
+
+def Enter(self, arg1):
+    pass
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = 200.0
+    local4 = 400.0
+    local5 = 0.0
+    local6 = character.GetCharacterCollisionInfoCount(self)
+    while local6 > local5:
+        local7 = character.GetCharacterCollisionInfo(self, local5)
+        if local7.IsCharacter > 0.0:
+            if local7.Impact > local4:
+                local8 = vector.Scale(local7.Normal, -1.0)
+                game.QueueAct(local7.CollidedObject, "ACT_HIT_BY_STUMBLE_HEAVY")
+                character.RotateInstantly(local7.CollidedObject, local8)
+                game.QueueAct(self, "ACT_HIT_BY_STUMBLE_LIGHT")
+                character.RotateInstantly(self, local7.Normal)
+                "\n                character.SendAnimationCommandRotate(contact.CollidedObject,\n                                                     \"ACT_HIT_BY_STUMBLE_HEAVY\",\n      "
+            elif local7.Impact > local3:
+                local8 = vector.Scale(local7.Normal, -1.0)
+                game.QueueAct(local7.CollidedObject, "ACT_HIT_BY_STUMBLE_LIGHT")
+                character.RotateInstantly(local7.CollidedObject, local8)
+                game.QueueAct(self, "ACT_HIT_BY_STUMBLE_LIGHT")
+                character.RotateInstantly(self, local7.Normal)
+                "\n                character.SendAnimationCommandRotate(contact.CollidedObject,\n                                                     \"ACT_HIT_BY_STUMBLE_LIGHT\",\n                       "
+        local5 = local5 + 1.0

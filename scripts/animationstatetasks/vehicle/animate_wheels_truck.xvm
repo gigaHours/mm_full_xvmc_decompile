@@ -1,0 +1,18 @@
+module animate_wheels_truck
+
+def Enter(self, arg1):
+    vehicle.SetAnimatedWheels(self, 1.0)
+
+def Exit(self, arg1):
+    vehicle.SetAnimatedWheels(self, 0.0)
+
+def Update(self, arg1, arg2):
+    local3 = game.GetTransform(self)
+    local4 = ["wheel_frontleft_joint", "wheel_frontright_joint", "wheel_mid_left_joint", "wheel_mid_right_joint", "wheel_back_left_joint", "wheel_back_right_joint"]
+    local6 = 0.0
+    local7 = 1.0
+    local5 = 6.0
+    while local5 > local6:
+        local8 = animation.GetPoseTransformById(self, local4[local6])
+        local8 = matrix.Mul(local8, local3)
+        local6 = local7 + local6

@@ -1,0 +1,5 @@
+module is_vantage_generator_filled
+
+def Evaluate(self, arg1):
+    interaction.SetNamedFailEntry(self, "entry.vantage_point_gas_fail")
+    return 1.0

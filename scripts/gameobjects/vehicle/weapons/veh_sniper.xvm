@@ -1,0 +1,98 @@
+module veh_sniper
+import @78DDD3EE
+import @42D0E955
+import @45098D7D
+import @58351C01
+import @9B4F6985
+import @30EFB40F
+
+def WeaponSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weapon_selected = true
+    if lib_weapon.IsInState(self, lib_sniper.STATE_INACTIVE_ID()):
+        lib_weapon.ChangeState(self, local1.state_idle)
+
+def GetAlignTargetOffset(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.StateContainerDataWeaponGetAlignTargetOffsetAzimuth(local1.target_info)
+    local3 = game.StateContainerDataWeaponGetAlignTargetOffsetElevation(local1.target_info)
+    return [local2, local3]
+
+def GetAlignTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    return game.StateContainerDataWeaponGetAlignTargetPos(local1.target_info)
+
+def Unload(self):
+    lib_sniper.UnWield(self)
+
+def SniperSetReloadFactor(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.reload_animation_factor = arg1
+    local2.reload_time = local2.reload_time_base * (1.0 / arg1)
+
+def GetSavedCameraPos(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.cameraSave
+
+def GetVehicle(self):
+    return lib_vehicle.GetPlayerVehicle()
+
+def IsReloading(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.reload_time_left:
+        return local1.reload_time_left > 0.0
+    return false
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.debug_enabled = false
+    local1.debug_weapon_name = "Sniper"
+    local1.debug_weapon_name_order = 2.0
+    local1.reload_time = local1.reload_time_base
+    local1.target_list = game.GetGameObjectByAlias(local1.target_list_name)
+    SniperSetMagazineSize(self, 1.0)
+    local1.wielding_character = character.GetPlayer()
+    if false:
+        debug.LogInfo("Sniper INIT", [])
+    lib_weapon.ResetState(local1.state_idle)
+    lib_weapon.ResetState(local1.state_aim)
+    lib_weapon.ResetState(local1.state_shoot)
+    lib_weapon.ResetState(local1.state_reload)
+    lib_weapon.ResetState(local1.state_parry)
+    lib_weapon.ResetState(local1.state_inactive)
+    lib_weapon.InitWeaponCommon(self)
+    lib_weapon.ClearState(self)
+    lib_weapon.ChangeState(self, local1.state_inactive)
+
+def IsParrying(self):
+    return lib_weapon.IsInState(self, lib_sniper.STATE_PARRY_ID())
+
+def ClearSavedCameraPos(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.cameraSave = none
+
+def SniperSetMagazineSize(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.magazine_size = arg1
+    local3 = character.SetWeaponMagazineSize(local2.weapon_item, local2.magazine_size)
+    if local3 > 0.0:
+        character.AddInventoryAmmo(local2.wielding_character, "signature_sniper_bullet", local3)
+
+def IsActive(self):
+    return not lib_weapon.IsInState(self, lib_sniper.STATE_INACTIVE_ID())
+
+def WeaponUnSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weapon_selected = false
+
+def GetTargetInfo(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.target_info
+
+def SaveCameraPos(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.cameraSave = [arg1, arg2]
+
+def GetAlignTargetObj(self):
+    local1 = scriptgo.GetProperties(self)
+    return game.StateContainerDataWeaponGetAlignTarget(local1.target_info)

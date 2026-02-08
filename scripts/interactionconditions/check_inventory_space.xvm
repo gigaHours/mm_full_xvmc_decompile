@@ -1,0 +1,16 @@
+module check_inventory_space
+
+def Evaluate(self, arg1):
+    local2 = 1.0
+    local3 = interaction.GetEntryContextParent(self, local2)
+    if local3:
+        if character.IsItemCategory(local3, "Knife"):
+            local4 = interaction.GetCharacter(self)
+            local5 = character.GetInventoryItemCount(local4, "generic_shiv")
+            local6 = character.GetUpgradeValue(local4, "ShivCap")
+            if local6 > local5:
+                return 1.0
+            if local6 > 0.0:
+                interaction.SetNamedFailEntry(self, "entry.shivs_full")
+            return 0.0
+    return 1.0

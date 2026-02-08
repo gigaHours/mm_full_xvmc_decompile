@@ -1,0 +1,8 @@
+module pickup_item
+
+def Execute(self, arg1, arg2):
+    local3 = interaction.GetCharacter(self)
+    local4 = game.GetParent(arg1)
+    if not local4:
+        return
+    character.GiveObject(local3, local4)

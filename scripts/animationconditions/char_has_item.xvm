@@ -1,0 +1,11 @@
+module char_has_item
+
+def Evaluate(self, arg1):
+    if arg1.Property0 == 0.0:
+        local2 = vehicle.GetSignatureVehicleCompanion()
+        if local2 != none:
+            if arg1.Property1 == 0.0:
+                local3 = character.GetInventoryItem(local2, "jerrycan")
+                if local3:
+                    return 1.0
+    return 0.0

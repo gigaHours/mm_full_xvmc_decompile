@@ -1,0 +1,20 @@
+module legendsystem_locker
+
+def unlock(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("legend_system")
+    if local2 == none:
+        __debugout("LegendSystemLocker can't find LegendSystem, can't unlock.")
+        return
+    legendsystem.UnlockScreen(local2)
+
+def lock(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("legend_system")
+    if local2 == none:
+        __debugout("LegendSystemLocker can't find LegendSystem, can't lock.")
+        return
+    if local1.reason_string_id == none:
+        legendsystem.LockScreen(local2, gui.MakeLocalizationHashFromTag(""))
+    else:
+        legendsystem.LockScreen(local2, gui.MakeLocalizationHashFromTag(local1.reason_string_id))

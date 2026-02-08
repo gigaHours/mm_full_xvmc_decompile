@@ -1,0 +1,12 @@
+module veh_signature_force_forward
+
+def StopForceForward(self):
+    scriptgo.SetUpdateFunction(self, "")
+
+def UpdateForceForward(self, arg1):
+    local2 = vehicle.GetSignatureVehicle()
+    if local2 != none:
+        vehicle.SetAcceleratorInput(local2, 1.0)
+
+def ForceForward(self):
+    scriptgo.SetUpdateFunction(self, "UpdateForceForward")

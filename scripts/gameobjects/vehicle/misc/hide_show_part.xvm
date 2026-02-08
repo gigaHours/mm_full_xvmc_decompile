@@ -1,0 +1,19 @@
+module hide_show_part
+
+def ShowPart(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.car
+    local3 = vehicle.GetPart(local1.car, local1.vpart)
+    if local3:
+        local3.Visible = true
+    if local1.collision != none:
+        rigidobject.Show(local1.collision)
+
+def HidePart(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.car
+    local3 = vehicle.GetPart(local1.car, local1.vpart)
+    if local3:
+        local3.Visible = false
+    if local1.collision != none:
+        rigidobject.Hide(local1.collision)

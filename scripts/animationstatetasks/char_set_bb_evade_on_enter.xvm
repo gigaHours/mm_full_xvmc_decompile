@@ -1,0 +1,4 @@
+module char_set_bb_evade_on_enter
+
+def Enter(self, arg1):
+    game.SetBlackboardValueToObject(character.GetPlayer(), @DF1A9C00, arg1.Property0)

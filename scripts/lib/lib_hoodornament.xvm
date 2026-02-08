@@ -1,0 +1,128 @@
+module lib_hoodornament
+import @46F71871
+import @58351C01
+
+def ActivateArmorUpgrades(self):
+    lib_vehicleupgrades.ChangeFireResistance(0.2)
+    local1 = lib_entity_proxy.GetCollision(vehicle.GetSignatureVehicle())
+    if local1:
+        scriptgo.Call2(local1, @D6CAD33A, -0.1, -0.1)
+    local2 = vehicle.GetGlobalProperties()
+    local2.boardershakeoff_upgrade_scale = local2.boardershakeoff_upgrade_scale + 0.2
+    if not self:
+        vehicle.ChangeStatBuffValue(@358D358A, 1.0)
+
+def DetermineUpgradeGroup(self):
+    if self == 1.0 or self == 7.0 or self == 8.0:
+        return 1.0
+    if self == 4.0 or self == 10.0:
+        return 2.0
+    if self == 2.0 or self == 9.0:
+        return 3.0
+    if self == 3.0 or self == 11.0 or self == 12.0:
+        return 4.0
+    if self == 5.0 or self == 6.0 or self == 13.0:
+        return 5.0
+    debug.LogInfo("HoodOrnament - Unable to determine upgrade group for level %f", [self])
+    return 0.0
+
+def DeactivateArmorUpgrades(self):
+    lib_vehicleupgrades.ChangeFireResistance(-0.2)
+    local1 = lib_entity_proxy.GetCollision(vehicle.GetSignatureVehicle())
+    if local1:
+        scriptgo.Call2(local1, @D6CAD33A, --0.1, --0.1)
+    local2 = vehicle.GetGlobalProperties()
+    local2.boardershakeoff_upgrade_scale = local2.boardershakeoff_upgrade_scale - 0.2
+    if not self:
+        vehicle.ChangeStatBuffValue(@358D358A, -1.0)
+
+def ActivateWeaponsUpgrades(self):
+    local1 = lib_entity_proxy.GetHarpoonDataWeapon(vehicle.GetSignatureVehicle())
+    if local1:
+        game.StateContainerDataHarpoonChangeReloadTimeScale(local1, -0.1)
+    local2 = lib_entity_proxy.GetSignatureVehicleGameplayScript()
+    if local2:
+        local3 = scriptgo.GetProperties(local2)
+        local3.flameFuelConsumptionRateScale = local3.flameFuelConsumptionRateScale + -0.2
+    if not self:
+        vehicle.ChangeStatBuffValue(@9E433D2D, 1.0)
+
+def ActivateRammingUpgrades(self):
+    local1 = lib_entity_proxy.GetCollision(vehicle.GetSignatureVehicle())
+    if local1:
+        scriptgo.Call3(local1, @04FE2A6D, 0.1, 0.1, 0.05)
+    if not self:
+        vehicle.ChangeStatBuffValue(@0BBCBB37, 1.0)
+
+def DeactivateWeaponsUpgrades(self):
+    local1 = lib_entity_proxy.GetHarpoonDataWeapon(vehicle.GetSignatureVehicle())
+    if local1:
+        game.StateContainerDataHarpoonChangeReloadTimeScale(local1, --0.1)
+    local2 = lib_entity_proxy.GetSignatureVehicleGameplayScript()
+    if local2:
+        local3 = scriptgo.GetProperties(local2)
+        local3.flameFuelConsumptionRateScale = local3.flameFuelConsumptionRateScale - -0.2
+    if not self:
+        vehicle.ChangeStatBuffValue(@9E433D2D, -1.0)
+
+def ActivateTractionUpgrades(self):
+    lib_vehicleupgrades.ChangeTireAdditionUpgrade(0.05)
+    lib_vehicleupgrades.ChangeMass(-0.0)
+    if not self:
+        vehicle.ChangeStatBuffValue(@29169278, 1.0)
+
+def DeactivateRammingUpgrades(self):
+    local1 = lib_entity_proxy.GetCollision(vehicle.GetSignatureVehicle())
+    if local1:
+        scriptgo.Call3(local1, @04FE2A6D, -0.1, -0.1, -0.05)
+    if not self:
+        vehicle.ChangeStatBuffValue(@0BBCBB37, -1.0)
+
+def DeactivateHoodOrnamentUpgrade(self, arg1):
+    if self > 0.0:
+        local2 = DetermineUpgradeGroup(self)
+        if local2 == 1.0:
+            DeactivateEngineUpgrades(arg1)
+        elif local2 == 2.0:
+            DeactivateTractionUpgrades(arg1)
+        elif local2 == 3.0:
+            DeactivateRammingUpgrades(arg1)
+        elif local2 == 4.0:
+            DeactivateWeaponsUpgrades(arg1)
+        elif local2 == 5.0:
+            DeactivateArmorUpgrades(arg1)
+
+def ActivateHoodOrnamentUpgrade(self, arg1):
+    if self > 0.0:
+        local2 = DetermineUpgradeGroup(self)
+        if local2 == 1.0:
+            ActivateEngineUpgrades(arg1)
+        elif local2 == 2.0:
+            ActivateTractionUpgrades(arg1)
+        elif local2 == 3.0:
+            ActivateRammingUpgrades(arg1)
+        elif local2 == 4.0:
+            ActivateWeaponsUpgrades(arg1)
+        elif local2 == 5.0:
+            ActivateArmorUpgrades(arg1)
+    local3 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    if local3:
+        scriptgo.Call1(local3, @28B5AAF1, arg1)
+
+def ActivateEngineUpgrades(self):
+    lib_vehicleupgrades.ChangeAdditionalAccelerationScale(0.01)
+    lib_vehicleupgrades.ChangeAdditionalTopSpeed(0.025)
+    if not self:
+        vehicle.ChangeStatBuffValue(@555B281B, 1.0)
+
+def DeactivateEngineUpgrades(self):
+    lib_vehicleupgrades.ChangeAdditionalAccelerationScale(-0.01)
+    lib_vehicleupgrades.ChangeAdditionalTopSpeed(-0.025)
+    if not self:
+        vehicle.ChangeStatBuffValue(@555B281B, -1.0)
+
+def DeactivateTractionUpgrades(self):
+    lib_vehicleupgrades.ChangeTireAdditionUpgrade(-0.05)
+    lib_vehicleupgrades.ChangeMass(0.0)
+    if not self:
+        vehicle.ChangeStatBuffValue(@29169278, -1.0)

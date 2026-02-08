@@ -1,0 +1,14 @@
+module make_link_target_to_target_me
+
+def Enter(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    if local2:
+        animation.SetLinkTarget(local2, self)
+
+def Exit(self, arg1):
+    if arg1.Property0 == 1.0:
+        local2 = animation.GetLinkTarget(self)
+        animation.ClearLinkTarget(local2)
+
+def Update(self, arg1, arg2):
+    pass

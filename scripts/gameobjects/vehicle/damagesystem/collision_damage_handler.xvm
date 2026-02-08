@@ -1,0 +1,669 @@
+module collision_damage_handler
+import @45098D7D
+import @6709C030
+import @B1360AAD
+import @B79BE9DF
+import @58351C01
+
+def ChangeHoodOrnamentRammingUpgrades(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local4.sideRamDamageScale = local4.sideRamDamageScale + arg2
+    local4.grindingDamageUpgradeScale = local4.grindingDamageUpgradeScale + arg1
+    local4.additionalRammingDamageScale = local4.additionalRammingDamageScale + arg3
+
+def DamageThresholdList_GetValue(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.damageThreshold
+    local5 = 0.0
+    local6 = 1.0
+    local4 = len(local3)
+    while local4 > local5:
+        if game.IsObjectEqualTo(local3[local5][0.0], arg1):
+            return local3[local5][1.0]
+        local5 = local6 + local5
+    return 0.0
+
+def DetermineEnvHitType(self, arg1):
+    local2 = vehicle.GetChassis(self)
+    local3 = -local2.SAELocalAABBMin.x
+    local4 = -local2.SAELocalAABBMax.x
+    local5 = math.Scale01(arg1.SelfLocalPosition.z, local4, local3)
+    local6 = vector.Set(0.0, -1.0, 0.0, 0.0)
+    local7 = vector.Set(arg1.AABBNormal.x, arg1.AABBNormal.y, arg1.AABBNormal.z, 0.0)
+    local8 = vector.Dot(local7, local6)
+    if local8 > 0.2:
+        return 2.0
+    if local5 > 0.95:
+        local9 = vehicle.GetPartByShapeKey(self, arg1.SelfShapeKey)
+        if local9 != none:
+            if local9.IsWheel:
+                return 2.0
+        return 1.0
+    return 0.0
+
+def Grinding_ClearDamageWeakspotList(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.grindingWeakspotsCount = 0.0
+    local1.grindingWeakspots = [none, none, none, none]
+
+def Grinding_RefreshWheelList(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.wheelWeakspots = none
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+
+def ResolveGrillProtection(self, arg1):
+    local2 = -arg1.z
+    if local2 > 0.2:
+        local3 = lib_entity_proxy.GetGrillWeakspot(self)
+        if none == local3:
+            return [1.0, 0.0]
+        local4 = game.WeakspotGetHealthScript(local3)
+        local5 = scriptgo.Call(local4, @F48A1A14)
+        local6 = scriptgo.Call(local4, @209F9B50)
+        return [local5, local6]
+    return [1.0, 0.0]
+
+def DamageThresholdList_Decay(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.damageThreshold
+    local4 = false
+    local6 = 0.0
+    local7 = 1.0
+    local5 = len(local3)
+    while local5 > local6:
+        if local3[local6][0.0] != none:
+            local3[local6][1.0] - local3[local6][1.0] * arg1 * 0.6931472 / 0.2[local3[local6]] = 1.0
+            if 1.0 > local3[local6][1.0]:
+                none[local3[local6]] = 0.0
+                0.0[local3[local6]] = 1.0
+            local4 = true
+        local6 = local7 + local6
+    if local4:
+        local2.damageThreshold = local3
+
+def Destroy(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.SetRenderFunction(self, "")
+
+def DamageThresholdList_SetValue(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = local3.damageThreshold
+    local6 = 0.0
+    local7 = 1.0
+    local5 = len(local4)
+    while local5 > local6:
+        if game.IsObjectEqualTo(local4[local6][0.0], arg1):
+            arg2[local4[local6]] = 1.0
+            local3.damageThreshold = local4
+            return
+        local6 = local7 + local6
+    local6 = 0.0
+    local9 = 1.0
+    local8 = len(local4)
+    while local8 > local6:
+        if local4[local6][0.0] == none:
+            arg1[local4[local6]] = 0.0
+            arg2[local4[local6]] = 1.0
+            local3.damageThreshold = local4
+            return
+        local6 = local9 + local6
+    debug.LogError("collision_damage_handler", "DamageThresholdList Full")
+
+def Create(self):
+    Init(self)
+
+def CheckOnDeathOnImpact(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    if local4.deathOnNextImpact == 0.0:
+        return false
+    if false:
+        debug.LogInfo("DeathOnImpact type: %f and is %f <  %f ?", [local4.deathOnNextImpact, arg1, local4.deathOnNextImpactImpulseThreshold])
+    if local4.deathOnNextImpactImpulseThreshold > arg1:
+        return false
+    if local4.deathOnNextImpact == 1.0:
+        return true
+    if local4.deathOnNextImpact == 2.0 and arg2:
+        return true
+    if local4.deathOnNextImpact == 3.0 and arg3:
+        return true
+    return false
+
+def Grinding_AddDamageWeakSpot(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.grindingWeakspots
+    local5 = 0.0
+    local6 = 1.0
+    local4 = len(local3)
+    while local4 > local5:
+        if local3[local5] == none:
+            arg1[local3] = local5
+            local2.grindingWeakspotsCount = local2.grindingWeakspotsCount + 1.0
+            local2.grindingWeakspots = local3
+            return true
+        if game.IsObjectEqualTo(arg1, local3[local5]):
+            return true
+        local5 = local6 + local5
+    return false
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+    if false or false:
+        scriptgo.SetRenderFunction(self, "Render")
+    if false:
+        vehicle_debug_damage_display.Init(self)
+    if local1.underbodyDamageScale == none:
+        local1.underbodyDamageScale = 1.0
+    if local1.underbodySpeedThreshold == none:
+        local1.underbodySpeedThreshold = 0.0
+    local2 = lib_entity_proxy.GetHealthId(local1.car)
+    local3 = scriptgo.Call2(local2, @716A1566, self, local1.damageConfigId)
+    local1.play_collision_effect = true
+    local1.trigger_ram_cam = false
+    local1.player_damage = 0.0
+    local1.our_damage_done = 0.0
+    local1.non_damage_tracker_timeout = 0.0
+    local1.damageThreshold = [[none, 0.0], [none, 0.0], [none, 0.0], [none, 0.0], [none, 0.0], [none, 0.0], [none, 0.0], [none, 0.0], [none, 0.0], [none, 0.0]]
+    local1.grindingAccumulator = 0.0
+    local1.maxHit = none
+    local1.deathOnNextImpact = 0.0
+    local1.deathOnNextImpactImpulseThreshold = 0.0
+    local1.environment_initial_resist_time = 3.0
+    local1.additionalRammingDamageScale = 0.0
+    local1.rammingDamageUpgradeReduction = 1.0
+    local1.underbodyDamageUpgradeReduction = 1.0
+    local1.grindingDamageUpgradeScale = 1.0
+    local1.player_grinding = false
+    Grinding_ClearDamageWeakspotList(self)
+
+def HitByCollision(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = vehicle.IsInvulnerable(arg1)
+    local6 = game.GetTransform(arg1)
+    local7 = vehicle.GetChassis(arg1)
+    local8 = false
+    local9 = false
+    local4.damagingCollision_collisionHit = none
+    local10 = 1.0
+    local11 = arg2.GameObject
+    if local11:
+        if vehicle.IsVehicle(local11):
+            local8 = true
+        elif physics.IsPhysicsObject(local11):
+            local10 = arg2.EnvironmentDamageFactor
+            local9 = true
+        else:
+            local9 = true
+    else:
+        local9 = true
+    local12 = vehicle.IsPlayerVehicle(arg1)
+    if local8 and local12:
+        if vehiclemanager.IsComboActive(@24AC0B91) and vehicle.IsBoostEnabled(arg1) and vehicle.GetBoostTorque(arg1) > 0.0:
+            vehiclemanager.ProgressComboTarget(@24AC0B91, local11)
+            local5 = true
+        if vehiclemanager.GetComboProgress(@4B19B75E) >= 1.0:
+            vehiclemanager.ProgressCombo(@4B19B75E)
+    local13 = 0.0
+    local14 = 0.0
+    local15 = 0.0
+    local16 = 0.0
+    local4.vsEnvironment = local9
+    local4.vsVehicle = local8
+    if local8:
+        if vehicle.GetSideRamAttackEnabled(arg1):
+            local5 = true
+        local17 = false
+        if vehicle.IsPlayerVehicle(local11):
+            local17 = true
+            game.SetHitByPlayer(arg1)
+        local18 = vehicle.GetChassis(local11)
+        local19 = game.GetTransform(local11)
+        local20 = game.GetChild(local11, "script.damagesystem.CollisionDamageHandler")
+        local21 = scriptgo.GetProperties(local20)
+        local22 = none
+        local23 = local21.grindingDamageScale * local21.grindingDamageUpgradeScale
+        if local23 > 0.0:
+            if not local21.wheelWeakspots:
+                local21.wheelWeakspots = Grinding_CacheWheelWeakspots(local11)
+            local22 = local21.wheelWeakspots
+        local24 = arg2.AABBNormal
+        local25 = vector.Dot(local24, local7.BeforeCollisionWorldLinearVelocity)
+        local26 = -vector.Dot(local24, local18.BeforeCollisionWorldLinearVelocity)
+        local27 = local26
+        local28 = local25
+        if 0.0 > local25:
+            local27 = local25 + local26
+        if 0.0 > local26:
+            local28 = local25 + local26
+        local29 = local4.grindingAccumulator
+        if local23 > 0.0:
+            local30 = input.GetButtonInput(@677A49E9) > 0.0
+            local31 = arg2.OtherApproachSpeed + arg2.SelfApproachSpeed
+            local32 = arg2.OtherLocalPosition
+            local34 = 0.0
+            local35 = 1.0
+            local33 = len(local22)
+            while local33 > local34:
+                local36 = local22[local34]
+                if local36 != none:
+                    if game.WeakspotCollidesWith(local36, local32):
+                        local37 = vehicle.WeakspotGetPhysicsPart(local36).PhysicsWheel
+                        local38 = math.Abs(local37.AngularSpeed * local37.Radius)
+                        local4.grindingAccumulator = local4.grindingAccumulator + lib_damage.CalculateGrindingBuildup(local31, local38, arg3, local23)
+                        scriptgo.Call2(local4.grindingEffectHandler, @A9FEEE8F, local11, local37)
+                local34 = local35 + local34
+            if local17 and local30 and (not local4.player_grinding):
+                debug.LogInfo("grinding started!", [])
+                ai.SetAiEntityBlackboardFlag(arg1, "being_grinded")
+                local4.player_grinding = true
+        if local27 > local14:
+            local14 = local27
+            local15 = local28
+            if false:
+                local4.normal = matrix.DirectionWorldToLocal(local6, local24)
+        local39 = false
+        local40 = none
+        if local14 > 0.0:
+            if local21.grillDamageEnabled:
+                local39 = IsRammingWithFront(arg2.OtherLocalNormal)
+            local40 = ResolveGrillProtection(arg1, arg2.SelfLocalNormal)
+        local13 = CalculateVsVehicleDamage(self, local4.healthComponent, local14, local11, local39, local40)
+        EvaluateCollision(self, arg2, local15, local13)
+        if local17 and local13 > 0.0:
+            if vehicle.IsSignatureVehicle(local4.car):
+                character.BroadcastDialogueIntent(@A1E46460)
+    elif local9:
+        local24 = arg2.AABBNormal
+        local25 = vector.Dot(local24, local7.BeforeCollisionWorldLinearVelocity)
+        local26 = -vector.Dot(local24, arg2.OtherPointVelocity)
+        local27 = local25
+        if 0.0 > local26:
+            local27 = local25 + local26
+        if local27 > local14:
+            local14 = local27
+        if local14 > 0.0:
+            local41 = arg2.Mass
+            if local41 > 0.0 and local26 > 0.0 and (not vehicle.IsAIVehicle(local4.car)):
+                local42 = scriptgo.Call(local4.healthComponent, @2513B5A5)
+                local43 = scriptgo.Call(local4.healthComponent, @3D5B80E6)
+                local13 = lib_damage.CalculateRammingDamage(local26, local41, 1.0, local43, local42)
+            else:
+                local16 = DetermineEnvHitType(arg1, arg2)
+                if local16 == 2.0:
+                    local44 = vector.Scale(local6.r1, -1.0)
+                    local14 = vector.Dot(local44, local7.BeforeCollisionWorldLinearVelocity)
+                local13 = CalculateVsEnvironmentDamage(self, local4.healthComponent, local14, local16)
+            local13 = local13 * local10
+            if local12:
+                local13 = local13 * vehiclemanager.GetPlayerEnvironmentDamageScale()
+        else:
+            local13 = 0.0
+    local4.maxHit = arg2
+    local45 = local11
+    if local11 == none:
+        local45 = self
+    elif not vehicle.IsVehicle(local11):
+        local45 = self
+    local46 = DamageThresholdList_GetValue(self, local45)
+    local4.latest_damageThreshold = math.Max(local46, local13)
+    if (not local5) and CheckOnDeathOnImpact(self, arg2.Impulse, local8, local9):
+        local4.damagingCollision_collisionHit = arg2
+        local47 = lib_damage_types.DAMAGE_COLLISION()
+        if 0.0 >= local46:
+            local47 = lib_damage_types.DAMAGE_SIMPLE()
+        scriptgo.Call1(local4.healthComponent, @C6EE5209, local47)
+        local4.damagingCollision_collisionHit = none
+        if vehicle.IsPlayerVehicle(local4.car):
+            local48 = character.GetPlayer()
+            character.InflictDamage(local48, character.GetAbsoluteHealth(local48) * 10.0, "Impact")
+    elif (not local5) and local13 - local46 > 0.0:
+        local4.damagingCollision_collisionHit = arg2
+        scriptgo.Call2(local4.healthComponent, @2925E205, local13 - local46, lib_damage_types.DAMAGE_COLLISION())
+        local4.damagingCollision_collisionHit = none
+        if vehicle.IsPlayerVehicle(arg1):
+            if local13 > 20.0:
+                local48 = character.GetPlayer()
+                local49 = scriptgo.Call1(local4.healthComponent, @4158F26C, local13 - local46)
+                if false:
+                    debug.LogInfo("damaging player avatar - vehicle dmg: %f, character damage: %f", [local49, local49 * 0.2])
+                character.InflictDamage(local48, character.GetAbsoluteHealth(local48) * local49 * 0.2, "Impact")
+        if false:
+            if IsBeingDebugged(self):
+                debug.LogInfo("damageTaken: %f, damageShielded: %f", [local13 - local46, local46])
+    if local4.nondamagetracker and local14 > 0.0:
+        if 0.0 >= local4.non_damage_tracker_timeout:
+            scriptgo.Call2(local4.nondamagetracker, @25D1B4EE, local4.car, arg2)
+    if local8:
+        local7.AngularDamping = lib_damage.CalculateCollisionDamping(local7.AngularDamping, local7.CollisionAngularVelocityResponse, math.Max(local13, local46), scriptgo.Call(local4.healthComponent, @4CFED023), vehicle.IsPlayerVehicle(arg1))
+    if local13 > 1.0 and local13 > local46:
+        if false:
+            if IsBeingDebugged(self):
+                debug.LogInfo("updating thresholdObject: %go with damage threshold %f", [local45, local13])
+        DamageThresholdList_SetValue(self, local45, local13)
+    if local4.customCollisionHandler != none:
+        scriptgo.Call3(local4.customCollisionHandler, @537177A6, arg1, local11, arg2)
+    if 0.0 >= local14:
+        return
+    local50 = lib_entity_proxy.GetWeakspotList(arg1)
+    local51 = arg2.SelfLocalPosition
+    local4.damagingCollision_collisionHit = arg2
+    local53 = 0.0
+    local54 = 1.0
+    local52 = golist.NbGameObjects(local50)
+    while local52 > local53:
+        local36 = golist.Get(local50, local53)
+        if none != local36:
+            local55 = game.WeakspotGetHealthScript(local36)
+            if local55 != none:
+                if game.WeakspotCollidesWith(local36, local51):
+                    local56 = 0.0
+                    if local8:
+                        local56 = CalculateVsVehicleDamage(self, local55, local14, local11, local39, none)
+                    elif local9:
+                        local56 = CalculateVsEnvironmentDamage(self, local55, local14, local16)
+                        local56 = local56 * local10
+                    if (not local5) and local56 - local46 > 0.0:
+                        scriptgo.Call2(local55, @2925E205, local56 - local46, lib_damage_types.DAMAGE_COLLISION())
+        local53 = local54 + local53
+    local4.damagingCollision_collisionHit = none
+
+def External_SetUnderbodyDamageScale(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if arg1 > 1.0 or 0.0 >= arg1:
+        debug.LogError("vehicle damage system", "UnderbodyDamageScale out of valid range. (Must be ]0...1])")
+    local3.underbodyDamageScale = arg1
+    local3.underbodySpeedThreshold = arg2
+
+def External_SetGrillDamageFlag(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.grillDamageEnabled = arg1
+
+def DebugRenderGrinding(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.grindingAccumulator
+    local4 = lib_debugdraw.GetGoScreenPos(local2.car, vector.Set(0.0, 2.5, 0.0, 0.0), arg1)
+    local5 = 0.2
+    local6 = 0.02
+    local7 = 30.0
+    local8 = lib_debugdraw.GetHeatMapColor(local3, 0.5, 10.0, local7)
+    local9 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local10 = math.Clamp01(local3 / local7)
+    lib_debugdraw.DrawBarDepth(local4, local5, local6, local8, local9, lib_debugdraw.ALIGN_CENTER(), local10, none)
+    lib_debugdraw.DrawTextDepth(local4, "Grinding: %f", [local3], 0.18, lib_color.WHITE(1.0), lib_debugdraw.ALIGN_CENTER(), none)
+    if local2.grindingWeakspots != none:
+        local11 = local2.grindingWeakspots
+        local13 = 0.0
+        local14 = 1.0
+        local12 = len(local11)
+        while local12 > local13:
+            if local11[local13] != none:
+                local15 = game.WeakspotGetPosition(local11[local13])
+                if local15 != none:
+                    debug.Sphere(local15, local10 * 1.5, local8)
+            local13 = local14 + local13
+
+def EvaluateCollision(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    if arg1:
+        local5 = arg1.GameObject
+        local4.player_damage = 0.0
+        if local5:
+            if vehicle.IsVehicle(local5):
+                local6 = game.GetChild(local5, "script.damagesystem.CollisionDamageHandler")
+                local7 = scriptgo.GetProperties(local6).healthComponent
+                local8 = 0.0
+                if local4.grillDamageEnabled:
+                    local9 = IsRammingWithFront(arg1.SelfLocalNormal)
+                else:
+                    local9 = false
+                local10 = ResolveGrillProtection(local5, arg1.OtherLocalNormal)
+                local8 = CalculateVsVehicleDamage(local6, local7, arg2, local4.car, local9, local10)
+                if local8 > 0.0:
+                    local4.non_damage_tracker_timeout = 2.0
+                if local9 and vehicle.IsPlayerVehicle(local5):
+                    local4.trigger_ram_cam = true
+                if vehicle.IsPlayerVehicle(local5):
+                    local4.player_damage = arg3
+                elif vehicle.IsPlayerVehicle(local4.car):
+                    local4.player_damage = local8
+                local11 = arg3 + local8
+                if local11 > 0.0:
+                    if arg3 > local8:
+                        local4.play_collision_effect = true
+                    else:
+                        local4.play_collision_effect = false
+                    return
+    local4.play_collision_effect = true
+
+def Render(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if false:
+        if local2.normal and IsBeingDebugged(self):
+            local3 = vehicle.GetChassis(local2.car)
+            local4 = local3.CenterOfMassPosition
+            local4 = vehicle.SAEToVector(local3.CenterOfMassPosition)
+            local5 = matrix.MulVec(game.GetTransform(local2.car), local4)
+            local6 = matrix.DirectionLocalToWorld(game.GetTransform(local2.car), local2.normal)
+            debug.Arrow(local5, vector.Add(local5, vector.Scale(local6, 2.0)), 0.2, vector.Set(1.0, 0.0, 0.0, 0.5))
+        if IsBeingDebugged(self):
+            vehicle_debug_damage_display.Render(self, arg1)
+    if false:
+        if IsBeingDebugged(self):
+            DebugRenderGrinding(self, arg1)
+
+def Grinding_CacheWheelWeakspots(self):
+    local1 = vehicle.GetPart(self, "vpart_wheel_0")
+    local2 = local1.LinkedGameObject
+    if not local2:
+        debug.LogError("vehicle damage system", "vehicle missing linked wheel weakspots")
+    else:
+        local3 = vehicle.IsSignatureVehicle(self)
+        if (not local3) and game.WeakspotGetOptionalProtectedBy(local2) == none:
+            local2 = none
+        local4 = vehicle.GetPart(self, "vpart_wheel_1")
+        local5 = local4.LinkedGameObject
+        if (not local3) and game.WeakspotGetOptionalProtectedBy(local5) == none:
+            local5 = none
+        local6 = vehicle.GetPart(self, "vpart_wheel_2")
+        local7 = local6.LinkedGameObject
+        if (not local3) and game.WeakspotGetOptionalProtectedBy(local7) == none:
+            local7 = none
+        local8 = vehicle.GetPart(self, "vpart_wheel_3")
+        local9 = local8.LinkedGameObject
+        if (not local3) and game.WeakspotGetOptionalProtectedBy(local9) == none:
+            local9 = none
+        return [local2, local5, local7, local9]
+
+def External_GetMaxHit(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.maxHit
+
+def Reset(self):
+    External_SetDeathOnImpact(self, 0.0, 0.0)
+
+def ChangeHoodOrnamentArmorUpgrades(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.rammingDamageUpgradeReduction = local3.rammingDamageUpgradeReduction + arg1
+    local3.underbodyDamageUpgradeReduction = local3.underbodyDamageUpgradeReduction + arg2
+
+def IsRammingWithFront(self):
+    local1 = -self.z
+    if local1 > 0.2:
+        return true
+
+def IsBeingDebugged(self):
+    local1 = scriptgo.GetProperties(self)
+    if false and vehicle.IsPlayerVehicle(local1.car) or false and vehicle.IsVehicle(local1.car) and (not vehicle.IsPlayerVehicle(local1.car)):
+        return true
+    return false
+
+def SetGrindingLevel(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if 0.0 > arg1 or arg1 > 1.0:
+        debug.LogError("vehicle damage system", "Attempted to set invalid grinding damage scale. Must be [0...1].")
+    else:
+        local2.grindingDamageScale = arg1
+
+def CalculateVsVehicleDamage(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = scriptgo.GetProperties(self)
+    local7 = 0.0
+    local8 = vehicle.GetSideRamAttackEnabled(arg3)
+    local9 = 1.0
+    local10 = none
+    if arg4 or local8:
+        local11 = game.GetChild(arg3, "script.damagesystem.CollisionDamageHandler")
+        local10 = scriptgo.GetProperties(local11)
+    if arg4:
+        local9 = (local10.rammingDamageScale + local10.additionalRammingDamageScale) * local6.rammingDamageUpgradeReduction
+    local12 = scriptgo.Call(arg1, @F48A1A14)
+    local13 = scriptgo.Call(arg1, @209F9B50)
+    if none != arg5:
+        local12 = local12 * arg5[0.0]
+        local13 = local13 + arg5[1.0]
+    if vehicle.IsAIVehicle(arg3) and vehicle.IsAIVehicle(local6.car):
+        local12 = local12 * 0.2
+    local7 = lib_damage.CalculateRammingDamage(arg2, vehicle.GetMass(arg3), local9, local13 / 3.6, local12)
+    if local8:
+        local14 = local10.sideRamDamageScale
+        local15 = vehiclemanager.GetComboProgress(@F5F03835)
+        if local15 >= 2.0:
+            local14 = local14 * 1.2
+        local7 = local7 * local14
+    if false:
+        if IsBeingDebugged(self) and local7 > 0.0:
+            vehicle_debug_damage_display.Add(self, local7)
+    if false:
+        if IsBeingDebugged(self) and local7 > 0.0:
+            if arg4:
+                if vehicle.IsPlayerVehicle(arg3):
+                    debug.LogInfo("Player ramming target - damage: %f, hitSpeed: %f, rammingDamageScale: %f", [local7, arg2, local9])
+                elif vehicle.IsPlayerVehicle(local6.car):
+                    debug.LogInfo("AI ramming player - damage: %f, hitSpeed: %f, rammingDamageScale: %f", [local7, arg2, local9])
+                else:
+                    debug.LogInfo("AI ramming target - damage: %f, hitSpeed: %f, rammingDamageScale: %f", [local7, arg2, local9])
+            elif vehicle.IsPlayerVehicle(arg3):
+                debug.LogInfo("Player colliding with target - damage: %f; hitSpeed: %f", [local7, arg2])
+            elif vehicle.IsPlayerVehicle(local6.car):
+                debug.LogInfo("AI colliding with player - damage: %f; hitSpeed: %f", [local7, arg2])
+            else:
+                debug.LogInfo("AI colliding with target - damage: %f; hitSpeed: %f", [local7, arg2])
+    return local7
+
+def SetRammingLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if arg1:
+        if 0.0 > arg1:
+            debug.LogError("vehicle damage system", "Attempted to set negative rammingPhysBoost.")
+        else:
+            local3.rammingPhysBoost = arg1
+    if arg2:
+        if 1.0 > arg2:
+            debug.LogError("vehicle damage system", "Attempted to set damage scale outside of the valid range. (Must be [1...[)")
+        else:
+            local3.rammingDamageScale = arg2
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.car
+    local4 = vehicle.GetChassis(local3)
+    local4.AngularDamping = lib_damage.FadeCollisionDamping(local4.AngularDamping, arg1)
+    DamageThresholdList_Decay(self, arg1)
+    local5 = vehicle.IsInvulnerable(local3)
+    local6 = input.GetButtonInput(@677A49E9) > 0.0
+    if (not local6) and local2.player_grinding:
+        ai.ClearAiEntityBlackboard(local3, "being_grinded")
+        debug.LogInfo("grinding stopped", [])
+        local2.player_grinding = false
+    if local2.grindingAccumulator > 0.034:
+        local7 = scriptgo.Call(local2.healthComponent, @F48A1A14)
+        local8 = lib_damage.CalculateGrindingDamage(local2.grindingAccumulator, arg1, local7)
+        if (not local5) and local8 > 0.0:
+            scriptgo.Call2(local2.healthComponent, @2925E205, local8, lib_damage_types.DAMAGE_GRINDING())
+            if local2.grindingWeakspots != none:
+                local9 = local2.grindingWeakspots
+                local11 = 0.0
+                local12 = 1.0
+                local10 = len(local9)
+                while local10 > local11:
+                    if local9[local11] != none:
+                        local13 = game.WeakspotGetHealthScript(local9[local11])
+                        if local13 != none:
+                            scriptgo.Call2(local13, @2925E205, local8, lib_damage_types.DAMAGE_GRINDING())
+                    local11 = local12 + local11
+        local2.grindingAccumulator = local2.grindingAccumulator - local2.grindingAccumulator * arg1 * 0.6931472 / 0.7
+        scriptgo.Call1(local2.grindingEffectHandler, @F502FFF2, local8)
+        scriptgo.Call(local2.grindingEffectHandler, @797EA98F)
+    else:
+        scriptgo.Call(local2.grindingEffectHandler, @2859E989)
+    if local2.grindingWeakspotsCount > 0.0:
+        Grinding_ClearDamageWeakspotList(self)
+    if local2.non_damage_tracker_timeout > 0.0:
+        local2.non_damage_tracker_timeout = local2.non_damage_tracker_timeout - arg1
+        local2.non_damage_tracker_timeout = math.Max(local2.non_damage_tracker_timeout, 0.0)
+    if local2.environment_initial_resist_time > 0.0:
+        local2.environment_initial_resist_time = local2.environment_initial_resist_time - arg1
+    if IsBeingDebugged(self):
+        vehicle_debug_damage_display.Update(self, arg1)
+
+def CalculateVsEnvironmentDamage(self, arg1, arg2, arg3):
+    if arg1 == none:
+        return
+    local4 = scriptgo.GetProperties(self)
+    if local4.environment_initial_resist_time > 0.0:
+        return 0.0
+    local5 = local4.car
+    local6 = 0.0
+    local7 = arg3 == 2.0
+    local8 = scriptgo.Call(arg1, @F48A1A14)
+    local9 = scriptgo.Call(arg1, @209F9B50)
+    if local7:
+        local6 = lib_damage.CalculateUnderbodyDamage(arg2, vehicle.GetMass(local5), local4.underbodySpeedThreshold, local4.underbodyDamageScale, scriptgo.Call(arg1, @F4E205B5))
+        local6 = local6 * scriptgo.Call(arg1, @29041E45) * local4.underbodyDamageUpgradeReduction
+        if local6 > local4.OnFallDamageAmount:
+            scriptgo.SendEvent(self, @69E27D2E)
+    else:
+        local10 = scriptgo.Call(local4.healthComponent, @23353012)
+        local6 = lib_damage.CalculateEnvironmentDamage(arg2, vehicle.GetMass(local5), local10, local8)
+    if false:
+        if IsBeingDebugged(self) and local6 > 0.0:
+            vehicle_debug_damage_display.Add(self, local6)
+    if false:
+        if IsBeingDebugged(self) and local6 > 0.0:
+            if local7:
+                if vehicle.IsPlayerVehicle(local5):
+                    debug.LogInfo("envhit: Player taking underbody hit - damage: %f; hitSpeed: %f, underbodySpeedThreshold: %f, underbodyDamageScale: %f", [local6, arg2, local4.underbodySpeedThreshold, local4.underbodyDamageScale])
+                else:
+                    debug.LogInfo("envhit: AI taking underbody hit - damage: %f; hitSpeed: %f, underbodySpeedThreshold: %f, underbodyDamageScale: %f", [local6, arg2, local4.underbodySpeedThreshold, local4.underbodyDamageScale])
+            elif vehicle.IsPlayerVehicle(local5):
+                debug.LogInfo("envhit: Player taking environmental damage - damage: %f; hitSpeed: %f hit_type:%f", [local6, arg2, arg3])
+            else:
+                debug.LogInfo("envhit: AI taking environmental damage - damage: %f; hitSpeed: %f", [local6, arg2])
+    if false:
+        if vehicle.IsPlayerVehicle(local5) and game.IsObjectEqualTo(lib_entity_proxy.GetBodyHealth(local5), arg1):
+            if false:
+                if local7:
+                    debug.LogInfo("[DATA COLLECTOR]; underbody hit; incomingDamageSpeed; %f", [arg2])
+            if false:
+                if not local7:
+                    debug.LogInfo("[DATA COLLECTOR]; env hit; incomingDamageSpeed: %f", [arg2])
+    return local6
+
+def External_SetDeathOnImpact(self, arg1, arg2):
+    if false:
+        debug.LogInfo("Set death on next impact. type: %f and threshold: %f", [arg1, arg2])
+    local3 = scriptgo.GetProperties(self)
+    local3.deathOnNextImpact = arg1
+    local3.deathOnNextImpactImpulseThreshold = arg2
+
+def PrintCollisionHits(self, arg1):
+    local2 = arg1.GameObject
+    debug.LogInfo("- CollisionHit -", [])
+    debug.LogInfo("OtherGameObject: %go", [local2])
+    debug.LogInfo("Position: %v", [arg1.Position])
+
+def External_GetDeathOnImpact(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.deathOnNextImpact

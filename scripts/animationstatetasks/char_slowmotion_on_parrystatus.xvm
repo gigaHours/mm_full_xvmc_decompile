@@ -1,0 +1,10 @@
+module char_slowmotion_on_parrystatus
+
+def Enter(self, arg1):
+    local2 = character.GetFloatRegister(self, 2.0)
+    if local2 == 1.0:
+        arg1.slowmo = game.EaseInCustomUpdateSpeed(0.0999, 0.5)
+
+def Exit(self, arg1):
+    if arg1.slowmo:
+        game.EaseOutCustomUpdateSpeed(0.0999, arg1.slowmo)

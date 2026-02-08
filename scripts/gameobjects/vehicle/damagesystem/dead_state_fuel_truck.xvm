@@ -1,0 +1,59 @@
+module dead_state_fuel_truck
+import @B1360AAD
+import @58351C01
+import @DE140614
+import @45098D7D
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.deathWithPlayer:
+        game.SetDictionaryFloat(@378BEE96, 0.0)
+
+def Check(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.deathToGraph:
+        local2.deathToGraph = false
+        local3 = graphscript.GetVariables(self)
+        local3.vehicle = local2.car
+        graphscript.FireGraphOutput(arg1, "OnVehicleDeath")
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.car
+    local6 = game.GetParent(self)
+    local7 = scriptgo.GetProperties(local6)
+    local8 = local7.weakspot
+    local9 = vehicle.GetProperties(local5)
+    local9.isDeforming = true
+    vehicle.DisableDriving(local5)
+    if not local4.isDead:
+        local4.deathWithPlayer = vehicle.IsPlayerVehicle(local5)
+        scriptgo.PostEvent(self, @FA153114)
+        local4.deathToGraph = true
+        lib_vehicle.SendVehicleDefeatedEvent(local5, arg2)
+        scriptgo.Call(local8, @398B8C34)
+        if lib_vehicle.ValidateKill(local4.car):
+            scriptgo.PostEvent(self, @322B9FDF)
+        lib_takedown.PerformStandardTakedowns(local5, arg1, arg2)
+        scriptgo.SendEvent(self, @8ADABCDF)
+        if vehicle.IsPlayerVehicle(local4.car):
+            game.QueueAct(character.GetPlayer(), "ACT_VEHICLE_IN_STOPPED_STATE")
+    local4.isDead = true
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.isDead = false
+    local1.deathToGraph = false
+    local1.deathWithPlayer = false
+
+def RepairHealth(self, arg1):
+    pass
+
+def OnExplode(self):
+    local1 = scriptgo.GetProperties(self)
+    vehicle.ApplyMaxDecalDamage(local1.car)
+    local2 = vehicle.GetPart(local1.car, "vpart_cargo")
+    local3 = vehicle.GetPart(local1.car, "vpart_decoration")
+    local2.Visible = false
+    local3.Visible = false
+    scriptgo.PostEvent(self, @43CB1728)

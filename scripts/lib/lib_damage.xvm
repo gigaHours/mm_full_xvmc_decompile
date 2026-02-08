@@ -1,0 +1,114 @@
+module lib_damage
+
+def FadeCollisionDamping(self, arg1):
+    return math.Max(self - 20.0 / 0.25 * arg1, 0.0)
+
+def CalculateCollisionDamping(self, arg1, arg2, arg3, arg4):
+    if arg3:
+        return 0.0
+    local5 = math.Scale01(vector.Length(arg1), 0.1, 1.5)
+    local6 = 1.0 - math.Scale01(arg2, 15.0, 100.0)
+    if arg4:
+        return math.Max(local5 * local6 * 20.0, self)
+    return math.Max(1.0 * local5 * local6 * 20.0, self)
+
+def CalculateVehicleTensionDamage(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7):
+    if 0.0 >= arg2:
+        return 0.0
+    local8 = arg2 * math.Sqrt(1.0 / (self * arg4))
+    local9 = arg1 * arg3
+    local10 = math.Max(0.0, local8 - local9)
+    return local10
+
+def CalculateObjectTensionDamage(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = math.Lerp(math.Scale01(self, arg2, arg3), arg4, arg5) * arg1
+    return local6
+
+def CalculateEnvironmentDamage(self, arg1, arg2, arg3):
+    if 0.0 > arg2:
+        debug.LogError("damage system", "bad armor speed threshold (x < 0)")
+    if 0.0 > arg3:
+        debug.LogError("damage system", "bad armor damage scale (x < 0)")
+    if arg3 > 1.0:
+        debug.LogError("damage system", "bad armor damage scale (x > 1.0)")
+    if arg2 > self:
+        return 0.0
+    local4 = math.Sqrt(arg1 / 4000.0) * self
+    return arg3 * local4
+
+def CalculateRammingDamage(self, arg1, arg2, arg3, arg4):
+    if false:
+        if 0.0 > arg2:
+            debug.LogError("damage system", "bad ramming damage scale (x < 0)")
+        if 0.0 > arg3:
+            debug.LogError("damage system", "bad armor speed threshold (x < 0)")
+        if 0.0 > arg4:
+            debug.LogError("damage system", "bad armor damage scale (x < 0)")
+        if arg4 > 1.0:
+            debug.LogError("damage system", "bad armor damage scale (x > 1.0)")
+        debug.LogInfo("RAMMING DAMAGE - speed: %f, mass: %f, armorSpeedTh: %f, armorScale: %f, ramScale: %f, k: %f", [self, arg1, arg3, arg4, arg2, k])
+    if arg3 > self:
+        return 0.0
+    local5 = math.Sqrt(arg1 / 1000.0) * self
+    return arg4 * arg2 * local5
+
+def CalculateVehicleFireDamage(self, arg1, arg2, arg3, arg4):
+    if arg1 > self:
+        return 0.0
+    local5 = math.Scale01(self, 0.0, arg2)
+    local6 = local5 * local5 * arg3 * arg4
+    return local6
+
+def CalculateUnderbodyDamage(self, arg1, arg2, arg3, arg4):
+    if arg2 > self:
+        return 0.0
+    if arg3 > arg4:
+        return 0.0
+    local5 = math.Scale(arg1, 1000.0, 10000.0, 0.0, 1.0)
+    if 0.0 > local5:
+        local5 = -math.Sqrt(math.Abs(local5))
+    else:
+        local5 = math.Sqrt(local5)
+    local5 = math.Lerp(local5, 1.0, 1.3)
+    local6 = math.Scale01(self, arg2, 35.0)
+    local6 = local5 * local6 * local6
+    local7 = arg3 + (arg4 - arg3) * math.Exp(-local6 / (1.0 - arg3))
+    local6 = arg4 - local7
+    return local6
+
+def CalculateGrindingBuildup(self, arg1, arg2, arg3):
+    if 0.0 > self:
+        return 0.0
+    local4 = arg1 * arg3
+    if false:
+        debug.LogInfo("GRINDING BUILDUP - normalSpeed: %f, wheelSpin: %f, dt: %f, grindingDamageScale: %f, buildup: %f", [self, arg1, arg2, arg3, local4 * arg2])
+    return local4 * arg2
+
+def CalculateGrindingDamage(self, arg1, arg2):
+    if 0.0 >= self:
+        return 0.0
+    local3 = self
+    if local3 > 0.5:
+        local4 = math.Lerp(math.Scale01(local3, 0.5, 20.0), 0.0, 40.0) * arg1
+        if false:
+            debug.LogInfo("GRINDING DAMAGE - grindingAccumulator: %f, grindStrength: %f, damage: %f", [self, local3, local4])
+        return local4
+    return 0.0
+
+def CalculateVehicleExplosionDamage(self, arg1, arg2, arg3, arg4):
+    if 0.0 >= self:
+        return 0.0
+    local5 = self * math.Sqrt(1.0 / (arg1 * arg4))
+    local6 = arg2 / 30.0
+    local7 = math.Max(0.0, local5 - local6)
+    return local7
+
+def IsCollidingWithFront(self, arg1):
+    local2 = vehicle.VectorToSAE(matrix.MulVec(matrix.Inverse(game.GetTransform(self)), arg1))
+    local3 = vehicle.GetChassis(self)
+    local4 = local3.SAELocalAABBMin
+    local5 = local3.CenterOfMassPosition
+    local6 = math.Scale01(local2.x, local5.x, local4.x)
+    if local6 > 1.0 - 0.1:
+        return true
+    return false

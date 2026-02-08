@@ -1,0 +1,14 @@
+module mmax_alertedness
+
+def Enter(self, arg1):
+    if game.IsObjectEqualTo(character.GetPlayer(), self):
+        local2 = animation.IsWithinSegment(self, @3DCDF149, @FE364CD9)
+        if not local2:
+            character.SetGlobalXvmFloat(self, 20.0, 0.0)
+
+def Update(self, arg1, arg2):
+    if game.IsObjectEqualTo(character.GetPlayer(), self):
+        local3 = character.GetGlobalXvmFloat(self, 20.0)
+        local3 = local3 + 1.0 / arg1.Property0 * arg2
+        local3 = math.Clamp(local3, 0.0, 1.0)
+        character.SetGlobalXvmFloat(self, 20.0, local3)

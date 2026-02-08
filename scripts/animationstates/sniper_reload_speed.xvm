@@ -1,0 +1,8 @@
+module sniper_reload_speed
+import @58351C01
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = lib_entity_proxy.GetSniper(vehicle.GetSignatureVehicle())
+    if local5:
+        local6 = scriptgo.GetProperties(local5)
+        animation.GetSampler(arg4, 0.0).Speed = local6.reload_animation_factor

@@ -1,0 +1,9 @@
+module item_query
+
+def QueryItem(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetInventoryItem(character.GetPlayer(), local1.item_id)
+    if local2:
+        scriptgo.PostEvent(self, @7AF6EEEF)
+    else:
+        scriptgo.PostEvent(self, @6A1868D7)

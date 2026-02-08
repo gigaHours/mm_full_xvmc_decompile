@@ -1,0 +1,55 @@
+module veh_shotguntarget_type_human
+
+def GetAutoTargetPrio(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetVehicle(local1.char)
+    local3 = 20.0
+    local4 = 10.0
+    if local2:
+        if game.IsObjectEqualTo(local1.char, vehicle.GetVehicleDriver(local2)):
+            return local3
+    return local4
+
+def CanBeTargeted(self, arg1):
+    return true
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.autoTargetPrio:
+        local1.autoTargetPrio = 0.0
+
+def ShowAsUnavailable(self):
+    return false
+
+def FireAt(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if none != character.GetVehicle(local3.char):
+        character.InstantDeath(local3.char)
+        local4 = game.GetTransform(arg1).r3
+        local5 = game.GetTransform(local3.char)
+        local6 = vector.Scale(local5.r2, -1.0)
+        local7 = vector.Sub(local4, local5.r3)
+        local8 = math.RadToDeg(vector.AngleBetween(local6, local7))
+        local9 = vector.Dot(local7, local5.r0)
+        if false:
+            debug.LogInfo("SHOTGUN ang_dif: %f, dot_side: %f", [local8, local9])
+        local10 = ""
+        if 90.0 > local8:
+            local10 = "ACT_VEHICLE_SHOTGUN_2WAY_HIT_FRONT"
+        else:
+            local10 = "ACT_VEHICLE_SHOTGUN_2WAY_HIT_BACK"
+        local11 = ""
+        if 45.0 > local8:
+            local11 = "ACT_VEHICLE_SHOTGUN_4WAY_HIT_FRONT"
+        elif 135.0 > local8:
+            if local9 > 0.0:
+                local11 = "ACT_VEHICLE_SHOTGUN_4WAY_HIT_RIGHT"
+            else:
+                local11 = "ACT_VEHICLE_SHOTGUN_4WAY_HIT_LEFT"
+        else:
+            local11 = "ACT_VEHICLE_SHOTGUN_4WAY_HIT_BACK"
+        game.QueueAct(local3.char, local11)
+        game.QueueAct(local3.char, local10)
+        if false:
+            debug.LogInfo("SHOTGUN HIT, 2WAY: %s", [local10])
+            debug.LogInfo("SHOTGUN HIT, 4WAY: %s", [local11])

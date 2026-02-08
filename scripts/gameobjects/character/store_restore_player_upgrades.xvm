@@ -1,0 +1,10 @@
+module store_restore_player_upgrades
+
+def StoreSetup(self):
+    visibleplayerupgrades.StoreSetup()
+
+def Init(self):
+    pass
+
+def RestoreSetup(self):
+    visibleplayerupgrades.RestoreSetup()

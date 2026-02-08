@@ -1,0 +1,17 @@
+module random_based_on_dynamic_difficulty
+
+def Evaluate(self, arg1):
+    local2 = playerstats.GetPlayerStats().RealDifficulty
+    local3 = arg1.Property0
+    local4 = arg1.Property1
+    local5 = arg1.Property2
+    local6 = arg1.Property3
+    local7 = math.Scale01(local2, local3, local4)
+    local8 = math.Lerp(local7, local5, local6)
+    if local8 == 0.0:
+        return 0.0
+    if local8 == 1.0:
+        return 1.0
+    if local8 >= math.Rand():
+        return 1.0
+    return 0.0

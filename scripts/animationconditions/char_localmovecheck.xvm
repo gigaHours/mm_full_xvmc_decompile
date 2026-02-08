@@ -1,0 +1,22 @@
+module char_localmovecheck
+
+def Evaluate(self, arg1):
+    local2 = character.GetWorldMatrix(self)
+    local3 = character.GetMeasuredWorldVelocity(self)
+    local4 = matrix.DirectionWorldToLocal(local2, local3)
+    local4.y = 0.0
+    if vector.Length(local4) > 0.01:
+        local4 = vector.Normalize(local4)
+        if arg1.Property0 == 1.0:
+            if 0.0 > local4.z:
+                return 1.0
+        elif arg1.Property0 == 2.0:
+            if local4.x > 0.0:
+                return 1.0
+        elif arg1.Property0 == 3.0:
+            if local4.z > 0.0:
+                return 1.0
+        elif arg1.Property0 == 4.0:
+            if 0.0 > local4.x:
+                return 1.0
+    return 0.0

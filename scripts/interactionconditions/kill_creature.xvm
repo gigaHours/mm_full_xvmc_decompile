@@ -1,0 +1,5 @@
+module kill_creature
+
+def Evaluate(self, arg1):
+    interaction.SetNamedFailEntry(self, "entry.kill_creature")
+    return 0.0

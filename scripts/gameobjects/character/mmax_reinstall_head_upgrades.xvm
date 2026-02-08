@@ -1,0 +1,7 @@
+module mmax_reinstall_head_upgrades
+
+def trigger(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel("armor", "head")
+    visibleplayerupgrades.DebugSetVisiblePlayerUpgrade("armor", "head", local2)
+    game.PostEvent(local1.on_done_event, "")

@@ -1,0 +1,23 @@
+module boost_attack
+import @58351C01
+
+def Unload(self):
+    local1 = game.GetParent(self)
+    if local1:
+        vehicle.UnregisterWeapon(game.GetParent(self), self)
+
+def Deactivate(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "")
+
+def PreInit(self):
+    vehicle.RegisterWeapon(game.GetParent(self), "boost_attack", self, "Activate", "Deactivate")
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = lib_entity_proxy.GetBoost(local1.car)
+    scriptgo.Call(local2, @AF31CC47)
+
+def Update(self, arg1):
+    local2 = game.GetParent(self)
+    local3 = game.GetTransform(local2).r3

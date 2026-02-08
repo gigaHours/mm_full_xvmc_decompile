@@ -1,0 +1,244 @@
+module dynamic_difficulty_gameplay
+
+def SetRankToMin(self):
+    playerstats.GetPlayerStats().Rank = 0.0
+
+def SetDifficultyLevelTo1(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 1.0
+
+def SetDifficultyLevelTo0(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 0.0
+
+def SetDifficultyLevelTo8(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 8.0
+
+def DebugShowUi(self):
+    scriptgo.GetProperties(self).debugRender = 1.0
+    scriptgo.SetRenderFunction(self, "Render")
+
+def RankUpdate(self):
+    local1 = playerstats.GetPlayerStats()
+    if local1.RankKills >= 10.0:
+        if local1.RankPoints > 0.0:
+            local2 = (math.Log10(local1.RankPoints + 7.0) * 20.0 - 16.9) / 100.0
+        else:
+            local2 = (math.Log10(local1.RankPoints + 7.0) * 20.0 - 16.9) / 50.0
+        DoRankUpdate(self, local2)
+
+def SetRankToDefault(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = playerstats.GetPlayerStats()
+    local2.Rank = 0.5
+    local2.RankPoints = 0.0
+    local2.RankKills = 0.0
+
+def SetDifficultyLevelTo7(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 7.0
+
+def ResetDifficulty(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = playerstats.GetPlayerStats()
+    local2.RealDifficulty = 0.0
+    local1.DifficultyFromHitStreak = 0.0
+    SetRankToDefault(self)
+    local2.LocationDifficultyOverride = 0.0
+
+def SetDifficultyLevelTo6(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 6.0
+
+def OnPlayerKilled(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.RankPoints = 0.0
+    local1.RankKills = 0.0
+    local1.Rank = math.Clamp(local1.Rank - 0.4, 0.0, 1.0)
+
+def WriteTweakValuesToPlayerStats(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.AttackSlotFrequencyAtMaxPressureOnMaxDifficulty = 0.25
+    local1.AttackSlotFrequencyAtMaxPressureOnMinDifficulty = 2.5
+    local1.AttackSlotFrequencyAtMinPressureOnMaxDifficulty = 0.5
+    local1.AttackSlotFrequencyAtMinPressureOnMinDifficulty = 2.75
+    local1.AttackSlotFrequencyRandomAdd = 0.5
+    local1.MinPressure = 30.0
+    local1.MaxPressure = 130.0
+    local1.EnemyAttackSpeedAtMinDifficulty = 0.85
+    local1.EnemyAttackSpeedAtMaxDifficulty = 1.15
+    local1.difficultyScalingBoarding = 0.5
+
+def DoRankUpdate(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if arg1 > 0.0:
+        local3 = "+%f"
+    else:
+        local3 = "%f"
+    DebugLog(self, "Rank", string.FormatFloat(local3, [arg1], "%1.2f"))
+    DebugLog(self, "RankPoints: ", string.FormatFloat("%f", [local2.RankPoints], "%1.1f"))
+    DebugLog(self, "RankKills:  ", string.FormatFloat("%f", [local2.RankKills], "%1.1f"))
+    local2.Rank = math.Clamp(local2.Rank + arg1, 0.0, 1.0)
+    local2.RankPoints = 0.0
+    local2.RankKills = 0.0
+
+def Init(self):
+    ResetState(self)
+    gui.CreateDebugLogWindow("difficulty", vector.Set(50.0, 300.0, 18.0, 0.8))
+    scriptgo.SetUpdateFunction(self, "Update")
+    scriptgo.SetRenderFunction(self, "")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.rank.update", "RankUpdate")
+    scriptgo.RegisterEventHandler(self, "ply.killed", "OnPlayerKilled")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.reset", "ResetDifficulty")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.rank_min", "SetRankToMin")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.rank_max", "SetRankToMax")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.rank_increase", "IncreaseRank")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.rank_decrease", "DecreaseRank")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level0", "SetDifficultyLevelTo0")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level1", "SetDifficultyLevelTo1")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level2", "SetDifficultyLevelTo2")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level3", "SetDifficultyLevelTo3")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level4", "SetDifficultyLevelTo4")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level5", "SetDifficultyLevelTo5")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level6", "SetDifficultyLevelTo6")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level7", "SetDifficultyLevelTo7")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level8", "SetDifficultyLevelTo8")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level9", "SetDifficultyLevelTo9")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.set_level10", "SetDifficultyLevelTo10")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.max", "SetDifficultyAndRankToMax")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.mid", "SetDifficultyAndRankToMid")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.min", "SetDifficultyAndRankToMin")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.show", "DebugShowUi")
+    scriptgo.RegisterEventHandler(self, "ply.difficulty.hide", "DebugHideUi")
+
+def SetDifficultyLevelTo4(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 4.0
+
+def IncreaseRank(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.Rank = math.Clamp(local1.Rank + 0.1, 0.0, 1.0)
+
+def SetDifficultyLevelTo10(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 10.0
+
+def DecreaseRank(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.Rank = math.Clamp(local1.Rank - 0.1, 0.0, 1.0)
+
+def SetDifficultyLevelTo2(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 2.0
+
+def SetDifficultyAndRankToMax(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.LocationDifficultyOverride = 10.0
+    local1.Rank = 1.0
+
+def SetDifficultyLevelTo9(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 9.0
+
+def SetDifficultyAndRankToMid(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.LocationDifficultyOverride = math.Floor(10.0 / 2.0)
+    local1.Rank = 0.5
+
+def Render(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.debugRender == 0.0:
+        return
+    local3 = playerstats.GetPlayerStats()
+    debug.PrintValue(local3.RealDifficulty, "RealDifficulty", 0.0)
+    debug.PrintValue(local2.LocationDifficulty, "LocationDifficulty", 1.0)
+    if local2.AlarmBuffsActive:
+        debug.PrintValue(1.0, "Rank", 2.0)
+    else:
+        debug.PrintValue(local3.Rank, "Rank", 2.0)
+    debug.PrintValue(local3.RankKills, "RankKills", 3.0)
+    debug.PrintValue(local3.RankPoints, "RankPoints", 4.0)
+    debug.PrintValue(local2.AlarmBuffsActive, "AlarmBuffsActive", 5.0)
+
+def DebugHideUi(self):
+    scriptgo.GetProperties(self).debugRender = 0.0
+    scriptgo.SetRenderFunction(self, "")
+
+def SetRankToMax(self):
+    playerstats.GetPlayerStats().Rank = 1.0
+
+def DebugLog(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.debugRender == 0.0:
+        return
+    gui.DisplayDebugLog("difficulty", arg1, arg2, vector.Set(1.0, 1.0, 1.0, 1.0))
+
+def ResetState(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.debugRender = 0.0
+    WriteTweakValuesToPlayerStats(self)
+    ResetDifficulty(self)
+
+def SetDifficultyLevelTo5(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 5.0
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = playerstats.GetPlayerStats()
+    local4 = getRankAdjustedLocationDifficulty(self)
+    local2.DifficultyFromHitStreak = math.Scale(math.Clamp(local3.HitCounter, 3.0, 25.0), 3.0, 25.0, 0.0, 0.25)
+    local3.RealDifficulty = math.Clamp01((local4 + local2.DifficultyFromHitStreak) * local3.DifficultyScaling)
+
+def SetDifficultyLevelTo3(self):
+    playerstats.GetPlayerStats().LocationDifficultyOverride = 3.0
+
+def SetDifficultyAndRankToMin(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.LocationDifficultyOverride = 0.0
+    local1.Rank = 0.0
+
+def getRankAdjustedLocationDifficulty(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = playerstats.GetPlayerStats()
+    local3 = 3.0
+    if local2.LocationDifficultyOverride > 0.0:
+        local3 = local2.LocationDifficultyOverride
+    else:
+        local4 = game.GetBlackboardValueFromObject(character.GetPlayer(), @D3FC585E)
+        if local4 != none:
+            if local4 > 0.0:
+                local3 = math.Clamp(local4, 0.0, 10.0)
+    local1.LocationDifficulty = local3
+    if local3 == 1.0:
+        local5 = 0.0
+        local6 = 0.4
+    elif local3 == 2.0:
+        local5 = 0.1
+        local6 = 0.5
+    elif local3 == 3.0:
+        local5 = 0.2
+        local6 = 0.6
+    elif local3 == 4.0:
+        local5 = 0.25
+        local6 = 0.65
+    elif local3 == 5.0:
+        local5 = 0.3
+        local6 = 0.7
+    elif local3 == 6.0:
+        local5 = 0.4
+        local6 = 0.8
+    elif local3 == 7.0:
+        local5 = 0.45
+        local6 = 0.85
+    elif local3 == 8.0:
+        local5 = 0.6
+        local6 = 0.9
+    elif local3 == 9.0:
+        local5 = 0.7
+        local6 = 0.95
+    elif local3 == 10.0:
+        local5 = 0.8
+        local6 = 1.0
+    local7 = local2.Rank
+    local8 = character.GetPlayer()
+    local1.AlarmBuffsActive = 0.0
+    local9 = game.GetBlackboardValueFromObject(local8, @0549D1F9)
+    if local9 != none:
+        if local9 > 0.0:
+            local7 = 1.0
+            local1.AlarmBuffsActive = local9
+            local5 = math.Clamp(local5 + 0.3, 0.0, 1.0)
+            local6 = math.Clamp(local6 + 0.3, 0.0, 1.0)
+    return math.Scale(local7, 0.0, 1.0, local5, local6)

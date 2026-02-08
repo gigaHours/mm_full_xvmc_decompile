@@ -1,0 +1,7 @@
+module empty_script
+
+def Init(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    pass

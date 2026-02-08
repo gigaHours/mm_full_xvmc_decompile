@@ -1,0 +1,7 @@
+module companion
+
+def DeactivateEnhacementLevel(self, arg1):
+    pass
+
+def ActivateEnhacementLevel(self, arg1):
+    pass

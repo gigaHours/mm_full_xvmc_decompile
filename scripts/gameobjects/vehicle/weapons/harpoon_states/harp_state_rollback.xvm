@@ -1,0 +1,53 @@
+module harp_state_rollback
+import @9B4F6985
+import @3D3D0D9B
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    lib_harpoon.ShowAnchorPoint(arg1)
+
+def Exit(self, arg1):
+    lib_weapon.StopCam(arg1, lib_harpoon.CAM_TETH())
+    local2 = scriptgo.GetProperties(arg1)
+    if local2.reelin_effect:
+        local3 = game.GetTransform(local2.car)
+        local4 = lib_harpoon.GetAttachPos(arg1)
+        local5 = matrix.Matrix(local3.r3, local3.r2, local4)
+        effect.EffectPlayAttached(local2.car, local5, local2.reelin_effect)
+    lib_harpoon.HideAnchorPoint(arg1)
+    lib_weapon.ResetTarget(arg1)
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_harpoon.STATE_ROLLBACK_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    lib_harpoon.UpdateAimCameraInput(local2, local3)
+    local4 = 0.25
+    if local4 > local3.state_time:
+        if local3.target:
+            local5 = scriptgo.Call(local3.target, @0C537298)
+        else:
+            local5 = local3.manual_target_pos
+        if local5 != none:
+            local6 = lib_harpoon.GetAttachPos(local2)
+            local7 = vector.Lerp(local3.state_time / local4, local5, local6)
+            rope.SetEndPoints(local3.rope, local7, local6)
+            local8 = matrix.LookAtMatrix(local6, vector.Set(0.0, 1.0, 0.0, 0.0), local3.projectile_target)
+            if none != local3.projectile_robj:
+                game.SetTransform(local3.projectile_robj, local8)
+        else:
+            lib_weapon.ChangeState(local2, local3.state_reload)
+    else:
+        lib_weapon.ChangeState(local2, local3.state_reload)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "ROLLBACK"

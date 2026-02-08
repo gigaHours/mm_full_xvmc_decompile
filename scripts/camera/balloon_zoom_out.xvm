@@ -1,0 +1,24 @@
+module balloon_zoom_out
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    pass
+
+def Init(self):
+    self.Properties.initial_height = 0.0
+
+def ExitTransition(self, arg1):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    pass
+
+def Update(self, arg1):
+    if not camera.ActiveCameraInAnyGroup("binocular"):
+        local2 = game.GetBlackboardValueFromObject(character.GetPlayer(), @878B6C77)
+        local3 = game.GetTransform(character.GetPlayer()).r3.y - local2
+        if local3 > self.Properties.max_offset:
+            local3 = self.Properties.max_offset
+        if 0.0 > local3:
+            local3 = 0.0
+        camera.SetOffsetDistance(self, local3 + self.InitialOffsetDistance)

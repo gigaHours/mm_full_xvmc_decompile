@@ -1,0 +1,54 @@
+module char_pickup_item
+import @BAFDB405
+
+def Enter(self, arg1):
+    arg1.ItemHasBeenPickedUp = false
+    local2 = character.GetInteractionUserProxy(self)
+    local3 = interaction.GetCurrentContext(local2)
+    arg1.prevObj = character.GetWieldedObject(self)
+    if arg1.prevObj:
+        animation.SetModifier(self, @E063F6A0, @2AC90207, true)
+    if local3:
+        local4 = game.GetParent(local3)
+        if local4:
+            local5 = game.GetItemAnimationModifier(local4)
+            arg1.pickupItemMod = local5
+            local6 = game.GetNameHash(local4)
+            soundscripting.SetRouterVariableHash("gameworld_conditions", "set_variable_value", "plr_pickup_item", local6, 0.0, 0.0)
+            if local5:
+                animation.SetModifier(self, @E063F6A0, local5, true)
+            local7 = game.GetTransform(local4)
+            local8 = vector.Dot(local7.r1, vector.Set(0.0, 1.0, 0.0, 0.0))
+            if local8 > 0.5:
+                animation.SetModifier(self, @E063F6A0, @63BDBBC6, true)
+        else:
+            animation.SetModifier(self, @E063F6A0, @63BDBBC6, true)
+
+def Exit(self, arg1):
+    local2 = character.GetWieldedObject(self)
+    if local2:
+        if character.IsItemCategory(local2, "Knife"):
+            character.SendTrackEvent(self, "unequipweapon", "")
+
+def Update(self, arg1, arg2):
+    if arg1.ItemHasBeenPickedUp == true:
+        return
+    local3 = character.GetInteractionUserProxy(self)
+    local4 = interaction.GetCurrentContext(local3)
+    if not local4:
+        return
+    local5 = game.GetParent(local4)
+    if not local5:
+        return
+    if false:
+        debug.Sphere(game.GetTransform(self).r3, 0.5, lib_color.WHITE(0.2))
+    if not animation.IsWithinSegment(self, @E063F6A0, @A8E055E7):
+        return
+    if false:
+        debug.Sphere(game.GetTransform(self).r3, 1.0, lib_color.GREEN(0.8))
+    character.GiveObject(self, local5)
+    if arg1.pickupItemMod == @D2A5068F:
+        character.UnwieldObject(self)
+        if arg1.prevObj:
+            character.GiveObject(self, arg1.prevObj)
+    arg1.ItemHasBeenPickedUp = true

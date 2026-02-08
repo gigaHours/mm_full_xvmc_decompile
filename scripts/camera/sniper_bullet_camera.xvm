@@ -1,0 +1,63 @@
+module sniper_bullet_camera
+
+def EnterAlignedTransition(self, arg1, arg2):
+    OnEnter(self, arg2)
+
+def UpdateRender(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = self.Properties
+
+def EnterUnalignedTransition(self, arg1):
+    OnEnter(self, arg1)
+
+def Update(self, arg1):
+    local2 = self.Properties
+    local3 = game.GetTransform(local2.weapon)
+    local4 = game.GetTransform(character.GetPlayer())
+    local5 = game.GetBulletFiredFromWeapon(local2.weapon)
+    raycast.ClearRays(local2.raycaster)
+    if not local5:
+        local5 = local2.lastBulletT
+    else:
+        local2.lastBulletT = local5
+    local6 = local5.r0
+    local7 = local5.r1
+    local8 = local5.r2
+    local9 = local5.r3
+    local10 = vector.Scale(local8, 1.0)
+    local11 = vector.Scale(local6, 0.25)
+    local12 = vector.Scale(local7, 0.25)
+    local13 = vector.Add(local9, local10)
+    local13 = vector.Add(local13, local11)
+    local13 = vector.Add(local13, local12)
+    local14 = local5.r3
+    arg1.CameraTransform = matrix.LookAtMatrix(local13, vector.Set(0.0, 1.0, 0.0, 0.0), local14)
+    local15 = vector.Dot(local8, arg1.CameraTransform.r0)
+    local16 = vector.Dot(local8, arg1.CameraTransform.r1)
+    if local2.raycaster and (not local2.hasHit):
+        local17 = game.GetGameObjectByAlias("vehicle_camera_coordinator")
+        if local17 != none:
+            local9 = vector.Add(local9, local8)
+            local18 = vector.Scale(local8, -20.0)
+            local19 = vector.Add(local9, local18)
+            local20 = raycast.CastBulletRay(local2.raycaster, local9, local19)
+            if local20:
+                local21 = local20.GameObject
+                local2.hasHit = true
+                scriptgo.Call2(local17, @AD549639, local21, local20.Position)
+    arg1.FocalDistanceNear = 30.0
+    arg1.FocalDistanceFar = 200.0
+    arg1.DOFTransitionNear = 80.0
+    arg1.DOFTransitionFar = 130.0
+    arg1.MaxDOFNear = 0.0
+    arg1.MaxDOFFar = 0.0
+    arg1.RadialBlurFactor = 0.04
+    arg1.RadialBlurOffset = 1.0
+    arg1.RadialBlurPosX = -local15 * 2.0
+    arg1.RadialBlurPosY = -local16 * 4.0
+    arg1.VignetteIndex = 0.0
+
+def OnEnter(self, arg1):
+    local2 = self.Properties
+    local2.slowMotionValue = 0.01
+    local2.hasHit = false
+    Update(self, arg1)

@@ -1,0 +1,13 @@
+module lookat_target_facing_direction
+
+def Update(self, arg1, arg2):
+    local3 = game.GetBlackboardValueFromObject(self, @7949DA76)
+    if local3:
+        if vector.Length(local3) > 0.5:
+            local4 = game.GetTransform(self)
+            local5 = matrix.DirectionWorldToLocal(local4, local3)
+            local6 = animation.GetPoseTransformById(self, "Head").r3
+            local7 = vector.Add(local6, local5)
+            character.SetLookAtTarget(self, local7)
+            if lib_lookat.LookAtIsAccepted(self):
+                local8 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)

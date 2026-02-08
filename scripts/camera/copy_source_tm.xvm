@@ -1,0 +1,20 @@
+module copy_source_tm
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    self.Properties.camera_transform = matrix.CopyMatrix(arg1.CameraTransform)
+    self.Properties.camera_fov = arg1.FOV
+    Update(self, arg2)
+
+def Init(self):
+    pass
+
+def ExitTransition(self, arg1):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    debug.LogError("copy_source_tm", "EnterUnalignedTransition for camera with copy_source_tm script; camera was not moved")
+
+def Update(self, arg1):
+    arg1.CameraTransform = self.Properties.camera_transform
+    arg1.FOV = self.Properties.camera_fov

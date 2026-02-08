@@ -1,0 +1,20 @@
+module boarder_set_modifier_based_on_input_angle
+
+def Enter(self, arg1):
+    local2 = vehicle.GetGlobalProperties()
+    local3 = false or local2.BoardingLandDebugEnabled
+    local4 = character.GetInteractionUserProxy(self)
+    if local4:
+        local5 = game.GetTransform(self)
+        local6 = local5.r3
+        local7 = interaction.GetEntryNodeTransform(local4, 4.0)
+        if local7:
+            local8 = local7.r3
+            local8.y = local8.y + 0.06
+            local9 = vector.Sub(local6, local8)
+            local9 = vector.Normalize(local9)
+            local10 = vector.Dot(local9, vector.Set(0.0, 1.0, 0.0, 0.0))
+            if 0.0 > local10:
+                if local3:
+                    debug.LogInfo("Boarder set modifier ------------SETTING MOD_LAND_LOW ENTRY!!! -----------: ", [])
+                animation.SetModifier(self, @E063F6A0, @4D66974E, true)

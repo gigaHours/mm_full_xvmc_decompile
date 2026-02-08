@@ -1,0 +1,217 @@
+module chum_gameplay
+import @58351C01
+import @BAFDB405
+import @45098D7D
+
+def ExitRepair(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetSignatureVehicle()
+    if local2 != none:
+        local3 = lib_entity_proxy.GetBodyHealth(local2)
+        if local3:
+            local4 = scriptgo.GetProperties(local3)
+            local4.repair_invulnerable = false
+    local5 = gui.GetBlackboard()
+    local5.chum_is_repairing = false
+
+def ResetAcceleration(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.jerk = none
+    local1.acc_last = none
+    local1.acc = none
+
+def GetSwayingAnimationBlend(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.acc:
+        return lib_character.CalcSwayingAnimationBlend(self, local1.acc)
+    return lib_character.GetEmptySwayingAnimationBlend(self)
+
+def Unload(self):
+    scriptgo.SetUpdateFunction(self, "")
+
+def ProcessRepairDialogue(self, arg1):
+    self.repair_dialogue_timer = math.Max(self.repair_dialogue_timer - arg1, 0.0)
+    if 0.0 >= self.repair_dialogue_timer:
+        character.BroadcastDialogueIntent(@807FFD58)
+        ResetRepairDialogueTimer(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+    local1.force_repair = false
+    local1.jerk = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.look_around_timer = GetChumLookAroundDelay(self)
+    local1.jerk_max_x = 0.0
+    local1.jerk_max_z = 0.0
+    local1.weapon_disabled = false
+    local1.repair_resist_timer = 0.0
+    local1.need_repair = false
+    local2 = lib_vehicleupgrades.GetRepairSpeedUpgradeLevel()
+    SetRepairSpeed(self, 1.0 / lib_vehicleupgrades.GetRepairTime(local2))
+    ResetRepairDialogueTimer(local1)
+    local1.vehicle_is_hot = false
+    local3 = gui.GetBlackboard()
+    local3.chum_is_repairing = false
+
+def ForceRepairStart(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.force_repair = true
+
+def ForceRepairStop(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.force_repair = false
+
+def SetRepairResistTimer(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.repair_resist_timer = arg1
+
+def EnterRepair(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetSignatureVehicle()
+    if local2 != none:
+        local3 = lib_entity_proxy.GetBodyHealth(local2)
+        if local3:
+            local4 = scriptgo.GetProperties(local3)
+            local4.repair_invulnerable = not vehicle.IsPlayerVehicle(local2)
+    ResetRepairDialogueTimer(local1)
+
+def ResetRepairDialogueTimer(self):
+    self.repair_dialogue_timer = math.Max(math.Rand() * 10.0, 5.0)
+
+def UpdateAcceleration(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = 2.0
+    local4 = vector.Set(9.5, 7.2, 8.0, 0.0)
+    local5 = 6.5
+    local6 = 0.7
+    local2.acc = lib_character.GetFilteredLSAccelerationOnVehicle(local2, arg1, local2.chum, local3, local4, local5, local6, false, false)
+    if local2.acc_last != none:
+        local2.jerk = vector.Scale(vector.Sub(local2.acc, local2.acc_last), 100.0)
+    local2.acc_last = local2.acc
+    local7 = none
+    if none != local2.jerk:
+        if -85.0 > local2.jerk.z:
+            local7 = "ACT_HIT_BWD"
+        elif local2.jerk.z > 160.0:
+            local7 = "ACT_HIT_FWD"
+        elif -90.0 > local2.jerk.x:
+            local7 = "ACT_HIT_RIGHT"
+        elif local2.jerk.x > 90.0:
+            local7 = "ACT_HIT_LEFT"
+    if none != local7:
+        local2.jerk_last_x = local2.jerk.x
+        local2.jerk_last_z = local2.jerk.z
+        game.QueueAct(local2.chum, local7)
+    if false:
+        local8 = lib_debugdraw.GetGoScreenPos(local2.chum, vector.Set(-0.15, 2.2, 0.0, 0.0), arg1)
+        debug.DrawText(local8, "JERK LAST X: %f Z: %f", [local2.jerk_last_x, local2.jerk_last_z], lib_color.RED(1.0))
+
+def DoRepairUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetSignatureVehicle()
+    if local3 != none:
+        lib_vehicle.RepairVehicleAndWeakspots(local3, local2.repairSpeed, arg1, 1.0, true)
+        local4 = lib_entity_proxy.GetBodyHealth(local3)
+        if local4:
+            local5 = scriptgo.GetProperties(local4)
+            local5.repair_invulnerable = not vehicle.IsPlayerVehicle(local3)
+    local6 = camera.GetCameraTransform().r3
+    local7 = game.GetTransform(local2.chum)
+    local8 = animation.GetPoseTransformById(local2.chum, "Head")
+    local9 = matrix.Mul(local8, local7).r3
+    local10 = vector.Distance(local6, local9)
+    local11 = math.Scale01(local10, 50.0, 10.0)
+    local12 = camera.ProjectPosition(local9)
+    local13 = gui.GetBlackboard()
+    local13.chum_is_repairing = true
+    local13.chum_repair_screenspace_pos = local12
+    local13.chum_repair_dist_scale = local11
+    local2.chum_repair_bb_set = true
+    ProcessRepairDialogue(local2, arg1)
+
+def GUIRepariVehicleHealth(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetPlayer()
+    local3 = character.GetVehicle(local2)
+    if local3 == none:
+        local4 = vehicle.GetSignatureVehicle()
+        local5 = lib_entity_proxy.GetBodyHealth(local4)
+        local6 = scriptgo.Call(local5, @F4E205B5)
+        local7 = gui.GetBlackboard()
+        local7.player_vehicle_health = local6
+
+def NeedToRepair(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.can_repair:
+        return false
+    if local1.force_repair:
+        return true
+    local2 = vehicle.GetSignatureVehicle()
+    if local2 == none:
+        return false
+    local3 = character.GetVehicle(local1.chum)
+    if local3 == none:
+        return false
+    if vehicle.GetAcceleratorInput(local3) > 0.0 or vehicle.GetReverseInput(local3) > 0.0 or vehicle.IsBoostEnabled(local3):
+        return false
+    if local1.repair_resist_timer > 0.0:
+        return false
+    local4 = character.GetVelocityLS(local1.chum)
+    local5 = vector.Length(local4)
+    if local5 > 20.0:
+        return false
+    local6 = vehicle.GetHealth(local3)
+    return 1.0 > local6
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.repair_resist_timer = math.Max(local2.repair_resist_timer - arg1, 0.0)
+    local3 = character.GetVehicle(local2.chum)
+    if none != local3:
+        if animation.GetStateBit(local2.chum, 3.0) == 1.0:
+            UpdateAcceleration(self, arg1)
+        else:
+            ResetAcceleration(self)
+        local4 = animation.GetStateBit(local2.chum, 2.0) == 1.0
+        if local4 and (not local2.weapon_disabled):
+            local5 = lib_entity_proxy.GetPlayerWeaponHandling()
+            scriptgo.Call(local5, @2DFF64D3)
+            local2.weapon_disabled = true
+        elif (not local4) and local2.weapon_disabled:
+            local5 = lib_entity_proxy.GetPlayerWeaponHandling()
+            scriptgo.Call(local5, @96656B1C)
+            local2.weapon_disabled = false
+        if 0.0 >= local2.look_around_timer:
+            game.QueueAct(local2.chum, "ACT_LOOK_AROUND")
+            local2.look_around_timer = GetChumLookAroundDelay(self)
+        else:
+            local2.look_around_timer = local2.look_around_timer - arg1
+        local6 = NeedToRepair(self)
+        if local2.need_repair != local6:
+            local2.need_repair = local6
+            if local6:
+                game.SetBlackboardValueToObject(local2.chum, @48455EC7, 1.0)
+            else:
+                game.SetBlackboardValueToObject(local2.chum, @48455EC7, 0.0)
+                if local2.chum_repair_bb_set:
+                    local7 = gui.GetBlackboard()
+                    local7.chum_is_repairing = false
+                    local2.chum_repair_bb_set = false
+        local7 = gui.GetBlackboard()
+        local7.vehicle_need_to_repair = local6
+        if local6:
+            GUIRepariVehicleHealth(self)
+    else:
+        local7 = gui.GetBlackboard()
+        if local7.chum_is_repairing:
+            ExitRepair(self)
+
+def SetRepairSpeed(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if 0.0 > arg1:
+        debug.LogError("damage system", "Attempted to set negative repair speed.")
+    else:
+        local2.repairSpeed = arg1
+
+def GetChumLookAroundDelay(self):
+    return math.Max(math.Rand() * 45.0, 15.0)

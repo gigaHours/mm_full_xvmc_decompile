@@ -1,0 +1,10 @@
+module char_set_interaction_parent_character_as_link_target
+
+def Update(self, arg1, arg2):
+    local3 = character.GetInteractionUserProxy(self)
+    local4 = interaction.GetCurrentContextParent(local3)
+    if arg1.looted_character == none and local4:
+        if character.IsCharacter(local4):
+            animation.SetLinkTarget(self, local4)
+        elif character.IsCharacter(game.GetParent(local4)):
+            animation.SetLinkTarget(self, game.GetParent(local4))

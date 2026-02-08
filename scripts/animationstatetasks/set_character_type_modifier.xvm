@@ -1,0 +1,9 @@
+module set_character_type_modifier
+
+def Enter(self, arg1):
+    if character.IsContextBitSet(self, 8.0):
+        animation.SetModifier(self, @E063F6A0, @EDCAFAF2, true)
+    elif character.IsContextBitSet(self, 9.0):
+        animation.SetModifier(self, @E063F6A0, @36C6C80C, true)
+    elif character.IsContextBitSet(self, 10.0):
+        animation.SetModifier(self, @E063F6A0, @80BD65BD, true)

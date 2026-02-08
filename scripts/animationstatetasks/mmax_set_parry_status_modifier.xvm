@@ -1,0 +1,12 @@
+module mmax_set_parry_status_modifier
+
+def Enter(self, arg1):
+    local2 = character.GetFloatRegister(self, 2.0)
+    if local2 == 1.0:
+        animation.SetModifier(self, @E063F6A0, @C9BD9E21, true)
+    if local2 == 2.0:
+        animation.SetModifier(self, @E063F6A0, @F39E4451, true)
+    soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", "plr_parry_status", local2, 0.0, 0.0)
+
+def Exit(self, arg1):
+    soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", "plr_parry_status", 0.0, 0.0, 0.0)

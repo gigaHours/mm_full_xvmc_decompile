@@ -1,0 +1,12 @@
+module is_vehicle_unlocked_for_player
+
+def Evaluate(self, arg1):
+    local2 = interaction.GetCharacter(self)
+    local3 = character.GetPlayer()
+    if game.IsObjectEqualTo(local2, local3):
+        if arg1.car != none:
+            if vehicle.IsLockedForPlayer(arg1.car):
+                return 0.0
+            if 0.0 >= vehicle.GetHealth(arg1.car):
+                return 0.0
+    return 1.0

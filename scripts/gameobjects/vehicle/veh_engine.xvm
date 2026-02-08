@@ -1,0 +1,52 @@
+module veh_engine
+
+def OnExit(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.IsEngineRunning(local1.vehicle):
+        vehicle.StopEngine(local1.vehicle)
+    scriptgo.SendEvent(self, @2A96FD52)
+    scriptgo.SetUpdateFunction(self, "")
+    if local1.exhaust_script != none:
+        scriptgo.Call(local1.exhaust_script, @933B8368)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.engineTimeout = 0.0
+    if not vehicle.IsEngineRunning(local1.vehicle):
+        if vehicle.IsAIVehicle(local1.vehicle) or local1.starts_as_on:
+            vehicle.StartEngine(local1.vehicle)
+    if not local1.always_on:
+        scriptgo.SetUpdateFunction(self, "Update")
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if vehicle.IsEngineRunning(local2.vehicle):
+        local3 = vehicle.GetVehicleDriver(local2.vehicle)
+        if not vehicle.IsPlayerVehicle(local2.vehicle):
+            if not local3:
+                local2.engineTimeout = local2.engineTimeout + arg1
+                if local2.engineTimeout > 20.0:
+                    OnExit(self)
+            elif character.IsDead(local3):
+                OnExit(self)
+        if not vehicle.IsDrivingEnabled(local2.vehicle):
+            OnExit(self)
+    else:
+        local3 = vehicle.GetVehicleDriver(local2.vehicle)
+        if local3 or vehicle.IsPlayerVehicle(local2.vehicle):
+            if vehicle.IsDrivingEnabled(local2.vehicle):
+                local2.engineTimeout = 0.0
+                vehicle.StartEngine(local2.vehicle)
+                scriptgo.SendEvent(self, @C3829FEB)
+                if local2.exhaust_script != none:
+                    scriptgo.Call(local2.exhaust_script, @30AEC983)
+        else:
+            local2.engineTimeout = local2.engineTimeout + arg1
+            if local2.engineTimeout > 2.0:
+                OnExit(self)
+
+def OnEnter(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+    local1.engineTimeout = 0.0
+    scriptgo.SendEvent(self, @C3829FEB)

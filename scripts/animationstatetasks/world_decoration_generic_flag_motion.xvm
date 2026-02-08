@@ -1,0 +1,66 @@
+module world_decoration_generic_flag_motion
+
+def GetSampler(self, arg1, arg2, arg3):
+    pass
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = game.GetWindVelocityEffects()
+    local4 = vector.Set(0.0, 0.0, -20.0, 0.0)
+    local5 = game.GetTransform(self)
+    local6 = matrix.ToAngles(local5)
+    local7 = animation.GetSamplerCount(arg3)
+    local8 = local4.x
+    local9 = local4.z
+    local10 = math.Sqrt(local8 * local8 + local9 * local9)
+    local11 = math.ACos(local9 / local10)
+    if 0.0 >= local4.x and local4.z >= 0.0:
+        local12 = math.RadToDeg(local11)
+    if 0.0 >= local4.x and 0.0 >= local4.z:
+        local12 = math.RadToDeg(local11)
+    if local4.x >= 0.0 and 0.0 >= local4.z:
+        local12 = 180.0 - math.RadToDeg(local11) + 180.0
+    if local4.x >= 0.0 and local4.z >= 0.0:
+        local12 = 90.0 - math.RadToDeg(local11) + 270.0
+    local12 = local12 + math.RadToDeg(local6.y)
+    local13 = vector.Length(local4)
+    local14 = 100.0 * local13 / 20.0
+    if 180.0 >= local12:
+        local15 = local12
+        if 90.0 >= local15:
+            local16 = 1.0 - local15 / 180.0
+            local17 = 1.0 - local16
+        else:
+            local17 = local15 / 180.0
+            local16 = 1.0 - local17
+        local18 = 0.0
+        local19 = 1.0
+    else:
+        local15 = 360.0 - local12
+        if 90.0 >= local15:
+            local16 = 1.0 - local15 / 180.0
+            local17 = 1.0 - local16
+        else:
+            local17 = local15 / 180.0
+            local16 = 1.0 - local17
+        local18 = 0.0
+        local19 = 2.0
+    local21 = 0.0
+    local22 = 1.0
+    local20 = local7
+    while local20 > local21:
+        if local21 == local18:
+            animation.GetSampler(arg3, local21).Weight = local17 * (local14 / 100.0)
+        else:
+            animation.GetSampler(arg3, local21).Weight = 0.0
+        if local21 == local19:
+            animation.GetSampler(arg3, local21).Weight = local16 * (local14 / 100.0)
+        local21 = local22 + local21
+    if 90.0 >= local12:
+        local23 = 5.0
+    elif local12 > 90.0 and 180.0 >= local12:
+        local23 = 3.0
+    elif local12 > 180.0 and 270.0 >= local12:
+        local23 = 4.0
+    elif local12 > 270.0:
+        local23 = 6.0
+    animation.GetSampler(arg3, local23).Weight = 1.0 - local14 / 100.0

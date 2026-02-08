@@ -1,0 +1,331 @@
+module character
+
+def ApplyToHealthBlock(self, arg1, arg2):
+    pass
+
+def GetCharacterByName(self):
+    pass
+
+def SetHealthBlockFullRatio(self, arg1, arg2):
+    pass
+
+def GetSpellTableValue(self, arg1, arg2):
+    pass
+
+def CanSee(self, arg1):
+    pass
+
+def GetLookAtTarget(self):
+    pass
+
+def ReloadWeapon(self, arg1):
+    pass
+
+def SetWeaponMagazineSize(self, arg1):
+    pass
+
+def UnwieldObject(self):
+    pass
+
+def WeaponSetAimTargetPosition(self, arg1):
+    pass
+
+def GetAnimationVelocityLS(self):
+    pass
+
+def GetItemOwner(self):
+    pass
+
+def IsInvulnerable(self):
+    pass
+
+def WeaponFireStraightAheadNow(self, arg1):
+    pass
+
+def GetLookAtBoneBlendSpeeds(self, arg1):
+    pass
+
+def GetVelocityLS(self):
+    pass
+
+def GetInteractionUserProxy(self):
+    pass
+
+def GetCharacterCollisionInfoCount(self):
+    pass
+
+def GetInventoryItem(self, arg1):
+    pass
+
+def IsModifierSet(self, arg1):
+    pass
+
+def GetGlobalXvmFloat(self, arg1):
+    pass
+
+def WeaponFireAtAimTarget(self, arg1):
+    pass
+
+def GetFirstItemObjectFromCategoryId(self, arg1):
+    pass
+
+def GetFloatRegister(self, arg1):
+    pass
+
+def TransferObject(self, arg1, arg2):
+    pass
+
+def GetWeaponRange(self):
+    pass
+
+def GetWeaponAmmoVelocity(self):
+    pass
+
+def SetLookAtBlendCurve(self, arg1):
+    pass
+
+def IsItemCategory(self, arg1):
+    pass
+
+def SetOpacity(self, arg1):
+    pass
+
+def GetMovementTargetingList(self, arg1, arg2, arg3):
+    pass
+
+def WeaponFireAtAimTargetNow(self, arg1):
+    pass
+
+def RemoveObject(self, arg1):
+    pass
+
+def GetInventoryAmmo(self, arg1):
+    pass
+
+def AddBuff(self, arg1):
+    pass
+
+def IsDead(self):
+    pass
+
+def GetRagdollCollisionInfo(self, arg1):
+    pass
+
+def GetWorldMatrix(self):
+    pass
+
+def GetVehicle(self):
+    pass
+
+def GetLatestSuccesfullSPellReceivedTime(self):
+    pass
+
+def GetLatestExplosionDataCount(self):
+    pass
+
+def IsTalking(self):
+    pass
+
+def GetUpgradeLevel(self, arg1):
+    pass
+
+def IsCharacter(self):
+    pass
+
+def GetLatestSpellInfo(self):
+    pass
+
+def GetHealthBlockUnit(self, arg1):
+    pass
+
+def RotateInstantly(self, arg1):
+    pass
+
+def WeaponAddObjectToIgnore(self, arg1):
+    pass
+
+def SetLookAtBoneWeights(self, arg1, arg2):
+    pass
+
+def GetRagdollCollisionInfoCount(self):
+    pass
+
+def GetGroundInfo(self):
+    pass
+
+def WeaponGetFireMatrix(self):
+    pass
+
+def SetLookAtValidTargetCosAngle(self, arg1):
+    pass
+
+def RotateToward(self, arg1, arg2, arg3):
+    pass
+
+def AliasIs(self, arg1):
+    pass
+
+def GetMovementTarget(self, arg1):
+    pass
+
+def WeaponAimStraightAhead(self, arg1):
+    pass
+
+def GetLatestHitByBulletData(self):
+    pass
+
+def GetItemObjectFloat(self, arg1):
+    pass
+
+def GetPlayer():
+    pass
+
+def WieldObject(self, arg1, arg2):
+    pass
+
+def GetBuffDuration(self, arg1):
+    pass
+
+def SendAnimationCommandRotate(self, arg1, arg2, arg3, arg4):
+    pass
+
+def ConsumeInventoryItem(self, arg1, arg2):
+    pass
+
+def AddInventoryAmmo(self, arg1, arg2):
+    pass
+
+def SetGlobalXvmFloat(self, arg1, arg2):
+    pass
+
+def IsInSequence(self):
+    pass
+
+def GetWieldedObject(self):
+    pass
+
+def GetLookAtValidTargetCosAngle(self):
+    pass
+
+def SetLookAtBoneYawAxisLocalSpace(self, arg1, arg2):
+    pass
+
+def HasVoiceOverId(self, arg1):
+    pass
+
+def SendTrackEvent(self, arg1, arg2):
+    pass
+
+def IsStateBitSet(self, arg1):
+    pass
+
+def RotateInstantlyMat(self, arg1):
+    pass
+
+def InstantDeath(self):
+    pass
+
+def GiveObject(self, arg1):
+    pass
+
+def GetFaction(self):
+    pass
+
+def IsOfType(self, arg1):
+    pass
+
+def ForceNeutralState(self):
+    pass
+
+def GetUnitHealth(self):
+    pass
+
+def GetMeasuredAngularVelocity(self):
+    pass
+
+def GetInventoryItemCount(self, arg1):
+    pass
+
+def GetLatestExplosionData(self):
+    pass
+
+def GetBelongToCamp(self):
+    pass
+
+def GetUpgradeValue(self, arg1):
+    pass
+
+def SetLookAtBoneBlendSpeeds(self, arg1, arg2):
+    pass
+
+def GetMeasuredWorldVelocity(self):
+    pass
+
+def UpdateDeltaReferenceFrame(self, arg1):
+    pass
+
+def SetLookAtTarget(self, arg1):
+    pass
+
+def GetLookAtBoneWeights(self, arg1):
+    pass
+
+def IsContextBitSet(self, arg1):
+    pass
+
+def GetWeaponAmmo(self):
+    pass
+
+def HasBuff(self, arg1):
+    pass
+
+def SetAnimationVelocityLS(self, arg1, arg2):
+    pass
+
+def GetLatestSuccesfullSPellGivenTime(self):
+    pass
+
+def SetLookAtGain(self, arg1):
+    pass
+
+def AddInventoryItem(self, arg1):
+    pass
+
+def WeaponFireStraightAhead(self, arg1):
+    pass
+
+def InflictDamage(self, arg1, arg2):
+    pass
+
+def SetLookAtBonePitchAxisLocalSpace(self, arg1, arg2):
+    pass
+
+def SetFloatRegister(self, arg1, arg2):
+    pass
+
+def GetCharacterCollisionInfo(self, arg1):
+    pass
+
+def HasCategoryItem(self, arg1):
+    pass
+
+def SetJesusMode(self, arg1):
+    pass
+
+def GetAbsoluteHealth(self):
+    pass
+
+def GetCharacterLevel(self):
+    pass
+
+def SetUpgradeLevel(self, arg1, arg2):
+    pass
+
+def RemoveBuff(self, arg1):
+    pass
+
+def SetLookAtBoneLimits(self, arg1, arg2):
+    pass
+
+def BroadcastDialogueIntent(self):
+    pass

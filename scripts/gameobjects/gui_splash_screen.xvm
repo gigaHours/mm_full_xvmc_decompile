@@ -1,0 +1,35 @@
+module gui_splash_screen
+
+def Disable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.enabled = false
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+
+def Hide(self):
+    gui.HideScene("inventory")
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.enabled = true
+
+def Show(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.enabled == false:
+        return
+    local2 = gui.GetBlackboard()
+    local2.splash_type = local1.splash_type
+    local2.end_on_button = local1.end_on_button
+    local1.header_id[local2.texts] = 0.0
+    local1.text_id0[local2.texts] = 1.0
+    local1.text_id1[local2.texts] = 2.0
+    local1.text_id2[local2.texts] = 3.0
+    local1.text_id3[local2.texts] = 4.0
+    local1.text_id4[local2.texts] = 5.0
+    local1.image_idx0[local2.image_idxs] = 0.0
+    local1.image_idx1[local2.image_idxs] = 1.0
+    local1.image_idx2[local2.image_idxs] = 2.0
+    local2.hide_timer = local1.hide_timer
+    local2.high_priority = local1.high_priority
+    gui.ShowScene("inventory")

@@ -1,0 +1,10 @@
+module mmax_navigation_timer
+
+def Update(self, arg1, arg2):
+    local3 = @D875A82E
+    local4 = game.GetBlackboardValueFromObject(self, local3)
+    if local4 != none:
+        local5 = animation.GetSpeed(self)
+        game.SetBlackboardValueToObject(self, local3, local4 + arg2 * local5)
+    else:
+        game.SetBlackboardValueToObject(self, local3, 0.0)

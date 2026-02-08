@@ -1,0 +1,80 @@
+module shotgun_target
+import @10C61CC8
+import @42D0E955
+
+def Disable(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.disabled:
+        local1.disabled = true
+        lib_shotguntarget.Disable(self)
+
+def IgnoreHitDistanceThreshold(self):
+    return 0.0
+
+def GetTargetPos(self):
+    return game.GetTransform(self).r3
+
+def Unload(self):
+    scriptgo.SetRenderFunction(self, "")
+
+def GetAutoTargetPrio(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.autoTargetPrio:
+        return local1.autoTargetPrio
+    return 0.0
+
+def CanBeTargeted(self, arg1):
+    return true
+
+def HideOutline(self):
+    lib_weakspot.HideOutline(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.disabled = true
+    if local1.minimumTargetDistance == none:
+        local1.minimumTargetDistance = 0.0
+    if not local1.startDisabled:
+        Enable(self)
+
+def ShowAsUnavailable(self):
+    return false
+
+def UpdateRender(self, arg1):
+    local2 = GetTargetRenderPos(self, arg1)
+    debug.Arrow(character.GetWorldMatrix(character.GetPlayer()).r3, local2, 0.1, lib_color.GREEN(0.5))
+    debug.Sphere(local2, 0.5, lib_color.CYAN(0.7))
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetTargetPhysObject(self)
+    if local2 != none:
+        if physics.IsDestructibleObject(local2):
+            if physics.IsBroken(local2):
+                Disable(self)
+                return
+    if local1.disabled:
+        local1.disabled = false
+        lib_shotguntarget.Enable(self)
+
+def GetMinTargetingDistance(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.minimumTargetDistance
+
+def GetTargetRenderPos(self, arg1):
+    return game.GetRenderTransform(self, arg1).r3
+
+def ShowOutline(self, arg1):
+    lib_weakspot.ShowOutline(self, false)
+
+def GetTargetPhysObject(self):
+    return game.GetParent(self)
+
+def FireAt(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.onHitDestroyDamagable != none:
+        game.InflictDamage(local3.onHitDestroyDamagable, 1000000.0, @91571CF0, 0.0, @40D28B18)
+    scriptgo.PostEvent(self, @D0752CD3)
+
+def GetNormal(self):
+    return game.GetTransform(self).r2

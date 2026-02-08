@@ -1,0 +1,8 @@
+module mmax_shirt_router
+
+def Trigger(self):
+    local1 = mission.IsMissionActivated(@3D6C02F1) and (not mission.IsMissionCompleted(@3D6C02F1))
+    if local1 == true:
+        scriptgo.SendEvent(self, @CFE9BEC4)
+    else:
+        scriptgo.SendEvent(self, @0D74CE63)

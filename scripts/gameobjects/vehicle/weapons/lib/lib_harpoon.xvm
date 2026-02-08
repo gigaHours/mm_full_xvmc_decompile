@@ -1,0 +1,348 @@
+module lib_harpoon
+
+def STATE_AIM_ID():
+    return 1.0
+
+def ROPE_TO_HOOK_FWD_OFFSET():
+    return 0.12
+
+def STATE_SHOOT_ID():
+    return 4.0
+
+def GetTargetPos(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.target:
+        return scriptgo.Call(local1.target, @0C537298)
+    if local1.manual_target_pos:
+        return local1.manual_target_pos
+    return none
+
+def GetProjectilePathHeight(self, arg1):
+    local2 = 0.0
+    local3 = THUNDERSTICK_RANGE()
+    local4 = 0.0
+    local5 = 4.0
+    local6 = 5.0
+    local7 = math.Max(arg1 - local6, 0.0)
+    local8 = math.Scale(local7, local2, local3, local4, local5)
+    return local8
+
+def CAMERA_STOP_MARGIN():
+    return 1.0
+
+def GetAimSourcePos(self):
+    local1 = 1.9
+    local2 = 1.9
+    local3 = scriptgo.Call(self, @51E06512)
+    if none != local3:
+        local4 = game.GetTransform(local3)
+        local5 = vector.Add(vector.Add(local4.r3, vector.Scale(local4.r1, local1)), vector.Scale(local4.r2, local2))
+        return local5
+
+def THUNDERSTICK_RANGE():
+    return 100.0
+
+def CAM_TETH():
+    return ["cam.activate.harpoon.tether", "cam.deactivate.harpoon.tether"]
+
+def CAM_SHOOT():
+    return ["cam.activate.harpoon.shoot", "cam.deactivate.harpoon.shoot"]
+
+def STATE_IDLE_ID():
+    return 0.0
+
+def THUNDERSTICK_MAX_RANGE():
+    return 120.0
+
+def STATE_EXPLODE_ID():
+    return 9.0
+
+def UpdateRenderHooked(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if none != local2.target:
+        local3 = GetAttachRenderPos(self, arg1)
+        local4 = GetTargetRenderPos(self, arg1)
+        local5 = scriptgo.Call(local2.target, @D281A61A)
+        local6 = game.GetRenderTransform(local5, arg1)
+        local7 = vector.Scale(matrix.DirectionLocalToWorld(local6, local2.proj_attach_dir_local), -1.0)
+        local4 = vector.Add(local4, vector.Scale(local7, HOOK_LENGTH()))
+        local8 = matrix.Matrix(local7, vector.Set(0.0, 1.0, 0.0, 0.0), local4)
+        if none != local2.projectile_robj:
+            game.SetTransform(local2.projectile_robj, local8)
+
+def STATE_PRE_SHOOT_ID():
+    return 3.0
+
+def CAMERA_OFFSET_BWD():
+    return 1.0
+
+def GetAimRaycastPos(self):
+    local1 = 1.7
+    local2 = 1.8
+    local3 = scriptgo.Call(self, @51E06512)
+    if none != local3:
+        local4 = game.GetTransform(local3)
+        local5 = local4.r3
+        local5 = vector.Add(local5, vector.Scale(local4.r1, local2))
+        local5 = vector.Add(local5, vector.Scale(local4.r2, local1))
+        return local5
+
+def TriggerHarpoonDisconnectReaction(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = local3.target
+    local5 = scriptgo.Call(local4, @D281A61A)
+    local6 = false
+    local7 = 100.0
+    if vehicle.IsVehicle(local5):
+        local8 = scriptgo.GetProperties(local4)
+        if not vehicle.IsInvulnerable(local5):
+            local9 = scriptgo.Call(local8.weakspot, @22385FC9)
+            if local9:
+                scriptgo.Call2(local9, @2925E205, local3.yank_damage, lib_damage_types.DAMAGE_SIMPLE())
+                if scriptgo.Call(local9, @4CFED023):
+                    scriptgo.Call(local4, @00E5221E)
+        local6 = true
+        local10 = vehicle.GetMass(local5)
+        local11 = math.Sqrt(local10)
+        local7 = local8.yanking_impulse_scale * local11
+    else:
+        local8 = scriptgo.GetProperties(local4)
+        local12 = local8.healthTracker
+        if local12:
+            local6 = true
+            local7 = local8.yanking_impulse_scale
+            local13 = -1.0
+            if local8.yanking_override_damage != none:
+                local13 = local8.yanking_override_damage
+            if 0.0 > local13:
+                local13 = local3.yank_damage
+            scriptgo.Call2(local12, @2925E205, local13, @638DD466)
+    if local5 and local6:
+        local14 = vector.Normalize(vector.Sub(arg2, arg1))
+        local15 = vector.Scale(local14, local7)
+        physics.ApplyImpulse(local5, local15, arg1)
+
+def ChumCanAim(self):
+    local1 = scriptgo.GetProperties(self)
+    if not vehicle.IsDrivingEnabled(local1.car):
+        return false
+    if local1.use_thunderstick_ammo and (not lib_harpoon.HasThunderCaps(self)):
+        return false
+    if local1.companion:
+        if 1.0 != animation.GetStateBit(local1.companion, 2.0) and 1.0 != animation.GetStateBit(local1.companion, 8.0) and 1.0 != animation.GetStateBit(local1.companion, 5.0) and 1.0 != animation.GetStateBit(local1.companion, 4.0):
+            return true
+    return false
+
+def GetCurrentRange(self):
+    return scriptgo.Call(self, @241A610A)
+
+def ShowAnchorPoint(self):
+    game.SendEvent("vehicle.harpoon.anchorpoint.show", "")
+    game.SendEvent("vehicle.harpoon.lever.show", "")
+
+def FilterTarget(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.GetProperties(arg1)
+    if local2.use_thunderstick_ammo and (not local3.targetable_by_thunderstick):
+        return false
+    if (not local2.use_thunderstick_ammo) and (not local3.targetable_by_harpoon):
+        return false
+    "\n    dot_limit = scriptgo.Call(target, STRING_HASH(\"GetAimDotLimit\"))\n    pos = script"
+    local4 = game.GetParent(arg1)
+    if none != local4:
+        local5 = scriptgo.GetProperties(local4)
+        if none != local5:
+            if none != local5.human:
+                local6 = local5.human
+                local7 = animation.GetStateBit(local6, 19.0) == 1.0 or animation.GetStateBit(local6, 20.0) == 1.0
+                if local7:
+                    return false
+                if local2.use_thunderstick_ammo:
+                    local8 = character.GetVehicle(local6)
+                    if local8 != none:
+                        local9 = vehicle.GetVehicleDriver(local8)
+                        if game.IsObjectEqualTo(local9, local6):
+                            return false
+    return true
+
+def STATE_HOOKED_NO_DRIVER_ID():
+    return 6.0
+
+def EnableConstraintToTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.target:
+        local2 = scriptgo.Call(local1.target, @D281A61A)
+        local3 = GetConstraintAttachPos(self)
+        local4 = GetTargetPos(self)
+        local5 = game.GetTransform(local1.car)
+        local6 = matrix.MulVec(matrix.Inverse(local5), local3)
+        local7 = game.GetTransform(local2)
+        local8 = matrix.MulVec(matrix.Inverse(local7), local4)
+        scriptgo.Call2(local1.elastic_constraint, @74F34423, local1.car, local6)
+        if character.IsCharacter(local2):
+            scriptgo.Call3(local1.elastic_constraint, @08D63002, local2, local8, scriptgo.Call(local1.target, @8CC70BF4))
+        else:
+            scriptgo.Call2(local1.elastic_constraint, @E79904FD, local2, local8)
+        local9 = 0.0
+        local10 = scriptgo.Call(local1.elastic_constraint, @7CEA1528) + local9
+        scriptgo.Call1(local1.elastic_constraint, @3BE0360B, local10)
+        scriptgo.Call1(local1.elastic_constraint, @E731EB9D, local1.debug_enabled)
+        scriptgo.Call(local1.elastic_constraint, @A0E7F998)
+
+def GetConstraintAttachPos(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetAttachPos(self)
+    local3 = vehicle.GetCenterOfMass(local1.car)
+    local4 = vector.Lerp(0.5, local3, local2)
+    return local4
+
+def STATE_HOOKED_ID():
+    return 5.0
+
+def SLOWMO_AIM():
+    return [0.3, 0.1, 0.5]
+
+def GetAttachPos(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetTransform(local1.car)
+    local3 = animation.GetPoseJointIndex(local1.car, "jnt_vpart_harpoon_anchorpoint")
+    local4 = animation.GetPoseTransform(local1.car, local3)
+    local5 = matrix.Mul(local4, local2)
+    local6 = 0.15
+    return vector.Add(local5.r3, vector.Scale(local2.r1, local6))
+
+def HOOK_LENGTH():
+    return 0.5
+
+def STATE_ROLLBACK_ID():
+    return 7.0
+
+def GetProjectileTransformByGun(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.car
+    if none != local1.harpoon_item:
+        local2 = local1.harpoon_item
+    return game.GetTransform(local2)
+
+def HasThunderCaps(self):
+    local1 = false
+    local2 = character.GetInventoryItemCount(character.GetPlayer(), "thunderstick_cap")
+    local3 = lib_vehicle.GetPlayerVehicle()
+    if none != local3:
+        local1 = vehicle.IsInvulnerable(local3)
+    return local2 > 0.0 or local1
+
+def UpdateConstraintLength(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = scriptgo.Call(local1.elastic_constraint, @D2C69B24)
+    local3 = 0.0
+    local4 = scriptgo.Call(local1.elastic_constraint, @7CEA1528) + local3
+    local5 = scriptgo.Call(local1.elastic_constraint, @C1B4B8AC)
+    if local5 > local4 and local4 >= local2:
+        scriptgo.Call1(local1.elastic_constraint, @3BE0360B, local4)
+
+def FilterTargetUpgrades(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.GetProperties(arg1)
+    if local3.is_reachable == false:
+        local3.aim_status = lib_weapon.AIM_STATUS_EMPTY()
+        return false
+    local3.ext_dis_scale = 1.0
+    local4 = scriptgo.Call(arg1, @0C537298)
+    local5 = GetAimSourcePos(self)
+    local6 = vector.Distance(local4, local5)
+    local7 = GetCurrentRange(self)
+    local3.ext_dis_scale = math.Max(1.0 - local6 / local7, 0.25)
+    if local6 > local7:
+        local3.aim_status = lib_weapon.AIM_STATUS_OUT_OF_RANGE()
+        return false
+    if local2.use_thunderstick_ammo == false:
+        local8 = scriptgo.Call(arg1, @90615342)
+        local9 = scriptgo.Call(self, @D403D621)
+        if local8 > local9:
+            local3.aim_status = lib_weapon.AIM_STATUS_OUT_OF_UPGRADE()
+            return false
+    return true
+
+def STATE_RELOAD_ID():
+    return 8.0
+
+def GetTargetRenderPos(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.target:
+        return scriptgo.Call1(local2.target, @BAD3ED99, arg1)
+    return local2.manual_target_pos
+
+def GetAttachRenderPos(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = game.GetRenderTransform(local2.car, arg1)
+    local4 = animation.GetPoseJointIndex(local2.car, "jnt_vpart_harpoon_anchorpoint")
+    local5 = animation.GetPoseTransform(local2.car, local4)
+    local6 = matrix.Mul(local5, local3)
+    local7 = 0.15
+    return vector.Add(local6.r3, vector.Scale(local3.r1, local7))
+
+def TARGETING_DELAY():
+    return 0.2
+
+def CAM_THUNDERSTICK():
+    return ["cam.activate.harpoon.thunderstick.swivel", "cam.deactivate.harpoon.thunderstick.swivel"]
+
+def UpdateHooked(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.target:
+        local3 = GetAttachPos(self)
+        local4 = GetTargetPos(self)
+        local5 = scriptgo.Call(local2.target, @D281A61A)
+        if character.IsCharacter(local5):
+            debug.LogInfo("Character impulse: %f", [impulse])
+            local6 = scriptgo.Call(local2.elastic_constraint, @CCD0480A)
+            if local6 > 1300.0:
+                debug.LogInfo("FORCE DISCONNECT - Character impulse: %f", [local6])
+                local2.input_force_disconnect = true
+        if local5:
+            local7 = game.GetTransform(local5)
+            local8 = vector.Scale(matrix.DirectionLocalToWorld(local7, local2.proj_attach_dir_local), -1.0)
+            local4 = vector.Add(local4, vector.Scale(local8, HOOK_LENGTH() - ROPE_TO_HOOK_FWD_OFFSET()))
+            rope.SetEndPointsWithAttachedObject(local2.rope, local3, local4, local5)
+        else:
+            rope.SetEndPoints(local2.rope, local3, local4)
+        local9 = GetProjectileTransformByGun(self).r3
+        local10 = vector.Normalize(vector.Sub(local9, local4))
+        local2.projectile_cam_pos = vector.Add(local4, vector.Scale(local10, CAMERA_STOP_MARGIN() + CAMERA_OFFSET_BWD()))
+        local2.projectile_target = local4
+
+def HideAnchorPoint(self):
+    game.SendEvent("vehicle.harpoon.anchorpoint.hide", "")
+    game.SendEvent("vehicle.harpoon.lever.hide", "")
+
+def CAM_AIM():
+    return ["cam.activate.harpoon.aim", "cam.deactivate.harpoon.aim"]
+
+def GetMaxRange(self):
+    return scriptgo.Call(self, @B883E154)
+
+def DisableConstraint(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.Call(local1.elastic_constraint, @2584E6C2)
+
+def GetProjectileRenderTransformByGun(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.car
+    if none != local2.harpoon_item:
+        local3 = local2.harpoon_item
+    return game.GetRenderTransform(local3, arg1)
+
+def STATE_AUTO_ID():
+    return 2.0
+
+def SLOWMO_PRE_SHOOT():
+    return [0.0, 0.2, 0.2]
+
+def UpdateAimCameraInput(self, arg1):
+    if (not arg1.input_aim_held) and arg1.aiming:
+        lib_weapon.StopCam(self, lib_harpoon.CAM_AIM())
+        arg1.aiming = false
+    elif arg1.input_aim_held and (not arg1.aiming):
+        lib_weapon.StartCam(self, lib_harpoon.CAM_AIM())
+        arg1.aiming = true

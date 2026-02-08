@@ -1,0 +1,11 @@
+module characters_close_to_player
+
+def Evaluate(self, arg1):
+    local2 = 0.0
+    if arg1.Property2 == 1.0:
+        local2 = gamedirector.GetAiGameStateHashInRangeCount("combat", arg1.Property0, arg1.Property1)
+    else:
+        local2 = gamedirector.GetAiGameStateHashInRangeCount("", arg1.Property0, arg1.Property1)
+    if local2 > 0.0:
+        return 1.0
+    return 0.0

@@ -1,0 +1,81 @@
+module char_apply_tumbling_impulse_to_ragdoll
+import @F76070AE
+
+def ApplyTumbleImpulse(self, arg1, arg2):
+    local3 = vehicle.GetGlobalProperties()
+    local4 = false or local3.BoardingLandDebugEnabled
+    local5 = character.GetMeasuredWorldVelocity(self)
+    local6 = vector.Lerp(0.6, arg1.PreviousSpeed, local5)
+    arg1.PreviousSpeed = local6
+    local7 = character.GetWorldMatrix(self)
+    local8 = matrix.Inverse(local7)
+    local6.y = 0.0
+    local9 = 1.0
+    local10 = false
+    if game.IsObjectEqualTo(self, character.GetPlayer()):
+        local9 = 1.2
+        local10 = true
+    if vector.Length(local6) > 2.1 and 90.0 > vector.Length(local6):
+        local11 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        animation.GetPoseJointIndex(self, "Spine2")[local11] = 0.0
+        animation.GetPoseJointIndex(self, "LeftArm")[local11] = 1.0
+        animation.GetPoseJointIndex(self, "RightArm")[local11] = 2.0
+        animation.GetPoseJointIndex(self, "LeftUpLeg")[local11] = 3.0
+        animation.GetPoseJointIndex(self, "RightUpLeg")[local11] = 4.0
+        animation.GetPoseJointIndex(self, "RightHand")[local11] = 5.0
+        animation.GetPoseJointIndex(self, "LeftHand")[local11] = 6.0
+        animation.GetPoseJointIndex(self, "LeftFoot")[local11] = 7.0
+        animation.GetPoseJointIndex(self, "RightFoot")[local11] = 8.0
+        local13 = 0.0
+        local14 = 1.0
+        local12 = len(local11)
+        while local12 > local13:
+            local15 = local11[local13]
+            if local15:
+                local16 = ragdoll.GetRagdollPositionForBone(self, local15)
+                if local16:
+                    local17 = vector.Sub(local16, local7.r3)
+                    local17.y = 0.0
+                    if vector.Length(local17) > 0.2:
+                        local18 = GetForceForQuadrant(local17, local6, arg2, local10)
+                        if vector.Length(local18) > 0.001:
+                            local18 = vector.Scale(local18, local9)
+                            local19 = vector.Add(local16, vector.Scale(vector.Normalize(local18), -0.1))
+                            physics.ApplyImpulseToBone(self, local15, local18, local19)
+                            local9 = local9 * 0.9
+                            if local4:
+                                lib_debugdraw.ArrowDir(local16, vector.Normalize(local18), 0.1, vector.Length(local18), lib_color.YELLOW(0.5))
+            local13 = local14 + local13
+        if local4:
+            lib_debugdraw.ArrowDir(local7.r3, vector.Normalize(local6), 0.1, vector.Length(local6) + 1.0, lib_color.BLUE(0.5))
+        return
+    if local4:
+        if 2.1 > vector.Length(local6):
+            debug.Sphere(local7.r3, 0.2, lib_color.RED(0.5))
+        else:
+            debug.Sphere(local7.r3, 1.2, lib_color.RED(0.8))
+
+def Enter(self, arg1):
+    arg1.PreviousSpeed = character.GetMeasuredWorldVelocity(self)
+    ApplyTumbleImpulse(self, arg1, 4.0)
+
+def Exit(self, arg1):
+    pass
+
+def GetForceForQuadrant(self, arg1, arg2, arg3):
+    local4 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local5 = vector.Dot(vector.Normalize(arg1), vector.Normalize(self))
+    if -0.2 > local5:
+        local4 = vector.Set(0.0, vector.Length(arg1) * arg2 + 0.05, 0.0, 0.0)
+        local6 = vector.Scale(vector.Normalize(arg1), arg2)
+        local4 = vector.Add(local4, local6)
+        if arg3:
+            local4 = vector.Scale(local4, 1.2)
+    elif local5 > 0.2:
+        local4 = vector.Set(0.0, vector.Length(arg1) * -arg2 - 0.05, 0.0, 0.0)
+        local6 = vector.Scale(vector.Normalize(arg1), -arg2)
+        local4 = vector.Add(local4, local6)
+    return local4
+
+def Update(self, arg1, arg2):
+    ApplyTumbleImpulse(self, arg1, 0.8)

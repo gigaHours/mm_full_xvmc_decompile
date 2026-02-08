@@ -1,0 +1,157 @@
+module weakspot
+import @7464AC79
+import @42D0E955
+
+def GetRootTransform(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.alignmentGameObject:
+        local2 = game.GetTransform(local1.alignmentGameObject)
+        local3 = local2.r3
+        if none != local1.positionOffsetUp:
+            local4 = game.GetTransform(local1.car)
+            local3 = vector.Add(local3, vector.Scale(local4.r1, local1.positionOffsetUp))
+        return matrix.Matrix(local2.r2, local2.r1, local3)
+    if none != local1.alignmentBoneName:
+        local4 = game.GetTransform(local1.car)
+        local5 = game.GetTransform(self)
+        local2 = matrix.Mul(animation.GetPoseTransform(local1.car, animation.GetPoseJointIndex(local1.car, local1.alignmentBoneName)), local4)
+        local3 = local2.r3
+        if none != local1.positionOffsetUp:
+            local3 = vector.Add(local3, vector.Scale(local4.r1, local1.positionOffsetUp))
+        return matrix.Matrix(local5.r2, local5.r1, local3)
+    return game.GetTransform(self)
+
+def GetHealthComponent(self):
+    return lib_weakspot.GetHealthComponent(self)
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car != none:
+        Deregister(self, local1.car)
+
+def GetRenderTransform(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if none != local2.alignmentGameObject:
+        local3 = game.GetTransform(local2.alignmentGameObject)
+        local4 = local3.r3
+        if none != local2.positionOffsetUp:
+            local5 = game.GetTransform(local2.car)
+            local4 = vector.Add(local4, vector.Scale(local5.r1, local2.positionOffsetUp))
+        return matrix.Matrix(local3.r2, local3.r1, local4)
+    if none != local2.alignmentBoneName:
+        local5 = game.GetRenderTransform(local2.car, arg1)
+        local6 = game.GetRenderTransform(self, arg1)
+        local3 = matrix.Mul(animation.GetPoseTransform(local2.car, animation.GetPoseJointIndex(local2.car, local2.alignmentBoneName)), local5)
+        local4 = local3.r3
+        if none != local2.positionOffsetUp:
+            local4 = vector.Add(local4, vector.Scale(local5.r1, local2.positionOffsetUp))
+        return matrix.Matrix(local6.r2, local6.r1, local4)
+    return game.GetRenderTransform(self, arg1)
+
+def GetProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.protectingParent
+
+def OnHitByBullet(self, arg1, arg2):
+    pass
+
+def DisableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @00E5221E)
+
+def ExplodesWith(self, arg1, arg2):
+    return false
+
+def GetTargetObject(self):
+    return scriptgo.GetProperties(self).car
+
+def HideOutline(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = self
+    if none != local1.lastWeakspotToOutline:
+        local2 = local1.lastWeakspotToOutline
+    lib_weakspot.HideOutline(local2)
+
+def OnDirectHitByBullet(self):
+    pass
+
+def EnableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @AF26B08B)
+
+def DeregisterChildWeakspot(self, arg1):
+    lib_weakspot.DeregisterChildWeakspot(self, arg1)
+
+def Init(self):
+    lib_weakspot.Init(self)
+
+def GetPosition(self):
+    return GetRootTransform(self).r3
+
+def GetRenderPosition(self, arg1):
+    return GetRenderTransform(self, arg1).r3
+
+def GetPhysicsPartName(self):
+    return scriptgo.GetProperties(self).physicsPartName
+
+def ClearProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.protectingParent = none
+
+def RenderDebug(self, arg1):
+    lib_weakspot.DebugDrawHealth(self, arg1)
+
+def GetMinTargetingDistance(self):
+    return 0.0
+
+def DisableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @00E5221E)
+    if none != local1.thunderstickTarget:
+        scriptgo.Call(local1.thunderstickTarget, @00E5221E)
+
+def ShowOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = self
+    if not arg1:
+        local3 = game.GetChild(game.GetChild(local2.car, "Weakspots"), "weakspot.Body")
+    lib_weakspot.ShowOutline(local3, arg1)
+    local2.lastWeakspotToOutline = local3
+
+def Register(self, arg1):
+    lib_weakspot.Register(self, arg1)
+    EnableHarpoonTarget(self)
+    EnableShotgunTarget(self)
+
+def EnableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @AF26B08B)
+    if none != local1.thunderstickTarget:
+        scriptgo.Call(local1.thunderstickTarget, @AF26B08B)
+
+def GetChildWeakspot(self):
+    return scriptgo.GetProperties(self).childWeakspot
+
+def IsArmor(self):
+    return false
+
+def Update(self, arg1):
+    if not lib_weakspot.UpdateBlockBullets(self, arg1):
+        scriptgo.SetUpdateFunction(self, "")
+
+def CollidesWith(self, arg1):
+    return false
+
+def RegisterChildWeakspot(self, arg1):
+    lib_weakspot.RegisterChildWeakspot(self, arg1)
+
+def GetNormal(self):
+    return GetRootTransform(self).r2
+
+def Deregister(self, arg1):
+    DisableShotgunTarget(self)
+    lib_weakspot.Deregister(self, arg1)

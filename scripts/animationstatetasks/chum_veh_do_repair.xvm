@@ -1,0 +1,17 @@
+module chum_veh_do_repair
+import @58351C01
+
+def Enter(self, arg1):
+    local2 = lib_entity_proxy.GetChumGameplay(self)
+    if local2:
+        scriptgo.Call(local2, @AB3FADF8)
+
+def Exit(self, arg1):
+    local2 = lib_entity_proxy.GetChumGameplay(self)
+    if local2:
+        scriptgo.Call(local2, @01A23324)
+
+def Update(self, arg1, arg2):
+    local3 = lib_entity_proxy.GetChumGameplay(self)
+    if local3:
+        scriptgo.Call1(local3, @E4B8C0C8, arg2)

@@ -1,0 +1,8 @@
+module char_ground_is_slidey
+import @BAFDB405
+
+def Evaluate(self, arg1):
+    local2 = character.GetWorldMatrix(self)
+    if lib_character.CheckIfSlidey(self, local2):
+        return 1.0
+    return 0.0

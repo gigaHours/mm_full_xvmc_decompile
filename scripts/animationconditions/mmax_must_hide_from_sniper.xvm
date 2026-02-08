@@ -1,0 +1,4 @@
+module mmax_must_hide_from_sniper
+
+def Evaluate(self, arg1):
+    return lib_vehicle.SniperStateUnvailable(self)

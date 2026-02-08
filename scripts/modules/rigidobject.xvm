@@ -1,0 +1,19 @@
+module rigidobject
+
+def DisableCollision(self):
+    pass
+
+def EnableCollision(self):
+    pass
+
+def MakeKeyframed(self):
+    pass
+
+def MakeDynamic(self):
+    pass
+
+def Hide(self):
+    pass
+
+def Show(self):
+    pass

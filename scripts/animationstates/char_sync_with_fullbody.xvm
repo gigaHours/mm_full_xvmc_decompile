@@ -1,0 +1,18 @@
+module char_sync_with_fullbody
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetLength(self)
+    local5 = animation.GetTime(self)
+    local6 = animation.GetSamplerCount(arg3)
+    local7 = local5 / local4
+    local9 = 0.0
+    local10 = 1.0
+    local8 = local6
+    while local8 > local9:
+        local11 = animation.GetSampler(arg3, local9)
+        local11.Time = local11.Length * local7
+        local9 = local10 + local9
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    pass

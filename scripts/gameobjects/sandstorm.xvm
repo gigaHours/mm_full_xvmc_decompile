@@ -1,0 +1,10 @@
+module sandstorm
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetTransform(character.GetPlayer())
+    local3 = matrix.IdentityMatrix()
+    if local1.rotate_towards_middle:
+        local3 = matrix.LookAtMatrix(local2.r3, vector.Set(0.0, 1.0, 0.0, 0.0), vector.Set(-5800.0, 1.0, 2000.0, 0.0))
+    local3.r3 = local2.r3
+    game.SetTransform(local1.sandstorm_transform, local3)

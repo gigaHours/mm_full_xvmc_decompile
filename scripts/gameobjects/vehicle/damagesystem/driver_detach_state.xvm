@@ -1,0 +1,18 @@
+module driver_detach_state
+import @B1360AAD
+import @8A26F2B5
+
+def DoPull(self, arg1):
+    game.QueueAct(arg1, "ACT_HARPOON_PULL")
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = scriptgo.GetProperties(game.GetParent(self))
+    local6 = local5.weakspot
+    local7 = scriptgo.GetProperties(local6)
+    DoPull(self, local7.human)
+    local8 = "ACT_HARPOON_PULL_LIGHT"
+    game.QueueAct(local4.car, local8)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)

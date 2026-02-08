@@ -1,0 +1,96 @@
+module driver_hit_reaction
+import @45098D7D
+
+def UpdateEnemySteerAndHandbrakeReaction(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.car
+    local4 = 2.0
+    if false:
+        debug.Sphere(game.GetTransform(local3).r3, 2.0, local2.debug_color)
+    local2.handbrakeDelay = local2.handbrakeDelay - arg1
+    local2.updateDuration = local2.updateDuration - arg1
+    vehicle.SetSteeringInput(local3, local2.steeringReactionDirection)
+    if vector.Length(vehicle.GetVelocity(local3)) > local4:
+        vehicle.SetAcceleratorInput(local3, 1.0)
+    if 0.0 >= local2.handbrakeDelay:
+        vehicle.SetHandbrakeInput(local3, 1.0)
+    if 0.0 >= local2.updateDuration:
+        vehicle.SetHandbrakeInput(local3, 0.0)
+        vehicle.SetAcceleratorInput(local3, 0.0)
+        scriptgo.SetUpdateFunction(self, "")
+
+def TriggerPlayerBoarderHitReaction(self):
+    local1 = scriptgo.GetProperties(self)
+    if vector.Length(vehicle.GetVelocity(local1.car)) > 5.0:
+        local1.timeReacted = 0.0
+        local1.timeMax = 0.75
+        local1.steerDir = math.Sign(math.Rand() - 0.5)
+        scriptgo.SetUpdateFunction(self, "UpdatePlayerBoarderHitReaction")
+
+def UpdatePlayerBoarderHitReaction(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.timeMax > local2.timeReacted:
+        local2.timeReacted = local2.timeReacted + arg1
+        local3 = local2.timeReacted / local2.timeMax
+        local4 = vehicle.GetSteeringInput(local2.car) + math.Lerp(local3, 1.0, -1.0) * local2.steerDir
+        vehicle.SetSteeringInput(local2.car, local4)
+    else:
+        scriptgo.SetUpdateFunction(self, "")
+
+def TriggerEnemyWheelDetachedReaction(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.car
+    local4 = 5.0
+    local5 = vehicle.GetWheelTransform(local3, arg1)
+    local6 = game.GetTransform(local3)
+    local7 = vehicle.GetMass(local3)
+    local8 = math.Sqrt(local7)
+    local9 = 40.0 * local8
+    local10 = vector.Scale(local6.r1, local9)
+    physics.ApplyImpulse(local3, local10, local5.r3)
+    if (not vehicle.IsPlayerVehicle(local3)) and vector.Length(vehicle.GetVelocity(local3)) > local4:
+        local2.updateDuration = 3.0
+        local2.handbrakeDelay = 1.0
+        local2.steeringReactionDirection = math.Sign(math.Rand() * 2.0 - 1.0)
+        local2.debug_color = lib_color.CYAN(0.2)
+        scriptgo.SetUpdateFunction(self, "UpdateEnemySteerAndHandbrakeReaction")
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.car = lib_vehicle.GetParentVehicle(self)
+
+def UpdateEnemyCollisionHitReaction(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.timeMax > local2.timeReacted:
+        local2.timeReacted = local2.timeReacted + arg1
+        local3 = local2.timeReacted / local2.timeMax
+        local4 = vehicle.GetSteeringInput(local2.car) + math.Lerp(local3, 2.0, -2.0) * local2.steerDir
+        vehicle.SetSteeringInput(local2.car, local4)
+    else:
+        scriptgo.SetUpdateFunction(self, "")
+
+def TriggerEnemyCollisionHitReaction(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.timeReacted = 0.0
+    local1.timeMax = 1.0
+    local1.steerDir = math.Sign(math.Rand() - 0.5)
+
+def TriggerEnemyTireShotReaction(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.car
+    local4 = 5.0
+    local5 = vehicle.GetWheelTransform(local3, arg1)
+    local6 = game.GetTransform(local3)
+    local7 = vehicle.GetMass(local3)
+    local8 = math.Sqrt(local7)
+    local9 = 68.0 * local8
+    if vehicle.IsBike(local3):
+        local9 = local9 * 0.5
+    local10 = vector.Scale(local6.r1, local9)
+    physics.ApplyImpulse(local3, local10, local5.r3)
+    if (not vehicle.IsPlayerVehicle(local3)) and vector.Length(vehicle.GetVelocity(local3)) > local4:
+        local2.updateDuration = 3.0
+        local2.handbrakeDelay = 0.3
+        local2.steeringReactionDirection = math.Sign(math.Rand() * 2.0 - 1.0)
+        local2.debug_color = lib_color.MAGENTA(0.2)
+        scriptgo.SetUpdateFunction(self, "UpdateEnemySteerAndHandbrakeReaction")

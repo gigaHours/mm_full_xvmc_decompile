@@ -1,0 +1,14 @@
+module lookat_set_closest_valid_as_link_target
+import @05896E5A
+
+def Update(self, arg1, arg2):
+    local3 = 15.0
+    local4 = 0.3
+    local5 = character.GetLookAtValidTargetCosAngle(self)
+    local6 = character.GetMovementTargetingList(self, local4, local3, local5)
+    if local6.Count > 0.0:
+        local7 = character.GetMovementTarget(local6, 0.0)
+        if local7:
+            animation.SetLinkTarget(self, local7)
+    if local6.Count == 0.0:
+        animation.ClearLinkTarget(self)

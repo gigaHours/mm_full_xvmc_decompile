@@ -1,0 +1,8 @@
+module has_shiv_inventory_space
+
+def Evaluate(self, arg1):
+    local2 = character.GetInventoryItemCount(self, "generic_shiv")
+    local3 = character.GetUpgradeValue(self, "ShivCap")
+    if local3 > local2:
+        return 1.0
+    return 0.0

@@ -1,0 +1,13 @@
+module exit_vehicle
+
+def EnterAlignedTransition(self, arg1, arg2):
+    local3 = self.OffsetAzimuth
+    if -2.9 > local3 or local3 > -0.3:
+        return
+    local4 = -0.3
+    if -math.Pi() * 0.5 > local3:
+        local4 = -2.9
+    camera.SetOffsetDeltaOrbit(self, local4 - local3, 0.0)
+
+def Update(self, arg1):
+    pass

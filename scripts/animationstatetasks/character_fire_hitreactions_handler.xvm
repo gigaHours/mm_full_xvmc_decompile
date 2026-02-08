@@ -1,0 +1,28 @@
+module character_fire_hitreactions_handler
+
+def HandleHitByFire(self, arg1):
+    local2 = game.GetTransform(self)
+    local3 = local2.r2
+    local4 = local2.r1
+    local5 = vector.Scale(arg1.ImpactDirection, -1.0)
+    local6 = vector.Cross(vector.Scale(arg1.FireAt, -1.0), local4)
+    local7 = vector.Dot(local5, local6)
+    local8 = vector.Dot(local4, local5)
+    if 0.4 > local8:
+        local9 = 0.025
+        local10 = vector.Add(vector.Cross(local5, local4), local6)
+        if local9 > local7:
+            local10 = vector.Scale(local10, -1.0)
+        if vector.Dot(local3, vector.Sub(arg1.ImpactPosition, local2.r3)) > 0.0:
+            animation.SetModifier(self, @E063F6A0, @932CB23B, true)
+            local10 = vector.Scale(local10, -1.0)
+        local11 = matrix.MatrixY(local10, local4, local2.r3)
+        game.SetTransform(self, local11)
+    elif 0.0 > vector.Dot(local5, local2.r2):
+        animation.SetModifier(self, @E063F6A0, @932CB23B, true)
+
+def Enter(self, arg1):
+    local2 = physics.GetLatestFireHitCount(self)
+    if local2 > 0.0:
+        HandleHitByFire(self, physics.GetLatestFireHit(self))
+        return

@@ -1,0 +1,72 @@
+module lib_sniper
+
+def STATE_AIM_ID():
+    return 1.0
+
+def STATE_SHOOT_ID():
+    return 2.0
+
+def Wield(self):
+    local1 = scriptgo.GetProperties(self)
+    character.GiveObject(local1.wielding_character, local1.weapon_item)
+    character.WieldObject(local1.wielding_character, local1.weapon_item, 0.0)
+
+def HideRifle(self):
+    game.SendEvent("signature_sniper_rifle.hide", "")
+
+def DoReload(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.wielding_character
+    character.ReloadWeapon(local1.weapon_item, local2)
+
+def STATE_IDLE_ID():
+    return 0.0
+
+def STATE_PARRY_ID():
+    return 4.0
+
+def STATE_INACTIVE_ID():
+    return 5.0
+
+def MAX_SHOOT_RANGE():
+    return 300.0
+
+def UnWield(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.wielding_character and none != local1.weapon_item:
+        character.RemoveObject(local1.wielding_character, local1.weapon_item)
+
+def IsLoaded(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = false
+    local3 = lib_vehicle.GetPlayerVehicle()
+    if none != local3:
+        local2 = vehicle.IsInvulnerable(local3)
+    return local2 or HasAmmo(self)
+
+def STATE_RELOAD_ID():
+    return 3.0
+
+def ExitAimCommon(self):
+    local1 = scriptgo.GetProperties(self)
+    lib_sniper.ShowRifle(self)
+    game.SendEventNone("disable_sniper_mode_camera")
+    game.SendEventNone("disable_sniper_fire_camera")
+    game.SendEventNone("disable_sniper_bullet_camera")
+    game.SendEventNone("ply.show")
+    game.QueueAct(local1.wielding_character, "ACT_TO_SNIPER_UNAIM")
+    gui.PostEvent("disable_sniper_mode_aim")
+    game.SendEvent("stop_bullet_camera_sound", "")
+
+def CanReload(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.wielding_character
+    local3 = character.GetInventoryAmmo(local1.weapon_item, local2)
+    return local3 > 0.0
+
+def HasAmmo(self):
+    local1 = scriptgo.GetProperties(self)
+    return character.GetWeaponAmmo(local1.weapon_item) > 0.0
+
+def ShowRifle(self):
+    game.SendEvent("signature_sniper_rifle.show", "")

@@ -1,0 +1,18 @@
+module specific_max_upgrade_locker
+
+def unlock(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.attribute_id == none:
+        __debugout("specific_max_upgrade_locker: no attribute_id set.")
+        return
+    visibleplayerupgrades.UnlockSpecificMaxUpgrade(gui.MakeLocalizationHashFromTag(local1.attribute_id))
+
+def lock(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.attribute_id == none:
+        __debugout("specific_max_upgrade_locker: no attribute_id set.")
+        return
+    if local1.reason_string_id == none:
+        visibleplayerupgrades.LockSpecificMaxUpgrade(gui.MakeLocalizationHashFromTag(local1.attribute_id), gui.MakeLocalizationHashFromTag(""))
+    else:
+        visibleplayerupgrades.LockSpecificMaxUpgrade(gui.MakeLocalizationHashFromTag(local1.attribute_id), gui.MakeLocalizationHashFromTag(local1.reason_string_id))

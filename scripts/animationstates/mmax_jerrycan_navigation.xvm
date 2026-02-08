@@ -1,0 +1,32 @@
+module mmax_jerrycan_navigation
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = 0.5
+    local5 = 0.9
+    local6 = character.GetGlobalXvmFloat(self, 18.0)
+    local7 = character.GetGlobalXvmFloat(self, 19.0)
+    local8 = lib_character.GetRunAmount(self, local4, local5)
+    local9 = 0.0
+    local10 = 1.0
+    local11 = character.GetGroundInfo(self)
+    if local11.Material == 6.0:
+        local8 = 0.0
+    local12 = 0.05
+    if input.GetButtonInput(@A0427F74) > 0.1:
+        if local11.Material == 6.0:
+            local10 = 1.2
+        else:
+            local8 = 0.0
+            local9 = 1.0
+            local12 = 0.25
+    local13 = math.Lerp(local12, local6, local8)
+    local14 = math.Lerp(local12, local7, local9)
+    character.SetGlobalXvmFloat(self, 18.0, local13)
+    character.SetGlobalXvmFloat(self, 19.0, local14)
+    local15 = math.Max(1.0 - (local13 + local14), 0.0)
+    lib_character.SetWeightAndSynchronizeAnimationTimeAndSpeedBasedOnWeightArray(self, [local15, local13, local14], arg3, local10)
+    if false:
+        local16 = game.GetTransform(self)
+        local17 = vector.Add(local16.r3, vector.Set(0.0, 2.1, 0.0, 0.0))
+        debug.DrawText3d(local17, "Walk: %f, Jog: %f, Sprint: %f", [local15, local13, local14], lib_color.LIGHT_BLUE(1.0))

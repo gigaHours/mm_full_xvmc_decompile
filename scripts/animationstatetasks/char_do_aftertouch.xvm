@@ -1,0 +1,27 @@
+module char_do_aftertouch
+import @42D0E955
+
+def AdjustAngle(self, arg1):
+    local2 = input.GetFilteredMoveInput()
+    if vector.Length(local2) > 0.2:
+        local2 = vector.Normalize(local2)
+        local3 = camera.TransformInputDirToWorldDir(local2)
+        local3.y = 0.0
+        local3 = vector.Normalize(local3)
+        local4 = character.GetWorldMatrix(self)
+        local5 = matrix.RotationAxisMatrix(vector.Set(0.0, 1.0, 0.0, 0.0), -math.Pi())
+        local6 = matrix.MulVec(local5, local4.r2)
+        local7 = 1.57079637 - math.Abs(math.ASin(vector.Dot(local3, local6)))
+        local7 = math.Clamp(local7, 0.0, arg1.Property0)
+        local8 = math.Sign(vector.Cross(local3, local6).y)
+        local9 = local8 * local7 * arg1.Property1
+        local10 = matrix.RotationAxisMatrix(vector.Set(0.0, 1.0, 0.0, 0.0), -local9)
+        local6 = matrix.MulVec(local10, local6)
+        character.RotateInstantly(self, local6)
+
+def Enter(self, arg1):
+    AdjustAngle(self, arg1)
+
+def Update(self, arg1):
+    if animation.IsWithinSegment(self, @E063F6A0, @A4385A34):
+        AdjustAngle(self, arg1)

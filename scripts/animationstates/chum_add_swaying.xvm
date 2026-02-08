@@ -1,0 +1,22 @@
+module chum_add_swaying
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = false
+    local5 = animation.GetSampler(arg3, 0.0)
+    local6 = character.GetVehicle(self)
+    local7 = 0.1
+    if none != local6:
+        if 0.0 > vehicle.GetLocalVelocity(local6).z:
+            local8 = vector.Length(vehicle.GetVelocity(local6))
+            local9 = 20.0
+            local10 = math.Clamp(local8 / local9, 0.2, 1.0)
+            local7 = local10
+    local5.Weight = local7
+    if local5.Time == local5.Length:
+        local5.Time = 0.0
+    if local4:
+        local11 = lib_debugdraw.GetGoScreenPos(self, vector.Set(0.0, 1.7, 0.0, 0.0), arg2)
+        debug.DrawText(local11, "anim_idle_add.Weight: %f", [local5.Weight], lib_color.LIGHT_BLUE(1.0))
+
+def OnEnter(self, arg1):
+    character.SetGlobalXvmFloat(self, 13.0, 0.0)

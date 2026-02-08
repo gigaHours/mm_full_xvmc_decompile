@@ -1,0 +1,35 @@
+module main_character_intent
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+    local1 = scriptgo.GetProperties(self)
+    local1.cooldown = 0.0
+    local2 = character.GetPlayer()
+    local1.used_griffa_token_cooldown = 0.0
+    game.SetBlackboardValueToObject(local2, @6844AEDF, 0.0)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = character.GetPlayer()
+    local4 = character.GetVehicle(local3)
+    if local4:
+        local5 = vehicle.GetFuelAmount(local4)
+        if 0.1 > local5 and local5 > 0.0 and 0.0 >= local2.cooldown:
+            character.BroadcastDialogueIntent(@51401837)
+            local2.cooldown = 1.0
+        if 0.0 >= local5 and 0.0 >= local2.cooldown:
+            character.BroadcastDialogueIntent(@ED205019)
+            local2.cooldown = 1.0
+        if local2.cooldown > 0.0:
+            local2.cooldown = local2.cooldown - arg1
+    if local2.used_griffa_token_cooldown > 0.0:
+        local2.used_griffa_token_cooldown = local2.used_griffa_token_cooldown - arg1
+        if 0.0 >= local2.used_griffa_token_cooldown:
+            local2.used_griffa_token_cooldown = 0.0
+            game.SetBlackboardValueToObject(local3, @6844AEDF, 0.0)
+
+def HasUsedGriffaToken(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetPlayer()
+    local1.used_griffa_token_cooldown = 60.0
+    game.SetBlackboardValueToObject(local2, @6844AEDF, 1.0)

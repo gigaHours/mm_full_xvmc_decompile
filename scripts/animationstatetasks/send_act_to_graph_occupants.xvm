@@ -1,0 +1,5 @@
+module send_act_to_graph_occupants
+
+def Enter(self, arg1):
+    local2 = character.GetInteractionUserProxy(self)
+    interaction.QueueActToOccupants(local2, arg1.Act)

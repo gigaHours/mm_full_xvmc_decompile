@@ -1,0 +1,7 @@
+module debug_do_damage
+import @B1360AAD
+
+def DoDamage(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = graphscript.GetVariables(self)
+    scriptgo.Call2(local2.healthComponentToDamage, @2925E205, local3.damage, lib_damage_types.DAMAGE_SIMPLE())

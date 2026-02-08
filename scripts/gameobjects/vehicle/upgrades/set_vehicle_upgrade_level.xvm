@@ -1,0 +1,15 @@
+module set_vehicle_upgrade_level
+
+def Init(self):
+    pass
+
+def Trigger(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("garage.state")
+    if not local2:
+        debug.LogInfo("set_vehicle_upgrade_level script: no garage state", [])
+        return
+    local3 = garagestate.GetUpgradeLevel(local2, game.GameHashString(local1.attr_id))
+    if local1.only_if_currently_lower and local3 > local1.level:
+        return
+    garagestate.DebugSetUpgrade(local2, game.GameHashString(local1.attr_id), local1.level)

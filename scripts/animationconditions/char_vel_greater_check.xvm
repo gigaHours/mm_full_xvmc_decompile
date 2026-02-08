@@ -1,0 +1,7 @@
+module char_vel_greater_check
+
+def Evaluate(self, arg1):
+    local2 = vector.Length(character.GetMeasuredWorldVelocity(self))
+    if local2 > arg1.Property0:
+        return 1.0
+    return 0.0

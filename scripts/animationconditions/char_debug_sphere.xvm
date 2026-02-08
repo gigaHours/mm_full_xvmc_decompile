@@ -1,0 +1,9 @@
+module char_debug_sphere
+
+def Evaluate(self, arg1):
+    if true:
+        local2 = vector.Set(arg1.Property0, arg1.Property1, arg1.Property2, arg1.Property3)
+        local3 = character.GetWorldMatrix(self)
+        local4 = vector.Add(local3.r3, vector.Set(0.0, arg1.Property5, 0.0, 0.0))
+        debug.Sphere(local4, arg1.Property4, local2)
+    return 1.0

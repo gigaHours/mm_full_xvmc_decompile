@@ -1,0 +1,46 @@
+module veh_shotguntarget_type_general
+
+def GetAutoTargetPrio(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.autoTargetPrio:
+        return local1.autoTargetPrio
+    return 0.0
+
+def CanBeTargeted(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.weakspot
+    local4 = scriptgo.Call(local3, @82877941)
+    local5 = scriptgo.Call(local3, @FB4DD739)
+    local6 = GetAimDotLimit(self)
+    local7 = vector.Sub(arg1, local4)
+    local8 = vector.Dot(vector.Normalize(local7), local5)
+    if local8 > local6:
+        return true
+    return false
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.autoTargetPrio:
+        local1.autoTargetPrio = 0.0
+
+def ShowAsUnavailable(self):
+    return false
+
+def GetAimDotLimit(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.aimDotLimit:
+        return local1.aimDotLimit
+    return 0.0
+
+def FireAt(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if not lib_weakspot.IsBulletBlocked(local3.weakspot):
+        local4 = scriptgo.Call(local3.weakspot, @22385FC9)
+        local5 = game.IsObjectEqualTo(character.GetPlayer(), arg1)
+        if local5:
+            local6 = scriptgo.GetProperties(local3.weakspot)
+            game.SetHitByPlayer(local6.car)
+        if none != local4 and none != local3.damage:
+            scriptgo.Call2(local4, @2925E205, local3.damage, lib_damage_types.DAMAGE_SHOTGUN())
+        if local5:
+            scriptgo.Call(local3.weakspot, @6871E934)

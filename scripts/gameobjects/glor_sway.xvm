@@ -1,0 +1,65 @@
+module glor_sway
+import @58351C01
+import @BAFDB405
+import @45098D7D
+
+def ResetAcceleration(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.jerk = none
+    local1.acc_last = none
+    local1.acc = none
+
+def GetSwayingAnimationBlend(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.acc:
+        return lib_character.CalcSwayingAnimationBlend(self, local1.acc)
+    return lib_character.GetEmptySwayingAnimationBlend(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+    local1.force_repair = false
+    local1.jerk = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.jerk_max_x = 0.0
+    local1.jerk_max_z = 0.0
+    local1.weapon_disabled = false
+    local1.repair_resist_timer = 0.0
+    local1.need_repair = false
+    local1.vehicle_is_hot = false
+
+def UpdateAcceleration(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = 2.0
+    local4 = vector.Set(9.5, 7.2, 8.0, 0.0)
+    local5 = 6.5
+    local6 = 0.7
+    local2.acc = lib_character.GetFilteredLSAccelerationOnVehicle(local2, arg1, local2.chum, local3, local4, local5, local6, false, false)
+    if local2.acc_last != none:
+        local2.jerk = vector.Scale(vector.Sub(local2.acc, local2.acc_last), 100.0)
+    local2.acc_last = local2.acc
+    local7 = none
+    if none != local2.jerk:
+        if -85.0 > local2.jerk.z:
+            local7 = "ACT_HIT_BWD"
+        elif local2.jerk.z > 160.0:
+            local7 = "ACT_HIT_FWD"
+        elif -90.0 > local2.jerk.x:
+            local7 = "ACT_HIT_RIGHT"
+        elif local2.jerk.x > 90.0:
+            local7 = "ACT_HIT_LEFT"
+    if none != local7:
+        local2.jerk_last_x = local2.jerk.x
+        local2.jerk_last_z = local2.jerk.z
+        game.QueueAct(local2.chum, local7)
+    if false:
+        local8 = lib_debugdraw.GetGoScreenPos(local2.chum, vector.Set(-0.15, 2.2, 0.0, 0.0), arg1)
+        debug.DrawText(local8, "JERK LAST X: %f Z: %f", [local2.jerk_last_x, local2.jerk_last_z], lib_color.RED(1.0))
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = character.GetVehicle(local2.chum)
+    if none != local3:
+        if animation.GetStateBit(local2.chum, 3.0) == 1.0:
+            UpdateAcceleration(self, arg1)
+        else:
+            ResetAcceleration(self)

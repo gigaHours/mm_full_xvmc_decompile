@@ -1,0 +1,307 @@
+module vehicle_health_component
+import @42D0E955
+import @F76070AE
+import @45098D7D
+import @B1360AAD
+import @94061877
+import @58351C01
+
+def SetTensileStrength(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.tensileStrength = arg1
+
+def SetEnvironmentDefense(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.environmentSpeedThrehsold = arg1
+
+def GetArmorSpeedThreshold(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.armorSpeedThreshold
+
+def GetEnvironmentSpeedThreshold(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.environmentSpeedThrehsold
+
+def GetDebrisArmorScale(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.debrisArmorScale
+
+def GetMaxHealth(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.maxHealth
+
+def ApplyDamage(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = local3.weakspot
+    if arg1 > 0.0:
+        local5 = scriptgo.GetProperties(local4)
+        local6 = none
+        if local5 != none:
+            local6 = local5.car
+        else:
+            local6 = game.VehicleWeakspotGetVehicle(local4)
+        local7 = vehicle.IsPlayerVehicle(local6)
+        local8 = local3.health
+        local9 = vehicle.IsInvulnerable(local6) or local7 and playermodule.IsInGodMode()
+        if (not local3.repair_invulnerable) and (not local9):
+            local3.health = local3.health - arg1
+        if local7 and playermodule.IsInJesusMode() or local3.jesusMode:
+            if 5.0 > local3.health:
+                local3.health = 5.0
+        local10 = local8 - math.Max(local3.health, 0.0)
+        local11 = local10 / local3.maxHealth
+        if local3.healthStateHandler:
+            scriptgo.Call2(local3.healthStateHandler, @312F1209, local3.health / local3.maxHealth, arg2)
+        if 0.0 >= local3.health:
+            local3.health = 0.0
+            if local3.zeroHealthHandler:
+                scriptgo.Call3(local3.zeroHealthHandler, @2FE5A3A1, arg1, arg2, local11)
+            else:
+                debug.LogError("damage system", "vehicle_health_component - zeroHealthHandler missing!")
+        if local3.gameplayDamageHandler:
+            scriptgo.Call4(local3.gameplayDamageHandler, @169B4318, arg1 / local3.maxHealth, local3.health / local3.maxHealth, arg2, local11)
+        scriptgo.PostEvent(self, @04376E03)
+        UpdateHealthbarArmour(self)
+    if arg2 == lib_damage_types.DAMAGE_COLLISION() and local3.collisionVisualDamageHandler != none:
+        scriptgo.Call1(local3.collisionVisualDamageHandler, @CA4FD849, arg1 / local3.maxHealth)
+    if local3.damageTracker:
+        scriptgo.Call3(local3.damageTracker, @169B4318, arg1, arg2, self)
+    if IsBeingDebugged(self):
+        debug.LogInfo("damage applied: %f, health left: %f, max health: %f total damage taken: %f", [arg1, local3.health, local3.maxHealth, local3.maxHealth - local3.health])
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.SetRenderFunction(self, "")
+
+def GetDebrisArmorSpeedThreshold(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.debrisSpeedThrehsold
+
+def SetArmorLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if none != arg1:
+        if 0.0 > arg1:
+            debug.LogError("vehicle damage system", "Attempted to set negative armor speed threshold.")
+        else:
+            local3.armorSpeedThreshold = arg1
+    if none != arg2:
+        if 0.0 >= arg2 or arg2 > 1.0:
+            debug.LogError("vehicle damage system", "Attempted to set damage scale outside of the valid range. (Must be ]0...1])")
+        else:
+            local3.armorDamageScale = arg2
+    UpdateHealthbarArmour(self)
+
+def GetDamagePct(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return arg1 / local2.maxHealth
+
+def DestroyPlayerVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.weakspot
+    local3 = scriptgo.GetProperties(local2)
+    local4 = none
+    if local3 != none:
+        local4 = local3.car
+    else:
+        local4 = game.VehicleWeakspotGetVehicle(local2)
+    if vehicle.IsPlayerVehicle(local4):
+        ApplyDamage(self, 10000.0, lib_damage_types.DAMAGE_SIMPLE())
+
+def DisableJesusMode(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.jesusMode = false
+
+def SetMaxHealth(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.maxHealth = arg1
+    if local3.health > arg1 or arg2:
+        RepairPct(self, 1.0, 0.0)
+
+def IsDead(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.health != none:
+        if 0.0 >= local1.health:
+            return true
+    return false
+
+def SetDebrisDefense(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.debrisSpeedThrehsold = arg2
+    local3.debrisArmorScale = arg1
+
+def ForceDestroy(self):
+    local1 = scriptgo.GetProperties(self)
+    ApplyDamage(self, local1.health, lib_damage_types.DAMAGE_SIMPLE())
+
+def SetShotgunMaxHits(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.shotgun_hits = arg1
+
+def EnableJesusMode(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.jesusMode = true
+
+def InitFromWeakspot(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.weakspot = arg1
+    local2.health = local2.maxHealth
+    local2.shotgun_hits = 0.0
+    if false or false:
+        scriptgo.SetRenderFunction(self, "Render")
+    arg1 = local2.weakspot
+    local3 = scriptgo.GetProperties(arg1)
+    local4 = none
+    if local3 != none:
+        local4 = local3.car
+    else:
+        local4 = game.VehicleWeakspotGetVehicle(arg1)
+    local5 = lib_entity_proxy.GetHealthId(local4)
+    local6 = scriptgo.Call2(local5, @716A1566, self, local2.damageConfigId)
+    if local2.armorSpeedThreshold == none:
+        debug.LogError("damage system", "armor speed threshold wasn't initialized correctly")
+    if local2.armorDamageScale == none:
+        debug.LogError("damage system", "armor damage scale wasn't initialized correctly")
+    RepairPct(self, 1.0, 0.0)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.repair_invulnerable = false
+    local1.debrisSpeedThrehsold = 5.0
+    local1.debrisArmorScale = 1.0
+    local1.environmentSpeedThrehsold = 10.0
+    if local1.healthbar != none:
+        healthbar.SetArmourWeighting(local1.healthbar, 1.0 - local1.armorDamageScale)
+    if local1.weakspot != none:
+        InitFromWeakspot(self, local1.weakspot)
+
+def HealVehicle(self):
+    RepairPct(self, 1.0, 0.5)
+
+def Add5Damage(self):
+    ApplyDamage(self, 5.0, lib_damage_types.DAMAGE_SIMPLE())
+
+def Render(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if IsBeingDebugged(self):
+        DebugDrawHealth(self, arg1)
+
+def BulletHit(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.shotgun_hits > 0.0 and arg1 > 0.0:
+        local3 = math.Clamp01(arg1 / local2.shotgun_hits)
+        ApplyDamagePct(self, local3, lib_damage_types.DAMAGE_SHOTGUN())
+
+def SetHealthPct(self, arg1):
+    local2 = GetHealthPct(self)
+    if arg1 > local2:
+        RepairPct(self, arg1 - local2, 0.0)
+    else:
+        ApplyDamagePct(self, local2 - arg1, lib_damage_types.DAMAGE_SIMPLE())
+
+def Add25Damage(self):
+    ApplyDamage(self, 25.0, lib_damage_types.DAMAGE_SIMPLE())
+
+def UpdateHealthbarArmour(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.healthbar != none:
+        local2 = GetArmorScale(self)
+        local3 = GetHealthPct(self)
+        if local2 >= local3:
+            local4 = 0.0
+        else:
+            local4 = (local3 - local2) / (1.0 - local2)
+        if local2 == 1.0:
+            local5 = 0.0
+        elif local2 >= 0.5:
+            local5 = 1.0
+        else:
+            local5 = 2.0
+        healthbar.UpdateArmour(local1.healthbar, local4, local5)
+
+def Kill(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.jesusModeAllowKill:
+        local2.jesusMode = false
+    ApplyDamage(self, local2.maxHealth, arg1)
+
+def ApplyDamagePct(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    ApplyDamage(self, arg1 * local3.maxHealth, arg2)
+
+def Reset(self):
+    Init(self)
+
+def IsBeingDebugged(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.weakspot
+    local3 = scriptgo.GetProperties(local2)
+    local4 = none
+    if local3 != none:
+        local4 = local3.car
+    else:
+        local4 = game.VehicleWeakspotGetVehicle(local2)
+    if local4:
+        if vehicle.IsVehicle(local4):
+            if false and vehicle.IsPlayerVehicle(local4) or false and vehicle.IsVehicle(local4) and (not vehicle.IsPlayerVehicle(local4)):
+                return true
+    return false
+
+def DebugDrawHealth(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.GetProperties(local2.zeroHealthHandler)
+    if local3:
+        if local2.debugHealthDrawLocation and (not local3.isDead) and (not local2.health == local2.maxHealth):
+            local4 = none
+            if vehicle.IsPlayerVehicle(local2.debugHealthDrawLocation):
+                local5 = game.GetRenderTransform(local2.debugHealthDrawLocation, arg1)
+                local6 = vector.Add(vector.Scale(local5.r2, 2.0), vector.Set(0.0, 0.8, 0.0, 0.0))
+                local4 = lib_debugdraw.GetGoScreenPos(local2.debugHealthDrawLocation, local6, arg1)
+            else:
+                local4 = lib_debugdraw.GetGoScreenPos(local2.debugHealthDrawLocation, vector.Set(0.0, 2.4, 0.0, 0.0), arg1)
+            local7 = math.Clamp(local2.health / local2.maxHealth, 0.0, 1.0)
+            local8 = vector.Set(1.0 - local7, local7, 0.0, 1.0)
+            local9 = vector.Set(0.0, 0.0, 0.0, 0.7)
+            local10 = vector.Set(1.0, 1.0, 1.0, 1.0)
+            local11 = vector.Set(0.0, 0.0, 0.0, 1.0)
+            local12 = 0.07
+            local13 = 0.012
+            lib_debugdraw.DrawHealthBarDepth(local4, local12, local13, [local8, local9, local10, local11], lib_debugdraw.ALIGN_CENTER(), [local7, 0.0], none)
+
+def Repair(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.health = math.Min(local3.health + arg1, local3.maxHealth)
+    local4 = math.Clamp01(local3.health / local3.maxHealth)
+    if false:
+        debug.LogInfo("Repaired for: %f Health now: %f", [arg1, local3.health])
+    if local3.healthStateHandler:
+        scriptgo.Call2(local3.healthStateHandler, @312F1209, local4, lib_damage_types.DAMAGE_REPAIR())
+    if local3.collisionVisualDamageHandler:
+        local5 = arg1 / local3.maxHealth
+        scriptgo.Call3(local3.collisionVisualDamageHandler, @F0A0E288, local5, local4, arg2)
+        if local3.health > 0.0:
+            scriptgo.Call(local3.collisionVisualDamageHandler, @35DE995B)
+
+def RepairPct(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    Repair(self, arg1 * local3.maxHealth, arg2)
+
+def GetTensileStrength(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.tensileStrength
+
+def GetArmorScale(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.armorDamageScale
+
+def GetHealthPct(self):
+    local1 = scriptgo.GetProperties(self)
+    return math.Clamp(local1.health / local1.maxHealth, 0.0, 1.0)
+
+def IsRepairAllowed(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.zeroHealthHandler:
+        local2 = scriptgo.GetProperties(local1.zeroHealthHandler)
+        if not (local2.inRepair or local2.isDead):
+            return true
+    return false

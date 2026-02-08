@@ -1,0 +1,23 @@
+module parry_guard_playspeed
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    character.UpdateDeltaReferenceFrame(self, arg2)
+    local4 = vector.Scale(character.GetAnimationVelocityLS(self), 1.5)
+    character.SetAnimationVelocityLS(self, arg2, local4)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = character.GetUpgradeLevel(self, "guard_protection_level")
+    if 5.0 > local5:
+        local6 = 1.0
+    else:
+        local6 = 1.0
+    local7 = animation.GetSamplerCount(arg4)
+    local9 = 0.0
+    local10 = 1.0
+    local8 = local7
+    while local8 > local9:
+        animation.GetSampler(arg4, local9).Speed = local6
+        local9 = local10 + local9
+
+def OnEnter(self, arg1):
+    pass

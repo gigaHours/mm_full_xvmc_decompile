@@ -1,0 +1,62 @@
+module mmax_vehicle_aiming
+import @BAFDB405
+
+def GetAimTargetTime(self):
+    local1 = game.GetTransform(self)
+    local2 = vector.Scale(local1.r2, 1.0)
+    local3 = lib_character.GetFlattenedCameraDir(local1.r1)
+    local4 = math.RadToDeg(vector.AngleBetween(local3, local2))
+    local5 = math.Sign(vector.Dot(local3, local1.r0))
+    local6 = character.GetVehicle(self)
+    local7 = none
+    if local6:
+        local8 = 0.2
+        local9 = 40.0 / 30.0
+        local10 = local9 / 2.0
+        if local5 > 0.0:
+            local4 = 180.0 + (180.0 - local4)
+        local11 = 360.0
+        local12 = 0.005
+        local13 = character.GetGlobalXvmFloat(self, 9.0)
+        local14 = local9 * (local4 / local11)
+        local15 = local14
+        local16 = local14 - local13
+        local17 = math.Sign(local16)
+        local16 = math.Abs(local16)
+        local18 = math.Lerp(local8, 0.0, local16)
+        if local16 > local10:
+            if local14 > local10:
+                local19 = local13
+                local16 = local19 + (local9 - local14)
+                local18 = math.Lerp(local8, 0.0, local16)
+                if local19 > local18:
+                    local7 = local13 - local18
+                else:
+                    local7 = local9 - (local18 - local19)
+            elif local10 > local14:
+                local20 = local9 - local13
+                local16 = local20 + local14
+                local18 = math.Lerp(local8, 0.0, local16)
+                if local20 > local18:
+                    local7 = local13 + local18
+                else:
+                    local7 = local18 - local20
+            if false:
+                debug.LogInfo("aim_time_target: %f, aim_time_curr: %f, dif: %f, lerp_step x 100: %f, aim_time_lerp: %f", [local14, local13, local16, local18 * 100.0, local7])
+        else:
+            local7 = local13 + local17 * local18
+        character.SetGlobalXvmFloat(self, 9.0, local7)
+    return local7
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = game.GetTransform(self)
+    local5 = animation.GetSampler(arg3, 0.0)
+    local5.Weight = 1.0
+    local6 = GetAimTargetTime(self)
+    if local6:
+        local5.Time = local6
+    if false:
+        debug.DrawText(vector.Set(0.2, 0.2, 0.0, 0.0), "Ang: %f, time: %f", [target_ang, aim_time_lerp], lib_color.YELLOW(1.0))
+
+def OnEnter(self, arg1):
+    local2 = GetAimTargetTime(self)

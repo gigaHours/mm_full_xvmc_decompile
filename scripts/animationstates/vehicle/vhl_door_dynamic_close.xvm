@@ -1,0 +1,26 @@
+module vhl_door_dynamic_close
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = vehicle.GetHingedPart(self, "vpart_door_r")
+    if local4:
+        local4.AutoLock = true
+        if local4.State == local4.STATE_LOCKED:
+            game.QueueAct(self, "ACT_CLOSE_FINISHED")
+        if local4.HingeAngle > 0.0 and local4.MaxAngle > 0.0:
+            local4.MaxAngle = math.Max(0.0, local4.MaxAngle - 2.0 * arg2)
+        else:
+            game.QueueAct(self, "ACT_CLOSE_FINISHED")
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = animation.GetSampler(arg4, 0.0)
+    local5.Time = local5.Length
+    local6 = vehicle.GetHingedPart(self, "vpart_door_r")
+    if local6:
+        local7 = local6.HingeAngle
+        local6.MaxAngle = local7
+        local6.AutoLock = true
+        local8 = local7 / 2.0
+        if local8 > 0.0:
+            local9 = local5.Length / local8
+            local5.Speed = -local9

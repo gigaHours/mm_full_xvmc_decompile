@@ -1,0 +1,43 @@
+module veh_racestart
+
+def Deactivate(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetChassis(local1.car).Drivetrain
+    if local1.active:
+        scriptgo.SetUpdateFunction(self, "")
+        local2.BlockShift = false
+        if local1.boost_script != none:
+            scriptgo.Call1(local1.boost_script, @3CA7E3FE, true)
+        local1.active = false
+
+def ActivatePlayer(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car != none:
+        if vehicle.IsPlayerVehicle(local1.car):
+            Activate(self)
+    else:
+        debug.LogError("Racerstart Script", "Need to pick the a car for this script to work.")
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.active = false
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetChassis(local1.car).Drivetrain
+    local1.active = true
+    scriptgo.SetUpdateFunction(self, "Update")
+    if local1.boost_script != none:
+        scriptgo.Call1(local1.boost_script, @3CA7E3FE, false)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetChassis(local2.car).Drivetrain
+    if local3.Gear > 0.0:
+        vehicle.SetReverseInput(local2.car, 1.0)
+    elif local3.Gear == 0.0:
+        local3.BlockShift = true
+        vehicle.SetReverseInput(local2.car, 0.0)
+        vehicle.SetHandbrakeInput(local2.car, 1.0)
+    elif 0.0 > local3.Gear:
+        vehicle.SetReverseInput(local2.car, 0.0)

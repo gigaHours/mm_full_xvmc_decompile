@@ -1,0 +1,8 @@
+module mmax_button_use_held
+import @3BDB5A3B
+
+def Evaluate(self, arg1):
+    local2 = input.GetButtonInput(@7EF896C1)
+    if local2 > 0.0:
+        return 1.0
+    return 0.0

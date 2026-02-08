@@ -1,0 +1,9 @@
+module install_jacket_2_if_jacket_0
+
+def Trigger(self):
+    local1 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel("armor", "armor")
+    if local1 == 0.0:
+        visibleplayerupgrades.DebugSetVisiblePlayerUpgrade("armor", "armor", 2.0)
+    local2 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel("armor", "knuckleduster")
+    if local2 == 0.0:
+        visibleplayerupgrades.DebugSetVisiblePlayerUpgrade("armor", "knuckleduster", 1.0)

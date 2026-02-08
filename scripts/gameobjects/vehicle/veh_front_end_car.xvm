@@ -1,0 +1,25 @@
+module veh_front_end_car
+
+def Unload(self):
+    game.PostEventNone("signature.vehicle.switch.enable")
+    local1 = scriptgo.GetProperties(self)
+    if local1.previously_unloaded_car:
+        game.PostEventNone("signature.vehicle.switch.none")
+
+def WaitForSignatureVehicle(self, arg1):
+    local2 = vehicle.GetSignatureVehicle()
+    if local2:
+        scriptgo.SendEvent(self, @FC82B6F0)
+        scriptgo.SetUpdateFunction(self, "")
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.previously_unloaded_car = false
+    local2 = vehicle.GetSignatureVehicle()
+    game.PostEventNone("signature.vehicle.switch.disable")
+    if local2 != none:
+        scriptgo.SendEvent(self, @FC82B6F0)
+    else:
+        local1.previously_unloaded_car = true
+        game.SendEventNone("signature.vehicle.switch.random")
+        scriptgo.SetUpdateFunction(self, "WaitForSignatureVehicle")

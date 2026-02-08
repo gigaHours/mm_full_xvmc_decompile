@@ -1,0 +1,4 @@
+module send_event_on_enter_pre_anim
+
+def Enter(self, arg1):
+    game.SendEventNone(arg1.Eventonenter)

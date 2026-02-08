@@ -1,0 +1,44 @@
+module sniper_fire_camera
+
+def EnterAlignedTransition(self, arg1, arg2):
+    OnEnter(self)
+
+def UpdateRender(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = self.Properties
+    if not local6.lastBulletT:
+        return
+
+def EnterUnalignedTransition(self, arg1):
+    OnEnter(self)
+
+def Update(self, arg1):
+    local2 = self.Properties
+    local3 = game.GetTransform(local2.weapon)
+    local4 = game.GetTransform(character.GetPlayer())
+    local5 = game.GetBulletFiredFromWeapon(local2.weapon)
+    local6 = arg1.CameraTransform
+    if not local5:
+        return
+    local2.lastBulletT = local5
+    local7 = local6.r3
+    local8 = local5.r3
+    arg1.CameraTransform = matrix.LookAtMatrix(local7, vector.Set(0.0, 1.0, 0.0, 0.0), local8)
+    local9 = local5.r2
+    local10 = vector.Dot(local9, arg1.CameraTransform.r0)
+    local11 = vector.Dot(local9, arg1.CameraTransform.r1)
+    arg1.FocalDistanceNear = 30.0
+    arg1.FocalDistanceFar = 200.0
+    arg1.DOFTransitionNear = 80.0
+    arg1.DOFTransitionFar = 130.0
+    arg1.MaxDOFNear = 0.0
+    arg1.MaxDOFFar = 0.0
+    arg1.RadialBlurFactor = 0.04
+    arg1.RadialBlurOffset = 1.0
+    arg1.RadialBlurPosX = -local10 * 2.0
+    arg1.RadialBlurPosY = -local11 * 4.0
+    arg1.VignetteIndex = 0.0
+
+def OnEnter(self):
+    local1 = self.Properties
+    local1.slowMotionValue = 0.01
+    local1.lastBulletT = none

@@ -1,0 +1,327 @@
+module veh_harpoon
+import @42D0E955
+import @58351C01
+import @9B4F6985
+import @3D3D0D9B
+
+def WeaponSelected(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.use_ported_system:
+        game.StateContainerDataWeaponSetSelected(local2.state_container_data_weapon, true)
+        if "thunderstick" == arg1:
+            game.StateContainerDataHarpoonSetUseThunderStickAmmo(local2.state_container_data_weapon, true)
+        game.StateContainerDataWeaponHideFireIcon(local2.state_container_data_weapon)
+    else:
+        local2.weapon_selected = true
+        if "thunderstick" == arg1:
+            local2.use_thunderstick_ammo = true
+        lib_weapon.HideFireIcon(self)
+    UpdateHarpoonItem(self)
+
+def GetTargetPos(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataWeaponGetTargetPos(local1.state_container_data_target_info)
+    return lib_harpoon.GetTargetPos(self)
+
+def DisableFirePrompt(self):
+    local1 = scriptgo.GetProperties(self)
+    game.StateContainerDataWeaponSetFirePrompt(local1.state_container_data_weapon, false)
+    local1.allow_fire_prompt = false
+
+def GetAlignTargetOffset(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.StateContainerDataWeaponGetAlignTargetOffsetAzimuth(local1.state_container_data_target_info)
+    local3 = game.StateContainerDataWeaponGetAlignTargetOffsetElevation(local1.state_container_data_target_info)
+    return [local2, local3]
+
+def GetAlignTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataWeaponGetAlignTargetPos(local1.state_container_data_target_info)
+    local2 = scriptgo.GetProperties(self).align_target
+    if local2 != none:
+        return scriptgo.Call(local2, @0C537298)
+    return none
+
+def GetHarpoonCurrentRange(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_thunderstick_ammo:
+        return lib_harpoon.THUNDERSTICK_RANGE()
+    return local1.upg_range
+
+def BoarderLanded(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_boarder_landed = true
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+
+def ChumMustHoldLever(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        local2 = game.StateContainerIsStateActive(local1.state_container, local1.state_container_hooked_state)
+        local3 = game.StateContainerIsStateActive(local1.state_container, local1.state_container_hooked_no_driver_state)
+        return local2 or local3
+    return lib_weapon.IsInState(self, lib_harpoon.STATE_HOOKED_ID()) or lib_weapon.IsInState(self, lib_harpoon.STATE_HOOKED_NO_DRIVER_ID())
+
+def StateMachineUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    lib_weapon.PopulateWeaponDataInputs(self)
+    game.StateContainerUpdate(local2.state_container, arg1)
+    lib_weapon.SyncInputWithDataWeapon(self)
+
+def IsAiming(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerIsStateActive(local1.state_container, local1.state_container_aim_state)
+    return lib_weapon.IsInState(self, lib_harpoon.STATE_AIM_ID())
+
+def GetVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.car
+
+def PlayerEnterVehicle(self):
+    if false:
+        debug.LogInfo("PlayerEnterVehicle", [])
+
+def HarpoonIsReloading(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataWeaponGetReloadTimeLeft(local1.state_container_data_weapon) > 0.0
+    if none != local1.reload_time_left:
+        return local1.reload_time_left > 0.0
+    return false
+
+def ChumCanRelax(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return none == game.StateContainerDataTargetGetActiveTarget(local1.state_container_data_target_info)
+    return none == local1.target
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.use_ported_system = true
+    local2 = game.GetTransform(local1.car)
+    scriptgo.Call4(local1.elastic_constraint, @3ED18E4D, 1000.0 * 1000000.0, math.Pi() * 0.005 * 0.005, 100.0 * 1000000.0, 0.0)
+    local3 = character.GetFaction(character.GetPlayer())
+    game.SetForcePulseFaction(local1.force_pulse, local3)
+    game.SetForcePulseFaction(local1.force_pulse_lvl2, local3)
+    game.SetForcePulseFaction(local1.force_pulse_lvl3, local3)
+    game.SetForcePulseFaction(local1.force_pulse_lvl4, local3)
+    local1.debug_enabled = false
+    local1.debug_weapon_name = "Harpoon"
+    local1.debug_weapon_name_order = 0.0
+    local1.aiming = false
+    local1.fired_thunderstick = false
+    local1.companion = vehicle.GetSignatureVehicleCompanion()
+    local1.wielding_character = local1.companion
+    local1.allow_fire_prompt = true
+    if not local1.raycaster:
+        debug.LogError("veh_harpoon", "raycaster is not defined")
+    local1.use_thunderstick_ammo = false
+    local1.reload_time_left = 0.0
+    local1.upg_range = 32.0
+    local1.upg_range_max = 42.0
+    local1.upg_harpoon_level = 0.0
+    local1.upg_strength = 0.0
+    local1.upg_reload_time = 4.0
+    local1.upg_explosive_reload_time = 4.0
+    local1.explosion_level = 0.0
+    local1.yank_damage = 6.0
+    UpdateHarpoonItem(self)
+    lib_weapon.InitWeaponCommon(self)
+    lib_weapon.ResetState(local1.state_idle)
+    lib_weapon.ResetState(local1.state_aim)
+    lib_weapon.ResetState(local1.state_auto)
+    lib_weapon.ResetState(local1.state_pre_shoot)
+    lib_weapon.ResetState(local1.state_shoot)
+    lib_weapon.ResetState(local1.state_hooked)
+    lib_weapon.ResetState(local1.state_hooked_no_driver)
+    lib_weapon.ResetState(local1.state_rollback)
+    lib_weapon.ResetState(local1.state_reload)
+    lib_weapon.ResetState(local1.state_explode)
+    lib_weapon.ClearState(self)
+    lib_weapon.ClearInputFlags(self)
+    if false:
+        game.SendEvent("ply.give_beef", "")
+
+def ClearHarpoonItem(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        game.StateContainerDataHarpoonClearItem(local1.state_container_data_weapon)
+    else:
+        local1.harpoon_item = none
+        local1.projectile_robj = none
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    game.StateContainerRender(local2.state_container, arg1)
+    local3 = gui.GetBlackboard()
+    if game.StateContainerDataHighlightTargettingUITargetsModified(local2.state_container_data_highlight_targetting):
+        local3.veh_weapon_targets = game.StateContainerDataHighlightTargettingGetTargets(local2.state_container_data_target_info, local2.state_container_data_highlight_targetting, arg1)
+    local3.veh_weapon_harpoon_reload_time = game.StateContainerDataWeaponGetUIReload(local2.state_container_data_weapon)
+    if game.StateContainerDataWeaponIsSelected(local2.state_container_data_weapon):
+        local3.weapon_focused_required_level = game.StateContainerDataWeaponGetFocusedRequiredLevel(local2.state_container_data_weapon)
+        local3.weapon_focused_level_warning_text_ref = game.StateContainerDataWeaponGetFocusedWarningTextRef(local2.state_container_data_weapon)
+    else:
+        local3.weapon_focused_level_warning_level = 0.0
+        local3.weapon_focused_level_warning_text_ref = @9677C130
+    game.StateContainerDataHighlightTargettingConsumeUITargetsModified(local2.state_container_data_highlight_targetting)
+
+def SetHarpoonLevel(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.use_ported_system:
+        game.StateContainerDataHarpoonSetHarpoonLevel(local2.state_container_data_weapon, arg1)
+    else:
+        local2.upg_harpoon_level = arg1
+
+def GetProjectileCamPosition(self):
+    if props.use_ported_system:
+        return game.StateContainerDataHarpoonGetProjectileCamPos(props.state_container_data_weapon)
+    return scriptgo.GetProperties(self).projectile_cam_pos
+
+def GetHarpoonLevel(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.upg_harpoon_level
+
+def GetAttachPos(self):
+    return lib_harpoon.GetAttachPos(self)
+
+def GetHarpoonReloadTime(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_thunderstick_ammo:
+        return local1.upg_explosive_reload_time
+    return local1.upg_reload_time
+
+def GetProjectileTarget(self):
+    if props.use_ported_system:
+        return game.StateContainerDataHarpoonGetProjectileTargetPos(props.state_container_data_weapon)
+    return scriptgo.GetProperties(self).projectile_target
+
+def PlayerExitVehicle(self):
+    if false:
+        debug.LogInfo("PlayerExitVehicle", [])
+
+def GetHarpoonMaxRange(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_thunderstick_ammo:
+        return lib_harpoon.THUNDERSTICK_MAX_RANGE()
+    return local1.upg_range_max
+
+def GetThunderstickExplosion(self):
+    local1 = scriptgo.GetProperties(self)
+    if 0.0 >= local1.explosion_level:
+        return local1.force_pulse
+    if local1.explosion_level == 1.0:
+        return local1.force_pulse_lvl2
+    if local1.explosion_level == 2.0:
+        return local1.force_pulse_lvl3
+    return none
+
+def GetAttachRenderPos(self, arg1):
+    return lib_harpoon.GetAttachRenderPos(self, arg1)
+
+def SetExplosiveHarpoonReloadTime(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.use_ported_system:
+        game.StateContainerDataHarpoonSetExplosiveReloadTime(local2.state_container_data_weapon, arg1)
+    else:
+        local2.upg_explosive_reload_time = arg1
+    ClearHarpoonItem(self)
+
+def SetHarpoonRange(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.use_ported_system:
+        game.StateContainerDataHarpoonSetRange(local3.state_container_data_weapon, arg1, arg2)
+    else:
+        local3 = scriptgo.GetProperties(self)
+        local3.upg_range = arg1
+        local3.upg_range_max = arg2
+    ClearHarpoonItem(self)
+
+def SetHarpoonReloadTime(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.use_ported_system:
+        game.StateContainerDataHarpoonSetReloadTime(local2.state_container_data_weapon, arg1)
+    else:
+        local2.upg_reload_time = arg1
+    ClearHarpoonItem(self)
+
+def GetHarpoonStrength(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataHarpoonGetHarpoonStrength(local1.state_container_data_weapon)
+    return local1.upg_strength
+
+def UpdateHarpoonItem(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.companion = vehicle.GetSignatureVehicleCompanion()
+    if local1.use_ported_system:
+        if local1.companion != none:
+            game.StateContainerDataHarpoonUpdateInfo(local1.state_container_data_weapon, local1.companion)
+    elif local1.companion != none:
+        local1.harpoon_item = character.GetInventoryItem(local1.companion, "harpoon_device")
+        if none != local1.harpoon_item:
+            local2 = game.GetChild(local1.harpoon_item, "harpoon.projectile.rigid.object")
+            local3 = game.GetChild(local1.harpoon_item, "harpoon.thunderstick.rigid.object")
+            rigidobject.Hide(local2)
+            rigidobject.Hide(local3)
+            if local1.use_thunderstick_ammo:
+                local1.projectile_robj = local3
+            else:
+                local1.projectile_robj = local2
+    else:
+        debug.LogInfo("No companion to update the harpoon item for.", [])
+
+def ForceDisconnect(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_force_disconnect = true
+    debug.LogInfo("FORCE DISCONNECT", [])
+
+def EnableFirePrompt(self):
+    local1 = scriptgo.GetProperties(self)
+    game.StateContainerDataWeaponSetFirePrompt(local1.state_container_data_weapon, true)
+    local1.allow_fire_prompt = true
+
+def WeaponUnSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    game.StateContainerDataWeaponSetSelected(local1.state_container_data_weapon, false)
+    game.StateContainerDataHarpoonSetUseThunderStickAmmo(local1.state_container_data_weapon, false)
+    local1.weapon_selected = false
+    local1.use_thunderstick_ammo = false
+
+def SetHarpoonStrength(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.use_ported_system:
+        game.StateContainerDataHarpoonSetStrength(local2.state_container_data_weapon, arg1)
+    else:
+        local2.upg_strength = arg1
+    ClearHarpoonItem(self)
+
+def GetTargetInfo(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.state_container_data_target_info
+
+def SetExplosionLevel(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.use_ported_system:
+        game.StateContainerDataHarpoonSetExplosionLevel(local2.state_container_data_weapon, arg1)
+    else:
+        local2.explosion_level = arg1
+
+def GetAlignTargetObj(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataWeaponGetAlignTarget(local1.state_container_data_target_info)
+    return scriptgo.GetProperties(self).align_target
+
+def UpgradeLocationLoaded(self):
+    UpdateHarpoonItem(self)
+    local1 = scriptgo.GetProperties(self)
+    if local1.companion != none:
+        if local1.use_ported_system:
+            scriptgo.SetUpdateFunction(self, "StateMachineUpdate")
+            scriptgo.SetRenderFunction(self, "UpdateRender")
+        else:
+            lib_weapon.ChangeState(self, local1.state_idle)

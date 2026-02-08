@@ -1,0 +1,12 @@
+module camp_is_completed
+
+def IsCampComplete(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetWorldMatrix(local1)
+    local3 = local2.r3
+    local4 = game.IsCampMainMissionCompleted(local3)
+    if local4:
+        debug.LogWarning("IsCampComplete", "YES")
+        scriptgo.PostEvent(self, @F5AA6FA4)
+    else:
+        debug.LogWarning("IsCampComplete", "NO")

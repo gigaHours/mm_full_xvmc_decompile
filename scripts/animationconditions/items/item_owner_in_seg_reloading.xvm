@@ -1,0 +1,9 @@
+module item_owner_in_seg_reloading
+
+def Evaluate(self, arg1):
+    local2 = game.GetParent(self)
+    if local2:
+        local3 = character.GetItemOwner(local2)
+        if local3:
+            return animation.IsWithinSegment(local3, @6217CCDD, @6585FC65)
+    return false

@@ -1,0 +1,11 @@
+module char_fall_distance
+
+def Evaluate(self, arg1):
+    local2 = game.GetBlackboardValueFromObject(self, @ACB15C2B)
+    if local2 == none:
+        return 0.0
+    local3 = game.GetTransform(self).r3.y
+    local4 = local2 - local3
+    if local4 > arg1.Property0:
+        return 1.0
+    return 0.0

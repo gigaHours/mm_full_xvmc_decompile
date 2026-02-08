@@ -1,0 +1,17 @@
+module char_is_facing_interaction_with_distance
+
+def Evaluate(self, arg1):
+    local2 = character.GetInteractionUserProxy(self)
+    local3 = interaction.GetEntryNodeTransform(local2, arg1.Property0)
+    if local3 and local2:
+        local4 = game.GetTransform(self)
+        local5 = vector.Distance(local4.r3, local3.r3)
+        if arg1.Property2 >= local5:
+            return 1.0
+        local6 = vector.Sub(local4.r3, local3.r3)
+        local6.y = 0.0
+        local7 = vector.Dot(local4.r2, vector.Normalize(local6))
+        local8 = math.Cos(0.5 * arg1.Property1)
+        if local7 > local8:
+            return 1.0
+    return 0.0

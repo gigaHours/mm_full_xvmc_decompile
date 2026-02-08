@@ -1,0 +1,9 @@
+module set_gameworld_conditions_sound_variable
+
+def Enter(self, arg1):
+    if arg1.SoundVariable:
+        soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", arg1.SoundVariable, 1.0, 0.0, 0.0)
+
+def Exit(self, arg1):
+    if arg1.SoundVariable:
+        soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", arg1.SoundVariable, 0.0, 0.0, 0.0)

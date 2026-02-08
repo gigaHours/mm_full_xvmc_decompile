@@ -1,0 +1,12 @@
+module sniper_scope
+
+def Update(self, arg1):
+    arg1.FocalDistanceNear = 30.0
+    arg1.FocalDistanceFar = 230.0
+    arg1.DOFTransitionNear = 80.0
+    arg1.DOFTransitionFar = 220.0
+    arg1.MaxDOFNear = 1.0
+    arg1.MaxDOFFar = 0.7
+    arg1.RadialBlurFactor = 0.035
+    arg1.RadialBlurOffset = 0.5
+    arg1.VignetteIndex = 2.0

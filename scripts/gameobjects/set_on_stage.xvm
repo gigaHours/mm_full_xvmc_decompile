@@ -1,0 +1,8 @@
+module set_on_stage
+
+def Init(self):
+    pass
+
+def Collect(self):
+    local1 = gui.GetBlackboard()
+    local1.is_on_stage = true

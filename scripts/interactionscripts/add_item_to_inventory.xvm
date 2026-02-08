@@ -1,0 +1,7 @@
+module add_item_to_inventory
+
+def Execute(self, arg1, arg2):
+    local3 = interaction.GetCharacter(self)
+    local4 = character.GetInventoryItemCount(local3, arg2.item_id)
+    if 0.0 >= local4:
+        character.AddInventoryItem(local3, arg2.item_id)

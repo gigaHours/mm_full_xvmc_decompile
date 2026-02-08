@@ -1,0 +1,15 @@
+module playanimscaled
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetPoseTransform(self, 0.0)
+    local5 = local4.r3
+    local4.r3 = vector.Set(local5.x * arg1.Property0, local5.y * arg1.Property1, local5.z * arg1.Property2, local5.w)
+    vehicle.SetAnimCmdFrame(self, local4)
+    local6 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    local7 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    vehicle.SetAnimCmdWeights(self, local6, local7)
+
+def OnEnter(self, arg1):
+    vehicle.StartAnimCmd(self)
+    vehicle.SetAnimCmdInAirMotion(self, true)
+    vehicle.SetAnimCmdSnapToGround(self, 0.5)

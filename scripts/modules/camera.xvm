@@ -1,0 +1,109 @@
+module camera
+
+def SetFovParams(self, arg1):
+    pass
+
+def SetBaseTransform(self, arg1):
+    pass
+
+def CalculateCameraTransform(self):
+    pass
+
+def GetCameraStackSize():
+    pass
+
+def FloatSpringFunction(self, arg1, arg2):
+    pass
+
+def IsObjectInSight(self, arg1, arg2):
+    pass
+
+def ActiveCameraInAnyGroup(self):
+    pass
+
+def UpdatePID(self, arg1, arg2):
+    pass
+
+def VectorSpringFunction(self, arg1, arg2):
+    pass
+
+def GetCameraTransform():
+    pass
+
+def SetOffsetTransform(self, arg1):
+    pass
+
+def SetCamera():
+    pass
+
+def SetPIDGain(self, arg1, arg2):
+    pass
+
+def GetOffsetPitch(self):
+    pass
+
+def AnyCameraInAnyGroup(self):
+    pass
+
+def SetRadialBlurParams(self, arg1, arg2, arg3, arg4):
+    pass
+
+def SetOffsetDeltaOrbit(self, arg1, arg2):
+    pass
+
+def IsSelectedCamera(self):
+    pass
+
+def SetOffsetDeltaYawPitchRoll(self, arg1, arg2, arg3):
+    pass
+
+def Shake(self, arg1, arg2):
+    pass
+
+def SetOffsetDistance(self, arg1):
+    pass
+
+def FloatSpringNonLinearFunction(self, arg1, arg2):
+    pass
+
+def SetMotionBlurParams(self, arg1):
+    pass
+
+def GetInitialOffsetDistance(self):
+    pass
+
+def TransformInputDirToWorldDir(self):
+    pass
+
+def IsPointVisible(self):
+    pass
+
+def SetDofParams(self, arg1, arg2, arg3, arg4):
+    pass
+
+def InterpolateCameraOffset(self, arg1, arg2):
+    pass
+
+def ProjectPosition(self):
+    pass
+
+def SetOffsetDeltaAzimuthElevationDistance(self, arg1, arg2, arg3):
+    pass
+
+def IsSphereVisible(self, arg1):
+    pass
+
+def GetPIDOutput():
+    pass
+
+def FadeOutInputReference(self, arg1):
+    pass
+
+def CalculatePitch(self, arg1):
+    pass
+
+def ApplyToCameraOffset(self, arg1, arg2):
+    pass
+
+def ClampAngle(self):
+    pass

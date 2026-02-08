@@ -1,0 +1,26 @@
+module ai_bell_buff_outline
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.buffed = false
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.outline
+    if character.IsDead(local2.char):
+        local2.buffed = false
+        model.SetOutlineVisible(local3, false)
+        return
+    if local3:
+        local4 = game.GetBlackboardValueFromObject(character.GetPlayer(), @0549D1F9)
+        if local4:
+            if local4 > 0.0:
+                if not local2.buffed:
+                    model.SetOutlineVisible(local3, true)
+                    local2.buffed = true
+                    character.BroadcastDialogueIntent(@4222DA01)
+        elif local2.buffed:
+            character.BroadcastDialogueIntent(@3349CBB6)
+            model.SetOutlineVisible(local3, false)
+            local2.buffed = false

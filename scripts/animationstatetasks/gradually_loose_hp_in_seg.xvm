@@ -1,0 +1,11 @@
+module gradually_loose_hp_in_seg
+
+def Update(self, arg1, arg2):
+    local3 = 50.0
+    local4 = 125.0
+    local5 = playerstats.GetPlayerStats().RealDifficulty
+    local6 = math.Scale(local5, 0.0, 1.0, local3, local4)
+    local7 = character.GetPlayer()
+    if animation.IsWithinSegment(local7, @E063F6A0, @3DEA3123):
+        local8 = local6 * arg2
+        character.ApplyToHealthBlock(local7, "Health", -local8)

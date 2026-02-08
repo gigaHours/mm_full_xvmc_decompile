@@ -1,0 +1,18 @@
+module send_act_to_context_occupants
+
+def Enter(self, arg1):
+    if arg1.EnterAct:
+        local2 = character.GetInteractionUserProxy(self)
+        interaction.QueueActToContextOccupants(local2, arg1.EnterAct)
+
+def Exit(self, arg1):
+    if arg1.ExitAct:
+        local2 = character.GetInteractionUserProxy(self)
+        interaction.QueueActToContextOccupants(local2, arg1.ExitAct)
+
+def Update(self, arg1, arg2):
+    if not arg1.act_expired:
+        if animation.IsWithinSegment(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+            local3 = character.GetInteractionUserProxy(self)
+            interaction.QueueActToContextOccupants(local3, arg1.SegmentAct)
+            arg1.act_expired = 1.0

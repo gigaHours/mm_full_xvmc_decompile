@@ -1,0 +1,56 @@
+module char_wanderer_blendnode
+import @42D0E955
+import @F76070AE
+import @05896E5A
+
+def OnExit(self, arg1):
+    game.SetBlackboardValueToObject(self, lib_lookat.BB_BLOCK_KEY(), 0.0)
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = game.GetTransform(self)
+    local5 = local4.r3
+    local6 = animation.GetSampler(arg3, 0.0)
+    local7 = animation.GetSampler(arg3, 1.0)
+    local8 = animation.GetSampler(arg3, 2.0)
+    local9 = 1.0
+    local10 = 0.0
+    local11 = 0.0
+    game.SetBlackboardValueToObject(self, lib_lookat.BB_BLOCK_KEY(), 1.0)
+    game.SetBlackboardValueToObject(self, @8D84C17D, 0.0)
+    local12 = game.GetBlackboardValueFromObject(self, @30AA4359)
+    if local12:
+        local13 = vector.Distance(local5, local12)
+        if 25.0 > local13:
+            local14 = vector.Sub(local12, local5)
+            local15 = vector.Dot(local4.r0, local14)
+            local16 = vector.Dot(local4.r2, local14)
+            if false:
+                debug.Arrow(local5, vector.Add(local5, local14), 0.1, lib_color.CYAN(0.4))
+            if 0.0 > local16:
+                game.SetBlackboardValueToObject(self, lib_lookat.BB_BLOCK_KEY(), 0.0)
+                if 5.0 > local13:
+                    game.QueueAct(self, "ACT_STOP_FOR_PLAYER")
+                    game.SetBlackboardValueToObject(self, @8D84C17D, 1.0)
+                if local15 > 0.0:
+                    local9 = 0.0
+                    local10 = 0.0
+                    local11 = 1.0
+                else:
+                    local9 = 0.0
+                    local10 = 1.0
+                    local11 = 0.0
+    local6.Weight = math.Lerp(0.1, local6.Weight, local9)
+    local7.Weight = math.Lerp(0.1, local7.Weight, local10)
+    local8.Weight = math.Lerp(0.1, local8.Weight, local11)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = 0.8 + math.Rand() * 0.3
+    local7 = 0.0
+    local8 = 1.0
+    local6 = animation.GetSamplerCount(arg4)
+    while local6 > local7:
+        animation.GetSampler(arg4, local7).Speed = local5
+        local7 = local8 + local7
+
+def OnEnter(self, arg1):
+    pass

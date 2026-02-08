@@ -1,0 +1,24 @@
+module is_veh_check_door
+
+def Evaluate(self, arg1):
+    if arg1.vehicle:
+        if vehicle.IsVehicle(arg1.vehicle):
+            local2 = none
+            if arg1.door_side == 1.0:
+                local2 = vehicle.GetHingedPart(arg1.vehicle, "vpart_door_r")
+            elif arg1.door_side == 0.0:
+                local2 = vehicle.GetHingedPart(arg1.vehicle, "vpart_door_l")
+            if local2 != none:
+                if arg1.desired_door_state == 0.0 and local2.State == local2.STATE_LOCKED:
+                    return 1.0
+                if arg1.desired_door_state == 1.0 and local2.State == local2.STATE_OPENED:
+                    return 1.0
+                if arg1.desired_door_state == 2.0 and local2.State == local2.STATE_ANIMATED:
+                    return 1.0
+                if arg1.desired_door_state == 3.0 and local2.State == local2.STATE_DISCONNECTED:
+                    return 1.0
+        else:
+            debug.LogInfo("Interaction condition: the vehicle picked is not a vehicle", [])
+    else:
+        debug.LogInfo("Interaction condition: no vehicle gameobject was picked", [])
+    return 0.0

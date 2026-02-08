@@ -1,0 +1,19 @@
+module add_dazed_if_certain_health
+
+def Update(self, arg1, arg2):
+    if character.IsContextBitSet(self, 10.0):
+        local3 = game.GetBlackboardValueFromObject(self, @1EE8F4CA)
+        if local3 == none:
+            local3 = 0.0
+        if local3 == 0.0:
+            local4 = character.GetUnitHealth(self)
+            if arg1.TriggeredOnHealthPercantage >= local4:
+                if character.HasBuff(self, "dazed"):
+                    character.RemoveBuff(self, "dazed")
+                else:
+                    character.AddBuff(self, "dazed")
+                    game.SetBlackboardValueToObject(self, @1EE8F4CA, 1.0)
+            else:
+                game.SetBlackboardValueToObject(self, @1EE8F4CA, 0.0)
+        elif not character.HasBuff(self, "dazed"):
+            game.SetBlackboardValueToObject(self, @1EE8F4CA, 0.0)

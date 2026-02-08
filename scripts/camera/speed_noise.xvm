@@ -1,0 +1,79 @@
+module speed_noise
+import @78DDD3EE
+
+def NoiseScale():
+    local0 = character.GetPlayer()
+    if local0 == none:
+        return 0.0
+    local1 = character.GetVehicle(local0)
+    if local1 == none:
+        return 0.0
+    local2 = vector.Length(vehicle.GetVelocity(local1))
+    local3 = math.Max(vehicle.GetChassis(local1).AeroSpeedCap, 0.01)
+    local4 = local2 / local3
+    local5 = 0.93
+    local6 = 1.0
+    local7 = math.Min(math.Max(local4 - local5, 0.0) / (local6 - local5), 1.0)
+    return local7
+
+def EnterAlignedTransition(self, arg1, arg2):
+    Update(self, arg2)
+    self.Properties.prev_base_pos = self.Properties.base_pos
+
+def Init(self):
+    self.Properties.t = 0.0
+    self.Properties.base_pos = none
+    self.Properties.prev_base_pos = none
+
+def UpdateRender(self, arg1, arg2, arg3, arg4, arg5):
+    self.Properties.t = self.Properties.t + arg1
+    local6 = NoiseScale()
+    if local6 > 0.0:
+        local7 = vector.Lerp(arg2, self.Properties.prev_base_pos, self.Properties.base_pos)
+        ApplyNoise(arg5, self.Properties.t, local6, local7)
+
+def EnterUnalignedTransition(self, arg1):
+    Update(self, arg1)
+    self.Properties.prev_base_pos = self.Properties.base_pos
+
+def ApplyNoise(self, arg1, arg2, arg3):
+    local4 = 7.0
+    local5 = 0.02
+    local6 = 0.04
+    local7 = 0.03
+    local8 = 0.0
+    local9 = 2.0
+    local10 = 2.0
+    local11 = 4.0
+    local12 = local5 * math.PerlinNoise1D(arg1 * local4, local9, local10, local11)
+    local13 = local6 * math.PerlinNoise1D((arg1 + 1.0) * local4, local9, local10, local11)
+    local14 = local7 * math.PerlinNoise1D((arg1 + 2.0) * local4, local9, local10, local11)
+    local15 = local8 * math.PerlinNoise1D((arg1 + 3.0) * local4, local9, local10, local11)
+    local16 = vector.Add(vector.Add(vector.Scale(self.CameraTransform.r0, local12), vector.Scale(self.CameraTransform.r1, local13)), vector.Scale(self.CameraTransform.r2, local14))
+    local17 = vector.Add(self.CameraTransform.r3, vector.Scale(local16, arg2))
+    if arg3 != none:
+        self.CameraTransform = matrix.LookAtMatrix(local17, self.CameraTransform.r1, arg3)
+    else:
+        self.CameraTransform.r3 = local17
+    self.CameraTransform = matrix.Mul(matrix.RotationMatrix(0.0, 0.0, local15), self.CameraTransform)
+
+def Gate(self, arg1):
+    if self > arg1:
+        return self - arg1
+    if -arg1 > self:
+        return self + arg1
+    return 0.0
+
+def Update(self, arg1):
+    local2 = ShiftedLookatTarget(self.CameraBaseTransform, arg1.CameraTransform, 0.0)
+    self.Properties.prev_base_pos = self.Properties.base_pos
+    self.Properties.base_pos = matrix.MulVec(self.CameraBaseTransform, local2)
+
+def ShiftedLookatTarget(self, arg1, arg2):
+    local3 = matrix.Inverse(self)
+    local4 = matrix.MulVec(local3, arg1.r3)
+    local5 = vector.Set(-local4.x, 0.0, -local4.z, 0.0)
+    local6 = matrix.MulVec(local3, vector.Add(self.r3, vector.Sub(vector.Set(0.0, 0.0, 0.0, 0.0), arg1.r2)))
+    local7 = vector.Add(local4, vector.Scale(local6, vector.Dot(local6, local5)))
+    local7 = vector.Add(local7, vector.Scale(vector.Normalize(local5), arg2))
+    return local7

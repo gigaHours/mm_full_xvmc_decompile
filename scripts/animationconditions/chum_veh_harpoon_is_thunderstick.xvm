@@ -1,0 +1,12 @@
+module chum_veh_harpoon_is_thunderstick
+import @58351C01
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    if none != local2:
+        local3 = lib_entity_proxy.GetHarpoon(local2)
+        if none != local3:
+            arg1 = scriptgo.GetProperties(local3)
+            if arg1.use_thunderstick_ammo:
+                return 1.0
+    return 0.0

@@ -1,0 +1,10 @@
+module mmax_check_parry_upgrades
+import @80A1852C
+
+def Evaluate(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    if local2:
+        local3 = lib_gameplay.GetMaximumParryAmount(self, local2)
+        if local3 > 0.0:
+            return 1.0
+    return 0.0

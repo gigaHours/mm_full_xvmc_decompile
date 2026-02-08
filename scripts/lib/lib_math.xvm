@@ -1,0 +1,19 @@
+module lib_math
+
+def ComputeAcceleration(self, arg1, arg2):
+    local3 = vector.Sub(arg1, self)
+    local3 = vector.Scale(local3, 1.0 / arg2)
+    return local3
+
+def ClampDirToAng(self, arg1, arg2):
+    local3 = vector.AngleBetween(self, arg1)
+    if arg2 > local3:
+        return self
+    local4 = local3 - arg2
+    local5 = vector.Normalize(vector.Cross(arg1, self))
+    local6 = matrix.RotationAxisMatrix(local5, local4)
+    local7 = matrix.Rotate(local6, self)
+    return local7
+
+def RemoveVectorDirection(self, arg1):
+    return vector.Normalize(vector.Sub(self, vector.Scale(arg1, vector.Dot(self, arg1))))

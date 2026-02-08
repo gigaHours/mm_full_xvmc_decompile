@@ -1,0 +1,18 @@
+module char_has_valid_interaction_entry
+
+def Evaluate(self, arg1):
+    local2 = character.GetInteractionUserProxy(self)
+    if local2:
+        if false:
+            debug.Sphere(game.GetTransform(self).r3, 0.3, lib_color.YELLOW(0.5))
+            debug.LogInfo("props.Property0: %f", [arg1.Property0])
+        local3 = interaction.GetValidEntryContext(local2, arg1.Property0)
+        if local3:
+            if false:
+                debug.LogInfo("SUCCESS", [])
+            if false:
+                debug.Sphere(game.GetTransform(self).r3, 0.6, lib_color.GREEN(0.7))
+            return 1.0
+    if false:
+        debug.Sphere(game.GetTransform(self).r3, 0.4, lib_color.RED(0.5))
+    return 0.0

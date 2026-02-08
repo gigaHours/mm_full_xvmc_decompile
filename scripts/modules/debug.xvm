@@ -1,0 +1,79 @@
+module debug
+
+def Sphere(self, arg1, arg2):
+    pass
+
+def LogWarning(self, arg1):
+    pass
+
+def PrintValue(self, arg1, arg2):
+    pass
+
+def LogInfo(self, arg1):
+    pass
+
+def Circle(self, arg1, arg2, arg3):
+    pass
+
+def StarNoZ(self, arg1, arg2):
+    pass
+
+def DrawRect(self, arg1, arg2, arg3, arg4):
+    pass
+
+def LogError(self, arg1):
+    pass
+
+def VdbDrawLine(self, arg1, arg2):
+    pass
+
+def DrawLine(self, arg1, arg2):
+    pass
+
+def DrawFloatFmt(self, arg1, arg2, arg3, arg4):
+    pass
+
+def Star(self, arg1, arg2):
+    pass
+
+def PushProfileScope(self):
+    pass
+
+def DrawText(self, arg1, arg2, arg3):
+    pass
+
+def PlotMatrix(self, arg1, arg2):
+    pass
+
+def DrawLine2d(self, arg1, arg2):
+    pass
+
+def DrawTextScaled(self, arg1, arg2, arg3, arg4):
+    pass
+
+def GetTweakVariables():
+    pass
+
+def ProjectPosition(self):
+    pass
+
+def PopProfileScope():
+    pass
+
+def Arrow(self, arg1, arg2, arg3):
+    pass
+
+def AddDebugMenuItem(self, arg1):
+    pass
+
+def GetCurve(self):
+    pass
+
+def VdbDrawString(self, arg1, arg2, arg3):
+    pass
+
+def PlotPosition(self, arg1, arg2):
+    pass
+
+def DrawText3d(self, arg1, arg2, arg3):
+    pass

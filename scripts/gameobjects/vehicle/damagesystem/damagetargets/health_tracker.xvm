@@ -1,0 +1,123 @@
+module health_tracker
+
+def MakeVulnerable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.invulnerable = false
+
+def ApplyDamage(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.health == 0.0:
+        return false
+    scriptgo.PostEvent(self, @AD0F882D)
+    if local3.accumulatedDamageAmountForEvent > 0.0:
+        local3.accumulatedDamage = local3.accumulatedDamage + arg1
+        if false:
+            debug.LogInfo("accumulatedDamage %f", [local3.accumulatedDamage])
+        if local3.accumulatedDamage >= local3.accumulatedDamageAmountForEvent:
+            scriptgo.PostEvent(self, @F3B26DD4)
+            local3.accumulatedDamage = 0.0
+            local3.accumulatedDamageAmountForEvent = 0.0
+    if arg1 > 0.0 and (not local3.invulnerable):
+        local3.recentDamage = math.Clamp(arg1, 0.0, local3.maxHealth)
+        local4 = local3.health
+        local3.health = math.Clamp(local3.health - arg1, 0.0, local3.maxHealth)
+        if local3.mirrorPctHealthDamagable != none:
+            local5 = game.GetMaxHealth(local3.mirrorPctHealthDamagable)
+            local6 = arg1 / local3.maxHealth
+            local7 = local6 * local5
+            game.InflictDamage(local3.mirrorPctHealthDamagable, local7, arg2, 0.0, @48B2B22C)
+        if false:
+            debug.LogInfo("health_tracker::ApplyDamage: %f, new health: %f", [arg1, local3.health])
+        scriptgo.PostEvent(self, @F0C45B4A)
+        if 0.0 >= local3.health:
+            SendDamageEvents(self, local4, local3.health)
+            Destroy(self, arg2, 0.0)
+            return true
+        SendDamageEvents(self, local4, local3.health)
+    else:
+        scriptgo.PostEvent(self, @14E21EC3)
+    return false
+
+def GetDamagePct(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.health / local1.maxHealth
+
+def Destroy(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.health = 0.0
+    if local3.onDestroyDamagable != none:
+        game.InflictDamage(local3.onDestroyDamagable, 1000000.0, arg1, arg2, @48B2B22C)
+    scriptgo.PostEvent(self, @5FF7711F)
+    if false:
+        debug.LogInfo("SendDamageEvents onDestroy", [])
+
+def ForceDestroy(self):
+    Destroy(self, @C9F61D0D, -1.0)
+
+def ShouldIgnoreCollision(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.ignoreCollisionIfDestroyed and 0.0 >= local1.health
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.health == none:
+        local1.health = 100.0
+    if local1.maxHealth == none:
+        local1.maxHealth = 100.0
+    if local1.invulnerable == none:
+        local1.invulnerable = false
+    if local1.ignoreCollisionIfDestroyed == none:
+        local1.ignoreCollisionIfDestroyed = true
+    if local1.debugShowHealth == none:
+        local1.debugShowHealth = false
+    if local1.accumulatedDamage == none:
+        local1.accumulatedDamage = 0.0
+    if local1.debugShowHealth:
+        scriptgo.SetRenderFunction(self, "UpdateRenderDebugHealth")
+    local1.recentDamage = 0.0
+
+def SendDamageEvents(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = (local3.maxHealth - arg1) / local3.maxHealth
+    local5 = (local3.maxHealth - arg2) / local3.maxHealth
+    if 0.25 > local4 and local5 >= 0.25:
+        scriptgo.PostEvent(self, @A8086BF8)
+        if false:
+            debug.LogInfo("SendDamageEvents onDamage25pcnt", [])
+    if 0.5 > local4 and local5 >= 0.5:
+        scriptgo.PostEvent(self, @D8463C7D)
+        if false:
+            debug.LogInfo("SendDamageEvents onDamage50pcnt", [])
+    if 0.75 > local4 and local5 >= 0.75:
+        scriptgo.PostEvent(self, @C2D356CB)
+        if false:
+            debug.LogInfo("SendDamageEvents onDamage75pcnt", [])
+
+def RestoreHealth(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.health = local1.maxHealth
+
+def UpdateRenderDebugHealth(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.debugShowHealth and local2.health > 0.0:
+        local3 = lib_debugdraw.GetGoScreenPos(self, vector.Set(0.0, 2.5, 0.0, 0.0), arg1)
+        local4 = math.Clamp(local2.health / local2.maxHealth, 0.0, 1.0)
+        local5 = vector.Set(1.0 - local4, local4, 0.0, 0.5)
+        local6 = 0.05
+        lib_debugdraw.DrawTextDepth(local3, "%f%", [local4 * 100.0], local6, local5, lib_debugdraw.ALIGN_CENTER(), none)
+
+def GetRecentDamagePct(self):
+    local1 = scriptgo.GetProperties(self)
+    return math.Clamp(local1.recentDamage / local1.maxHealth, 0.0, 1.0)
+
+def MakeInvulnerable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.invulnerable = true
+
+def IsDestroyed(self):
+    local1 = scriptgo.GetProperties(self)
+    return 0.0 >= local1.health
+
+def GetHealthPct(self):
+    local1 = scriptgo.GetProperties(self)
+    return math.Clamp(local1.health / local1.maxHealth, 0.0, 1.0)

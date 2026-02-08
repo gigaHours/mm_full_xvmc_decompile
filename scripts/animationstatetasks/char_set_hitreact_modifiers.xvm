@@ -1,0 +1,76 @@
+module char_set_hitreact_modifiers
+
+def Enter(self, arg1):
+    if false:
+        local2 = "== LATEST PUNCH:"
+    local3 = character.GetLatestSpellInfo(self)
+    local4 = false
+    if not local3.IsCurrent:
+        local4 = true
+        local3 = character.GetLatestHitByBulletData(self)
+    if local3.IsCurrent > 0.0:
+        if not local4:
+            local5 = local3.CollidedObject
+            if local5:
+                if character.IsCharacter(local5):
+                    if false:
+                        local2 = string.Cat(local2, ".coChar.")
+                    local6 = character.GetWieldedObject(local5)
+                    if local6:
+                        if character.IsStateBitSet(local5, 38.0):
+                            animation.SetModifier(self, @E063F6A0, @FF74032F, true)
+                            if false:
+                                local2 = string.Cat(local2, ".MOD_IMPACT_VERY_HEAVY.")
+                        else:
+                            animation.SetModifier(self, @E063F6A0, @8DD8DB8A, true)
+                            if false:
+                                local2 = string.Cat(local2, ".MOD_IMPACT_MEDIUM.")
+        local7 = local3.Position
+        local8 = local3.CollidedObjectVelocity
+        local9 = character.GetWorldMatrix(self)
+        local10 = matrix.Mul(animation.GetPoseTransformById(self, "Head"), local9).r3
+        local11 = matrix.Mul(animation.GetPoseTransformById(self, "Spine"), local9).r3
+        local12 = vector.Distance(local7, local10)
+        local13 = vector.Distance(local7, local11)
+        if false:
+            local2 = string.Cat(local2, string.FormatFloat("hd: %f sd: %f", [local12, local13], "%2.2f"))
+        if local12 > local13:
+            animation.SetModifier(self, @E063F6A0, @307ACE27, true)
+            if false:
+                local2 = string.Cat(local2, ".MOD_HEIGHT_MIDDLE.")
+        local14 = vector.Sub(local9.r3, local7)
+        local14.y = 0.0
+        if vector.Length(local14) == 0.0:
+            return
+        local15 = vector.Normalize(vector.Lerp(0.66, vector.Normalize(local14), vector.Normalize(local8)))
+        local15.y = 0.0
+        if vector.Length(local15) == 0.0:
+            return
+        local15 = vector.Normalize(local15)
+        if 0.0 > vector.Dot(local15, local9.r0):
+            animation.SetModifier(self, @E063F6A0, @AB9BB18A, true)
+            if false:
+                local2 = string.Cat(local2, ".MOD_IMPACT_RIGHT.")
+        local16 = vector.AngleBetween(local9.r2, local15)
+        if local16 > 2.35:
+            animation.SetModifier(self, @E063F6A0, @7D174367, true)
+            if false:
+                local2 = string.Cat(local2, ".MOD_IMPACT_180.")
+        elif local16 > 0.78:
+            animation.SetModifier(self, @E063F6A0, @C452A1E1, true)
+            if false:
+                local2 = string.Cat(local2, ".MOD_IMPACT_90.")
+        if false:
+            arg1.pos = local7
+            arg1.rel_pos = vector.Scale(vector.Normalize(local14), 2.0)
+            arg1.vec = local8
+            arg1.com = vector.Scale(local15, 2.0)
+            debug.LogInfo(local2, [])
+
+def UpdateRender(self, arg1, arg2):
+    if false:
+        local3 = vector.Set(1.0, 0.0, 0.0, 1.0)
+        local4 = vector.Set(0.0, 1.0, 0.0, 1.0)
+        local5 = vector.Set(0.0, 0.0, 1.0, 1.0)
+        debug.Arrow(arg1.pos, vector.Add(arg1.com, arg1.pos), 0.05, local4)
+        debug.Arrow(arg1.pos, vector.Add(arg1.rel_pos, arg1.pos), 0.05, local5)

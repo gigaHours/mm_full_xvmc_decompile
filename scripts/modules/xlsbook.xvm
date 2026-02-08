@@ -1,0 +1,10 @@
+module xlsbook
+
+def GetXlsSheetIndex(self, arg1):
+    pass
+
+def GetXlsSheetRowMajor(self, arg1):
+    pass
+
+def GetXlsSheetColumnMajor(self, arg1):
+    pass

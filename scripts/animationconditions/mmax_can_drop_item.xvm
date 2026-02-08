@@ -1,0 +1,7 @@
+module mmax_can_drop_item
+
+def Evaluate(self, arg1):
+    local2 = 7.0
+    if 1.0 == animation.GetStateBit(self, local2):
+        return 1.0
+    return 0.0

@@ -1,0 +1,584 @@
+module lib_camera
+import @80A1852C
+
+def BLEND_OPTION_BOTH_ACTIVE():
+    return 1.0
+
+def BLEND_OPTION_DESTINATION_ACTIVE():
+    return 0.0
+
+def STATUSCAM_GUI_MODE_LANDMARK():
+    return 2.0
+
+def Sigmoid(self):
+    local1 = self * self
+    return (3.0 - 2.0 * self) * local1
+
+def UpdateVistaCam(self, arg1, arg2, arg3, arg4):
+    camera.SetOffsetDistance(self, VISTA_CAM_OFFSET_DIST())
+    self.CameraBaseTransform.r3 = vector.Add(self.CameraBaseTransform.r3, vector.Set(0.0, VISTA_CAM_PUSH_UP_HEIGHT(), 0.0, 0.0))
+    local5 = matrix.Inverse(self.CameraBaseTransform)
+    if self.Properties.vista_target == none:
+        local6 = self.Properties.vista_target_dir
+    else:
+        local6 = matrix.MulVec(local5, self.Properties.vista_target)
+    local7 = vector.Set(local6.x, 0.0, local6.z, 0.0)
+    local8 = vector.Length(local7)
+    if local8 > 0.0:
+        local9 = math.ATan2(-local7.x / local8, -local7.z / local8)
+        local10 = math.ASin(-local6.y / vector.Length(local6)) + math.DegToRad(arg1.FOV) * VISTA_CAM_FOV_FRACTION()
+    else:
+        local9 = self.OffsetAzimuth
+        local10 = self.OffsetElevation
+    self.Properties.vista_seek_time = self.Properties.vista_seek_time + arg4
+    if arg2 > 0.0 and self.Properties.vista_seek_time > 0.5:
+        self.Properties.vista_rotation_active = false
+    if self.Properties.vista_rotation_active:
+        camera.SetOffsetDeltaOrbit(self, NormalizeAngleDifference(self.OffsetAzimuth, local9), local10 - self.OffsetElevation)
+        arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    return self.Properties.vista_rotation_active
+
+def LOCATIONINFO_TYPE_STANKGUM_CAMP():
+    return 6.0
+
+def SetVistaWillTriggerCam(self, arg1):
+    self.vista_will_trigger_cam = arg1
+
+def VISTA_CAM_MIN_DIST():
+    return 0.0
+
+def ICON_VEHICLE_GRAVEYARD():
+    return 43.0
+
+def AlignAzimuthElevationToSourceCameraClamped(self, arg1, arg2, arg3, arg4, arg5, arg6):
+    local7 = matrix.Inverse(self.CameraBaseTransform)
+    local8 = matrix.Mul(arg1.CameraTransform, local7)
+    local9 = matrix.Inverse(self.InitialOffsetTransform)
+    local10 = matrix.Mul(local9, local8)
+    local11 = 0.0
+    if local10.r2.x != 0.0 or local10.r2.z != 0.0:
+        local12 = vector.Normalize(vector.Set(local10.r2.x, 0.0, local10.r2.z, 0.0))
+        local13 = math.ATan2(local12.x, local12.z)
+        local11 = math.Clamp(local13 + self.InitialOffsetAzimuth, arg5, arg6)
+    local14 = vector.Normalize(local10.r2)
+    local15 = math.ASin(math.Clamp(local14.y, -1.0, 1.0))
+    local16 = math.Clamp(local15 + self.InitialOffsetElevation, arg3, arg4)
+    camera.SetOffsetDeltaOrbit(self, local11 - self.OffsetAzimuth, local16 - self.OffsetElevation)
+    arg2.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+
+def ICON_ENCAMPMENT_GUTGASH():
+    return 21.0
+
+def UpdateLeftStickZoom(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = false
+    local7 = input.GetFilteredMoveInput()
+    local8 = arg1.FOV
+    local9 = 0.0
+    local10 = 0.0
+    local11 = 0.4
+    if self.Properties.zoom_fov_current:
+        local8 = self.Properties.zoom_fov_current
+    if self.Properties.zoom_vel_current:
+        local9 = self.Properties.zoom_vel_current
+    if vector.Length(local7) > 0.0:
+        local10 = local7.y * arg4 * arg5 * -1.0
+        local11 = 0.25
+    local12 = math.Lerp(local11, local9, local10)
+    local13 = math.Clamp(local8 + local12, arg2, arg3)
+    arg1.FOV = local13
+    self.Properties.zoom_fov_current = local13
+    self.Properties.zoom_vel_current = local12
+    if local6:
+        debug.LogInfo("fov vel_target: %f, vel_lerped: %f, new_fov: %f ", [local10, local12, local13])
+
+def UpdateVistaScanning(self, arg1, arg2):
+    local3 = self.vista_cam_requested
+    local4 = self.vista_gui_requested
+    self.vista_cam_requested = false
+    self.vista_gui_requested = false
+    if VistaCamButtonPressed():
+        self.vista_button_timer = self.vista_button_timer + arg1
+    else:
+        self.vista_button_timer = 0.0
+    local5 = false
+    if self.vista_button_timer >= self.vista_button_delay:
+        local5 = true
+    if self.vista_scanning:
+        local6 = character.GetPlayer()
+        if local6 == none:
+            return
+        local7 = game.FindClosestLocationInfo(character.GetWorldMatrix(local6).r3)
+        local8 = none
+        if local7[0.0] != 1.0:
+            local9 = none
+        else:
+            local9 = local7[1.0]
+            local8 = local7[4.0]
+        if not VistaCamTriggerable(arg2):
+            SetVistaWillTriggerCam(self, false)
+            return
+        local10 = local8 == LOCATIONINFO_TYPE_TRANSFER_CAMP() or local8 == LOCATIONINFO_TYPE_PUMP_CAMP() or local8 == LOCATIONINFO_TYPE_TOPDOG_CAMP() or local8 == LOCATIONINFO_TYPE_GASTOWN_CAMP() or local8 == LOCATIONINFO_TYPE_STRONGHOLD() or local8 == LOCATIONINFO_TYPE_STANKGUM_CAMP()
+        if not local10 or local9 == none or lib_gameplay.IsPlayerInsideCamp(local6):
+            SetVistaWillTriggerCam(self, false)
+        else:
+            SetVistaWillTriggerCam(self, AcceptTransitionVistaCam(local9, camera.GetCameraTransform().r3, camera.GetCameraTransform().r2, VISTA_CAM_MAX_ANGLE_DIFF(), VISTA_CAM_MIN_DIST(), VISTA_CAM_MAX_DIST()))
+        if local5 and 0.0 >= input.GetButtonInput(@3B91D694) or local3 or local4:
+            local11 = self.vista_will_trigger_cam
+            local12 = true
+            if local11:
+                local13 = 10.0
+                local14 = vector.Add(character.GetWorldMatrix(local6).r3, vector.Set(0.0, 3.0 + local13, 0.0, 0.0))
+                local12 = not collision.CastSphere(local14, local14, local13, false)
+            if local3:
+                local11 = true
+                local12 = true
+                self.vista_auto_mode = true
+                self.vista_t = 0.0
+            elif local4:
+                local11 = false
+                self.vista_auto_mode = true
+                self.vista_t = 0.0
+            local15 = STATUSCAM_GUI_MODE_REGION()
+            if lib_gameplay.IsPlayerInsideCamp(local6) or local11 or local4:
+                local15 = STATUSCAM_GUI_MODE_CAMP()
+            EnterVistaCam(self, arg2, local11 and local12, local15, local9, local3)
+    elif self.vista_auto_mode:
+        self.vista_t = self.vista_t + arg1
+        if self.vista_t > VISTA_AUTO_TIME():
+            self.vista_auto_mode = false
+            ExitVistaCam(self)
+    elif not VistaCamButtonPressed() or not VistaCamTriggerable(arg2):
+        ExitVistaCam(self)
+
+def AlignElevationToSourceCameraClamped(self, arg1, arg2, arg3, arg4):
+    local5 = matrix.Inverse(self.CameraBaseTransform)
+    local6 = matrix.Mul(arg1.CameraTransform, local5)
+    local7 = matrix.Inverse(self.InitialOffsetTransform)
+    local8 = matrix.Mul(local7, local6)
+    local9 = vector.Normalize(local8.r2)
+    local10 = math.ASin(math.Clamp(local9.y, -1.0, 1.0))
+    local11 = math.Clamp(local10 + self.InitialOffsetElevation, arg3, arg4)
+    camera.SetOffsetDeltaOrbit(self, 0.0, local11 - self.OffsetElevation)
+    arg2.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+
+def LerpAngle(self, arg1, arg2, arg3):
+    local4 = math.DegToRad(180.0)
+    local5 = 0.0
+    if math.Abs(arg1 - self) >= local4:
+        if 0.0 > self:
+            local5 = SpeedLerp(self + 2.0 * local4, arg1, arg2, arg3)
+        else:
+            local5 = SpeedLerp(self, arg1 + 2.0 * local4, arg2, arg3)
+        if local5 > local4:
+            local5 = local5 - 2.0 * local4
+        if -local4 > local5:
+            local5 = local5 + 2.0 * local4
+    else:
+        local5 = SpeedLerp(self, arg1, arg2, arg3)
+    return local5
+
+def InitVistaTargetSearch(self):
+    self.vista_will_trigger_cam = false
+    self.vista_scanning = true
+    self.vista_cam_requested = false
+    self.vista_gui_requested = false
+    self.vista_auto_mode = false
+    self.vista_button_timer = 0.0
+    self.vista_button_delay = 0.075
+
+def SpeedLerp(self, arg1, arg2, arg3):
+    local4 = 1.0
+    if self != arg1:
+        local4 = arg3 * arg2 / math.Abs(self - arg1)
+        local4 = math.Clamp(local4, 0.0, 1.0)
+    return math.Lerp(local4, self, arg1)
+
+def GetDeltaAzElDamped(self, arg1, arg2, arg3, arg4):
+    self.Properties.PrevDeltaAzimuth = self.Properties.PrevDeltaAzimuth - self.Properties.PrevDeltaAzimuth * math.Min(arg3 * arg4, 1.0)
+    self.Properties.PrevDeltaElevation = self.Properties.PrevDeltaElevation - self.Properties.PrevDeltaElevation * math.Min(arg3 * arg4, 1.0)
+    if math.Abs(arg1) > 0.001 and math.Sign(arg1) != math.Sign(self.Properties.PrevDeltaAzimuth) or math.Abs(arg1) > math.Abs(self.Properties.PrevDeltaAzimuth):
+        self.Properties.PrevDeltaAzimuth = arg1
+    else:
+        arg1 = self.Properties.PrevDeltaAzimuth
+    if math.Abs(arg2) > 0.001 and math.Sign(arg2) != math.Sign(self.Properties.PrevDeltaElevation) or math.Abs(arg2) > math.Abs(self.Properties.PrevDeltaElevation):
+        self.Properties.PrevDeltaElevation = arg2
+    else:
+        arg2 = self.Properties.PrevDeltaElevation
+    return [arg1, arg2]
+
+def ExitVistaCamSlowmo(self):
+    if self.vista_slowmo_id != none:
+        game.EaseOutCustomUpdateSpeed(1.0, self.vista_slowmo_id)
+        self.vista_slowmo_id = none
+
+def AlignAzimuthElevationToSourceCamera(self, arg1, arg2):
+    AlignAzimuthElevationToSourceCameraClamped(self, arg1, arg2, -math.DegToRad(180.0), math.DegToRad(180.0), -math.DegToRad(180.0), math.DegToRad(180.0))
+
+def ALIGN_CURR_DST():
+    return 1.0
+
+def Deccelerating(self):
+    return math.BezierCurve(0.0, 1.0, 1.0, 1.0, self)
+
+def ElevationFromOffsetVector(self):
+    local1 = vector.Length(self)
+    if local1 > 0.0:
+        return math.ASin(self.y / local1)
+    return 0.0
+
+def VistaCamButtonPressed():
+    return input.GetButtonInput(@0C7A5C41) > 0.0
+
+def AlignToSourceCamera(self, arg1, arg2):
+    local3 = matrix.Inverse(self.CameraBaseTransform)
+    local4 = matrix.Mul(arg1.CameraTransform, local3)
+    local4.r3 = self.CameraOffsetTransform.r3
+    camera.SetOffsetTransform(self, local4)
+    arg2.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+
+def AzimuthFromOffsetVector(self):
+    return math.ATan2(self.x, self.z)
+
+def AlignElevationToSourceCamera(self, arg1, arg2):
+    AlignElevationToSourceCameraClamped(self, arg1, arg2, -math.DegToRad(180.0), math.DegToRad(180.0))
+
+def ICON_ENCAMPMENT_DEEPFRIAH():
+    return 24.0
+
+def ALIGN_CURR_SRC_AZIM_INIT_DST_ELEV():
+    return 3.0
+
+def GetAzElTowardsPos(self, arg1, arg2, arg3):
+    local4 = math.Pi()
+    local5 = self.CameraBaseTransform
+    local6 = arg1.CameraTransform
+    local7 = vector.Scale(matrix.MulVec(matrix.Inverse(local5), arg2), -1.0)
+    local8 = vector.Length(local7)
+    if local8 > 0.01:
+        local9 = AzimuthFromOffsetVector(local7) + self.InitialOffsetAzimuth
+        local10 = vector.Set(local7.x, 0.0, local7.z, 0.0)
+        local11 = vector.Length(local10)
+        local12 = self.InitialOffsetTransform.r3.x / local11
+        local13 = 0.0
+        if 1.0 >= local12:
+            local13 = math.ASin(local12)
+        local9 = local9 + local13
+        local14 = self.InitialOffsetTransform.r3.y / local8
+        local15 = 0.0
+        if 1.0 >= local14:
+            local15 = math.ASin(local14)
+        local16 = math.Cos(local13)
+        local17 = vector.Set(local7.x * local16, local7.y, local7.z * local16, 0.0)
+        local18 = ElevationFromOffsetVector(local17) + self.InitialOffsetElevation
+        local18 = local18 + local15
+        local19 = local9 - self.OffsetAzimuth
+        if local19 > local4:
+            local19 = local19 - 2.0 * local4
+        if -local4 > local19:
+            local19 = local19 + 2.0 * local4
+        local9 = local9 - (1.0 - arg3) * local19
+        local18 = math.Lerp(arg3, self.OffsetElevation, local18)
+        return [local9, local18]
+    return none
+
+def ICON_CAMP():
+    return 61.0
+
+def VISTA_CAM_OFFSET_DIST():
+    return 47.6
+
+def ResetDamping(self):
+    self.Properties.PrevDeltaAzimuth = 0.0
+    self.Properties.PrevDeltaElevation = 0.0
+
+def ICON_ENCAMPMENT_CHUM():
+    return 65.0
+
+def STATUSCAM_GUI_MODE_CAMP():
+    return 0.0
+
+def LOCATIONINFO_TYPE_STRONGHOLD():
+    return 5.0
+
+def AlignAzimuthToSourceCamera(self, arg1, arg2):
+    AlignAzimuthToSourceCameraClamped(self, arg1, arg2, -math.DegToRad(180.0), math.DegToRad(180.0))
+
+def PollXccVistaTargetSettings(self, arg1):
+    if arg1:
+        local2 = lib_camera.GetInVehicleCameraCoordinator()
+    else:
+        local2 = lib_camera.GetOnGroundCameraCoordinator()
+    local3 = scriptgo.Call(local2, @48B85220)
+    if local3 != none:
+        self.vista_target = vector.Set(local3.x, local3.y, local3.z, local3.w)
+    else:
+        self.vista_target = none
+
+def STATUSCAM_GUI_MODE_REGION():
+    return 1.0
+
+def InSequence():
+    local0 = character.GetPlayer()
+    if local0:
+        if character.IsInSequence(local0):
+            return true
+    return false
+
+def ICON_ENCAMPMENT_CROWDAZZLE():
+    return 23.0
+
+def GetOnGroundCameraCoordinator():
+    return game.GetGameObjectByAlias("onground_camera_coordinator")
+
+def WorldYAligned(self):
+    self.r1 = vector.Set(0.0, 1.0, 0.0, 0.0)
+    if self.r0.y == 1.0 or self.r0.y == -1.0:
+        self.r2 = vector.Set(self.r2.x, 0.0, self.r2.z, 0.0)
+        self.r0 = vector.Cross(self.r1, self.r2)
+        self.r0 = vector.Normalize(self.r0)
+    elif self.r2.y == 1.0 or self.r2.y == -1.0:
+        self.r0 = vector.Set(self.r0.x, 0.0, self.r0.z, 0.0)
+        self.r2 = vector.Cross(self.r0, self.r1)
+        self.r2 = vector.Normalize(self.r2)
+    self.r0 = vector.Set(self.r0.x, 0.0, self.r0.z, 0.0)
+    self.r2 = vector.Set(self.r2.x, 0.0, self.r2.z, 0.0)
+    self.r0 = vector.Normalize(self.r0)
+    self.r2 = vector.Normalize(self.r2)
+    return self
+
+def LOCATIONINFO_TYPE_TOPDOG_CAMP():
+    return 2.0
+
+def LOCATIONINFO_TYPE_SCAVENGE():
+    return 4.0
+
+def AcceptTransitionVistaCam(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = vector.Sub(self, arg1)
+    local7 = vector.Length(local6)
+    local8 = vector.AngleBetween(vector.Scale(local6, 1.0 / local7), vector.Scale(arg2, -1.0))
+    if arg3 > local8 and arg5 > local7 and local7 > arg4:
+        return true
+
+def VISTA_CAM_MAX_DIST():
+    return 300.0
+
+def SelectShortestLookingAtTargetTransform(self, arg1, arg2, arg3):
+    local4 = arg2[0.0]
+    local5 = 5.0
+    local7 = 0.0
+    local8 = 1.0
+    local6 = len(arg2)
+    while local6 > local7:
+        local9 = matrix.MulVec(self, arg2[local7])
+        local10 = matrix.LookAtMatrix(local9, arg3.CameraTransform.r1, arg1.r3)
+        local11 = vector.Dot(local10.r2, arg3.CameraTransform.r2)
+        if local5 > local11:
+            local5 = local11
+            local4 = arg2[local7]
+        local7 = local8 + local7
+    return local4
+
+def VISTA_CAM_PUSH_UP_HEIGHT():
+    return 15.0
+
+def ICON_ENCAMPMENT_JEET():
+    return 20.0
+
+def NormalizeAngleDifference(self, arg1):
+    local2 = math.DegToRad(180.0)
+    local3 = arg1 - self
+    if math.Abs(local3) >= local2:
+        if 0.0 > self:
+            local3 = arg1 - (2.0 * local2 + self)
+        else:
+            local3 = 2.0 * local2 + arg1 - self
+    return local3
+
+def SetStatusCamGUIMode(self):
+    gui.GetBlackboard().statuscam_gui_mode = self
+
+def LOCATIONINFO_TYPE_BUZZARD_CAMP():
+    return 7.0
+
+def GetInVehicleCameraCoordinator():
+    return game.GetGameObjectByAlias("vehicle_camera_coordinator")
+
+def EnterVistaCam(self, arg1, arg2, arg3, arg4, arg5):
+    self.vista_scanning = false
+    self.vista_target = arg4
+    SetVistaWillTriggerCam(self, false)
+    SetStatusCamGUIMode(arg3)
+    game.PostEvent("ply.status_update.activated", "")
+    game.PostEvent("gui_event", "cam.activate.campvista")
+    game.PostEvent("enable.in.vehicle.exploration.handheld", "")
+    soundscripting.SetRouterVariableInteger("flow_conditions", "set_variable_value", "flowmode_location_info", 1.0, 0.0, 0.0)
+    if arg2:
+        soundscripting.SetRouterVariableInteger("camera_conditions", "set_variable_value", "camera_vista", 1.0, 0.0, 0.0)
+        self.vista_slowmo_id = game.EaseInCustomUpdateSpeed(1.0, VISTA_CAM_SLOWMO_SPEED())
+        if arg1:
+            if arg5:
+                game.PostEventNone("cam.activate.in.vehicle.landmarkvista")
+            else:
+                game.PostEventNone("cam.activate.in.vehicle.campvista")
+        elif arg5:
+            game.PostEventNone("cam.activate.on.ground.landmarkvista")
+        else:
+            game.PostEventNone("cam.activate.on.ground.campvista")
+
+def VISTA_AUTO_TIME():
+    return 6.5
+
+def GetXccTargetTransform(self, arg1):
+    if self == 1.0:
+        return game.GetTransform(lib_vehicle.GetPlayerVehicle())
+    if arg1 == 0.0:
+        local2 = GetInVehicleCameraCoordinator()
+        local3 = scriptgo.GetProperties(local2)
+        if self == 0.0 and local3.interesting_boarder:
+            return game.GetTransform(local3.interesting_boarder)
+        if self == 2.0 and local3.interesting_vehicle:
+            return WorldYAligned(game.GetTransform(local3.interesting_vehicle))
+        if self == 3.0:
+            if local3.interesting_sniper_target:
+                local4 = game.GetTransform(local3.interesting_sniper_target)
+                if character.IsCharacter(local3.interesting_sniper_target):
+                    local5 = animation.GetPoseTransformById(local3.interesting_sniper_target, "Hips")
+                    local4 = matrix.Mul(local5, local4)
+                    return local4
+                if vehicle.IsVehicle(local3.interesting_sniper_target):
+                    return local4
+                local4.r3 = local3.hit_pos
+                return local4
+            local6 = matrix.IdentityMatrix()
+            local6.r3 = local3.hit_pos
+            return local6
+    if arg1 == 1.0:
+        local7 = GetOnGroundCameraCoordinator()
+        local8 = scriptgo.GetProperties(local7)
+        if self == 0.0 and local8.interesting_character:
+            return game.GetTransform(local8.interesting_character)
+        if self == 4.0 and local8.interesting_character:
+            local4 = game.GetTransform(local8.interesting_character)
+            if character.IsCharacter(local8.interesting_character):
+                local5 = animation.GetPoseTransformById(local8.interesting_character, "TargetRef")
+                local4 = matrix.Mul(local5, local4)
+                return local4
+            return local4
+    return none
+
+def VISTA_CAM_SLOWMO_SPEED():
+    return 0.01
+
+def ALIGN_INIT_DST():
+    return 0.0
+
+def SelectSecondShortestLookingAtTargetTransform(self, arg1, arg2, arg3):
+    local4 = arg2[0.0]
+    local5 = 5.0
+    local6 = arg2[0.0]
+    local7 = 5.0
+    local9 = 0.0
+    local10 = 1.0
+    local8 = len(arg2)
+    while local8 > local9:
+        local11 = matrix.MulVec(self, arg2[local9])
+        local12 = matrix.LookAtMatrix(local11, arg3.CameraTransform.r1, arg1.r3)
+        local13 = vector.Dot(local12.r2, arg3.CameraTransform.r2)
+        if local5 > local13:
+            if local7 > local13:
+                local5 = local7
+                local4 = local6
+                local7 = local13
+                local6 = arg2[local9]
+            else:
+                local5 = local13
+                local4 = arg2[local9]
+        local9 = local10 + local9
+    return local4
+
+def VistaCamTriggerable(self):
+    local1 = (not camera.ActiveCameraInAnyGroup("signature_scope_camera")) and (not InSequence()) and (not camera.ActiveCameraInAnyGroup("weapon_aim_group"))
+    if self:
+        return local1 and (camera.ActiveCameraInAnyGroup("vehicle_combat_group") or camera.ActiveCameraInAnyGroup("vehicle_group") or camera.ActiveCameraInAnyGroup("camp_vista") or camera.ActiveCameraInAnyGroup("driver"))
+    return local1 and (camera.ActiveCameraInAnyGroup("brutality") or camera.ActiveCameraInAnyGroup("interaction") or camera.ActiveCameraInAnyGroup("combat") or camera.ActiveCameraInAnyGroup("exploration") or camera.ActiveCameraInAnyGroup("camp_vista"))
+
+def ExitVistaCam(self):
+    SetVistaWillTriggerCam(self, false)
+    if not self.vista_scanning:
+        game.PostEvent("gui_event", "cam.deactivate.campvista")
+        game.PostEventNone("cam.deactivate.in.vehicle.campvista")
+        game.PostEventNone("cam.deactivate.on.ground.campvista")
+        game.PostEvent("disable.in.vehicle.exploration.handheld", "")
+        soundscripting.SetRouterVariableInteger("flow_conditions", "set_variable_value", "flowmode_location_info", 0.0, 0.0, 0.0)
+        soundscripting.SetRouterVariableInteger("camera_conditions", "set_variable_value", "camera_vista", 0.0, 0.0, 0.0)
+        ExitVistaCamSlowmo(self)
+        self.vista_scanning = true
+
+def ScaleValue(self, arg1, arg2, arg3, arg4):
+    self = math.Clamp(self, arg1, arg2)
+    local5 = (self - arg1) / (arg2 - arg1)
+    return arg3 + local5 * (arg4 - arg3)
+
+def LOCATIONINFO_TYPE_TRANSFER_CAMP():
+    return 0.0
+
+def LOCATIONINFO_TYPE_ROADKILL_CAMP():
+    return 8.0
+
+def VistaCameraReset(self, arg1, arg2):
+    self.Properties.vista_seek_time = 0.0
+    self.Properties.vista_rotation_active = true
+    PollXccVistaTargetSettings(self.Properties, arg1)
+    if self.Properties.vista_target == none:
+        local3 = self.CameraOffsetTransform.r2
+        self.Properties.vista_target_dir = vector.Set(-local3.x * 1000.0, 0.0, -local3.z * 1000.0, 0.0)
+
+def VISTA_CAM_FOV_FRACTION():
+    return 0.3
+
+def ALIGN_CURR_SRC():
+    return 2.0
+
+def LOCATIONINFO_TYPE_PUMP_CAMP():
+    return 1.0
+
+def LOCATIONINFO_TYPE_GASTOWN_CAMP():
+    return 3.0
+
+def AlignAzimuthToSourceCameraClamped(self, arg1, arg2, arg3, arg4):
+    local5 = matrix.Inverse(self.CameraBaseTransform)
+    local6 = matrix.Mul(arg1.CameraTransform, local5)
+    local7 = matrix.Inverse(self.InitialOffsetTransform)
+    local8 = matrix.Mul(local7, local6)
+    local9 = 0.0
+    if local8.r2.x != 0.0 or local8.r2.z != 0.0:
+        local10 = vector.Normalize(vector.Set(local8.r2.x, 0.0, local8.r2.z, 0.0))
+        local11 = math.ATan2(local10.x, local10.z)
+        local9 = math.Clamp(local11 + self.InitialOffsetAzimuth, arg3, arg4)
+    camera.SetOffsetDeltaOrbit(self, local9 - self.OffsetAzimuth, 0.0)
+    arg2.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+
+def ICON_ENCAMPMENT_PINKEYE():
+    return 2.0
+
+def GetFovBasedOnDistanceBetweenPoints(self, arg1, arg2):
+    local3 = vector.Distance(self, arg1)
+    local4 = math.Clamp(local3, 1.0, 30.0)
+    local5 = (local4 - 1.0) / (40.0 - 1.0)
+    return math.Lerp(local5, 65.0, 35.0)
+
+def VISTA_CAM_MAX_ANGLE_DIFF():
+    return 60.0 * 3.14 / 180.0
+
+def IsCameraSimilarAngleToTargetAsTarget2(self, arg1, arg2, arg3):
+    local4 = self.r3
+    local5 = game.GetTransform(arg1).r3
+    local6 = game.GetTransform(arg2).r3
+    local7 = vector.Sub(local5, local4)
+    local8 = vector.Sub(local6, local4)
+    local7.y = local7.y * 0.02
+    local8.y = local8.y * 0.02
+    local9 = vector.AngleBetween(local7, local8)
+    if arg3 > local9:
+        return true
+    return false

@@ -1,0 +1,15 @@
+module char_loopincrementor
+import @E45D52B2
+
+def Enter(self, arg1):
+    lib_animation.ResetAdditiveLoopCounter(self)
+    lib_animation.SetAdditiveLoopTimer(self)
+
+def Exit(self, arg1):
+    lib_animation.ResetAdditiveLoopCounter(self)
+
+def UpdateRender(self, arg1, arg2):
+    lib_animation.DebugPrintLoopCounter(self)
+
+def Update(self, arg1, arg2):
+    lib_animation.IncreaseAdditiveLoopCounter(self)

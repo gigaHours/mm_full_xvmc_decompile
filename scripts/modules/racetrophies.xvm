@@ -1,0 +1,13 @@
+module racetrophies
+
+def GetNrRaceTrophies():
+    pass
+
+def GetNrRaceTrophiesPossible():
+    pass
+
+def CompleteDeathrun(self):
+    pass
+
+def GetCompletedDeathruns():
+    pass

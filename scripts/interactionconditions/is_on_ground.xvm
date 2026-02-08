@@ -1,0 +1,27 @@
+module is_on_ground
+import @BAFDB405
+
+def FilterHit(self):
+    local1 = self.GameObject
+    if not local1:
+        return self
+    if not character.IsCharacter(local1):
+        return self
+    return none
+
+def Evaluate(self, arg1):
+    local2 = game.GetChild(self, "raycaster")
+    local3 = game.GetTransform(self)
+    local4 = none
+    if arg1.Property1 == 180.0:
+        local4 = matrix.MulVec(local3, vector.Set(0.0, 0.0, -arg1.Property2, 0.0))
+    elif arg1.Property1 == 90.0:
+        local4 = matrix.MulVec(local3, vector.Set(arg1.Property2, 0.0, 0.0, 0.0))
+    elif arg1.Property1 == -90.0:
+        local4 = matrix.MulVec(local3, vector.Set(-arg1.Property2, 0.0, 0.0, 0.0))
+    else:
+        local4 = matrix.MulVec(local3, vector.Set(0.0, 0.0, arg1.Property2, 0.0))
+    local5 = vector.Add(local4, vector.Set(0.0, -arg1.Property0, 0.0, 0.0))
+    if lib_character.CastRays(local2, [[local4, local5]], FilterHit, false):
+        return 1.0
+    return 0.0

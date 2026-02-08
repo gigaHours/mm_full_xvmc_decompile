@@ -1,0 +1,152 @@
+module veh_debug_globals
+import @D44EFFF4
+
+def BoardingEnableSwayDebug(self):
+    debug.LogInfo("Vehicle Debug Menu, BoardingEnableSwayDebug", [])
+    local1 = vehicle.GetGlobalProperties()
+    local1.BoardingSwayDebugEnabled = true
+
+def ToggleDeformDebug(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.showIsDeformingDebug = not local1.showIsDeformingDebug
+    if local1.showIsDeformingDebug:
+        game.SendEvent("vehicle.debugscript.render.start", "")
+        debug.LogInfo("IsDeforming Display Display activated", [])
+    else:
+        debug.LogInfo("IsDeforming Display Display deactivated", [])
+
+def BoardingEnableLandDebug(self):
+    debug.LogInfo("Vehicle Debug Menu, BoardingEnableLandDebug", [])
+    local1 = vehicle.GetGlobalProperties()
+    local1.BoardingLandDebugEnabled = true
+
+def ToggleVehicleCollisionEffectPositionsDebug(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.print_vehicle_collision_effect_positions = not local1.print_vehicle_collision_effect_positions
+    if local1.print_vehicle_collision_effect_positions:
+        debug.LogInfo("Collision Effect Positions Debug activated", [])
+        game.SendEvent("vehicle.debugscript.render.start", "")
+    else:
+        debug.LogInfo("Collision Effect Positions Debug deactivated", [])
+
+def ToggleHealthbarDebug(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.showHealthbarDebug = not local1.showHealthbarDebug
+    if local1.showHealthbarDebug:
+        debug.LogInfo("Healthbar Debug activated", [])
+        game.SendEvent("healthbar.debug.start", "")
+    else:
+        debug.LogInfo("Healthbar Debug deactivated", [])
+        game.SendEvent("healthbar.debug.stop", "")
+
+def ToggleDamageTrackerDebug(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.print_dmgtracker_debug = not local1.print_dmgtracker_debug
+    if local1.print_dmgtracker_debug:
+        debug.LogInfo("Collision DamageTracker Debug activated", [])
+    else:
+        debug.LogInfo("Collision DamageTracker Debug deactivated", [])
+
+def Init(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.print_dmgtracker_debug = false
+    local1.print_nondmg_debug = false
+    local1.BoardingSwayDebugEnabled = false
+    local1.BoardingShakeOffEnabled = true
+    local1.print_nondmg_debug = false
+    local1.print_vehicle_collision_effect_positions = false
+    local2 = "menu.vehicle.boarding.shake_off.enable"
+    scriptgo.RegisterEventHandler(self, local2, "BoardingEnableShakingOff")
+    debug.AddDebugMenuItem("Command|Vehicle|Boarding|Enable Shake Off", local2)
+    local2 = "menu.vehicle.boarding.shake_off.disable"
+    scriptgo.RegisterEventHandler(self, local2, "BoardingDisableShakingOff")
+    debug.AddDebugMenuItem("Command|Vehicle|Boarding|Disable Shake Off", local2)
+    local2 = "menu.vehicle.boarding.landing.debug.enable"
+    scriptgo.RegisterEventHandler(self, local2, "BoardingEnableLandDebug")
+    debug.AddDebugMenuItem("Command|Vehicle|Boarding|Enable Land Debug", local2)
+    local2 = "menu.vehicle.boarding.landing.debug.disable"
+    scriptgo.RegisterEventHandler(self, local2, "BoardingDisableLandDebug")
+    debug.AddDebugMenuItem("Command|Vehicle|Boarding|Disable Land Debug", local2)
+    local2 = "menu.vehicle.boarding.sway.debug.enable"
+    scriptgo.RegisterEventHandler(self, local2, "BoardingEnableSwayDebug")
+    debug.AddDebugMenuItem("Command|Vehicle|Boarding|Enable Sway Debug", local2)
+    local2 = "menu.vehicle.boarding.sway.debug.disable"
+    scriptgo.RegisterEventHandler(self, local2, "BoardingDisableSwayDebug")
+    debug.AddDebugMenuItem("Command|Vehicle|Boarding|Disable Sway Debug", local2)
+    local3 = "debug.damagetracker.toggle"
+    scriptgo.RegisterEventHandler(self, local3, "ToggleDamageTrackerDebug")
+    debug.AddDebugMenuItem("Show|Vehicle|Toggle DamageCollision Debug", local3)
+    local4 = "debug.nondamagecollision.toggle"
+    scriptgo.RegisterEventHandler(self, local4, "ToggleNonDamageCollisionTrackerDebug")
+    debug.AddDebugMenuItem("Show|Vehicle|Toggle NonDamageCollision Debug", local4)
+    local5 = "menu.vehicle.tire.size.debug"
+    scriptgo.RegisterEventHandler(self, local5, "ToggleTireSizeDebug")
+    debug.AddDebugMenuItem("Show|Vehicle|Toggle Tire Size Debug", local5)
+    local1.showTireSizeDebug = false
+    local6 = "menu.vehicle.gg.debug"
+    scriptgo.RegisterEventHandler(self, local6, "ToggleGgDebug")
+    debug.AddDebugMenuItem("Show|Vehicle|Toggle G-G Display", local6)
+    local1.showGgDebug = false
+    local7 = "menu.vehicle.healthbar.debug"
+    scriptgo.RegisterEventHandler(self, local7, "ToggleHealthbarDebug")
+    debug.AddDebugMenuItem("Show|Vehicle|Toggle Healthbar Debug", local7)
+    local1.showHealthbarDebug = false
+    local8 = "menu.vehicle.isdeforming.debug"
+    scriptgo.RegisterEventHandler(self, local8, "ToggleDeformDebug")
+    debug.AddDebugMenuItem("Show|Vehicle|Toggle IsDeforming Display", local8)
+    local1.showIsDeformingDebug = false
+    local1.boardershakeoff_upgrade_scale = 1.0
+    local9 = gui.GetBlackboard()
+    local9.max_boost_capacity = 3.0
+    local9.current_boost_capacity = 3.0
+    local9.player_vehicle_boost_charges = 3.0
+    local9.boost_enabled = false
+    local10 = "debug.vehicle.collision.positions.toggle"
+    scriptgo.RegisterEventHandler(self, local10, "ToggleVehicleCollisionEffectPositionsDebug")
+    debug.AddDebugMenuItem("Show|Vehicle|Toggle Collision Effect Positions Debug", local10)
+
+def BoardingDisableShakingOff(self):
+    debug.LogInfo("Vehicle Debug Menu, BoardingDisableShakingOff", [])
+    local1 = vehicle.GetGlobalProperties()
+    local1.BoardingShakeOffEnabled = false
+
+def BoardingEnableShakingOff(self):
+    debug.LogInfo("Vehicle Debug Menu, BoardingDisableShakingOff", [])
+    local1 = vehicle.GetGlobalProperties()
+    local1.BoardingShakeOffEnabled = true
+
+def BoardingDisableSwayDebug(self):
+    debug.LogInfo("Vehicle Debug Menu, BoardingEnableSwayDebug", [])
+    local1 = vehicle.GetGlobalProperties()
+    local1.BoardingSwayDebugEnabled = false
+
+def ToggleNonDamageCollisionTrackerDebug(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.print_nondmg_debug = not local1.print_nondmg_debug
+    if local1.print_nondmg_debug:
+        debug.LogInfo("Collision NonDamage Debug activated", [])
+    else:
+        debug.LogInfo("Collision NonDamage Debug deactivated", [])
+
+def BoardingDisableLandDebug(self):
+    debug.LogInfo("Vehicle Debug Menu, BoardingDisableLandDebug", [])
+    local1 = vehicle.GetGlobalProperties()
+    local1.BoardingLandDebugEnabled = false
+
+def ToggleTireSizeDebug(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.showTireSizeDebug = not local1.showTireSizeDebug
+    if local1.showTireSizeDebug:
+        debug.LogInfo("Tire Size Debug activated", [])
+        game.SendEvent("vehicle.debugscript.render.start", "")
+    else:
+        debug.LogInfo("Tire Size Debug deactivated", [])
+
+def ToggleGgDebug(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.showGgDebug = not local1.showGgDebug
+    if local1.showGgDebug:
+        debug.LogInfo("G-G Display activated", [])
+        game.SendEvent("vehicle.debugscript.render.start", "")
+    else:
+        debug.LogInfo("G-G Display deactivated", [])

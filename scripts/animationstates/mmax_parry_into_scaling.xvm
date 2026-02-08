@@ -1,0 +1,25 @@
+module mmax_parry_into_scaling
+import @80A1852C
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    animation.GetSampler(arg3, 0.0).Speed = game.GetBlackboardValueFromObject(self, @9A116356)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    game.SetBlackboardValueToObject(self, @9A116356, 1.0)
+
+def OnEnter(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    local3 = lib_gameplay.GetMaximumParryAmount(self, local2)
+    if local3 == 0.0:
+        character.SetFloatRegister(self, 2.0, 2.0)
+        return
+    character.SetFloatRegister(self, 2.0, 0.0)
+    local4 = animation.GetSegmentInfo(local2, @E063F6A0, @D61482D3)
+    if local4 and local3 == 2.0:
+        if local4.Inside > 0.0:
+            character.SetFloatRegister(self, 2.0, 1.0)
+            game.PostEventNone("ply.camera.combat.dramatic.start")
+    local4 = animation.GetSegmentInfo(local2, @E063F6A0, @85C9FD13)
+    if local4:
+        if local4.Inside > 0.0:
+            character.SetFloatRegister(self, 2.0, 2.0)

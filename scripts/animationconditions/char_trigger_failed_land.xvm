@@ -1,0 +1,8 @@
+module char_trigger_failed_land
+
+def Evaluate(self, arg1):
+    local2 = math.Rand()
+    debug.LogInfo("TRIGGER FAILED LAND Rand, r: %f", [local2])
+    if 0.5 > local2:
+        return 1.0
+    return 0.0

@@ -1,0 +1,111 @@
+module show_special_move_icon
+
+def ShowExecutionIconIfCriticalHealth(self, arg1):
+    local2 = character.GetUnitHealth(self)
+    if arg1.KingCriticalPercentage >= local2:
+        arg1.drawIcon = true
+        arg1.iconID = 0.0
+
+def ShowIconIfPlayerCanUseWeaponExecution(self, arg1, arg2):
+    if arg1:
+        if (character.HasCategoryItem(arg1, "Club") or character.HasCategoryItem(arg1, "Spear")) and character.GetUpgradeLevel(arg1, "weapon_execution") > 0.0 and animation.GetStateBit(self, 8.0):
+            arg2.drawIcon = true
+            arg2.iconID = "perk_weapon_execution_name"
+
+def IsWithinDistance(self, arg1, arg2, arg3):
+    local4 = character.GetWorldMatrix(self).r3
+    local5 = character.GetWorldMatrix(arg1).r3
+    local4.y = 0.0
+    local5.y = 0.0
+    local6 = vector.Distance(local4, local5)
+    if arg3 > local6:
+        if local6 >= arg2:
+            return true
+    return false
+
+def ShowIconWhenFuryMove(self, arg1, arg2):
+    if arg2.IconWhenFuryMove:
+        local3 = playerstats.GetPlayerStats()
+        if local3:
+            if local3.inFuryMode > 0.0:
+                if character.GetUpgradeLevel(arg1, "fury_ground_execution") > 0.0 and (animation.GetStateBit(self, 14.0) or animation.GetStateBit(self, 8.0)):
+                    arg2.drawIcon = true
+                    arg2.iconID = "perk_fury_ground_execution_name"
+
+def PlayerOnFire(self):
+    if character.HasBuff(self, "on_fire") or character.HasBuff(self, "on_fire_light"):
+        return true
+    return false
+
+def ShowIconIfPlayerCanShiv(self, arg1):
+    if self:
+        if PlayerHasShivs(self):
+            arg1.drawIcon = true
+            arg1.iconID = "gui_ogc_action_shiv_punisher"
+
+def UpdateRender(self, arg1, arg2):
+    if arg1.drawIcon:
+        local3 = game.GetTransform(self)
+        local4 = animation.GetPoseTransformById(self, "Head")
+        local5 = matrix.Mul(local4, local3)
+        local6 = local5.r3
+        local6.y = local6.y + 0.6
+        if arg1.iconID == 0.0:
+            gui.Show3dIcon(arg1.iconID, local6)
+        elif arg1.iconID == "perk_pp_reversal_name":
+            gui.Show3dIconFloatString(6.0, local6, 255.0, arg1.iconID)
+        else:
+            gui.Show3dIconFloatString(1.0, local6, 255.0, arg1.iconID)
+
+def PlayerHasShivs(self):
+    if self:
+        if character.GetInventoryItemCount(self, "generic_shiv") > 0.0:
+            return true
+
+def Update(self, arg1, arg2):
+    local3 = character.GetPlayer()
+    arg1.drawIcon = false
+    if not animation.GetStateBit(self, 43.0):
+        if animation.GetStateBit(self, 41.0):
+            if character.HasCategoryItem(self, "Knife") and (not (character.IsContextBitSet(self, 15.0) or character.IsContextBitSet(self, 18.0))):
+                if character.GetUpgradeLevel(local3, "master_shiv_reversal") > 0.0:
+                    arg1.drawIcon = true
+                    arg1.iconID = "perk_master_shiv_reversal_name"
+                elif character.GetUpgradeLevel(local3, "pp_reversal") > 0.0:
+                    if character.GetFloatRegister(local3, 2.0) == 1.0:
+                        arg1.drawIcon = true
+                        arg1.iconID = "perk_pp_reversal_name"
+            if (character.HasCategoryItem(self, "Club") or character.HasCategoryItem(self, "Spear")) and (not character.HasCategoryItem(self, "Shield")):
+                if character.GetUpgradeLevel(local3, "master_bat_reversal") > 0.0:
+                    arg1.drawIcon = true
+                    arg1.iconID = "perk_master_bat_reversal_name"
+                elif character.GetUpgradeLevel(local3, "pp_reversal") > 0.0:
+                    if character.GetFloatRegister(local3, 2.0) == 1.0:
+                        arg1.drawIcon = true
+                        arg1.iconID = "perk_pp_reversal_name"
+        elif animation.GetStateBit(self, 44.0):
+            if PlayerHasShivs(local3) and character.GetUpgradeLevel(local3, "shiv_chain_finisher") > 0.0 and (not (character.IsContextBitSet(self, 15.0) or character.IsContextBitSet(self, 18.0))):
+                arg1.drawIcon = true
+                arg1.iconID = "perk_shiv_chain_finisher_name"
+        elif animation.GetStateBit(self, 40.0):
+            if PlayerHasShivs(local3) and character.GetUpgradeLevel(local3, "wall_shiv") > 0.0:
+                arg1.drawIcon = true
+                arg1.iconID = "perk_wall_shiv_name"
+        elif character.HasBuff(self, "dazed") and (not (character.IsContextBitSet(self, 15.0) or character.IsContextBitSet(self, 18.0))):
+            if not character.HasCategoryItem(self, "Shield"):
+                ShowIconIfPlayerCanShiv(local3, arg1)
+                ShowIconIfPlayerCanUseWeaponExecution(self, local3, arg1)
+                ShowIconWhenFuryMove(self, local3, arg1)
+                if character.IsContextBitSet(self, 10.0):
+                    if not PlayerOnFire(local3):
+                        ShowExecutionIconIfCriticalHealth(self, arg1)
+        elif animation.GetStateBit(local3, 27.0):
+            if character.GetUpgradeLevel(local3, "shiv_grapple_escape") > 0.0 and animation.IsWithinSegment(local3, @E063F6A0, @B4E08DAF) and PlayerHasShivs(local3):
+                arg1.drawIcon = true
+                arg1.iconID = "perk_shiv_grapple_escape_name"
+        elif character.IsContextBitSet(self, 9.0) and animation.GetStateBit(self, 26.0) and character.GetUpgradeLevel(character.GetPlayer(), "shield_shatter") > 0.0:
+            local4 = character.GetFirstItemObjectFromCategoryId(self, "Shield")
+            if local4:
+                if IsWithinDistance(self, local3, 0.0, 5.0):
+                    arg1.drawIcon = true
+                    arg1.iconID = "perk_shield_shatter_name"

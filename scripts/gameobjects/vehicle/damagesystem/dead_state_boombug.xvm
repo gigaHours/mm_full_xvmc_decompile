@@ -1,0 +1,191 @@
+module dead_state_boombug
+import @B1360AAD
+import @58351C01
+import @DE140614
+import @45098D7D
+import @42D0E955
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.deathWithPlayer:
+        game.SetDictionaryFloat(@378BEE96, 0.0)
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.car
+    local6 = vehicle.GetProperties(local5)
+    local6.isDeforming = true
+    vehicle.DisableDriving(local5)
+    if not local4.isDead:
+        local4.deathWithPlayer = vehicle.IsPlayerVehicle(local5)
+        vehicle.ApplyMaxDecalDamage(local5)
+        scriptgo.SendEvent(self, @8ADABCDF)
+        if not vehicle.IsPlayerVehicle(local5):
+            scriptgo.PostEvent(self, @FA153114)
+            lib_vehicle.SendVehicleDefeatedEvent(local5, arg2)
+            Explosion(self)
+            scriptgo.SetUpdateFunction(self, "UpdateDespawnTimer")
+            if lib_vehicle.ValidateKill(local4.car):
+                scriptgo.PostEvent(self, @322B9FDF)
+            lib_takedown.PerformStandardTakedowns(local5, arg1, arg2)
+            if vehicle.IsPlayerVehicle(local4.car):
+                game.QueueAct(character.GetPlayer(), "ACT_VEHICLE_IN_STOPPED_STATE")
+    local4.isDead = true
+
+def SpawnBarrel(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.spawnPositions
+    local6 = none
+    local8 = 0.0
+    local9 = 1.0
+    local7 = len(local5)
+    while local7 > local8:
+        local10 = math.Floor(math.Rand() * len(local5))
+        if local5[local10][1.0]:
+            local6 = local5[local10][0.0]
+            false[local5[local10]] = 1.0
+        else:
+            local8 = local9 + local8
+        local4.spawnPositions = local5
+        if local6 != none:
+            local11 = game.CloneFactoryCreateInstanceWithParent(local4.clone_factory, local4.clone_property_name_hash, local6)
+            if local11 != none:
+                physics.EnableDestructibleObject(local11)
+                local12 = vector.Set(-7.0 + math.Rand() * 14.0, 0.0, -7.0 + math.Rand() * 14.0, 0.0)
+                local13 = vector.Add(local12, arg2)
+                local14 = physics.GenerateProjectileVelocity(local11, arg1, local13)
+                local15 = vector.Scale(local14, arg3)
+                if local15 == none:
+                    __debugout("UNABLE TO GENERATE VELOCITY")
+                    local15 = vector.Set((math.Rand() * 2.0 - 1.0) * 6.0, 10.0 + math.Rand() * 5.0, -3.0 - math.Rand() * 4.0, 0.0)
+                    local15 = matrix.Rotate(local4.transform, local15)
+                    local14 = local15
+                if 0.0 == 1.0:
+                    local16 = local4.debug_barrels
+                    local17 = local4.debug_velocities
+                    local18 = local4.debug_targets
+                    local11[local16] = local4.debug_num_barrels
+                    local13[local18] = local4.debug_num_barrels
+                    local15[local17] = local4.debug_num_barrels
+                    local4.debug_barrels = local16
+                    local4.debug_targets = local18
+                    local4.debug_velocities = local17
+                    local4.debug_num_barrels = local4.debug_num_barrels + 1.0
+                local19 = vector.Set(math.Rand() * 10.0 - 5.0, math.Rand() * 10.0 - 5.0, math.Rand() * 10.0 - 5.0, 0.0)
+                local20 = local19
+                local21 = local15
+                local22 = game.GetChildWithNameHash(local11, @7985D8BF)
+                physics.TrajectoryWarningStart(local22, local14, arg1 + 3.0, 0.5, 0.5, 20.0)
+                physics.SetVelocity(local11, local21)
+                physics.SetAngularVelocity(local11, local20)
+                physics.SetCollisionSystemGroup(local11, local4.system_group)
+        return
+
+def PlayerExplode(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.car
+    local3 = vehicle.GetProperties(local2)
+    local3.isDeforming = true
+    scriptgo.PostEvent(self, @FA153114)
+    vehiclemanager.SendVehicleDefeatedEvent(local2, lib_damage_types.DAMAGE_EXPLOSION(), @FDD3E419, 0.0)
+    scriptgo.SetUpdateFunction(self, "UpdateDespawnTimer")
+    Explosion(self)
+    lib_takedown.PerformStandardTakedowns(local2, 1000.0, lib_damage_types.DAMAGE_EXPLOSION())
+    local1.isDead = true
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.isDead = false
+    local1.despawn_timer = 7.0
+    local1.have_spawned_barrels = false
+    local1.deathWithPlayer = false
+    local1.clone_property_name_hash = game.GameHashString(local1.clone_property_name)
+    local1.spawnPositions = [[local1.barrel_position1, true], [local1.barrel_position2, true], [local1.barrel_position3, true], [local1.barrel_position4, true]]
+    if 0.0 == 1.0:
+        local1.debug_start_pos = vector.Set(0.0, 0.0, 0.0, 0.0)
+        local1.debug_barrels = list.MakeList(len(local1.spawnPositions), none)
+        local1.debug_velocities = list.MakeList(len(local1.debug_barrels), none)
+        local1.debug_targets = list.MakeList(len(local1.debug_barrels), none)
+        local1.debug_num_barrels = 0.0
+
+def UpdateDespawnTimer(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.despawn_timer = local2.despawn_timer - arg1
+    if 0.0 == 1.0:
+        DebugBarrelGfx(local2)
+    if 7.0 - 0.2 > local2.despawn_timer and (not local2.have_spawned_barrels):
+        SpawnMultipleBarrels(self)
+        local2.have_spawned_barrels = true
+    if 0.0 > local2.despawn_timer:
+        vehicle.SetShouldDespawn(local2.car)
+        scriptgo.SetUpdateFunction(self, "")
+
+def SpawnMultipleBarrels(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.spawnPositions
+    local4 = 0.0
+    local5 = 1.0
+    local3 = len(local1.spawnPositions)
+    while local3 > local4:
+        true[local2[local4]] = 1.0
+        local4 = local5 + local4
+    local1.spawnPositions = local2
+    local6 = game.GetTransform(local1.car).r3
+    if 0.0 == 1.0:
+        local1.debug_start_pos = local6
+    local7 = 3.0
+    local8 = character.GetPlayer()
+    local9 = character.GetVehicle(local8)
+    local10 = local9
+    if local10 == none:
+        local10 = local1.car
+    local11 = game.GetTransform(local10).r3
+    local12 = vehicle.GetVelocity(local10)
+    if 10.0 > vector.Distance(local6, local11):
+        local12 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local13 = vector.Scale(local12, 3.0 * 1.35)
+    local14 = vector.Add(local11, local13)
+    local16 = 0.0
+    local17 = 1.0
+    local15 = 4.0
+    while local15 > local16:
+        local18 = local7 + -0.5 + math.Rand() * 1.0
+        SpawnBarrel(self, local18, local14, 1.15)
+        local16 = local17 + local16
+
+def DebugBarrelGfx(self):
+    local1 = game.GetTransform(self.car).r3
+    local2 = self.debug_barrels
+    local3 = self.debug_velocities
+    local4 = self.debug_targets
+    local6 = 0.0
+    local7 = 1.0
+    local5 = self.debug_num_barrels
+    while local5 > local6:
+        local8 = local2[local6]
+        local9 = local3[local6]
+        local10 = local4[local6]
+        local11 = game.GetTransform(local8).r3
+        local12 = vector.Add(local10, vector.Set(0.0, 10.0, 0.0, 0.0))
+        debug.DrawLine(self.debug_start_pos, vector.Add(self.debug_start_pos, local9), lib_color.RED(1.0))
+        debug.DrawLine(self.debug_start_pos, local11, lib_color.GREEN(1.0))
+        debug.DrawLine(local10, local12, lib_color.GREEN(1.0))
+        local6 = local7 + local6
+
+def RepairHealth(self, arg1):
+    pass
+
+def Explosion(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetVehicleDriver(local1.car)
+    if local2 != none:
+        character.InflictDamage(local2, character.GetAbsoluteHealth(local2) * 10.0, "Explosive")
+    effect.SpawnerPlay(local1.explosion_effect)
+    effect.SpawnerPlay(local1.death_fire_effect)
+    local3 = vehicle.GetPart(local1.car, "vpart_body_barrels")
+    local3.Visible = false
+    local1.transform = game.GetTransform(local1.car)
+    local1.velocity = physics.GetPointVelocity(local1.car, local1.transform.r3)
+    local1.velocity = vector.Scale(local1.velocity, 1.2)
+    local1.angular_velocity = physics.GetAngularVelocity(local1.car)
+    local1.system_group = physics.GetCollisionSystemGroup(local1.car)

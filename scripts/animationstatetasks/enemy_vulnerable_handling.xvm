@@ -1,0 +1,37 @@
+module enemy_vulnerable_handling
+
+def Enter(self, arg1):
+    if character.IsContextBitSet(self, 9.0) and (not character.HasCategoryItem(self, "Shield")):
+        return
+    MakeVulnerable(self, arg1)
+
+def MakeVulnerable(self, arg1):
+    if character.HasBuff(self, "berserk_mode"):
+        return
+    if arg1.DurationSpread:
+        local2 = math.Scale(math.Rand(), 0.0, 1.0, arg1.Duration - arg1.DurationSpread, arg1.Duration + arg1.DurationSpread)
+    else:
+        local2 = arg1.Duration
+    if arg1.CheckVulnerableAfterAttackTimerReg == 1.0:
+        local3 = character.GetFloatRegister(self, 20.0)
+        if local3 > 0.0:
+            character.SetFloatRegister(self, 21.0, local3 + local2)
+            character.SetFloatRegister(self, 20.0, 0.0)
+            if not character.HasBuff(self, "dazed"):
+                character.AddBuff(self, "dazed")
+    else:
+        character.SetFloatRegister(self, 21.0, local2)
+        if not character.HasBuff(self, "dazed"):
+            character.AddBuff(self, "dazed")
+
+def Update(self, arg1, arg2):
+    if character.IsContextBitSet(self, 9.0) and (not character.HasCategoryItem(self, "Shield")):
+        return
+    if arg1.Segment:
+        if animation.IsWithinSegment(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+            MakeVulnerable(self, arg1)
+    if not animation.IsWithinSegment(self, @E063F6A0, @D61482D3):
+        if 1.2 > character.GetFloatRegister(self, 21.0):
+            character.RemoveBuff(self, "dazed")
+    if character.HasBuff(self, "berserk_mode"):
+        character.RemoveBuff(self, "dazed")

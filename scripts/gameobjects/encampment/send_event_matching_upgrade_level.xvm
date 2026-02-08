@@ -1,0 +1,28 @@
+module send_event_matching_upgrade_level
+
+def Trigger(self):
+    local1 = scriptgo.GetProperties(self)
+    game.SendEvent(local1.send_event_turn_off, "")
+    local2 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel(local1.match_part_id, local1.match_attr_id)
+    if local2 == 0.0 and local1.send_event_level_0 != none:
+        game.PostEvent(local1.send_event_level_0, "")
+    elif local2 == 1.0 and local1.send_event_level_1 != none:
+        game.PostEvent(local1.send_event_level_1, "")
+    elif local2 == 2.0 and local1.send_event_level_2 != none:
+        game.PostEvent(local1.send_event_level_2, "")
+    elif local2 == 3.0 and local1.send_event_level_3 != none:
+        game.PostEvent(local1.send_event_level_3, "")
+    elif local2 == 4.0 and local1.send_event_level_4 != none:
+        game.PostEvent(local1.send_event_level_4, "")
+    elif local2 == 5.0 and local1.send_event_level_5 != none:
+        game.PostEvent(local1.send_event_level_5, "")
+    elif local2 == 6.0 and local1.send_event_level_6 != none:
+        game.PostEvent(local1.send_event_level_6, "")
+    elif local2 == 7.0 and local1.send_event_level_7 != none:
+        game.PostEvent(local1.send_event_level_7, "")
+    elif local2 == 8.0 and local1.send_event_level_8 != none:
+        game.PostEvent(local1.send_event_level_8, "")
+    elif local2 == 9.0 and local1.send_event_level_9 != none:
+        game.PostEvent(local1.send_event_level_9, "")
+    elif local2 == 10.0 and local1.send_event_level_10 != none:
+        game.PostEvent(local1.send_event_level_10, "")

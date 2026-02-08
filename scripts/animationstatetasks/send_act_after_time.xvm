@@ -1,0 +1,15 @@
+module send_act_after_time
+
+def Enter(self, arg1):
+    arg1.time_since_init = 0.0
+    arg1.act_expired = 0.0
+
+def Update(self, arg1, arg2):
+    if not arg1.act_expired:
+        arg1.time_since_init = arg1.time_since_init + arg2
+        if arg1.time_since_init > arg1.Timer:
+            if arg1.ResetAfterSent:
+                arg1.time_since_init = 0.0
+            game.QueueAct(self, arg1.Act)
+            if arg1.Expire:
+                arg1.act_expired = 1.0

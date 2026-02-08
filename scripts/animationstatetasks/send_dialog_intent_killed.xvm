@@ -1,0 +1,21 @@
+module send_dialog_intent_killed
+
+def Enter(self, arg1):
+    if character.IsContextBitSet(self, 9.0):
+        character.BroadcastDialogueIntent(@F553D8CF)
+    elif character.IsContextBitSet(self, 8.0):
+        local2 = game.GetRegisteredAttackers()
+        local3 = 0.0
+        local5 = 0.0
+        local6 = 1.0
+        local4 = len(local2)
+        while local4 > local5:
+            if character.IsContextBitSet(local2[local5][0.0], 8.0):
+                local3 = 1.0
+            else:
+                local5 = local6 + local5
+            if not local3:
+                character.BroadcastDialogueIntent(@BB2993A7)
+            return
+    elif character.IsContextBitSet(self, 7.0):
+        character.BroadcastDialogueIntent(@E35B3BA6)

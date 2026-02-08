@@ -1,0 +1,9 @@
+module char_health_is_below_floor_threshold
+
+def Evaluate(self, arg1):
+    local2 = character.GetUpgradeValue(self, "Melee")
+    local3 = character.GetUpgradeLevel(character.GetPlayer(), "fists_damage_level")
+    local4 = character.GetSpellTableValue(character.GetPlayer(), "StompDmg Min", local3)
+    if local4 * 2.0 * local2 + 0.5 > character.GetAbsoluteHealth(self):
+        return 1.0
+    return 0.0

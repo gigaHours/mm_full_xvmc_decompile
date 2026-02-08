@@ -1,0 +1,5 @@
+module give_item
+
+def give_item(self):
+    local1 = scriptgo.GetProperties(self)
+    game.SendEvent("give_item", local1.item_name)

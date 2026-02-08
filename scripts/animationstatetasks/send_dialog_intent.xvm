@@ -1,0 +1,6 @@
+module send_dialog_intent
+
+def Enter(self, arg1):
+    local2 = character.GetHealthBlockUnit(self, "Health")
+    if local2 > 0.99:
+        character.BroadcastDialogueIntent(@7D887A26)

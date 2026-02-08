@@ -1,0 +1,30 @@
+module reentry_planner
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    pass
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    pass
+
+def OnEnter(self, arg1):
+    local2 = [[@C52EC1AC, 0.0, 0.25], [@C167FB31, 0.25, 0.5], [@480634A9, 0.5, 0.75], [@4393D0FC, 0.75, 1.0], [@4FC40CF5, 0.0, 0.5], [@12CE85E2, 0.5, 1.0]]
+    local3 = false
+    local5 = 0.0
+    local6 = 1.0
+    local4 = len(local2)
+    while local4 > local5:
+        local7 = local2[local5][0.0]
+        local8 = animation.GetSegmentInfoSync(self, @E063F6A0, local7)
+        if local8:
+            local9 = local8.LocalTime
+            if local9 > 0.0 and 1.0 > local9:
+                local10 = math.Lerp(local9, local2[local5][1.0], local2[local5][2.0])
+                game.SetBlackboardValueToObject(self, @6172F52A, local10)
+                local3 = true
+            else:
+                local5 = local6 + local5
+            if local3 == false:
+                if false:
+                    debug.LogInfo("====== WARNING: COULD NOT FIND A MATCHING SEGMENT FOR THE REENTRY PLANNER!  ====== ", [])
+                game.SetBlackboardValueToObject(self, @6172F52A, -1.0)
+            return

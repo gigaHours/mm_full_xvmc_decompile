@@ -1,0 +1,30 @@
+module report_camera_target
+import @45098D7D
+
+def Update(self, arg1, arg2):
+    if lib_character.SegmentNonExistentOrWithin(self, @E063F6A0, @C8E4A971):
+        if arg1.Property0 == 0.0:
+            local3 = lib_camera.GetInVehicleCameraCoordinator()
+            local4 = scriptgo.GetProperties(local3)
+            local4.interesting_boarder_this_frame = self
+        if arg1.Property0 == 1.0:
+            local3 = lib_camera.GetInVehicleCameraCoordinator()
+            local4 = scriptgo.GetProperties(local3)
+            local4.interesting_vehicle_this_frame = self
+        if arg1.Property0 == 2.0:
+            local5 = lib_camera.GetOnGroundCameraCoordinator()
+            local6 = scriptgo.GetProperties(local5)
+            local6.interesting_character_this_frame = self
+        if arg1.Property0 == 3.0:
+            local5 = lib_camera.GetOnGroundCameraCoordinator()
+            local6 = scriptgo.GetProperties(local5)
+            local6.killed_character_this_frame = self
+        if arg1.Property0 == 4.0:
+            local3 = lib_camera.GetInVehicleCameraCoordinator()
+            local4 = scriptgo.GetProperties(local3)
+            local4.interesting_ground_target_this_frame = self
+        if arg1.Property0 == 5.0:
+            local5 = lib_camera.GetOnGroundCameraCoordinator()
+            local6 = scriptgo.GetProperties(local5)
+            local6.super_interesting_character_this_frame = self
+            local6.custom_action_camera_type = 1.0

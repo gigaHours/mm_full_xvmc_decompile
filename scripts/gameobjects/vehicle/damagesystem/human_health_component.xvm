@@ -1,0 +1,67 @@
+module human_health_component
+
+def GetMaxHealth(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.maxHealth
+
+def ApplyDamage(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if arg1 > 0.0:
+        local4 = local3.health
+        local3.health = local3.health - arg1
+        local3.recentDamage = math.Clamp(arg1, 0.0, local3.maxHealth)
+        local5 = local4 - math.Max(local3.health, 0.0)
+        local6 = local5 / local3.maxHealth
+        if 0.0 >= local3.health:
+            local3.damage_overflow = local3.damage_overflow + arg1
+            local3.health = 0.0
+            if local3.zeroHealthHandler:
+                scriptgo.Call3(local3.zeroHealthHandler, @2FE5A3A1, arg1, arg2, local6)
+        if local3.healthStateHandler:
+            scriptgo.Call2(local3.healthStateHandler, @312F1209, local3.health / local3.maxHealth, arg2)
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+
+def GetDamagePct(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return arg1 / local2.maxHealth
+
+def IsDead(self):
+    local1 = scriptgo.GetProperties(self)
+    return 0.0 >= local1.health
+
+def InitFromWeakspot(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.weakspot = arg1
+
+def GetRecentDamagePct(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.recentDamage
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.health = local1.maxHealth
+    local1.damage_overflow = 0.0
+    local1.armorSpeedThreshold = 1E+08
+    local1.armorDamageScale = 0.0
+    local1.recentDamage = 0.0
+
+def Kill(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    ApplyDamage(self, local2.maxHealth, arg1)
+
+def GetDamageOverflowPct(self):
+    local1 = scriptgo.GetProperties(self)
+    return math.Max(local1.damage_overflow / local1.maxHealth, 0.0)
+
+def Reset(self):
+    PreInit(self)
+
+def GetTensileStrength(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.tensileStrength
+
+def GetHealthPct(self):
+    local1 = scriptgo.GetProperties(self)
+    return math.Clamp(local1.health / local1.maxHealth, 0.0, 1.0)

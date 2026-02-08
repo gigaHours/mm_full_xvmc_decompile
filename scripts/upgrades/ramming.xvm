@@ -1,0 +1,81 @@
+module ramming
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate ramming level %f", [self])
+    lib_vehicleupgrades.ChangeMass(-GetUpgradeMass(self))
+    lib_vehicleupgrades.ChangeCollisionEffectScale(-GetUpgradeCollisionEffectScale(self))
+    physics.SetRigidBodyPropertyCollisionStrength(vehicle.GetSignatureVehicle(), 0.0)
+
+def GetOffensiveAnimatedHitreacts(self):
+    if self == 0.0:
+        return false
+    if self == 1.0:
+        return true
+    if self == 2.0:
+        return true
+    if self == 3.0:
+        return true
+    if self == 4.0:
+        return true
+    if self == 5.0:
+        return true
+
+def GetRammingPhysBoost(self):
+    return 0.0
+
+def GetUpgradeMass(self):
+    return lib_vehicleupgrades.LinearProgression(self, 5.0, 0.0, 750.0)
+
+def GetRammingDamageScale(self):
+    return 1.0 / lib_vehicleupgrades.LinearProgression(self, 5.0, 1.0, 0.5)
+
+def GetGrillArmorSpeedThresholdAdjustment(self):
+    return 0.0
+
+def ActivateEnhacementLevel(self, arg1):
+    local2 = vehicle.GetSignatureVehicle()
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate ramming level %f", [self])
+    lib_vehicleupgrades.ChangeMass(GetUpgradeMass(self))
+    lib_vehicleupgrades.ChangeCollisionEffectScale(GetUpgradeCollisionEffectScale(self))
+    local3 = lib_entity_proxy.GetCollision(local2)
+    local4 = lib_entity_proxy.GetVehicleStats(local2)
+    if local3:
+        scriptgo.Call2(local3, @ECD819C0, GetRammingPhysBoost(self), GetRammingDamageScale(self))
+    else:
+        debug.LogError("upgrade system", "CollisionDamageHandler missing from the entity.")
+    local5 = lib_entity_proxy.GetGrillWeakspot(local2)
+    if local5:
+        local6 = game.WeakspotGetHealthScript(local5)
+        scriptgo.Call2(local6, @3F98B310, GetGrillArmorSpeedThresholdAdjustment(self), GetGrillArmorDamageScaleAdjustment(self))
+    else:
+        debug.LogError("upgrade system", "Grill Weakspot missing from the entity.")
+    local7 = string.Format("upgrade.ramming.activated.level.%f", [self])
+    game.PostEventNone(local7)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending ramming stats", [])
+    scriptgo.Call2(local4, @5307267F, self, arg1)
+    if self > 0.0:
+        physics.SetRigidBodyPropertyCollisionStrength(local2, self)
+    else:
+        physics.SetRigidBodyPropertyCollisionStrength(local2, 0.01)
+
+def GetUpgradeCollisionEffectScale(self):
+    if self == 0.0:
+        return -0.3
+    if self == 1.0:
+        return -0.15
+    if self == 2.0:
+        return 0.0
+    if self == 3.0:
+        return 0.0
+    if self == 4.0:
+        return 0.0
+    if self == 5.0:
+        return 0.0
+
+def GetGrillArmorDamageScaleAdjustment(self):
+    return lib_vehicleupgrades.LinearProgression(self, 5.0, 1.0, 0.5)

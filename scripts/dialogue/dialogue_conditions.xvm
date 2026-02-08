@@ -1,0 +1,1988 @@
+module dialogue_conditions
+import @80A1852C
+import @46F71871
+import @58351C01
+
+def IsInPlayerEnemyFaction(self):
+    return lib_gameplay.IsInPlayerEnemyFaction(self)
+
+def BossLowHealth(self):
+    return EnemyHealthIsLessThan(self, 0.3)
+
+def MaxIsLegendLevel4(self):
+    local1 = game.GetLegendRank()
+    if local1 == 3.0:
+        return 1.0
+    return 0.0
+
+def IsCampDifficulty1(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[3.0] == 1.0:
+            return 1.0
+    return 0.0
+
+def PriorityLine(self):
+    return 1.0
+
+def IsThreatJeetLowerThanGutgash(self):
+    local1 = game.GetGameObjectByAlias("enc1010")
+    local2 = game.GetGameObjectByAlias("enc1020")
+    if game.GetRegionThreat(local2) > game.GetRegionThreat(local1):
+        return 1.0
+    return 0.0
+
+def IsChumRepairUpgradeAt2(self):
+    if lib_vehicleupgrades.GetRepairSpeedUpgradeLevel() == 2.0:
+        return 1.0
+    return 0.0
+
+def StrongholdAtLevel5(self):
+    local1 = character.GetPlayer()
+    local2 = game.GetBlackboardValueFromObject(local1, @40DFD6A3)
+    if local2 == 5.0:
+        return 1.0
+    return 0.0
+
+def CharacterIsWieldingWeapon(self, arg1):
+    local2 = character.GetWieldedObject(self)
+    if local2 == none:
+        return 0.0
+    if character.IsItemCategory(local2, arg1):
+        return 1.0
+    return 0.0
+
+def MaxIsInACar(self):
+    local1 = character.GetPlayer()
+    if character.GetVehicle(local1) != none:
+        return 1.0
+    return 0.0
+
+def MinOneEnemyCar(self):
+    return AtLeastHostileVehicles(1.0)
+
+def DistanceBetweenTwoObjects(self, arg1):
+    local2 = game.GetTransform(self).r3
+    local3 = game.GetTransform(arg1).r3
+    return vector.Distance(local2, local3)
+
+def IsVantagePointNear(self):
+    local1 = game.GetGameObjectByAlias("balloon")
+    if local1:
+        if 100.0 >= DistanceBetweenTwoObjects(self, local1):
+            return 1.0
+    return 0.0
+
+def AlwaysTrue(self):
+    return 1.0
+
+def StrongholdAtLevel1(self):
+    local1 = character.GetPlayer()
+    local2 = game.GetBlackboardValueFromObject(local1, @40DFD6A3)
+    if local2 == 1.0:
+        return 1.0
+    return 0.0
+
+def MaxIsMODrivingDisabled(self):
+    local1 = 0.0
+    local2 = vehicle.GetSignatureVehicle()
+    if local2 != none:
+        if not vehicle.IsDrivingEnabled(local2):
+            local1 = 1.0
+    return local1
+
+def IsTerritoryThreatLowOrMin(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.85 >= local1 and local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def IsGutgashFaction(self):
+    if game.IsTaged(self, "gutgash_faction"):
+        return 1.0
+    return 0.0
+
+def IsOutcrier(self):
+    if character.AliasIs(self, "outcrier"):
+        return 1.0
+    return 0.0
+
+def IsInGreatWhite(self):
+    if game.GetTerritoryForCharacter(self) == @DFCAC94E or game.GetTerritoryForCharacter(self) == @83809F70:
+        return 1.0
+    return 0.0
+
+def AreMultipleVehiclesFleeing(self):
+    local1 = 0.0
+    local2 = vehicle.GetNumVehiclesFleeing(@CC3E6019)
+    if local2 > 1.0:
+        local1 = 1.0
+    return local1
+
+def IsSM2020Completed(self):
+    if logbook.IsMissionCompleted(@A38B8634):
+        return 1.0
+    return 0.0
+
+def AreMultipleVehiclesVisiblyFled(self):
+    local1 = 0.0
+    local2 = vehicle.GetNumVehiclesFleeing(@9950D762)
+    if local2 > 1.0:
+        local1 = 1.0
+    return local1
+
+def DaytimeMorning(self):
+    local1 = game.GetTimeOfDay()
+    if local1 >= 5.0 and 6.1 > local1:
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel8(self):
+    local1 = game.GetLegendRank()
+    if local1 == 7.0:
+        return 1.0
+    return 0.0
+
+def MaxIsWieldingWeapon(self):
+    local1 = character.GetPlayer()
+    return CharacterIsWieldingWeapon(local1, self)
+
+def IsMM2040NotCompleted(self):
+    if not logbook.IsMissionCompleted(@3E4D8F52):
+        return 1.0
+    return 0.0
+
+def IsDefender(self):
+    if character.IsContextBitSet(self, 9.0):
+        return 1.0
+    return 0.0
+
+def EnemyHealthIsMoreThan(self, arg1):
+    if character.GetUnitHealth(self) > arg1:
+        return 1.0
+    return 0.0
+
+def IsDay(self):
+    local1 = game.GetTimeOfDay()
+    if local1 >= 10.0 and 17.0 > local1:
+        return 1.0
+    return 0.0
+
+def IsGlory(self):
+    if character.AliasIs(self, "glory"):
+        return 1.0
+    return 0.0
+
+def IsMM1038NotCompleted(self):
+    if not logbook.IsMissionCompleted(@946AF1C1):
+        return 1.0
+    return 0.0
+
+def IsWanderer(self):
+    if IsCivilian(self) and character.GetFaction(self) == 6.0 and character.GetCharacterLevel(self) == 1.0:
+        return 1.0
+    return 0.0
+
+def MinTwoEnemyCars(self):
+    return AtLeastHostileVehicles(2.0)
+
+def IsTerritoryThreatLevel5(self):
+    local1 = game.GetTerritoryThreat(self)
+    if local1 > 0.95:
+        return 1.0
+    return 0.0
+
+def IsMM3010NotCompleted(self):
+    if not logbook.IsMissionCompleted(@2AB9BD28):
+        return 1.0
+    return 0.0
+
+def ChumbucketIsNotTalking(self):
+    local1 = character.GetCharacterByName("chumbucket")
+    if local1 and (not CharacterIsTalking(local1)):
+        return 1.0
+    return 0.0
+
+def IsBuffed(self):
+    if game.GetBlackboardValueFromObject(character.GetPlayer(), @0549D1F9):
+        return 1.0
+    return 0.0
+
+def IsSM1010NotCompleted(self):
+    if not logbook.IsMissionCompleted(@09FC159F):
+        return 1.0
+    return 0.0
+
+def IsGriffaNear(self):
+    local1 = character.GetCharacterByName("griffa")
+    if local1 != none:
+        local2 = character.GetPlayer()
+        if 300.0 > game.GetDistanceXZ(local1, local2):
+            return 1.0
+    return 0.0
+
+def WeatherIsClear(self):
+    if game.IsWeatherActive(0.0):
+        return 1.0
+    return 0.0
+
+def HasNoShotgunAmmo(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetInventoryItem(local1, "shotgun")
+    if local2 != none:
+        if character.GetWeaponAmmo(local2) > 0.0:
+            return 1.0
+    return 0.0
+
+def IsStankgum(self):
+    if character.AliasIs(self, "stankgum"):
+        return 1.0
+    return 0.0
+
+def AtLeastTwoDeathrunsCompleted(self):
+    local1 = racetrophies.GetCompletedDeathruns()
+    if local1 > 1.0:
+        return 1.0
+    return 0.0
+
+def GloryIsNotNear(self):
+    local1 = character.GetCharacterByName("glory")
+    if local1:
+        local2 = game.GetDistanceXZ(local1, self)
+        if not 10.0 > local2:
+            return 1.0
+    return 0.0
+
+def AtLeastFiveDeathrunsCompleted(self):
+    local1 = racetrophies.GetCompletedDeathruns()
+    if local1 > 4.0:
+        return 1.0
+    return 0.0
+
+def IsCampWC2040(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @EED476EB:
+            return 1.0
+    return 0.0
+
+def CampVisitedCompleted(self):
+    local1 = character.GetPlayer()
+    if game.GetBlackboardValueFromObject(local1, "+W@+") != 0.0:
+        if IsCampMainMissionCompleted(character.GetWorldMatrix(local1).r3):
+            return 1.0
+    return 0.0
+
+def IsNarrativeEncounter(self):
+    if IsCivilian(self) and character.GetFaction(self) == 6.0 and character.GetCharacterLevel(self) == 100.0:
+        return 1.0
+    return 0.0
+
+def BelongstoCamp(self):
+    local1 = game.GetBlackboardValueFromObject(self, @C278DFA7)
+    if local1 != none:
+        if local1 > 0.0:
+            return 1.0
+    return 0.0
+
+def IsTopDog(self):
+    if character.IsContextBitSet(self, 10.0):
+        return 1.0
+    return 0.0
+
+def IsCarbodyShovel(self):
+    return 1.0
+
+def IsBuzzard(self):
+    local1 = character.GetFaction(self)
+    if local1 == 4.0:
+        return 1.0
+    return 0.0
+
+def MinTwoEnemies(self):
+    if gamedirector.GetAiGameStateHashInRangeCount("", 20.0, 1.0) > 1.0:
+        return 1.0
+    return 0.0
+
+def IsInTargetUnreachable(self):
+    local1 = game.GetBlackboardValueFromObject(self, @D4792DA5)
+    local2 = @AA5D8450
+    if local1 == local2:
+        return 1.0
+    return 0.0
+
+def IsInStartingTerritory(self):
+    if game.GetTerritoryForCharacter(self) == @581B5C42:
+        return 1.0
+    return 0.0
+
+def HasThunderstickInventoryAmmo(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetInventoryItem(local1, "thunderstick_cap")
+    if local2 != none:
+        if character.GetInventoryAmmo(local1, local2) > 0.0:
+            return 1.0
+    return 0.0
+
+def IsMM3030NotActive(self):
+    if not mission.IsMissionActivated("\"wjo"):
+        return 1.0
+    return 0.0
+
+def ChumIsNear(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetCharacterByName("chumbucket")
+    if local2 and local1:
+        if 10.0 >= DistanceBetweenTwoObjects(local1, local2):
+            return 1.0
+    return 0.0
+
+def MaxInFury(self):
+    local1 = playerstats.GetPlayerStats()
+    if local1 and local1.inFuryMode == 1.0:
+        return 1.0
+    return 0.0
+
+def TankIsHalf(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetVehicle(local1)
+    local3 = vehicle.GetFuelAmount(local2)
+    if 0.51 > local3 and local3 > 0.49:
+        return 1.0
+    return 0.0
+
+def IsWarboyOrRoadkill(self):
+    local1 = character.GetFaction(self)
+    if local1 == 2.0 or local1 == 3.0 or local1 == 16.0:
+        return 1.0
+    return 0.0
+
+def IsSM3020Completed(self):
+    if logbook.IsMissionCompleted(@DC75BB2B):
+        return 1.0
+    return 0.0
+
+def IsSM5010Completed(self):
+    if logbook.IsMissionCompleted(@54915869):
+        return 1.0
+    return 0.0
+
+def IsRegionThreatMax(self):
+    local1 = game.GetRegionThreat(self)
+    if local1 > 0.85:
+        return 1.0
+    return 0.0
+
+def IsMM2020NotCompleted(self):
+    if not logbook.IsMissionCompleted(">ij/"):
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel3to5(self):
+    local1 = game.GetLegendRank()
+    if local1 >= 2.0 and 5.0 > local1:
+        return 1.0
+    return 0.0
+
+def MaxCarNearby(self):
+    local1 = vehicle.GetSignatureVehicle()
+    if local1 == none:
+        return 0.0
+    if 3.0 >= DistanceBetweenTwoObjects(self, local1):
+        return 1.0
+    return 0.0
+
+def MOOnHighHealth(self):
+    return MagnumOpusHealthIsMoreThan(0.75)
+
+def MinThreeEnemyCars(self):
+    return AtLeastHostileVehicles(3.0)
+
+def MaxHealthIsEqualToOrLessThan(self):
+    local1 = character.GetPlayer()
+    if self >= character.GetUnitHealth(local1):
+        return 1.0
+    return 0.0
+
+def IsTransferCamp(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[4.0] == 0.0:
+            return 1.0
+    return 0.0
+
+def IsPinkEye(self):
+    if character.AliasIs(self, "pinkeye"):
+        return 1.0
+    return 0.0
+
+def IsSM1020Completed(self):
+    if logbook.IsMissionCompleted(@ECB57057):
+        return 1.0
+    return 0.0
+
+def IsCrowDazzle(self):
+    if character.AliasIs(self, "crowdazzle"):
+        return 1.0
+    return 0.0
+
+def IsInSniperView(self):
+    if camera.IsSelectedCamera("SniperScopeCamera"):
+        return 1.0
+    if camera.IsSelectedCamera("ScopeCamera"):
+        return 1.0
+    return 0.0
+
+def IsMM1038Completed(self):
+    if logbook.IsMissionCompleted(@946AF1C1):
+        return 1.0
+    return 0.0
+
+def IsMale(self):
+    if character.HasVoiceOverId(self, "npc_civilian_male") or character.HasVoiceOverId(self, "npc_civilian_worker_male") or character.HasVoiceOverId(self, "npc_civilian_smellies_male"):
+        return 1.0
+    return 0.0
+
+def IsHope(self):
+    if character.AliasIs(self, "hope"):
+        return 1.0
+    return 0.0
+
+def AnyWarboyCar(self):
+    local1 = vehiclemanager.GetAllVehicles()
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(local1)
+    while local2 > local3:
+        local5 = local1[local3]
+        local6 = vehicle.GetVehicleDriver(local5)
+        if local6:
+            local7 = character.GetFaction(self)
+            if local7 == 2.0:
+                return 1.0
+        local3 = local4 + local3
+    return 0.0
+
+def IsRegionThreatLevel2(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.64 >= local1 and local1 > 0.35:
+        return 1.0
+    return 0.0
+
+def IsMM1034Active(self):
+    if mission.IsMissionActivated(@3BE3533E):
+        return 1.0
+    return 0.0
+
+def LastOrCurrentFallHigh(self):
+    local1 = game.GetBlackboardValueFromObject(self, @ACB15C2B)
+    if local1:
+        if local1 > 7.5:
+            return 1.0
+    return 0.0
+
+def MagnumOpusHealthIsMoreThanOrEqualTo(self):
+    if GetMagnumOpusHealth() >= self:
+        return 1.0
+    return 0.0
+
+def AudioCombatOn(self):
+    local1 = soundscripting.GetVariableInteger("gameplay_conditions", "get_variable_value", "gameplay_combat")
+    return local1
+
+def IsCarbodyRipper(self):
+    return 1.0
+
+def MinFiveEnemies(self):
+    if gamedirector.GetAiGameStateHashInRangeCount("", 20.0, 1.0) > 4.0:
+        return 1.0
+    return 0.0
+
+def IsDeepFriah(self):
+    if character.AliasIs(self, "pluto"):
+        return 1.0
+    return 0.0
+
+def IsCampDifficulty5(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[3.0] > 4.0:
+            return 1.0
+    return 0.0
+
+def IsDeathrunMechanic(self):
+    if IsWanderer(self) and character.GetCharacterLevel(self) == 10.0:
+        return 1.0
+    return 0.0
+
+def MagnumOpusHealthIsLessThanOrEqualTo(self):
+    if GetMagnumOpusHealth() > self:
+        return 1.0
+    return 0.0
+
+def MaxIsMODrivingEnabled(self):
+    local1 = 1.0
+    if MaxIsMODrivingDisabled(self):
+        local1 = 0.0
+    return local1
+
+def IsInBalefireFlatlands(self):
+    if game.GetRegionForCharacter(self) == @2DF5EC61:
+        return 1.0
+    return 0.0
+
+def IsTerritoryThreatLevel1(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.35 >= local1 and local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def HasUsedEnemyCar(self):
+    return 1.0
+
+def IsInCombat(self):
+    local1 = game.GetBlackboardValueFromObject(self, @D4792DA5)
+    local2 = @020F8CED
+    if local1 == local2:
+        return 1.0
+    return 0.0
+
+def MaxHealthIsLessThan(self):
+    local1 = character.GetPlayer()
+    if self > character.GetUnitHealth(local1):
+        return 1.0
+    return 0.0
+
+def IsChumInSight(self):
+    local1 = character.GetCharacterByName("chumbucket")
+    if local1 == none:
+        local1 = character.GetCharacterByName("chumbucket_mission")
+    if local1:
+        if camera.IsObjectInSight(local1, 135.0, 500.0):
+            return 1.0
+    return 0.0
+
+def MaxIsFar(self):
+    local1 = character.GetPlayer()
+    if DistanceBetweenTwoObjects(self, local1) > 6.0 and 50.0 > DistanceBetweenTwoObjects(self, local1):
+        return 1.0
+    return 0.0
+
+def IsCampSD1210(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @8F1FA1EE:
+            return 1.0
+    return 0.0
+
+def IsInJeetTerritory(self):
+    if game.GetTerritoryForCharacter(self) == @83809F70:
+        return 1.0
+    return 0.0
+
+def MinThreeEnemies(self):
+    if gamedirector.GetAiGameStateHashInRangeCount("", 20.0, 1.0) > 2.0:
+        return 1.0
+    return 0.0
+
+def StrongholdAboveLevel3(self):
+    local1 = character.GetPlayer()
+    local2 = game.GetBlackboardValueFromObject(local1, @40DFD6A3)
+    if local2 > 3.0:
+        return 1.0
+    return 0.0
+
+def LowShotgunInventoryAmmo(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetInventoryItem(local1, "shotgun")
+    if local2 != none:
+        if 5.0 > character.GetInventoryAmmo(local1, local2):
+            return 1.0
+    return 0.0
+
+def IsAnyStrongholdFaction(self):
+    if game.IsTaged(self, "pinkeye_faction") or game.IsTaged(self, "gutgash_faction") or game.IsTaged(self, "jeet_faction") or game.IsTaged(self, "deepfriah_faction"):
+        return 1.0
+    return 0.0
+
+def AnyBuzzardCar(self):
+    local1 = vehiclemanager.GetAllVehicles()
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(local1)
+    while local2 > local3:
+        local5 = local1[local3]
+        local6 = vehicle.GetVehicleDriver(local5)
+        if local6:
+            local7 = character.GetFaction(self)
+            if local7 == 4.0:
+                return 1.0
+        local3 = local4 + local3
+    return 0.0
+
+def MaxIsLegendLevel9(self):
+    local1 = game.GetLegendRank()
+    if local1 == 8.0:
+        return 1.0
+    return 0.0
+
+def IsMM1034Completed(self):
+    if logbook.IsMissionCompleted(@3BE3533E):
+        return 1.0
+    return 0.0
+
+def IsTerritoryThreatLevel3(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.85 >= local1 and local1 > 0.64:
+        return 1.0
+    return 0.0
+
+def IsTerritoryThreatLevel4(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.95 >= local1 and local1 > 0.85:
+        return 1.0
+    return 0.0
+
+def CampDifficultyMedium(self):
+    local1 = game.GetCurrentActiveLocationDifficulty()
+    if local1 >= 3.0 and 7.0 > local1:
+        return 1.0
+    return 0.0
+
+def IsMM2010Completed(self):
+    if logbook.IsMissionCompleted(@FF143DEC):
+        return 1.0
+    return 0.0
+
+def IsMM1032NotActive(self):
+    if not mission.IsMissionActivated(@C3700E16):
+        return 1.0
+    return 0.0
+
+def IsNotConvoyLeaderDriver(self):
+    local1 = 1.0
+    if IsConvoyLeaderDriver(self):
+        local1 = 0.0
+    return local1
+
+def IsInBinocularView(self):
+    if camera.IsSelectedCamera("binocular_camera"):
+        return 1.0
+    return 0.0
+
+def IsJeet(self):
+    if character.AliasIs(self, "jeet"):
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel1(self):
+    local1 = game.GetLegendRank()
+    if local1 == 0.0:
+        return 1.0
+    return 0.0
+
+def IsAnyCivilianFaction(self):
+    if game.IsTaged(self, "pinkeye_faction") or game.IsTaged(self, "gutgash_faction") or game.IsTaged(self, "jeet_faction") or game.IsTaged(self, "deepfriah_faction") or game.IsTaged(self, "gastown_faction"):
+        return 1.0
+    return 0.0
+
+def IsSniper(self):
+    if CharacterIsWieldingWeapon(self, "Ranged"):
+        return 1.0
+    return 0.0
+
+def IsMM1039Completed(self):
+    if logbook.IsMissionCompleted(@CCA559AD):
+        return 1.0
+    return 0.0
+
+def IsMM1032NotCompleted(self):
+    if not logbook.IsMissionCompleted(@C3700E16):
+        return 1.0
+    return 0.0
+
+def IsSingleVehicleStartingNearFlee(self):
+    local1 = 0.0
+    local2 = vehicle.GetNumVehiclesFleeing(@6B8B0C3E)
+    if local2 == 1.0:
+        local1 = 1.0
+    return local1
+
+def IsMM1032Completed(self):
+    if logbook.IsMissionCompleted(@C3700E16):
+        return 1.0
+    return 0.0
+
+def IsMM3020NotCompleted(self):
+    if not logbook.IsMissionCompleted(@DCD1EDD8):
+        return 1.0
+    return 0.0
+
+def IsInGutgashTerritory(self):
+    if game.GetTerritoryForCharacter(self) == @DFCAC94E:
+        return 1.0
+    return 0.0
+
+def IsTerritoryThreatLevel2(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.64 >= local1 and local1 > 0.35:
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel2(self):
+    local1 = game.GetLegendRank()
+    if local1 == 1.0:
+        return 1.0
+    return 0.0
+
+def IsSingleVehicleFleeing(self):
+    local1 = 0.0
+    local2 = vehicle.GetNumVehiclesFleeing(@CC3E6019)
+    if local2 == 1.0:
+        local1 = 1.0
+    return local1
+
+def EnemyAlone(self):
+    if gamedirector.GetAiGameStateHashInRangeCount("", 100.0, 1.0) == 1.0:
+        return 1.0
+    return 0.0
+
+def IsSM2030Completed(self):
+    if logbook.IsMissionCompleted(@A1281F0B):
+        return 1.0
+    return 0.0
+
+def StormIsSpawned(self):
+    if game.GetBlackboardValueFromObject(character.GetPlayer(), @7FAA52DC) == 1.0:
+        return 1.0
+    return 0.0
+
+def IsDugIn(self):
+    if character.HasVoiceOverId(self, "npc_civilian_male") or character.HasVoiceOverId(self, "npc_civilian_female"):
+        if not IsGuard(self):
+            return 1.0
+    return 0.0
+
+def IsRegionThreatLevel4(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.95 >= local1 and local1 > 0.85:
+        return 1.0
+    return 0.0
+
+def IsCarbodyFurnace(self):
+    return 1.0
+
+def OnlyOneEnemyCar(self):
+    return NumberOfHostileVehicles(1.0)
+
+def IsTerritoryThreatMax(self):
+    local1 = game.GetTerritoryThreat(self)
+    if local1 > 0.85:
+        return 1.0
+    return 0.0
+
+def HasShotgunInventoryAmmo(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetInventoryItem(local1, "shotgun")
+    if local2 != none:
+        if character.GetInventoryAmmo(local1, local2) > 0.0:
+            return 1.0
+    return 0.0
+
+def IsMM1040Completed(self):
+    if logbook.IsMissionCompleted(@3CE365D8):
+        return 1.0
+    return 0.0
+
+def IsMM1020Completed(self):
+    if logbook.IsMissionCompleted(@0FE6DA3B):
+        return 1.0
+    return 0.0
+
+def IsThreatGutgashLowerThanJeet(self):
+    local1 = game.GetGameObjectByAlias("enc1020")
+    local2 = game.GetGameObjectByAlias("enc1010")
+    if game.GetRegionThreat(local2) > game.GetRegionThreat(local1):
+        return 1.0
+    return 0.0
+
+def MaxHealthIsMoreThan(self):
+    local1 = character.GetPlayer()
+    if character.GetUnitHealth(local1) > self:
+        return 1.0
+    return 0.0
+
+def IsInBuggy(self):
+    local1 = character.GetVehicle(self)
+    if local1 != none:
+        if game.IsTaged(local1, "buggy"):
+            return 1.0
+    return 0.0
+
+def IsMM2040Completed(self):
+    if logbook.IsMissionCompleted(@3E4D8F52):
+        return 1.0
+    return 0.0
+
+def CampVisitedNotCompleted(self):
+    local1 = character.GetPlayer()
+    if game.GetBlackboardValueFromObject(local1, "+W@+") != 0.0:
+        if not IsCampMainMissionCompleted(character.GetWorldMatrix(local1).r3):
+            return 1.0
+    return 0.0
+
+def MaxIsTooFarForChumChat(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = character.GetPlayer()
+    local3 = 0.0
+    if local1 != none and local2 != none:
+        if DistanceBetweenTwoObjects(local2, local1) > 15.0:
+            local3 = 1.0
+    return local3
+
+def TankIsFull(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetVehicle(local1)
+    local3 = vehicle.GetFuelAmount(local2)
+    if local3 >= 1.0:
+        return 1.0
+    return 0.0
+
+def AtLeastHostileVehicles(self):
+    local1 = vehicle.GetNbVehicleEnemies(game.GetTransform(character.GetPlayer()).r3, lib_gameplay.ENEMY_VEHICLE_RADIUS())
+    if local1 >= self:
+        return 1.0
+    return 0.0
+
+def HopeIsNear(self):
+    local1 = character.GetCharacterByName("hope")
+    if local1:
+        local2 = game.GetDistanceXZ(local1, self)
+        if 10.0 > local2:
+            return 1.0
+    return 0.0
+
+def IsSM2010NotCompleted(self):
+    if not logbook.IsMissionCompleted(@77D5AEF2):
+        return 1.0
+    return 0.0
+
+def IsThreatJeetLowerThanDeepFriah(self):
+    local1 = game.GetGameObjectByAlias("enc1010")
+    local2 = game.GetGameObjectByAlias("enc2020")
+    if game.GetRegionThreat(local2) > game.GetRegionThreat(local1):
+        return 1.0
+    return 0.0
+
+def IsTerritoryThreatMin(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.35 >= local1 and local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def QuarterOfDeathrunCompleted(self):
+    local1 = racetrophies.GetCompletedDeathruns()
+    local2 = racetrophies.GetNrRaceTrophiesPossible()
+    if local1 > local2 / 4.0:
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel3to8(self):
+    local1 = game.GetLegendRank()
+    if local1 >= 2.0 and 8.0 > local1:
+        return 1.0
+    return 0.0
+
+def IsDriving(self):
+    local1 = character.GetVehicle(self)
+    if local1 != none:
+        local2 = vehicle.GetVehicleDriver(local1)
+        if game.IsObjectEqualTo(local2, self):
+            return 1.0
+    return 0.0
+
+def IsCampDifficulty4(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[3.0] == 4.0:
+            return 1.0
+    return 0.0
+
+def IsMax(self):
+    if game.IsObjectEqualTo(character.GetPlayer(), self):
+        return 1.0
+    return 0.0
+
+def IsRegionThreatLevel3(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.85 >= local1 and local1 > 0.64:
+        return 1.0
+    return 0.0
+
+def IsChumRepairUpgradeAt1(self):
+    if lib_vehicleupgrades.GetRepairSpeedUpgradeLevel() == 1.0:
+        return 1.0
+    return 0.0
+
+def IsOnVehicle(self):
+    local1 = character.GetVehicle(self)
+    if local1 != none:
+        return 1.0
+    return 0.0
+
+def IsChum(self):
+    if game.IsObjectEqualTo(character.GetCharacterByName("chumbucket"), self):
+        return 1.0
+    return 0.0
+
+def IsInSight(self):
+    if camera.IsObjectInSight(self, 135.0, 500.0):
+        return 1.0
+    return 0.0
+
+def CampDifficultyEasy(self):
+    local1 = game.GetCurrentActiveLocationDifficulty()
+    if 3.0 > local1:
+        return 1.0
+    return 0.0
+
+def IsMM3030Completed(self):
+    if logbook.IsMissionCompleted("\"wjo"):
+        return 1.0
+    return 0.0
+
+def IsTenderloin(self):
+    if character.AliasIs(self, "tenderloin"):
+        return 1.0
+    return 0.0
+
+def IsMM2030Completed(self):
+    if logbook.IsMissionCompleted(@7616FB03):
+        return 1.0
+    return 0.0
+
+def MaxIsAlive(self):
+    return MaxHealthIsMoreThan(0.0)
+
+def IsInMineField(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[4.0] == 10.0:
+            return 1.0
+    return 0.0
+
+def HasSpareCan(self):
+    return 1.0
+
+def NumberOfHostileVehicles(self):
+    local1 = vehicle.GetNbVehicleEnemies(game.GetTransform(character.GetPlayer()).r3, lib_gameplay.ENEMY_VEHICLE_RADIUS())
+    if local1 == self:
+        return 1.0
+    return 0.0
+
+def AtLeastOneDeathrunCompleted(self):
+    local1 = racetrophies.GetCompletedDeathruns()
+    if local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def TankIsLow(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetVehicle(local1)
+    local3 = vehicle.GetFuelAmount(local2)
+    if 0.49 > local3 and local3 > 0.01:
+        return 1.0
+    return 0.0
+
+def MaxLowHealth(self):
+    return MaxHealthIsLessThan(0.3)
+
+def IsRegionThreatZero(self):
+    local1 = game.GetRegionThreat(self)
+    if local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def NoThunderstickAvailable(self):
+    if 0.0 >= lib_vehicleupgrades.GetExplosiveHarpoonUpgradeLevel():
+        return 1.0
+    return 0.0
+
+def IsInDeadBarrens(self):
+    if game.GetTerritoryForCharacter(self) == @CDCE7091 or game.GetTerritoryForCharacter(self) == @7498D8F1:
+        return 1.0
+    return 0.0
+
+def EnemyHighHealth(self):
+    return EnemyHealthIsMoreThan(self, 0.75)
+
+def MinOneCarOrEnemyAround(self):
+    if MinOneEnemy(self) or MinOneEnemyCar(self):
+        return 1.0
+    return 0.0
+
+def MaxIsNearby(self):
+    local1 = character.GetPlayer()
+    if 10.0 >= DistanceBetweenTwoObjects(self, local1):
+        return 1.0
+    return 0.0
+
+def StrongholdAtLevel2(self):
+    local1 = character.GetPlayer()
+    local2 = game.GetBlackboardValueFromObject(local1, @40DFD6A3)
+    if local2 == 2.0:
+        return 1.0
+    return 0.0
+
+def MaxIsNearMOForChumChat(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = character.GetPlayer()
+    local3 = 0.0
+    if local1 != none and local2 != none:
+        if 15.0 > DistanceBetweenTwoObjects(local2, local1):
+            local3 = 1.0
+    return local3
+
+def IsSM3010Completed(self):
+    if logbook.IsMissionCompleted(@456EC24B):
+        return 1.0
+    return 0.0
+
+def MagnumOpusSpeedThresholdLow(self):
+    local1 = vehicle.GetSignatureVehicle()
+    if local1:
+        local2 = vehicle.GetVelocity(local1)
+        local3 = vector.Length(local2)
+        if local3 > 20.0:
+            return 1.0
+    return 0.0
+
+def IsInAlerted(self):
+    local1 = game.GetBlackboardValueFromObject(self, @D4792DA5)
+    local2 = @DBC3E00B
+    if local1 == local2:
+        return 1.0
+    return 0.0
+
+def IsRegionThreatLowOrMin(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.85 >= local1 and local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel3(self):
+    local1 = game.GetLegendRank()
+    if local1 == 2.0:
+        return 1.0
+    return 0.0
+
+def MOOnVeryLowHealth(self):
+    return MagnumOpusHealthIsLessThanOrEqualTo(0.2)
+
+def IsRoadkill(self):
+    local1 = character.GetFaction(self)
+    if local1 == 3.0:
+        return 1.0
+    return 0.0
+
+def IsNearCamp(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[4.0] == 0.0 or 1.0 or 2.0 or 6.0:
+            return 1.0
+    return 0.0
+
+def NoDeathrunCompleted(self):
+    local1 = racetrophies.GetCompletedDeathruns()
+    if local1 == 0.0:
+        return 1.0
+    return 0.0
+
+def IsSM2010Completed(self):
+    if logbook.IsMissionCompleted(@77D5AEF2):
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel6(self):
+    local1 = game.GetLegendRank()
+    if local1 == 5.0:
+        return 1.0
+    return 0.0
+
+def IsMM1032Active(self):
+    if mission.IsMissionActivated(@C3700E16):
+        return 1.0
+    return 0.0
+
+def IsSM4010Completed(self):
+    if logbook.IsMissionCompleted(@0C542052):
+        return 1.0
+    return 0.0
+
+def IsSM7000Completed(self):
+    if logbook.IsMissionCompleted(@E456BBAA):
+        return 1.0
+    return 0.0
+
+def IsScab(self):
+    if character.AliasIs(self, "a00_ch_scab"):
+        return 1.0
+    return 0.0
+
+def IsDiggling(self):
+    if character.HasVoiceOverId(self, "npc_civilian_diggling"):
+        return 1.0
+    return 0.0
+
+def IsInBlackmaw(self):
+    if game.GetRegionForCharacter(self) == @41A59467:
+        return 1.0
+    return 0.0
+
+def IsTopDogCamp(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[4.0] == 2.0:
+            return 1.0
+    return 0.0
+
+def IsInBerserk(self):
+    if character.HasBuff(self, "berserk_mode"):
+        return 1.0
+    return 0.0
+
+def IsSM3030Completed(self):
+    if logbook.IsMissionCompleted(@7AAC14C1):
+        return 1.0
+    return 0.0
+
+def IsStankGumFaction(self):
+    local1 = character.GetFaction(self)
+    if local1 == 16.0:
+        return 1.0
+    return 0.0
+
+def AllDeathrunCompleted(self):
+    local1 = racetrophies.GetCompletedDeathruns()
+    local2 = racetrophies.GetNrRaceTrophiesPossible()
+    if local1 == local2:
+        return 1.0
+    return 0.0
+
+def EnemyHasThunderstick(self):
+    return CharacterIsWieldingWeapon(self, "ThunderStick")
+
+def MaxIsLegendLevel10(self):
+    local1 = game.GetLegendRank()
+    if local1 == 9.0:
+        return 1.0
+    return 0.0
+
+def MinTwoEnemiesFar(self):
+    if gamedirector.GetAiGameStateHashInRangeCount("", 40.0, 1.0) > 1.0:
+        return 1.0
+    return 0.0
+
+def IsScavOrDef(self):
+    if character.IsContextBitSet(self, 9.0) or character.IsContextBitSet(self, 7.0):
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel7(self):
+    local1 = game.GetLegendRank()
+    if local1 == 6.0:
+        return 1.0
+    return 0.0
+
+def MagnumOpusHealthIsLessThan(self):
+    if GetMagnumOpusHealth() > self:
+        return 1.0
+    return 0.0
+
+def MinOneEnemy(self):
+    if gamedirector.GetAiGameStateHashInRangeCount("", 100.0, 1.0) > 1.0:
+        return 1.0
+    return 0.0
+
+def MagnumOpusSpeedIsLow(self):
+    local1 = vehicle.GetSignatureVehicle()
+    if local1:
+        local2 = vehicle.GetVelocity(local1)
+        local3 = vector.Length(local2)
+        if 20.0 > local3:
+            return 1.0
+    return 0.0
+
+def IsGuard(self):
+    local1 = game.GetBlackboardValueFromObject(self, @EA4C54E4)
+    if local1 == 1.0:
+        return 1.0
+    return 0.0
+
+def HasNotEngaged(self):
+    if CalculateLatestEngageTime(self) >= 15.0:
+        return 1.0
+    return 0.0
+
+def IsNight(self):
+    local1 = game.GetTimeOfDay()
+    if local1 >= 21.0 or 4.0 > local1:
+        return 1.0
+    return 0.0
+
+def LowThunderstickInventoryAmmo(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetInventoryItem(local1, "thunderstick_cap")
+    if local2 != none:
+        if 5.0 > character.GetInventoryAmmo(local1, local2):
+            return 1.0
+    return 0.0
+
+def IsSmelly(self):
+    if character.HasVoiceOverId(self, "npc_civilian_smellies_male") or character.HasVoiceOverId(self, "npc_civilian_smellies_female"):
+        return 1.0
+    return 0.0
+
+def IsStankGumCamp(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[4.0] == 6.0:
+            return 1.0
+    return 0.0
+
+def IsInStronghold(self):
+    local1 = character.GetPlayer()
+    local2 = 3.0
+    if character.IsContextBitSet(local1, local2):
+        return 1.0
+    return 0.0
+
+def IsTerritoryThreatLow(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.85 >= local1 and local1 > 0.35:
+        return 1.0
+    return 0.0
+
+def IsMM2020Completed(self):
+    if logbook.IsMissionCompleted(">ij/"):
+        return 1.0
+    return 0.0
+
+def IsInRelaxed(self):
+    local1 = game.GetBlackboardValueFromObject(self, @D4792DA5)
+    local2 = @E80F9C14
+    if local1 == local2:
+        return 1.0
+    return 0.0
+
+def CharacterIsTalking(self):
+    return character.IsTalking(self)
+
+def HarpoonCanTakeWheels(self):
+    if GetHarpoonStrength() >= 3.0:
+        return 1.0
+    return 0.0
+
+def NoEnemiesAround(self):
+    if 1.0 > gamedirector.GetAiGameStateHashInRangeCount("", 300.0, 1.0):
+        return 1.0
+    return 0.0
+
+def MOAboveVeryLowHealth(self):
+    return MagnumOpusHealthIsMoreThan(0.2)
+
+def IsCampFD1050(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @7781BE16:
+            return 1.0
+    return 0.0
+
+def StrongholdAtLevel3(self):
+    local1 = character.GetPlayer()
+    local2 = game.GetBlackboardValueFromObject(local1, @40DFD6A3)
+    if local2 == 3.0:
+        return 1.0
+    return 0.0
+
+def MinFourEnemyCars(self):
+    return AtLeastHostileVehicles(4.0)
+
+def IsTerritoryThreatHigh(self):
+    local1 = game.GetTerritoryThreat(self)
+    if 0.95 >= local1 and local1 > 0.64:
+        return 1.0
+    return 0.0
+
+def IsCarbodyDeathRattle(self):
+    return 1.0
+
+def IsMM3020Completed(self):
+    if logbook.IsMissionCompleted(@DCD1EDD8):
+        return 1.0
+    return 0.0
+
+def MaxHasClub(self):
+    return MaxIsWieldingWeapon("Club")
+
+def MaxCarFar(self):
+    local1 = vehicle.GetSignatureVehicle()
+    if local1 == none:
+        return 0.0
+    if DistanceBetweenTwoObjects(self, local1) >= 3.0:
+        return 1.0
+    return 0.0
+
+def IsCampDifficulty3(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[3.0] == 3.0:
+            return 1.0
+    return 0.0
+
+def NoActiveSideMissions(self):
+    local1 = mission.CountActiveSideMissions()
+    if local1 > 0.0:
+        return 0.0
+    return 1.0
+
+def HarpoonCanTakeHeavyArmor(self):
+    if GetHarpoonStrength() >= 2.0:
+        return 1.0
+    return 0.0
+
+def IsRegionThreatMaxOrHigh(self):
+    local1 = game.GetRegionThreat(self)
+    if local1 > 0.64:
+        return 1.0
+    return 0.0
+
+def IsMM2010NotCompleted(self):
+    if not logbook.IsMissionCompleted(@FF143DEC):
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel5(self):
+    local1 = game.GetLegendRank()
+    if local1 == 4.0:
+        return 1.0
+    return 0.0
+
+def MaxHasNotEngaged(self):
+    local1 = character.GetPlayer()
+    if CalculateLatestEngageTime(character.GetPlayer()) >= 15.0:
+        return 1.0
+    return 0.0
+
+def DaytimeEvening(self):
+    local1 = game.GetTimeOfDay()
+    if local1 >= 19.1 and 20.2 > local1:
+        return 1.0
+    return 0.0
+
+def IsSM3010NotCompleted(self):
+    if not logbook.IsMissionCompleted(@456EC24B):
+        return 1.0
+    return 0.0
+
+def IsGasTownFaction(self):
+    if game.IsTaged(self, "gastown_faction"):
+        return 1.0
+    return 0.0
+
+def GloryIsNear(self):
+    local1 = character.GetCharacterByName("glory")
+    if local1:
+        local2 = game.GetDistanceXZ(local1, self)
+        if 10.0 > local2:
+            return 1.0
+    return 0.0
+
+def IsRegionThreatLevel5(self):
+    local1 = game.GetRegionThreat(self)
+    if local1 > 0.95:
+        return 1.0
+    return 0.0
+
+def IsMM2050NotCompleted(self):
+    if not logbook.IsMissionCompleted(@7ED41552):
+        return 1.0
+    return 0.0
+
+def IsSM2030NotCompleted(self):
+    if not logbook.IsMissionCompleted(@A1281F0B):
+        return 1.0
+    return 0.0
+
+def IsSM4020Completed(self):
+    if logbook.IsMissionCompleted(@18143344):
+        return 1.0
+    return 0.0
+
+def HopeIsNotNear(self):
+    local1 = character.GetCharacterByName("hope")
+    if local1:
+        local2 = game.GetDistanceXZ(local1, self)
+        if not 10.0 > local2:
+            return 1.0
+    return 0.0
+
+def HalfOfDeathrunCompleted(self):
+    local1 = racetrophies.GetCompletedDeathruns()
+    local2 = racetrophies.GetNrRaceTrophiesPossible()
+    if local1 > local2 / 2.0:
+        return 1.0
+    return 0.0
+
+def MaxIsDead(self):
+    return MaxHealthIsEqualToOrLessThan(0.0)
+
+def IsWorker(self):
+    if character.HasVoiceOverId(self, "npc_civilian_worker_male") or character.HasVoiceOverId(self, "npc_civilian_worker_female"):
+        return 1.0
+    return 0.0
+
+def IsRegulareGameSpeed(self):
+    local1 = game.GetUpdateSpeed()
+    if local1 > 0.9 and 1.1 > local1:
+        return 1.0
+    return 0.0
+
+def IsJeetOrGutgashFaction(self):
+    if game.IsTaged(self, "pinkeye_faction") or game.IsTaged(self, "gutgash_faction"):
+        return 1.0
+    return 0.0
+
+def IsThreatJeetLowerThanPinkEye(self):
+    local1 = game.GetGameObjectByAlias("enc1010")
+    local2 = game.GetGameObjectByAlias("enc2010")
+    if game.GetRegionThreat(local2) > game.GetRegionThreat(local1):
+        return 1.0
+    return 0.0
+
+def IsSM1030Completed(self):
+    if logbook.IsMissionCompleted(@31556BD4):
+        return 1.0
+    return 0.0
+
+def MinSevenEnemies(self):
+    if gamedirector.GetAiGameStateHashInRangeCount("", 20.0, 1.0) > 6.0:
+        return 1.0
+    return 0.0
+
+def HarpoonCanTakeLightArmor(self):
+    if GetHarpoonStrength() >= 1.0:
+        return 1.0
+    return 0.0
+
+def IsBlascap(self):
+    if character.AliasIs(self, "blascap"):
+        return 1.0
+    return 0.0
+
+def TankIsEmpty(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetVehicle(local1)
+    local3 = vehicle.GetFuelAmount(local2)
+    if local3 == 0.0:
+        return 1.0
+    return 0.0
+
+def IsScavenger(self):
+    if character.IsContextBitSet(self, 7.0):
+        return 1.0
+    return 0.0
+
+def IsMM2030NotCompleted(self):
+    if not logbook.IsMissionCompleted(@7616FB03):
+        return 1.0
+    return 0.0
+
+def EnemyHasKnife(self):
+    return CharacterIsWieldingWeapon(self, "Knife")
+
+def IsCampWC1020(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @70D0E1A4:
+            return 1.0
+    return 0.0
+
+def MaxHasThunderstick(self):
+    return MaxIsWieldingWeapon("ThunderStick")
+
+def HasNoSpareCan(self):
+    return 1.0
+
+def MaxIsLegendLevel6to9(self):
+    local1 = game.GetLegendRank()
+    if local1 >= 5.0 and 9.0 > local1:
+        return 1.0
+    return 0.0
+
+def MaxIsLegendLevel2OrMore(self):
+    local1 = game.GetLegendRank()
+    if local1 >= 1.0:
+        return 1.0
+    return 0.0
+
+def IsInOuterGraves(self):
+    if game.GetRegionForCharacter(self) == @0BB02DA6:
+        return 1.0
+    return 0.0
+
+def IsSM5020Completed(self):
+    if logbook.IsMissionCompleted(@D001C811):
+        return 1.0
+    return 0.0
+
+def IsRegionThreatMin(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.35 >= local1 and local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def EnemyHasClub(self):
+    return CharacterIsWieldingWeapon(self, "Club")
+
+def IsMM3020NotActive(self):
+    if not mission.IsMissionActivated(@DCD1EDD8):
+        return 1.0
+    return 0.0
+
+def IsCampSD1300(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @AB73C572:
+            return 1.0
+    return 0.0
+
+def AnyRoadkillCar(self):
+    local1 = vehiclemanager.GetAllVehicles()
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(local1)
+    while local2 > local3:
+        local5 = local1[local3]
+        local6 = vehicle.GetVehicleDriver(local5)
+        if local6:
+            local7 = character.GetFaction(self)
+            if local7 == 3.0:
+                return 1.0
+        local3 = local4 + local3
+    return 0.0
+
+def IsTerritoryThreatZero(self):
+    local1 = game.GetTerritoryThreat(self)
+    if local1 == 0.0:
+        return 1.0
+    return 0.0
+
+def MaxIsOnFoot(self):
+    local1 = character.GetPlayer()
+    if character.GetVehicle(local1) != none:
+        return 0.0
+    return 1.0
+
+def IsLatestSpellSourceOnPlayerMe(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetLatestSpellInfo(local1)
+    if local2.CollidedObject:
+        if game.IsObjectEqualTo(self, local2.CollidedObject):
+            return 1.0
+    return 0.0
+
+def NoEnemyCars(self):
+    return NumberOfHostileVehicles(0.0)
+
+def IsRegionThreatLow(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.85 >= local1 and local1 > 0.35:
+        return 1.0
+    return 0.0
+
+def IsRegionThreatHigh(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.95 >= local1 and local1 > 0.64:
+        return 1.0
+    return 0.0
+
+def MaxHasKnife(self):
+    return MaxIsWieldingWeapon("Knife")
+
+def IsMM3030NotCompleted(self):
+    if not logbook.IsMissionCompleted("\"wjo"):
+        return 1.0
+    return 0.0
+
+def NoChumRepairUpgrades(self):
+    local1 = 1.0
+    if lib_vehicleupgrades.GetRepairSpeedUpgradeLevel() > 0.0:
+        local1 = 0.0
+    return local1
+
+def IsMM1039NotCompleted(self):
+    if not logbook.IsMissionCompleted(@CCA559AD):
+        return 1.0
+    return 0.0
+
+def IsMM1040NotCompleted(self):
+    if not logbook.IsMissionCompleted(@3CE365D8):
+        return 1.0
+    return 0.0
+
+def IsCivilian(self):
+    if IsDugIn(self) or IsWorker(self) or IsSmelly(self) or IsDiggling(self):
+        if not IsGuard(self):
+            return 1.0
+    return 0.0
+
+def IsRegionThreatLevel0(self):
+    local1 = game.GetRegionThreat(self)
+    if local1 == 0.0:
+        return 1.0
+    return 0.0
+
+def MaxIsWithinRange(self):
+    local1 = character.GetPlayer()
+    if 50.0 > DistanceBetweenTwoObjects(self, local1):
+        return 1.0
+    return 0.0
+
+def IsJeetFaction(self):
+    if game.IsTaged(self, "jeet_faction"):
+        return 1.0
+    return 0.0
+
+def EnemyLowHealth(self):
+    return EnemyHealthIsLessThan(self, 0.5)
+
+def IsInPinkEyeTerritory(self):
+    if game.GetTerritoryForCharacter(self) == @CDCE7091:
+        return 1.0
+    return 0.0
+
+def MaxHighHealth(self):
+    return MaxHealthIsMoreThan(0.8)
+
+def MaxIsInStorm(self):
+    if game.GetBlackboardValueFromObject(character.GetPlayer(), @CD7F25F9) == 1.0:
+        return 1.0
+    return 0.0
+
+def IsSM6010Completed(self):
+    if logbook.IsMissionCompleted(@230F41DC):
+        return 1.0
+    return 0.0
+
+def IsMM3010Completed(self):
+    if logbook.IsMissionCompleted(@2AB9BD28):
+        return 1.0
+    return 0.0
+
+def IsNPC(self):
+    if IsDugIn(self) or IsWorker(self) or IsSmelly(self) or IsDiggling(self) or IsGuard(self):
+        return 1.0
+    return 0.0
+
+def GetHarpoonStrength():
+    local0 = vehicle.GetSignatureVehicle()
+    if local0:
+        local1 = lib_entity_proxy.GetHarpoon(local0)
+        if local1:
+            local2 = scriptgo.Call(weapon, @D403D621)
+            return local2
+    return 0.0
+
+def IsPinkEyeFaction(self):
+    if game.IsTaged(self, "pinkeye_faction"):
+        return 1.0
+    return 0.0
+
+def IsNotInStronghold(self):
+    local1 = character.GetPlayer()
+    local2 = 3.0
+    if character.IsContextBitSet(local1, local2):
+        return 0.0
+    return 1.0
+
+def IsInGastownTerritory(self):
+    if game.GetTerritoryForCharacter(self) == @7498D8F1:
+        return 1.0
+    return 0.0
+
+def IsGutgash(self):
+    if character.AliasIs(self, "crisco"):
+        return 1.0
+    return 0.0
+
+def IsDeepFriahFaction(self):
+    if game.IsTaged(self, "deepfriah_faction"):
+        return 1.0
+    return 0.0
+
+def IsWarboy(self):
+    local1 = character.GetFaction(self)
+    if local1 == 2.0:
+        return 1.0
+    return 0.0
+
+def CampDifficultyHard(self):
+    local1 = game.GetCurrentActiveLocationDifficulty()
+    if local1 >= 7.0:
+        return 1.0
+    return 0.0
+
+def IsScrotus(self):
+    if character.AliasIs(self, "scrotus") or character.AliasIs(self, "scrotus_02"):
+        return 1.0
+    return 0.0
+
+def IsRegionThreatLevel1(self):
+    local1 = game.GetRegionThreat(self)
+    if 0.35 >= local1 and local1 > 0.0:
+        return 1.0
+    return 0.0
+
+def IsSingleVehicleVisiblyFled(self):
+    local1 = 0.0
+    local2 = vehicle.GetNumVehiclesFleeing(@9950D762)
+    if local2 == 1.0:
+        local1 = 1.0
+    return local1
+
+def IsMM1038Active(self):
+    if mission.IsMissionActivated(@946AF1C1):
+        return 1.0
+    return 0.0
+
+def ChumIsNotNear(self):
+    if not ChumIsNear(self):
+        return 1.0
+    return 0.0
+
+def IsSM7020Completed(self):
+    if logbook.IsMissionCompleted(@6A4A0F92):
+        return 1.0
+    return 0.0
+
+def IsMM1012Completed(self):
+    if logbook.IsMissionCompleted(@3D6C02F1):
+        return 1.0
+    return 0.0
+
+def IsMM2050Completed(self):
+    if logbook.IsMissionCompleted(@7ED41552):
+        return 1.0
+    return 0.0
+
+def NoCarsOrEnemiesAround(self):
+    if NoEnemiesAround(self) and NoEnemyCars(self):
+        return 1.0
+    return 0.0
+
+def IsCampWC1050(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @45FE2A87:
+            return 1.0
+    return 0.0
+
+def IsMM1021Completed(self):
+    if logbook.IsMissionCompleted(@85F9809E):
+        return 1.0
+    return 0.0
+
+def IsConvoyLeaderDriver(self):
+    local1 = 0.0
+    if game.IsTaged(self, "convoy_leader_driver"):
+        local1 = 1.0
+    return local1
+
+def GetMagnumOpusHealth():
+    local0 = vehicle.GetSignatureVehicle()
+    if local0:
+        return vehicle.GetHealth(local0)
+    return 0.0
+
+def IsPumpCamp(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[4.0] == 1.0:
+            return 1.0
+    return 0.0
+
+def IsNotInEndGame(self):
+    if not logbook.IsMissionCompleted(@7ED41552) or logbook.IsMissionCompleted("\"wjo"):
+        return 1.0
+    return 0.0
+
+def EnemyHasTakenDamage(self):
+    return EnemyHealthIsLessThan(self, 0.95)
+
+def IsCarbodyWildHunt(self):
+    return 1.0
+
+def IsCampWC2020(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @CF94D0A1:
+            return 1.0
+    return 0.0
+
+def IsTerritoryThreatLevel0(self):
+    local1 = game.GetTerritoryThreat(self)
+    if local1 == 0.0:
+        return 1.0
+    return 0.0
+
+def MagnumOpusHealthIsMoreThan(self):
+    if GetMagnumOpusHealth() > self:
+        return 1.0
+    return 0.0
+
+def EnemyHealthIsLessThan(self, arg1):
+    if arg1 > character.GetUnitHealth(self):
+        return 1.0
+    return 0.0
+
+def IsNotInBerserk(self):
+    if not character.HasBuff(self, "berserk_mode"):
+        return 1.0
+    return 0.0
+
+def CalculateLatestEngageTime(self):
+    local1 = game.GetGameTime(false)
+    local2 = local1 - character.GetLatestSuccesfullSPellGivenTime(self)
+    local3 = local1 - character.GetLatestSuccesfullSPellReceivedTime(self)
+    local4 = local2
+    if local2 > local3:
+        local4 = local3
+    return local4
+
+def MaxIsVeryNear(self):
+    local1 = character.GetPlayer()
+    if 5.0 >= DistanceBetweenTwoObjects(self, local1):
+        return 1.0
+    return 0.0
+
+def MaxIsOustideOfMO(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = character.GetPlayer()
+    if local1 == none or local2 == none:
+        return 0.0
+    if 6.0 > DistanceBetweenTwoObjects(local2, local1):
+        return 1.0
+    return 0.0
+
+def IsFeral(self):
+    if character.IsContextBitSet(self, 8.0):
+        return 1.0
+    return 0.0
+
+def IsFemale(self):
+    if character.HasVoiceOverId(self, "npc_civilian_female") or character.HasVoiceOverId(self, "npc_civilian_worker_female") or character.HasVoiceOverId(self, "npc_civilian_smellies_female"):
+        return 1.0
+    return 0.0
+
+def IsOrganicMechanic(self):
+    if character.AliasIs(self, "organic_mechanic"):
+        return 1.0
+    return 0.0
+
+def MaxIsNotSuperFar(self):
+    local1 = character.GetPlayer()
+    if 15.0 >= DistanceBetweenTwoObjects(self, local1):
+        return 1.0
+    return 0.0
+
+def IsSM4030Completed(self):
+    if logbook.IsMissionCompleted(@00100AF1):
+        return 1.0
+    return 0.0
+
+def IsSM1010Completed(self):
+    if logbook.IsMissionCompleted(@09FC159F):
+        return 1.0
+    return 0.0
+
+def IsNotNearCamp(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[4.0] == 0.0 or 1.0 or 2.0 or 6.0:
+            return 0.0
+    return 1.0
+
+def IsCampDifficulty2(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[3.0] == 2.0:
+            return 1.0
+    return 0.0
+
+def IsTerritoryThreatMaxOrHigh(self):
+    local1 = game.GetTerritoryThreat(self)
+    if local1 > 0.64:
+        return 1.0
+    return 0.0
+
+def AreMultipleVehiclesStartingNearFlee(self):
+    local1 = 0.0
+    local2 = vehicle.GetNumVehiclesFleeing(@6B8B0C3E)
+    if local2 > 1.0:
+        local1 = 1.0
+    return local1
+
+def IsCampFD2030(self):
+    local1 = game.FindClosestLocationInfo(character.GetWorldMatrix(self).r3)
+    if local1[0.0] == 1.0:
+        if local1[2.0] == @0149DCE5:
+            return 1.0
+    return 0.0
+
+def HasUsedGriffaToken(self):
+    local1 = character.GetPlayer()
+    local2 = game.GetBlackboardValueFromObject(local1, @6844AEDF)
+    if local2 >= 1.0:
+        return 1.0
+    return 0.0
+
+def HasShotgunAmmo(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetInventoryItem(local1, "shotgun")
+    if local2 != none:
+        if character.GetWeaponAmmo(local2) > 0.0:
+            return 1.0
+    return 0.0
+
+def StrongholdAtLevel4(self):
+    local1 = character.GetPlayer()
+    local2 = game.GetBlackboardValueFromObject(local1, @40DFD6A3)
+    if local2 == 4.0:
+        return 1.0
+    return 0.0
+
+def WeatherIsCloudy(self):
+    if not game.IsWeatherActive(0.0):
+        return 1.0
+    return 0.0
+
+def IsJeetOrGutgashOrPinkEyeFaction(self):
+    if game.IsTaged(self, "pinkeye_faction") or game.IsTaged(self, "gutgash_faction") or game.IsTaged(self, "jeet_faction"):
+        return 1.0
+    return 0.0
+
+def AudioCombatOff(self):
+    local1 = soundscripting.GetVariableInteger("gameplay_conditions", "get_variable_value", "gameplay_combat")
+    if local1 == 1.0:
+        return 0.0
+    return 1.0
+
+def MOOnLowHealth(self):
+    return MagnumOpusHealthIsLessThan(0.5)
+
+def MaxIsNotTalking(self):
+    local1 = character.GetPlayer()
+    if local1 and (not CharacterIsTalking(local1)):
+        return 1.0
+    return 0.0

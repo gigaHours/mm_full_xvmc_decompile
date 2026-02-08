@@ -1,0 +1,16 @@
+module mission
+
+def UnlockMission(self):
+    pass
+
+def IsMissionActivated(self):
+    pass
+
+def CountActiveSideMissions():
+    pass
+
+def IsMissionCompleted(self):
+    pass
+
+def IsParentEventReceived(self):
+    pass

@@ -1,0 +1,7 @@
+module clearballoncamerablackboardvalue
+
+def ClearEvent(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetTransform(character.GetPlayer()).r3.y
+    local3 = local1.StartOffset
+    game.SetBlackboardValueToObject(character.GetPlayer(), @878B6C77, local2 + local3)

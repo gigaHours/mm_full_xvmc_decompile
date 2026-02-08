@@ -1,0 +1,25 @@
+module model
+
+def SetOutlineColor(self, arg1, arg2):
+    pass
+
+def SetOutlineVisible(self, arg1):
+    pass
+
+def SetOutlineAnimationStrength(self, arg1):
+    pass
+
+def OutlineFadeIn(self, arg1, arg2):
+    pass
+
+def IsOutline(self):
+    pass
+
+def SetOutlineWidth(self, arg1):
+    pass
+
+def OutlineFadeOut(self, arg1):
+    pass
+
+def SetOutlineModelIndex(self, arg1):
+    pass

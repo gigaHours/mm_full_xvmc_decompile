@@ -1,0 +1,135 @@
+module gameplay_mode
+import @80A1852C
+
+def SetGameMode(self):
+    local1 = lib_gameplay.GetGameMode(character.GetPlayer())
+    if local1 != self:
+        ModeOff(self, local1)
+        ModeOn(self, self)
+        game.SetBlackboardValueToObject(character.GetPlayer(), @133C6C8C, self)
+
+def OnGround(self):
+    SetGameMode(1.0)
+
+def Invehicle(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetVehicle(local1)
+    if local2:
+        if game.IsObjectEqualTo(vehicle.GetVehicleDriver(local2), local1):
+            SetGameMode(2.0)
+            return true
+        if animation.GetStateBit(local1, 19.0):
+            SetGameMode(2.0)
+            return true
+    return false
+
+def Alerted(self):
+    return false
+
+def ModeOff(self, arg1):
+    if arg1 == 1.0:
+        game.PostEventNone("onground.camera.coordinator.deactivate")
+    elif arg1 == 2.0:
+        pass
+
+def PlayerEnterCamp(self):
+    local1 = playerstats.GetPlayerStats()
+    if local1.LocationDifficultyOverride > 0.0:
+        game.SetBlackboardValueToObject(ply, @D3FC585E, local1.LocationDifficultyOverride)
+        return
+    local2 = character.GetPlayer()
+    game.SetBlackboardValueToObject(local2, @72CD5541, 1.0)
+    local3 = game.GetCurrentActiveLocationDifficulty()
+    if local3 != -1.0:
+        game.SetBlackboardValueToObject(local2, @D3FC585E, local3)
+
+def OGCEnemiesNear(self, arg1):
+    if gamedirector.GetAiGameStateHashInRangeCount("combat", lib_gameplay.METERS_FOR_OGC_ENEMIES_NEAR_TO_TRIGGER_COMBAT(), 4.0) > 0.0:
+        SetGameState(3.0)
+        return true
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+    game.SetBlackboardValueToObject(character.GetPlayer(), @133C6C8C, 0.0)
+    game.SetBlackboardValueToObject(character.GetPlayer(), @9510F374, 0.0)
+    scriptgo.GetProperties(self).time_since_combat_mode_activated = 0.0
+
+def Exploration(self):
+    SetGameState(1.0)
+
+def SetGameState(self):
+    local1 = lib_gameplay.GetGameState(character.GetPlayer())
+    if local1 != self:
+        game.SetBlackboardValueToObject(character.GetPlayer(), @9510F374, self)
+
+def PlayerExitCamp(self):
+    local1 = character.GetPlayer()
+    game.SetBlackboardValueToObject(local1, @72CD5541, 0.0)
+
+def UpdateRegionDifficulty(self):
+    local1 = playerstats.GetPlayerStats()
+    if local1.LocationDifficultyOverride > 0.0:
+        game.SetBlackboardValueToObject(self, @D3FC585E, local1.LocationDifficultyOverride)
+        return
+    local2 = game.GetBlackboardValueFromObject(self, @72CD5541)
+    if local2 == none:
+        local2 = 0.0
+    if 0.0 >= local2:
+        local3 = character.GetFloatRegister(self, 27.0)
+        if 0.1 >= local3:
+            local4 = game.GetRegionDifficultyForCharacter(character.GetPlayer())
+            game.SetBlackboardValueToObject(self, @D3FC585E, local4)
+            character.SetFloatRegister(self, 27.0, 10.0)
+
+def ModeOn(self, arg1):
+    if arg1 == 1.0:
+        game.PostEventNone("onground.camera.coordinator.activate")
+    elif arg1 == 2.0:
+        pass
+
+def HandleAwareness(self, arg1):
+    local2 = gamedirector.GetAiGameStateHashInRangeCount("", 5.0, 0.75)
+    local3 = gamedirector.GetAiGameStateHashInRangeCount("", 20.0, 0.75)
+    local4 = lib_color.WHITE(0.3)
+    if local2 > 0.0:
+        character.SetFloatRegister(arg1, 19.0, 1.0)
+        local4 = lib_color.RED(0.3)
+    if local3 > 0.0 or character.IsContextBitSet(character.GetPlayer(), 5.0):
+        character.SetFloatRegister(arg1, 15.0, 1.0)
+        local4 = lib_color.YELLOW(0.3)
+    if false:
+        debug.Sphere(game.GetTransform(arg1).r3, 20.0, local4)
+
+def Update(self, arg1):
+    local2 = character.GetPlayer()
+    if not local2:
+        return
+    UpdateRegionDifficulty(local2)
+    local3 = scriptgo.GetProperties(self)
+    if local3.time_since_combat_mode_activated == none:
+        local3.time_since_combat_mode_activated = 0.0
+    local3.time_since_combat_mode_activated = local3.time_since_combat_mode_activated + arg1
+    if character.IsInSequence(local2):
+        return
+    if Invehicle(self):
+        if VehicleEnemiesNear(self):
+            pass
+        elif local3.time_since_combat_mode_activated > 4.0:
+            Exploration(self)
+    else:
+        OnGround(self)
+        HandleAwareness(self, local2)
+        if OGCEnemiesNear(self, local2):
+            pass
+        elif Alerted(self):
+            pass
+        else:
+            Exploration(self)
+
+def VehicleEnemiesNear(self):
+    local1 = vehicle.GetNbVehicleEnemies(game.GetTransform(character.GetVehicle(character.GetPlayer())).r3, lib_gameplay.ENEMY_VEHICLE_RADIUS())
+    if local1 > 0.0:
+        scriptgo.GetProperties(self).time_since_combat_mode_activated = 0.0
+        SetGameState(3.0)
+        return true
+    return false

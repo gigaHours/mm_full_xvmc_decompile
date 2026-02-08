@@ -1,0 +1,7 @@
+module mmax_checkattackheld
+
+def Evaluate(self, arg1):
+    local2 = input.GetButtonInput(@AD1009FA)
+    if local2 == 0.0:
+        return 0.0
+    return 1.0

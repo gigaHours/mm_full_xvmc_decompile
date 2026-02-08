@@ -1,0 +1,10 @@
+module ai_dazed_effect_added
+
+def OncharacterBuffAdded(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetPlayer()
+    if character.HasBuff(local1.char, "dazed"):
+        if local1.distance_to_player_trigger > game.GetDistanceXZ(local2, local1.char):
+            local3 = character.GetInventoryItemCount(local2, "generic_shiv")
+            if local3 > 0.0:
+                game.PostEventNone("ply.shiv_kill.ready")

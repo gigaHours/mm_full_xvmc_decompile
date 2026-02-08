@@ -1,0 +1,12 @@
+module mmax_scale_step_translation
+
+def Update(self, arg1, arg2):
+    local3 = game.GetTransform(self)
+    local4 = animation.GetPoseTransformById(self, "RightFootIK")
+    local5 = matrix.PositionLocalToWorld(local3, local4.r3)
+    character.UpdateDeltaReferenceFrame(self, arg2)
+    local6 = character.GetAnimationVelocityLS(self)
+    local6.y = local6.y * 1.0
+    character.SetAnimationVelocityLS(self, arg2, local6)
+    if false:
+        debug.Sphere(local5, 0.3, lib_color.DARK_GREEN(1.0))

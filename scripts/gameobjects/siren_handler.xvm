@@ -1,0 +1,46 @@
+module siren_handler
+
+def Disable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.siren_enabled = false
+
+def UpdateSirenPatternInterval(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.interval_timer = local2.interval_timer - arg1
+    if arg1 >= local2.interval_timer:
+        Activate(self)
+
+def Shutdown(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.siren_enabled = false
+    local1.alive = false
+
+def UpdateSirenPatternCooldown(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.cooldown_timer = local2.cooldown_timer - arg1
+    if arg1 >= local2.cooldown_timer:
+        local2.pattern_bursts_current = local2.pattern_bursts
+        Activate(self)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.pattern_bursts_current = local1.pattern_bursts
+    local1.alive = true
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.siren_enabled = true
+    Activate(self)
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.alive:
+        if local1.siren_enabled:
+            scriptgo.PostEvent(self, @D365D273)
+            local1.pattern_bursts_current = local1.pattern_bursts_current - 1.0
+            if 0.0 >= local1.pattern_bursts_current:
+                local1.cooldown_timer = local1.pattern_cooldown
+                scriptgo.SetUpdateFunction(self, "UpdateSirenPatternCooldown")
+            else:
+                local1.interval_timer = local1.pattern_interval
+                scriptgo.SetUpdateFunction(self, "UpdateSirenPatternInterval")

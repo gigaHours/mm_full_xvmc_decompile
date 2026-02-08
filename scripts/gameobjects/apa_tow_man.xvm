@@ -1,0 +1,39 @@
+module apa_tow_man
+
+def AttachMan(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.man = arg1
+    constraint.SetConstrainedObject2(local2.constraint, arg1)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+    local1.ropeLength = local1.max_rope_length
+
+def ReelIn(self):
+    ChangeRopeLength(self, -0.5)
+
+def ChangeRopeLength(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.ropeLength = local2.ropeLength + arg1
+    local2.ropeLength = math.Clamp(local2.ropeLength, 0.01, local2.max_rope_length)
+    game.SendEventFloat(local2.reel_event, local2.ropeLength)
+    game.QueueAct(local2.man, "ACT_CLIMB")
+
+def ReelOut(self):
+    ChangeRopeLength(self, 0.5)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if not local2.man:
+        local3 = game.GetTransform(local2.car)
+        rope.Clear(local2.rope)
+        return
+    local3 = game.GetTransform(local2.car)
+    local4 = game.GetTransform(local2.man)
+    local5 = vector.Sub(local3.r3, local4.r3)
+    character.RotateInstantly(local2.man, local5)
+    local6 = game.GetTransform(local2.rope)
+    local7 = animation.GetPoseTransformById(local2.man, "Spine1")
+    local8 = matrix.Mul(local7, local4)
+    rope.SetSlackEndPoints(local2.rope, local6.r3, local8.r3, 0.2, local2.man)

@@ -1,0 +1,13 @@
+module dof_xcc_target
+
+def Update(self, arg1):
+    local2 = lib_camera.GetXccTargetTransform(self.Properties.type_of_target, self.Properties.coordinator)
+    if local2 != none:
+        local3 = vector.Distance(local2.r3, arg1.CameraTransform.r3)
+        arg1.FocalDistanceNear = local3 - local3 * self.Properties.near_fraction
+        arg1.FocalDistanceFar = local3 + local3 * self.Properties.end_fraction
+        arg1.MaxDOFNear = self.Properties.max_dof
+        arg1.MaxDOFFar = self.Properties.max_dof
+        arg1.DOFHeightFalloff = self.Properties.dof_height_falloff
+        arg1.DOFTransitionNear = self.Properties.dof_transition_near
+        arg1.DOFTransitionFar = self.Properties.dof_transition_far

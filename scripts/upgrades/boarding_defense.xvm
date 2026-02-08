@@ -1,0 +1,42 @@
+module boarding_defense
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    local2 = vehicle.GetGlobalProperties()
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate boarding defense strength level %f", [self])
+    game.PostEvent("spike.point.land.corner.back.deactivate", "")
+    game.PostEvent("spike.point.land.hood.deactivate", "")
+    game.PostEvent("spike.point.land.roof.deactivate", "")
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate boarding defense strength level %f", [self])
+    local2 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending boarding defence stats", [])
+    scriptgo.Call2(local2, @E84EC9A7, self, arg1)
+    SetLandingPoints(self)
+
+def SetLandingPoints(self):
+    local1 = vehicle.GetGlobalProperties()
+    if self == 0.0:
+        return
+    if self == 1.0:
+        game.PostEvent("spike.point.land.corner.back.activate", "")
+        game.PostEvent("spike.point.land.hood.deactivate", "")
+        game.PostEvent("spike.point.land.roof.deactivate", "")
+    elif self == 2.0:
+        game.PostEvent("spike.point.land.corner.back.activate", "")
+        game.PostEvent("spike.point.land.hood.activate", "")
+        game.PostEvent("spike.point.land.roof.deactivate", "")
+    elif self == 3.0:
+        game.PostEvent("spike.point.land.corner.back.activate", "")
+        game.PostEvent("spike.point.land.hood.activate", "")
+        game.PostEvent("spike.point.land.roof.activate", "")
+    else:
+        if self == 4.0:
+            return
+        if self == 5.0:
+            return

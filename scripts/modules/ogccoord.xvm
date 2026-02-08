@@ -1,0 +1,28 @@
+module ogccoord
+
+def GetPositionOnScreenScore(self, arg1):
+    pass
+
+def GetClosest(self, arg1, arg2):
+    pass
+
+def GetTimeSincePickup(self, arg1):
+    pass
+
+def GetCharacterFromAttackers(self, arg1):
+    pass
+
+def GetCharacterFromTarget(self, arg1):
+    pass
+
+def GetDistanceToTarget(self, arg1, arg2):
+    pass
+
+def GetTimeInsideCamera(self, arg1):
+    pass
+
+def GetCurrentAttacker(self):
+    pass
+
+def GetAllWithAttackType(self, arg1, arg2):
+    pass

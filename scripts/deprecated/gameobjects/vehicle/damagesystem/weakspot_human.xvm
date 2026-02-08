@@ -1,0 +1,185 @@
+module weakspot_human
+import @7464AC79
+
+def GetRootTransform(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetPositionBoneName(self)
+    return animation.GetBoneWorldMatrixById(local1.human, local2)
+
+def GetHealthComponent(self):
+    return lib_weakspot.GetHealthComponent(self)
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetRenderFunction(self, "")
+
+def GetRenderTransform(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = GetPositionBoneName(self)
+    local4 = game.GetRenderTransform(local2.human, arg1)
+    local5 = animation.GetPoseJointIndex(local2.human, local3)
+    local6 = animation.GetPoseTransform(local2.human, local5)
+    return matrix.Mul(local6, local4)
+
+def GetProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.protectingParent
+
+def OnHitByBullet(self, arg1, arg2):
+    pass
+
+def DisableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @00E5221E)
+
+def ExplodesWith(self, arg1, arg2):
+    return false
+
+def GetTargetObject(self):
+    return scriptgo.GetProperties(self).human
+
+def HideOutline(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = self
+    if none != local1.lastWeakspotToOutline:
+        local2 = local1.lastWeakspotToOutline
+    lib_weakspot.HideOutline(local2)
+    local1.show_vehicle_outline = false
+
+def OnDirectHitByBullet(self):
+    pass
+
+def EnableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @AF26B08B)
+        scriptgo.SetUpdateFunction(self, "Update")
+
+def DeregisterChildWeakspot(self, arg1):
+    lib_weakspot.DeregisterChildWeakspot(self, arg1)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.extDeath = false
+    local1.show_vehicle_outline = false
+    lib_weakspot.Init(self)
+    if none == local1.protectingParent:
+        EnableHarpoonTarget(self)
+    EnableShotgunTarget(self)
+    if lib_weakspot.DEBUG():
+        scriptgo.SetRenderFunction(self, "RenderDebug")
+
+def GetPosition(self):
+    return GetRootTransform(self).r3
+
+def ValidChallengeEvent(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetPlayer()
+    if none != local2:
+        local3 = game.GetTransform(local2).r3
+        local4 = game.GetTransform(local1.human).r3
+        local5 = vector.Distance(local3, local4)
+        if 30.0 > local5:
+            return true
+    return false
+
+def GetRenderPosition(self, arg1):
+    return GetRenderTransform(self, arg1).r3
+
+def GetPhysicsPartName(self):
+    return none
+
+def ClearProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.protectingParent = none
+
+def RenderDebug(self, arg1):
+    lib_weakspot.DebugDrawHealth(self, arg1)
+
+def GetMinTargetingDistance(self):
+    return 0.0
+
+def DisableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @00E5221E)
+
+def GetPositionBoneName(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetVehicle(local1.human)
+    if none != local2:
+        if game.IsObjectEqualTo(local1.human, vehicle.GetVehicleDriver(local2)):
+            return "Head"
+    return scriptgo.GetProperties(self).positionBoneName
+
+def ShowOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = self
+    local2.show_vehicle_outline = false
+    if not arg1:
+        local4 = character.GetVehicle(local2.human)
+        if none != local4:
+            if not game.IsObjectEqualTo(local4, character.GetVehicle(character.GetPlayer())):
+                local3 = game.GetChild(game.GetChild(local4, "Weakspots"), "weakspot.Body")
+                local2.show_vehicle_outline = true
+    lib_weakspot.ShowOutline(local3, arg1)
+    local2.lastWeakspotToOutline = local3
+
+def Register(self, arg1):
+    EnableShotgunTarget(self)
+    EnableHarpoonTarget(self)
+
+def EnableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @AF26B08B)
+        scriptgo.SetUpdateFunction(self, "Update")
+
+def GetChildWeakspot(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.childWeakspot
+
+def IsArmor(self):
+    return false
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if lib_weakspot.DEBUG():
+        debug.Sphere(GetPosition(self), 1.0, lib_color.LIGHT_BLUE(0.6))
+        local3 = lib_debugdraw.GetGoScreenPos(local2.human, vector.Set(0.0, 1.6, 0.0, 0.0), arg1)
+        debug.DrawText(local3, "health: %f", [character.GetUnitHealth(local2.human)], lib_color.YELLOW(1.0))
+    if local2.show_vehicle_outline:
+        local4 = character.GetVehicle(local2.human)
+        if none == local4:
+            HideOutline(self)
+            ShowOutline(self, false)
+    if character.IsDead(local2.human):
+        DisableShotgunTarget(self)
+        scriptgo.SetUpdateFunction(self, "")
+        HideOutline(self)
+    lib_weakspot.UpdateBlockBullets(self, arg1)
+
+def CollidesWith(self, arg1):
+    return false
+
+def GetPositionBoneNameForRender(self):
+    return scriptgo.GetProperties(self).positionBoneName
+
+def ExternalDeath(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.extDeath = true
+    if ValidChallengeEvent(self):
+        scriptgo.PostEvent(self, @322B9FDF)
+        debug.LogInfo("WeakspotHuman, challenge.onDie", [])
+    if lib_weakspot.DEBUG():
+        debug.LogInfo("WeakspotHuman, ExternalDeath: Character is dead!", [])
+
+def RegisterChildWeakspot(self, arg1):
+    lib_weakspot.RegisterChildWeakspot(self, arg1)
+
+def GetNormal(self):
+    return vector.Scale(GetRootTransform(self).r2, -1.0)
+
+def Deregister(self, arg1):
+    pass

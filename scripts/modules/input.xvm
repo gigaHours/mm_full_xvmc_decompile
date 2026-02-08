@@ -1,0 +1,79 @@
+module input
+
+def GetRawMoveInputVelocity():
+    pass
+
+def GetFilteredMoveInputVelocity():
+    pass
+
+def IsUsingGamePad():
+    pass
+
+def UnitCircleNormalize(self):
+    pass
+
+def GetButtonHoldTime(self):
+    pass
+
+def GetLookInput():
+    pass
+
+def GetRawInput():
+    pass
+
+def InitInput():
+    pass
+
+def GetRawMoveInput():
+    pass
+
+def ClampAngleToLimits(self, arg1, arg2, arg3):
+    pass
+
+def GetButtonInput(self):
+    pass
+
+def SquareInputToCircle(self):
+    pass
+
+def GetGarageLookInputGui():
+    pass
+
+def GetSensitivity():
+    pass
+
+def IsButtonClickedBuffered(self, arg1):
+    pass
+
+def IsButtonReleasedBuffered(self, arg1):
+    pass
+
+def DebugInputHistory(self, arg1):
+    pass
+
+def GetButtonInputGui(self):
+    pass
+
+def GetLeftStickInput():
+    pass
+
+def IsButtonClicked(self):
+    pass
+
+def GetEWMAInput():
+    pass
+
+def GetMoviecamInput():
+    pass
+
+def HandleEulerFlip(self, arg1):
+    pass
+
+def GetFilteredMoveInput():
+    pass
+
+def IsButtonReleased(self):
+    pass
+
+def TransformInputDirToLocalDir(self):
+    pass

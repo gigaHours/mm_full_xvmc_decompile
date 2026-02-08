@@ -1,0 +1,18 @@
+module align_offset
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    lib_camera.AlignAzimuthElevationToSourceCameraClamped(self, arg1, arg2, math.DegToRad(-90.0), math.DegToRad(90.0), -math.DegToRad(180.0), math.DegToRad(180.0))
+    Update(self, arg2)
+
+def Init(self):
+    pass
+
+def ExitTransition(self, arg1):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    Update(self, arg1)
+
+def Update(self, arg1):
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)

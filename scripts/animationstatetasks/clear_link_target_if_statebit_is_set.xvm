@@ -1,0 +1,19 @@
+module clear_link_target_if_statebit_is_set
+
+def Update(self, arg1, arg2):
+    local3 = animation.GetLinkTarget(self)
+    local4 = 1.0
+    if local3:
+        if arg1.Segment:
+            if not animation.IsWithinSegment(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+                local4 = 0.0
+        if local4 > 0.0:
+            if character.IsStateBitSet(local3, arg1.StateBit):
+                if arg1.Distance:
+                    local5 = character.GetWorldMatrix(self)
+                    local6 = character.GetWorldMatrix(local3)
+                    local7 = vector.Distance(local6.r3, local5.r3)
+                    if arg1.Distance >= local7:
+                        animation.ClearLinkTarget(self)
+                else:
+                    animation.ClearLinkTarget(self)

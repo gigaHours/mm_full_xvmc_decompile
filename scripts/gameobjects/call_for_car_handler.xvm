@@ -1,0 +1,17 @@
+module call_for_car_handler
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.can_call_car = true
+
+def CanCallForCar(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.can_call_car
+
+def DisableCallCar(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.can_call_car = false
+
+def EnableCallCar(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.can_call_car = true

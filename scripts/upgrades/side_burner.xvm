@@ -1,0 +1,15 @@
+module side_burner
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate side burner level %f", [self])
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate side burner level %f", [self])
+    local2 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending sideburner stats", [])
+    scriptgo.Call2(local2, @CF2C0AEF, self, arg1)

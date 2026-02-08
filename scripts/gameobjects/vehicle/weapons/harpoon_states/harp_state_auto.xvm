@@ -1,0 +1,140 @@
+module harp_state_auto
+import @9B4F6985
+import @3D3D0D9B
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    lib_harpoon.DisableConstraint(arg1)
+    game.QueueAct(local2.companion, "ACT_HARPOON_IDLE")
+    if none != local2.projectile_robj:
+        rigidobject.Hide(local2.projectile_robj)
+    local2.play_act_return = false
+    local2.weapon_gui_counter = 0.0
+    if not local2.input_aim_held:
+        lib_weapon.StopCam(arg1, lib_harpoon.CAM_AIM())
+
+def Exit(self, arg1):
+    lib_weapon.ClearGuiTargets(arg1)
+    gui.PostEvent("gui_weapon_aim_mode_no_crosshair_off")
+    if (not lib_weapon.IsNextState(arg1, lib_harpoon.STATE_AIM_ID())) and (not lib_weapon.IsNextState(arg1, lib_harpoon.STATE_PRE_SHOOT_ID())):
+        lib_weapon.ResetTarget(arg1)
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    local3 = local1.UI_targets_for_BB
+    if none != local3:
+        local2.veh_weapon_targets = local3
+    if local1.use_thunderstick_ammo:
+        local2.thunderstick_ammo = character.GetInventoryItemCount(character.GetPlayer(), "thunderstick_cap")
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    UpdateGuiBB(local2)
+
+def GetId(self):
+    return lib_harpoon.STATE_AUTO_ID()
+
+def FindBestAutoTarget(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(arg1)
+    local5 = golist.NbGameObjects(arg2)
+    local6 = none
+    local7 = 0.0
+    local8 = 0.0
+    local9 = 0.0
+    local10 = lib_harpoon.GetAimSourcePos(arg1)
+    local12 = 0.0
+    local13 = 1.0
+    local11 = local5
+    while local11 > local12:
+        local14 = golist.Get(arg2, local12)
+        if arg3(arg1, local14):
+            local15 = lib_weapon.GetTargetVehicle(arg1, scriptgo.Call(local14, @D281A61A))
+            local16 = false
+            if none != local15:
+                local17 = scriptgo.Call(lib_entity_proxy.GetBodyHealth(local15), @4CFED023)
+                local18 = false
+                local19 = false
+                local20 = vehicle.GetVehicleDriver(local15)
+                if none != local20:
+                    local18 = character.IsDead(local20)
+                else:
+                    local19 = true
+                local21 = lib_vehicle.IsVehicleIncapacitaded(local15)
+                local16 = local17 or local21
+            if not local16:
+                local22 = scriptgo.Call(local14, @47D4451D)
+                if local19 or local18:
+                    local22 = local22 - lib_weapon.NO_DRIVER_PRIORITY_REDUCTION()
+                local23 = scriptgo.Call(local14, @0C537298)
+                local24 = vector.Distance(local23, local10)
+                local25 = vector.Set(0.5, 0.5, 0.0, 0.0)
+                local26 = camera.ProjectPosition(local23)
+                local27 = 1000.0
+                if local26.z > 0.0:
+                    local26.z = 0.0
+                    local27 = vector.Distance(local25, local26)
+                if not local6 or local22 > local8 or local22 == local8 and local9 >= local27 or local22 == local8 and local27 == local9 and local7 > local24:
+                    local6 = local14
+                    local7 = local24
+                    local8 = local22
+                    local9 = local27
+        local12 = local13 + local12
+    return local6
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = true
+    if local3.use_thunderstick_ammo:
+        local4 = lib_harpoon.HasThunderCaps(local2)
+    if 10.0 > local3.weapon_gui_counter:
+        gui.PostEvent("gui_weapon_aim_mode_no_crosshair_on")
+        local3.weapon_gui_counter = local3.weapon_gui_counter + 1.0
+    if not local4 or not lib_harpoon.ChumCanAim(local2) or not local3.weapon_selected and lib_weapon.CheckPlayerInDriverSeat(local2, local3.car):
+        lib_weapon.ChangeState(local2, local3.state_idle)
+        return
+    rope.Clear(local3.rope)
+    local5 = local3.local_target_list
+    local6 = lib_entity_proxy.GetGlobalHarpoonTargetList()
+    lib_weapon.FilterGlobalTargets(local2, local5, local6, lib_harpoon.GetAimSourcePos(local2), lib_harpoon.GetAimRaycastPos(local2), lib_harpoon.GetCurrentRange(local2), lib_harpoon.FilterTarget, true)
+    local7 = FindBestAutoTarget(self, local2, local5, lib_harpoon.FilterTargetUpgrades)
+    if local7 and local3.debug_enabled:
+        debug.Sphere(scriptgo.Call(local7, @0C537298), 0.5, lib_color.RED(0.5))
+    lib_weapon.SetAndHighlightTarget(local2, local7, false)
+    local8 = animation.IsWithinSegment(local3.companion, @E063F6A0, @B585F8DB)
+    if local3.play_act_return or (local3.input_fire_pressed or local3.input_aim_held):
+        local3.play_act_return = true
+        if not local8:
+            game.QueueAct(local3.companion, "ACT_RETURN_TO_WEAPON")
+            scriptgo.Call1(lib_entity_proxy.GetChumGameplay(local3.companion), @A51B8494, 4.0)
+            if local3.debug_enabled:
+                debug.LogInfo("Harpoon: harp_state_auto, ACT_RETURN_TO_WEAPON", [])
+        else:
+            local3.play_act_return = false
+    local9 = false
+    if local3.target and local8:
+        if local4:
+            if local3.input_quick_fire_pressed:
+                lib_weapon.ChangeState(local2, local3.state_pre_shoot)
+                return
+        elif local3.input_quick_fire_pressed:
+            lib_weapon.ShowAmmoWarning(local2)
+    if local3.input_aim_held:
+        if local4:
+            if local8:
+                local3.align_target = local3.target
+                lib_weapon.ChangeState(local2, local3.state_aim)
+                return
+        elif local3.input_aim_pressed:
+            lib_weapon.ShowAmmoWarning(local2)
+    if local3.reload_time_left > 0.0:
+        lib_weapon.ChangeState(local2, local3.state_reload)
+    lib_weapon.CheckShowFireIcon(local2, false, local9)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "AUTO"

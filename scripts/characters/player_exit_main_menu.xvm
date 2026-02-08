@@ -1,0 +1,7 @@
+module player_exit_main_menu
+
+def OnExitMainMenu(self):
+    local1 = 28.0
+    local2 = 0.45
+    local3 = character.GetPlayer()
+    character.SetFloatRegister(local3, local1, local2)

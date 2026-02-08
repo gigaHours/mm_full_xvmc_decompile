@@ -1,0 +1,25 @@
+module chum_veh_check_harpoon_target_direction
+import @58351C01
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    if none != local2:
+        local3 = lib_entity_proxy.GetHarpoon(local2)
+        local4 = scriptgo.Call(local3, @0C537298)
+        local5 = game.GetTransform(self)
+        if local4:
+            local6 = vector.Normalize(vector.Sub(local4, local5.r3))
+        else:
+            local6 = lib_character.GetFlattenedCameraDir(local5.r1)
+        local7 = vector.Scale(local5.r2, -1.0)
+        local8 = math.RadToDeg(vector.AngleBetween(local6, local7))
+        local9 = vector.Dot(local5.r0, local6)
+        if 0.0 == arg1.Property0 and 45.0 > local8:
+            return 1.0
+        if 1.0 == arg1.Property0 and local8 > 135.0:
+            return 1.0
+        if 2.0 == arg1.Property0 and local8 > 45.0 and 135.0 > local8 and 0.0 >= local9:
+            return 1.0
+        if 3.0 == arg1.Property0 and local8 > 45.0 and 135.0 > local8 and local9 > 0.0:
+            return 1.0
+    return 0.0

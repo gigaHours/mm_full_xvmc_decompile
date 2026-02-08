@@ -1,0 +1,28 @@
+module collision_ease_extension
+import @78DDD3EE
+
+def AccDeaccCurve(self):
+    if 0.5 > self:
+        return math.BezierCurve(0.0, 0.0, 1.0, 1.0, 2.0 * self)
+    return 1.0 - math.BezierCurve(0.0, 0.0, 1.0, 1.0, 2.0 * (self - 0.5))
+
+def Init(self):
+    self.Properties.PreviousDistance = self.OffsetDistance
+
+def Update(self, arg1):
+    local2 = 0.5
+    local3 = self.Properties.extension_max_speed
+    local4 = collision.CheckCollision(arg1.CameraTransform, self.CameraBaseTransform.r3, 0.0, 1.0, self.Properties.ignore_characters)
+    local5 = vector.Sub(arg1.CameraTransform.r3, self.CameraBaseTransform.r3)
+    local6 = self.Properties.PreviousDistance
+    local7 = math.Max(vector.Length(local5) * local4.Distance, local2)
+    local8 = self.OffsetDistance
+    local9 = math.Min(local7, local8)
+    local10 = local9
+    if local10 > local6:
+        local11 = math.Clamp(local6 / local10, 0.15, 1.0)
+        local12 = AccDeaccCurve(local11)
+        local10 = lib_camera.SpeedLerp(local6, local9, local3 * local12, self.Dt)
+    self.Properties.PreviousDistance = local10
+    local5 = vector.Normalize(local5)
+    arg1.CameraTransform.r3 = vector.Add(self.CameraBaseTransform.r3, vector.Scale(local5, local10))

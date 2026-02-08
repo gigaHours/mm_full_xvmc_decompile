@@ -1,0 +1,9 @@
+module set_damage_buff_on_chain_level
+
+def Enter(self, arg1):
+    local2 = character.GetFloatRegister(self, 3.0)
+    if local2 > 1.5:
+        character.AddBuff(self, "buffed_fury_finisher")
+
+def Exit(self, arg1):
+    character.RemoveBuff(self, "buffed_fury_finisher")

@@ -1,0 +1,109 @@
+module snip_state_aim
+import @9B4F6985
+import @30EFB40F
+
+def UpdatePost(self, arg1):
+    pass
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local2.zero_input_time = 0.0
+    local2.breakoff_option_timer = 0.0
+    local2.broken_away_from_target = none
+    local2.previous_sniper_trigger = input.GetButtonInput(@0367412C)
+    if not CheckPlayerVehicle() > 0.0:
+        game.QueueAct(local2.wielding_character, "ACT_ON_VEHICLE_DEATH_TIMER")
+        lib_weapon.ChangeState(arg1, local2.state_idle)
+        return
+    lib_sniper.HideRifle(arg1)
+    game.SendEventNone("enable_sniper_mode_camera")
+    game.SendEventNone("ply.hide")
+    gui.PostEvent("enable_sniper_mode_aim")
+    lib_weapon.HideCrosshair(arg1)
+    game.QueueAct(local2.wielding_character, "ACT_TO_SNIPER_AIM")
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    game.StateContainerDataWeaponResetWorkingTargets(local2.target_info)
+    if not lib_weapon.IsNextState(arg1, lib_sniper.STATE_SHOOT_ID()):
+        lib_sniper.ExitAimCommon(arg1)
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_sniper.STATE_AIM_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = arg1 / game.GetUpdateSpeed()
+    local5 = local3.wielding_character
+    if not CheckPlayerVehicle() > 0.0:
+        game.QueueAct(local5, "ACT_ON_VEHICLE_DEATH_TIMER")
+        lib_weapon.ChangeState(local2, local3.state_idle)
+        return
+    local6 = animation.IsWithinSegment(local5, @E063F6A0, @9E576A97)
+    if input.GetButtonInput(@D45A53BB) > 0.0 and local3.state_time > 0.25:
+        lib_weapon.ChangeState(local2, local3.state_parry)
+        return
+    local7 = input.GetLookInput()
+    local8 = vector.Length(local7)
+    local9 = camera.GetCameraTransform().r3
+    local3.breakoff_option_timer = math.Max(local3.breakoff_option_timer - arg1, 0.0)
+    local10 = 0.0 >= local3.breakoff_option_timer and local8 >= 0.2
+    game.StateContainerDataWeaponFilterTargets(local3.target_info, local3.target_list, local9, local9, local3.target_scan_distance)
+    local11 = game.StateContainerDataTargetGetActiveTarget(local3.target_info)
+    if local10 or not game.StateContainerDataWeaponIsActiveTargetWorking(local3.target_info) or not game.StateContainerDataWeaponZoomedInputStuckToAlignTarget(local3.target_info, local8):
+        if local11 != none:
+            local3.broken_away_from_target = local11
+        game.StateContainerDataWeaponResetActiveTarget(local3.target_info)
+    if local8 > 0.0:
+        local3.zero_input_time = 0.0
+    else:
+        local3.zero_input_time = local3.zero_input_time + arg1
+    local12 = local3.zero_input_time > 0.0 and 0.1 >= local3.zero_input_time
+    local13 = local8 >= 0.01
+    if local12 or local13:
+        if game.StateContainerDataWeaponSelectBestZoomedScreenSpaceTarget(local3.target_info, local3.target_list, local9, local3.target_scan_distance, local8):
+            local14 = game.StateContainerDataTargetGetActiveTarget(local3.target_info)
+            if game.IsObjectEqualTo(local3.broken_away_from_target, local14):
+                game.StateContainerDataWeaponResetActiveTarget(local3.target_info)
+            else:
+                game.StateContainerDataWeaponSetActiveAlignTarget(local3.target_info)
+                if not game.IsObjectEqualTo(local11, local14):
+                    local3.breakoff_option_timer = 0.25
+                local3.broken_away_from_target = none
+        else:
+            local3.broken_away_from_target = none
+    local15 = lib_sniper.IsLoaded(local2)
+    local16 = input.GetButtonInput(@0367412C)
+    local17 = local16 > 0.5 and 0.5 > local3.previous_sniper_trigger
+    local3.previous_sniper_trigger = local16
+    if (not local15) and (local3.input_fire_pressed or local16):
+        game.SendEventNone("ply.sniper_rifle_ammo.depleted")
+        lib_weapon.ShowAmmoWarning(local2)
+    if local3.weapon_selected and local6:
+        if not local3.input_aim_held or camera.ActiveCameraInAnyGroup("camp_vista"):
+            lib_weapon.ChangeState(local2, local3.state_idle)
+            return
+        if local15 and (local3.input_fire_pressed or local3.input_quick_fire_pressed or local17):
+            lib_weapon.ChangeState(local2, local3.state_shoot)
+            return
+    else:
+        lib_weapon.ChangeState(local2, local3.state_idle)
+        return
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def CheckPlayerVehicle():
+    local0 = character.GetPlayer()
+    local1 = character.GetVehicle(local0)
+    if local1:
+        return vehicle.GetHealth(local1)
+    return 1.0
+
+def GetName(self):
+    return "AIM"

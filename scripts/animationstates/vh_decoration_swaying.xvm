@@ -1,0 +1,64 @@
+module vh_decoration_swaying
+
+def ConfigureMotionTracker(self):
+    motiontracker.Reset(self)
+    self.MotionScale = vector.Set(2.5, 2.5, -2.5, 0.0)
+    self.AccelerationWeight = 1.0
+    self.VelocityWeight = 0.002
+    self.SpringWeight = 0.05
+    self.PositionWeight = 0.1
+    self.DebugEnabled = false
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = GetMotionTracker(self)
+    if not local4:
+        return
+    local5 = animation.GetSampler(arg3, 0.0)
+    local6 = animation.GetSampler(arg3, 1.0)
+    local7 = animation.GetSampler(arg3, 2.0)
+    local8 = local4.FilteredPosition
+    local5.Time = (1.0 + local8.x) * local5.Length * 0.5
+    local6.Time = (1.0 + local8.y) * local6.Length * 0.5
+    local7.Time = (1.0 + local8.z) * local7.Length * 0.5
+    local9 = math.Abs(local8.x)
+    local10 = math.Abs(local8.y)
+    local11 = math.Abs(local8.z)
+    local12 = 1.0 - math.Min(1.0, local9 + local10 + local11)
+    local5.Weight = local12 + local9
+    local6.Weight = local12 + local10
+    local7.Weight = local12 + local11
+    if local4.DebugEnabled:
+        debug.PrintValue(local8.x, "position.x", 0.0)
+        debug.PrintValue(local8.y, "position.y", 1.0)
+        debug.PrintValue(local8.z, "position.z", 2.0)
+        debug.PrintValue(local5.Weight, "anim_x.Weight", 4.0)
+        debug.PrintValue(local6.Weight, "anim_y.Weight", 5.0)
+        debug.PrintValue(local7.Weight, "anim_z.Weight", 6.0)
+
+def GetMotionTracker(self):
+    local1 = game.GetChild(self, "motiontracker.decoration")
+    if not local1:
+        return none
+    if not motiontracker.IsMotionTracker(local1):
+        return none
+    return motiontracker.GetMotionTracker(local1)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = animation.GetSampler(arg4, 0.0)
+    local6 = animation.GetSampler(arg4, 1.0)
+    local7 = animation.GetSampler(arg4, 2.0)
+    local5.Time = local5.Length * 0.5
+    local5.Weight = 1.0
+    local5.Speed = 0.0
+    local6.Time = local6.Length * 0.5
+    local6.Weight = 1.0
+    local6.Speed = 0.0
+    local7.Time = local7.Length * 0.5
+    local7.Weight = 1.0
+    local7.Speed = 0.0
+    local8 = GetMotionTracker(self)
+    if local8:
+        ConfigureMotionTracker(local8)
+
+def OnEnter(self, arg1):
+    pass

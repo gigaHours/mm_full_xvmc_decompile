@@ -1,0 +1,5 @@
+module send_act_upb_sheath
+
+def Evaluate(self, arg1):
+    game.DoAct(self, "ACT_UPB_SHOTGUN_SHEATH_AIM_LF")
+    return 1.0

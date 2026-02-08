@@ -1,0 +1,15 @@
+module char_return_spell_hit_to_latest_spell_source
+
+def Evaluate(self, arg1):
+    local2 = character.GetLatestSpellInfo(self)
+    if local2.IsCurrent > 0.0:
+        local3 = local2.CollidedObject
+        if local3:
+            if character.IsCharacter(local3):
+                game.QueueAct(local3, "ACT_SPELL_HIT")
+            else:
+                local4 = character.GetItemOwner(local3)
+                if local4:
+                    if character.IsCharacter(local4):
+                        game.QueueAct(local4, "ACT_SPELL_HIT")
+    return 1.0

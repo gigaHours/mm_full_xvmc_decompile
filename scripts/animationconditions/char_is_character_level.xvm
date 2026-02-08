@@ -1,0 +1,14 @@
+module char_is_character_level
+
+def Evaluate(self, arg1):
+    local2 = arg1.Property0
+    if local2:
+        if arg1.Property1 > 0.0:
+            local3 = animation.GetLinkTarget(self)
+            if not local3:
+                return 0.0
+        else:
+            local3 = self
+        if character.GetCharacterLevel(local3) == local2:
+            return 1.0
+    return 0.0

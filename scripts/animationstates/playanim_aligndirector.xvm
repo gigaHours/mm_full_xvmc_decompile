@@ -1,0 +1,14 @@
+module playanim_aligndirector
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetPoseTransform(self, 0.0)
+    vehicle.SetAnimCmdFrame(self, local4)
+    local5 = animation.GetSampler(arg3, 0.0)
+    local6 = 1.0 - local5.Time / local5.Length
+    local7 = vector.Set(1.0, 0.99, 1.0, 0.0)
+    local8 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    vehicle.SetAnimCmdWeights(self, local7, local8)
+
+def OnEnter(self, arg1):
+    vehicle.StartAnimCmd(self)
+    vehicle.SetAnimCmdSnapToGround(self, 0.5)

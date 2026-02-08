@@ -1,0 +1,8 @@
+module is_vehicle_in_air
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    if local2 != none:
+        if 0.0 >= vehicle.GetWheelContactRatio(local2):
+            return 1.0
+    return 0.0

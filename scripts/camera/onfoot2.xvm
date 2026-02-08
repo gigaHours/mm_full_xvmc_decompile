@@ -1,0 +1,14 @@
+module onfoot2
+
+def OnActivate(self):
+    pass
+
+def OnDeactivate(self):
+    pass
+
+def Update(self, arg1):
+    local2 = input.GetLeftStickInput()
+    local3 = input.GetSensitivity()
+    local4 = matrix.Slerp(self.CameraOffsetTransform, self.InitialOffsetTransform, 0.2)
+    camera.SetOffsetTransform(self, local4)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)

@@ -1,0 +1,33 @@
+module veh_damage_base
+
+def Enter(self, arg1):
+    local2 = vehicle.GetProperties(self)
+    local2.impulse = 0.0
+    local2.health = 100.0
+
+def Update(self, arg1, arg2):
+    local3 = game.GetTransform(self)
+    local4 = vehicle.GetProperties(self)
+    local5 = vehicle.GetHitInfo(self)
+    local6 = 1000.0
+    local7 = 2000.0
+    local8 = 0.003
+    local9 = 100.0
+    if local5:
+        local4.impulse = vehicle.GetImpulse(local5)
+        if local4.impulse > local6:
+            local4.impulse = math.Clamp(local4.impulse, 0.0, local7)
+        local10 = local4.impulse * local8
+        local4.health = local4.health - local10
+        debug.LogInfo("impulse: %f, damage: %f, new health: %f", [local4.impulse, local10, local4.health])
+        local11 = vehicle.GetPosition(local5)
+        local12 = math.Clamp(local4.impulse / 1000.0, 0.0, 1.0)
+        debug.Sphere(local11, 0.7 * local12, vector.Set(1.0, 0.2, 0.0, 0.5))
+        if 0.0 > local4.health:
+            game.QueueAct(self, "ACT_TAKEDOWN")
+    local13 = math.Clamp(local4.health / local9, 0.0, 1.0)
+    local14 = vector.Set(1.0 - local13, local13, 0.0, 0.5)
+    local15 = vector.Add(local3.r3, vector.Set(0.0, 3.0, 0.0, 0.0))
+    debug.Sphere(local15, 0.4, local14)
+    debug.PrintValue(local4.health, "health", 2.0)
+    debug.PrintValue(local4.impulse, "last impulse", 3.0)

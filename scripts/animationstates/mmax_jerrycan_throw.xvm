@@ -1,0 +1,20 @@
+module mmax_jerrycan_throw
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetSampler(arg3, 0.0)
+    local5 = game.GetBlackboardValueFromObject(self, @9FE5EBF0)
+    if animation.IsWithinSegment(self, @E063F6A0, @E8D8EAAA):
+        if input.GetButtonInput(@5888B2A5):
+            local5 = math.Min(local5 + 2.0 * arg2, 1.0)
+            game.SetBlackboardValueToObject(self, @9FE5EBF0, local5)
+    local6 = 1.1
+    if animation.IsWithinSegment(self, @E063F6A0, @AE091849):
+        local6 = 1.1 + (1.3 - 1.1) * local5
+    local7 = math.Lerp(0.2, local4.Speed, local6)
+    local4.Speed = local7
+    if false:
+        debug.DrawText3d(vector.Add(game.GetTransform(self).r3, vector.Set(0.0, 1.8, 0.0, 0.0)), "SpeedFactor: %f, speedLerped: %f", [local5, local7], lib_color.GREEN(1.0))
+
+def OnEnter(self, arg1):
+    game.SetBlackboardValueToObject(self, @9FE5EBF0, 0.0)

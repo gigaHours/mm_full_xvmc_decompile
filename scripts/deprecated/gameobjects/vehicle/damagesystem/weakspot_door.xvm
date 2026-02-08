@@ -1,0 +1,156 @@
+module weakspot_door
+import @7464AC79
+import @F76070AE
+import @42D0E955
+
+def GetRootTransform(self):
+    local1 = scriptgo.GetProperties(self)
+    return game.GetTransform(self)
+
+def GetHealthComponent(self):
+    return lib_weakspot.GetHealthComponent(self)
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car != none:
+        Deregister(self, local1.car)
+
+def GetRenderTransform(self, arg1):
+    return game.GetRenderTransform(self, arg1)
+
+def GetProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.protectingParent
+
+def OnHitByBullet(self, arg1, arg2):
+    pass
+
+def DisableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @00E5221E)
+
+def ExplodesWith(self, arg1, arg2):
+    return CollidesWith(self, arg1)
+
+def GetTargetObject(self):
+    return scriptgo.GetProperties(self).car
+
+def HideOutline(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = self
+    if none != local1.lastWeakspotToOutline:
+        local2 = local1.lastWeakspotToOutline
+    lib_weakspot.HideOutline(local2)
+
+def OnDirectHitByBullet(self):
+    pass
+
+def CharacterAttach(self):
+    local1 = scriptgo.GetProperties(self)
+    if not scriptgo.Call(local1.healthComponent, @4CFED023):
+        if local1.car != none:
+            local2 = none
+            if local1.side == 1.0:
+                local2 = vehicle.GetVehicleDriver(local1.car)
+            elif local1.side == -1.0:
+                local2 = vehicle.GetVehiclePassenger(local1.car)
+            if local2 != none:
+                if not game.IsObjectEqualTo(character.GetPlayer(), local2):
+                    local3 = lib_entity_proxy.GetWeakspotHuman(local2)
+                    if none != local3:
+                        RegisterChildWeakspot(self, local3)
+                        scriptgo.Call(local3, "irao")
+
+def EnableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @AF26B08B)
+
+def DeregisterChildWeakspot(self, arg1):
+    lib_weakspot.DeregisterChildWeakspot(self, arg1)
+
+def Init(self):
+    lib_weakspot.Init(self)
+
+def GetPosition(self):
+    return GetRootTransform(self).r3
+
+def GetRenderPosition(self, arg1):
+    return GetRenderTransform(self, arg1).r3
+
+def CharacterDetach(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car != none:
+        if local1.childWeakspot != none:
+            DeregisterChildWeakspot(self, local1.childWeakspot)
+
+def GetPhysicsPartName(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.physicsPartName
+
+def ClearProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.protectingParent = none
+
+def RenderDebug(self, arg1):
+    lib_weakspot.DebugDrawHealth(self, arg1)
+
+def GetMinTargetingDistance(self):
+    return 0.0
+
+def DisableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @00E5221E)
+
+def ShowOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = self
+    if not arg1:
+        local3 = game.GetChild(game.GetChild(local2.car, "Weakspots"), "weakspot.Body")
+    lib_weakspot.ShowOutline(local3, arg1)
+    local2.lastWeakspotToOutline = local3
+
+def Register(self, arg1):
+    lib_weakspot.Register(self, arg1)
+    EnableHarpoonTarget(self)
+
+def EnableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @AF26B08B)
+
+def GetChildWeakspot(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.childWeakspot
+
+def IsArmor(self):
+    return false
+
+def Update(self, arg1):
+    if not lib_weakspot.UpdateBlockBullets(self, arg1):
+        scriptgo.SetUpdateFunction(self, "")
+
+def CollidesWith(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetChassis(local2.car)
+    local4 = vehicle.SAEToAbsVector(local3.Extents)
+    local5 = vehicle.SAEToVector(local3.CenterOfMassPosition)
+    local6 = local3.FrontAxleToCoMDistance
+    local7 = local3.RearAxleToCoMDistance
+    if local5.z + local7 > arg1.z and arg1.z > local5.z - local6:
+        if local2.side * arg1.x > local2.side * local5.x + local4.x * 0.25:
+            return true
+    return false
+
+def RegisterChildWeakspot(self, arg1):
+    lib_weakspot.RegisterChildWeakspot(self, arg1)
+    local2 = scriptgo.GetProperties(self)
+    local2.debugColor = lib_color.ORANGE(0.8)
+
+def GetNormal(self):
+    return GetRootTransform(self).r2
+
+def Deregister(self, arg1):
+    lib_weakspot.Deregister(self, arg1)

@@ -1,0 +1,12 @@
+module char_set_dazed_if_has_crit_buff
+
+def Enter(self, arg1):
+    arg1.applied = false
+    if character.HasBuff(self, "crit"):
+        character.AddBuff(self, "dazed")
+
+def Update(self, arg1, arg2):
+    if arg1.applied == false and animation.IsWithinSegment(self, @E063F6A0, @4B71DB16):
+        arg1.applied = true
+        if character.HasBuff(self, "crit"):
+            character.AddBuff(self, "dazed")

@@ -1,0 +1,70 @@
+module upb_protect_from_hazard
+import @F76070AE
+
+def blendArmWeight(self, arg1, arg2, arg3, arg4):
+    local5 = animation.GetSampler(arg2, arg3)
+    local6 = math.Lerp(math.Scale01(local5.Time, 0.0, 0.2), 0.5, 1.0)
+    local7 = getGoalArmWeight(self, arg3, arg4) * local6
+    local8 = local5.Weight
+    return math.SpeedLerp(local8, local7, 2.15, arg1)
+
+def getGoalArmWeight(self, arg1, arg2):
+    if arg2 == arg1:
+        return 0.9
+    return 0.0
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = game.GetBlackboardValueFromObject(self, @C4A54E81)
+    local5 = game.GetWindVelocityEffects()
+    local5.y = 0.0
+    local5 = vector.Normalize(local5)
+    local6 = game.GetTransform(self)
+    local7 = math.Sign(vector.Dot(local5, local6.r0))
+    local8 = vector.AngleBetween(local6.r2, local5) * local7
+    local9 = local8 / math.Pi() * -1.0
+    local10 = (local9 + 1.0) / 2.0 * 1.0
+    animation.GetSampler(arg3, 0.0).Time = local10
+    if math.Abs(local9) >= 0.8:
+        local4 = 0.0
+    elif local4 == 1.0:
+        if local9 >= -0.85 and 0.05 >= local9:
+            local4 = 1.0
+        elif local9 >= -0.05 and 0.85 >= local9:
+            local4 = 2.0
+    elif local4 == 2.0:
+        if local9 >= -0.05 and 0.85 >= local9:
+            local4 = 2.0
+        elif local9 >= -0.85 and 0.05 >= local9:
+            local4 = 1.0
+    elif local9 >= -0.85 and -0.05 >= local9:
+        local4 = 1.0
+    elif local9 >= 0.05 and 0.85 >= local9:
+        local4 = 2.0
+    elif local9 >= -0.05 and 0.05 >= local9:
+        if math.Rand() > 0.5:
+            local4 = 1.0
+        else:
+            local4 = 2.0
+    game.SetBlackboardValueToObject(self, @C4A54E81, local4)
+    if local4 == 1.0:
+        local11 = math.Scale01(local9, -0.85, 0.05)
+        animation.GetSampler(arg3, 1.0).Time = local11
+    if local4 == 2.0:
+        local12 = math.Scale01(local9, 0.85, -0.05)
+        animation.GetSampler(arg3, 2.0).Time = local12
+    animation.GetSampler(arg3, 1.0).Weight = blendArmWeight(self, arg2, arg3, 1.0, local4)
+    animation.GetSampler(arg3, 2.0).Weight = blendArmWeight(self, arg2, arg3, 2.0, local4)
+    if false:
+        debug.LogInfo("wind_angle_normalized: %f, goal_arm: %f", [local9, local4])
+        lib_debugdraw.ArrowDir(local6.r3, vector.Normalize(local5), 0.5, 3.0, vector.Set(0.5, 0.2, 0.7, 0.5))
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    animation.GetSampler(arg4, 0.0).Weight = 1.0
+    animation.GetSampler(arg4, 1.0).Weight = 0.0
+    animation.GetSampler(arg4, 2.0).Weight = 0.0
+    animation.GetSampler(arg4, 0.0).Time = 0.5
+    animation.GetSampler(arg4, 1.0).Time = 0.5
+    animation.GetSampler(arg4, 2.0).Time = 0.5
+
+def OnEnter(self, arg1):
+    game.SetBlackboardValueToObject(self, @C4A54E81, 0.0)

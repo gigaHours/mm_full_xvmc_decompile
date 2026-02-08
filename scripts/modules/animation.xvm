@@ -1,0 +1,97 @@
+module animation
+
+def GetSamplerCount(self):
+    pass
+
+def GetRootTransform(self):
+    pass
+
+def SetBoneAttachmentBoneName(self, arg1):
+    pass
+
+def IsWithinSegmentSync(self, arg1, arg2):
+    pass
+
+def GetLinkTarget(self):
+    pass
+
+def GetSpeed(self):
+    pass
+
+def IsTransitionBlendFinished(self, arg1):
+    pass
+
+def GetSegmentInfoSync(self, arg1, arg2):
+    pass
+
+def GetPoseJointIndex(self, arg1):
+    pass
+
+def GetSampler(self, arg1):
+    pass
+
+def SetPoseTransform(self, arg1, arg2):
+    pass
+
+def SetModifier(self, arg1, arg2, arg3):
+    pass
+
+def GetStateBit(self, arg1):
+    pass
+
+def EaseOut(self, arg1):
+    pass
+
+def GetFloatSlotValue(self, arg1):
+    pass
+
+def GetPoseTransformById(self, arg1):
+    pass
+
+def SetStateBit(self, arg1, arg2):
+    pass
+
+def GetLinkSource(self, arg1):
+    pass
+
+def GetLinkSourceCount(self):
+    pass
+
+def IsWithinSegment(self, arg1, arg2):
+    pass
+
+def ClearLinkTarget(self):
+    pass
+
+def GetLength(self):
+    pass
+
+def SetBoneOrientationModelSpace(self, arg1, arg2, arg3):
+    pass
+
+def HasLayer(self, arg1):
+    pass
+
+def GetPoseTransform(self, arg1):
+    pass
+
+def GetBoneWorldMatrixById(self, arg1):
+    pass
+
+def SetLinkTarget(self, arg1):
+    pass
+
+def EaseIn(self, arg1):
+    pass
+
+def GetTime(self):
+    pass
+
+def GetTimeLayer(self, arg1):
+    pass
+
+def GetSegmentInfo(self, arg1, arg2):
+    pass
+
+def IsInAnimationState(self, arg1, arg2):
+    pass

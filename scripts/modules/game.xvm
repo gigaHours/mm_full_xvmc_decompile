@@ -1,0 +1,496 @@
+module game
+
+def StateContainerDataWeaponSetActiveAlignTarget(self):
+    pass
+
+def StateContainerDataWeaponSetThrowInputs(self, arg1, arg2, arg3):
+    pass
+
+def StateContainerDataWeaponGetUIReload(self):
+    pass
+
+def GetWindVelocityPhysics():
+    pass
+
+def WeakspotDeregister(self):
+    pass
+
+def GetItemAnimationModifier(self):
+    pass
+
+def GetDestructionDamageControllerGroupUnitHealth(self):
+    pass
+
+def GetFuryEventSize():
+    pass
+
+def StateContainerDataWeaponHideFireIcon(self):
+    pass
+
+def SendEventInt(self, arg1):
+    pass
+
+def GetChildWithNameHash(self, arg1):
+    pass
+
+def DoAct(self, arg1):
+    pass
+
+def EaseOutCustomUpdateSpeed(self, arg1):
+    pass
+
+def WeakspotRegister(self):
+    pass
+
+def SendEvent(self, arg1):
+    pass
+
+def GetTerritoryThreat(self):
+    pass
+
+def GetGameObjectByAlias(self):
+    pass
+
+def GetUpdateSpeed():
+    pass
+
+def StateContainerDataHarpoonSetUseThunderStickAmmo(self, arg1):
+    pass
+
+def CloneFactoryCreateInstance(self, arg1):
+    pass
+
+def WeakspotOnDetach(self):
+    pass
+
+def StateContainerDataWeaponIsActiveTargetWorking(self):
+    pass
+
+def StateContainerDataHarpoonUpdateInfo(self, arg1):
+    pass
+
+def VehicleWeakspotGetVehicle(self):
+    pass
+
+def WreckingBallPrimeWithDelay(self):
+    pass
+
+def RemoveChildObject(self, arg1):
+    pass
+
+def GetMaxHealth(self):
+    pass
+
+def StateContainerDataWeaponGetActiveAlignTargetTime(self):
+    pass
+
+def GetRenderTransform(self, arg1):
+    pass
+
+def StateContainerDataWeaponGetFocusedWarningTextRef(self):
+    pass
+
+def ClearFuryEventCounters():
+    pass
+
+def StateContainerDataHarpoonGetProjectileCamPos(self):
+    pass
+
+def StateContainerDataWeaponGetTargetPos(self):
+    pass
+
+def TargetObjectGetTargetPos(self):
+    pass
+
+def SetBlackboardValueToObject(self, arg1, arg2):
+    pass
+
+def WeakspotGetNormal(self):
+    pass
+
+def GetRegisteredAttackers():
+    pass
+
+def RecordFuryEvent(self):
+    pass
+
+def InitTransformRecursivly(self, arg1):
+    pass
+
+def GetClassName(self):
+    pass
+
+def StateContainerDataWeaponGetFocusedRequiredLevel(self):
+    pass
+
+def GetEconomyResourceScrapAmount():
+    pass
+
+def GetBlackboardValueFromObject(self, arg1):
+    pass
+
+def IsCampMainMissionCompleted(self):
+    pass
+
+def StateContainerDataWeaponSetQuickFireInputs(self, arg1, arg2, arg3):
+    pass
+
+def StateContainerDataHarpoonChangeReloadTimeScale(self, arg1):
+    pass
+
+def WeakspotGetOptionalProtecting(self):
+    pass
+
+def EnableCameraWarp():
+    pass
+
+def GameObjectToFloat(self):
+    pass
+
+def SetTransform(self, arg1):
+    pass
+
+def EaseInCustomUpdateSpeed(self, arg1):
+    pass
+
+def StateContainerDataWeaponSetFirePrompt(self, arg1):
+    pass
+
+def WeakspotWheelGetWheelIndex(self):
+    pass
+
+def StateContainerDataHarpoonClearItem(self):
+    pass
+
+def GetChildByIndex(self, arg1):
+    pass
+
+def StateContainerDataWeaponResetWorkingTargets(self):
+    pass
+
+def StateContainerDataWeaponSetFireInputs(self, arg1, arg2, arg3):
+    pass
+
+def StateContainerDataWeaponSetAimInputs(self, arg1, arg2, arg3):
+    pass
+
+def SetDictionaryFloat(self, arg1):
+    pass
+
+def GetAlias(self):
+    pass
+
+def GetWindVelocityEffects():
+    pass
+
+def IsTaged(self, arg1):
+    pass
+
+def ClearBlackboardValueFromObject(self, arg1):
+    pass
+
+def IsNextgen():
+    pass
+
+def StateContainerDataWeaponZoomedInputStuckToAlignTarget(self, arg1):
+    pass
+
+def CloneFactoryTakeOwnership(self, arg1, arg2):
+    pass
+
+def WeakspotHarpoonGetAttachGunPos(self):
+    pass
+
+def GetLegendLevel():
+    pass
+
+def IsEditor():
+    pass
+
+def StateContainerDataWeaponGetAlignTargetOffsetElevation(self):
+    pass
+
+def GetItemPickupable(self, arg1):
+    pass
+
+def IsDestructionDamageControllerGroup(self):
+    pass
+
+def SetForcePulseFaction(self, arg1):
+    pass
+
+def WeakspotGetHealthScript(self):
+    pass
+
+def WeakspotGetPosition(self):
+    pass
+
+def StateContainerDataWeaponIsSelected(self):
+    pass
+
+def StateContainerDataWeaponFilterTargets(self, arg1, arg2, arg3, arg4):
+    pass
+
+def PostEvent(self, arg1):
+    pass
+
+def StateContainerDataTargetGetActiveTarget(self):
+    pass
+
+def StateContainerDataWeaponSetMiscInputs(self, arg1, arg2):
+    pass
+
+def GetTimeOfDay():
+    pass
+
+def PostEventNone(self):
+    pass
+
+def DestructibleMakeDynamic(self):
+    pass
+
+def WeakspotIsArmoured(self):
+    pass
+
+def WeakspotGetOptionalProtectedBy(self):
+    pass
+
+def GetGriffaTokens():
+    pass
+
+def CloneFactoryCreateInstanceWithParent(self, arg1, arg2):
+    pass
+
+def GetParent(self):
+    pass
+
+def StateContainerDataHarpoonSetExplosionLevel(self, arg1):
+    pass
+
+def StateContainerDataHighlightTargettingGetTargets(self, arg1, arg2):
+    pass
+
+def SetLocalTransform(self, arg1):
+    pass
+
+def QueueAct(self, arg1):
+    pass
+
+def GetGameTime(self):
+    pass
+
+def StateContainerDataHarpoonSetRange(self, arg1, arg2):
+    pass
+
+def StateContainerDataWeaponResetActiveTarget(self):
+    pass
+
+def StateContainerDataWeaponGetAlignTarget(self):
+    pass
+
+def GetDestructionDamageControllerUnitHealth(self):
+    pass
+
+def GetEconomyResourceAmount(self, arg1):
+    pass
+
+def DisableCameraWarp():
+    pass
+
+def GetChildByScriptName(self, arg1):
+    pass
+
+def StateContainerDataHighlightTargettingConsumeUITargetsModified(self):
+    pass
+
+def GetUnitHealth(self):
+    pass
+
+def GetRegionForCharacter(self):
+    pass
+
+def GetNameHash(self):
+    pass
+
+def IsWeatherActive(self):
+    pass
+
+def WeakspotCollidesWith(self, arg1):
+    pass
+
+def IsGamePaused():
+    pass
+
+def StateContainerDataHarpoonSetStrength(self, arg1):
+    pass
+
+def GameHashString(self):
+    pass
+
+def TargetObjectDisable(self):
+    pass
+
+def StateContainerDataHarpoonSetHarpoonLevel(self, arg1):
+    pass
+
+def PostEventFloat(self, arg1):
+    pass
+
+def GetSqDistance(self, arg1):
+    pass
+
+def IsDestructionDamageController(self):
+    pass
+
+def PostEventInt(self, arg1):
+    pass
+
+def TargetObjectEnable(self):
+    pass
+
+def StateContainerUpdate(self, arg1):
+    pass
+
+def GetFuryEventVariationMultiplier(self):
+    pass
+
+def StateContainerDataWeaponGetAlignTargetPos(self):
+    pass
+
+def StateContainerDataWeaponGetReloadTimeLeft(self):
+    pass
+
+def GetWindOcclusion():
+    pass
+
+def StateContainerDataWeaponSelectBestZoomedScreenSpaceTarget(self, arg1, arg2, arg3, arg4):
+    pass
+
+def SetFlameObjectFaction(self, arg1):
+    pass
+
+def GetRegionDifficultyForCharacter(self):
+    pass
+
+def StartForcePulse(self):
+    pass
+
+def StateContainerDataHarpoonGetProjectileTargetPos(self):
+    pass
+
+def AddChildObjectSimple(self, arg1):
+    pass
+
+def StateContainerDataHarpoonSetReloadTime(self, arg1):
+    pass
+
+def GetTransform(self):
+    pass
+
+def GameHashFloat(self):
+    pass
+
+def GetFuryEventCount(self):
+    pass
+
+def SendEventFloat(self, arg1):
+    pass
+
+def GetRealTime():
+    pass
+
+def GetTerritoryForCharacter(self):
+    pass
+
+def StateContainerDataHighlightTargettingUITargetsModified(self):
+    pass
+
+def CloneFactoryCreateInstanceAt(self, arg1, arg2):
+    pass
+
+def IsObjectEqualTo(self, arg1):
+    pass
+
+def WreckingBallDisarm(self):
+    pass
+
+def InflictDamage(self, arg1, arg2, arg3, arg4):
+    pass
+
+def GetCurrentActiveLocationDifficulty():
+    pass
+
+def GetLegendRank():
+    pass
+
+def GetEconomyResourceId(self):
+    pass
+
+def GetRegionThreat(self):
+    pass
+
+def StateContainerRender(self, arg1):
+    pass
+
+def StateContainerDataHarpoonSetExplosiveReloadTime(self, arg1):
+    pass
+
+def StateContainerDataWeaponGetAlignTargetOffsetAzimuth(self):
+    pass
+
+def FindClosestLocationInfo(self):
+    pass
+
+def GetDistanceXZ(self, arg1):
+    pass
+
+def WeakspotGetAffectedObject(self):
+    pass
+
+def SendEventNone(self):
+    pass
+
+def SetHitByPlayer(self):
+    pass
+
+def StateContainerDataHarpoonGetHarpoonStrength(self):
+    pass
+
+def StateContainerDataWeaponInputFlagsCleared(self):
+    pass
+
+def StateContainerDataSlowMoIsEnabled(self):
+    pass
+
+def StateContainerDataWeaponSelectBestScreenSpaceTarget(self, arg1, arg2, arg3, arg4):
+    pass
+
+def StateContainerIsStateActive(self, arg1):
+    pass
+
+def StateContainerDataWeaponSetSelected(self, arg1):
+    pass
+
+def WasHitByPlayer(self, arg1):
+    pass
+
+def GetChild(self, arg1):
+    pass
+
+def GetRelativePosition(self, arg1):
+    pass
+
+def WeakspotHarpoonGetElasticContraint(self):
+    pass
+
+def SendAnimationEvents(self, arg1, arg2):
+    pass
+
+def GetName(self):
+    pass
+
+def GetNbChilds(self):
+    pass
+
+def GetBulletFiredFromWeapon(self):
+    pass

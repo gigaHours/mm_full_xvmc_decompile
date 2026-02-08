@@ -1,0 +1,13 @@
+module defe_attack_debug
+
+def Enter(self, arg1):
+    pass
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = character.GetWorldMatrix(self)
+    local4 = animation.GetLinkTarget(self)
+    local5 = vector.Scale(local3.r2, -1.0)
+    debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local5, 3.4)), 0.8, vector.Set(1.0, 0.0, 0.0, 0.5))

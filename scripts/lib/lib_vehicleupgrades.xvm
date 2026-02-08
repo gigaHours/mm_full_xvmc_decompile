@@ -1,0 +1,349 @@
+module lib_vehicleupgrades
+
+def GetRepairSpeedUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @4253804A)
+
+def ChangeCollisionEffectScale(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = vehicle.GetCollisionEffectScale(local1)
+    if DEBUG_ENABLED():
+        debug.LogInfo(">> Previous CollisionEffectScale: %f", [local2])
+    local3 = local2 + self
+    vehicle.SetCollisionEffectScale(local1, local3)
+    if DEBUG_ENABLED():
+        debug.LogInfo(">> New CollisionEffectScale: %f", [local3])
+
+def GetDecalUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @B989D2E1)
+
+def ChangeGrindingDamageScale(self):
+    local1 = lib_entity_proxy.GetCollision(vehicle.GetSignatureVehicle())
+    if local1:
+        scriptgo.Call1(local1, @580BE6B2, self)
+
+def ChangeSuspension(self, arg1):
+    local2 = vehicle.GetSignatureVehicle()
+    local3 = vehicle.GetChassis(local2)
+    local4 = local3.Axles
+    local5 = vehicle.GetMass(local2)
+    MassCompensateSuspensionLength(local3, local5, local5, arg1)
+    local7 = 0.0
+    local8 = 1.0
+    local6 = len(local4)
+    while local6 > local7:
+        local9 = local4[local7]
+        local9.SuspensionMaxLength = local9.SuspensionMaxLength + self
+        local9.SuspensionSpringStrength = arg1 * arg1 * local9.SuspensionSpringStrength
+        local9.AntiRollBarStiffness = arg1 * arg1 * local9.AntiRollBarStiffness
+        local9.SuspensionCompressionDamper = arg1 * arg1 * local9.SuspensionCompressionDamper
+        local9.SuspensionRelaxationDamper = arg1 * arg1 * local9.SuspensionRelaxationDamper
+        local7 = local8 + local7
+
+def ChangeTireAdditionUpgrade(self):
+    local1 = vehicle.GetSignatureVehicle()
+    vehicle.ClearAllTireParameters(local1)
+    local2 = lib_entity_proxy.SafeGetChild(local1, "script.physics.tirefriction")
+    local3 = scriptgo.GetProperties(local2)
+    local3.additionalUpgrade = local3.additionalUpgrade + self
+
+def ChangeFireResistance(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = lib_entity_proxy.SafeGetChild(local1, "script.damagesystem.FireDamageHandler")
+    local3 = scriptgo.GetProperties(local2)
+    local3.fireResistanceFactor = local3.fireResistanceFactor + self
+    if 0.0 > local3.fireResistanceFactor:
+        local3.fireResistanceFactor = 0.0
+
+def ChangeAdditionalAccelerationScale(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = vehicle.GetChassis(local1)
+    local3 = local2.Drivetrain.ScriptVariables
+    vehicle.ChangeAdditionalEngineTorqueScale(local1, self)
+    local3.p1 = none
+    local2.Drivetrain.PolynomialEngineAvailable = false
+    RecomputeGearbox()
+
+def GetHarpoonUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @1D1460D7)
+
+def GetGripUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @A6A45243)
+
+def ChangeAccelerationScale(self, arg1):
+    local2 = vehicle.GetSignatureVehicle()
+    local3 = vehicle.GetChassis(local2)
+    local4 = local3.Drivetrain.ScriptVariables
+    vehicle.SetEngineTorqueScale(local2, self)
+    vehicle.SetEngineResistanceScale(local2, arg1)
+    local4.p1 = none
+    local3.Drivetrain.PolynomialEngineAvailable = false
+    RecomputeGearbox()
+    if DEBUG_ENABLED():
+        debug.LogInfo(">> New EngineTorqueScale: %f", [self])
+        debug.LogInfo(">> New EngineResistanceScale: %f", [arg1])
+
+def GetCompanionLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @2CDE5B54)
+
+def DiminishingReturnsProgression(self, arg1, arg2):
+    local3 = 0.0
+    if self == 1.0:
+        local3 = 0.3
+    elif self == 2.0:
+        local3 = 0.55
+    elif self == 3.0:
+        local3 = 0.75
+    elif self == 4.0:
+        local3 = 0.9
+    elif self == 5.0:
+        local3 = 1.0
+    return math.Lerp(local3, arg1, arg2)
+
+def GetSniperEnabled():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @8146058A)
+
+def GetTopSpeedUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @E949E9FA)
+
+def GetSideBurnerLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @F3579271)
+
+def ChangeAdditionalTopSpeed(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = vehicle.GetChassis(local1)
+    local3 = local2.Drivetrain
+    local4 = local3.ScriptVariables
+    if not local4.additionalTopSpeedRatio:
+        local4.additionalTopSpeedRatio = 0.0
+    local4.additionalTopSpeedRatio = local4.additionalTopSpeedRatio + self
+    RecomputeGearbox()
+
+def ChangeMass(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = vehicle.GetMass(local1)
+    if DEBUG_ENABLED():
+        debug.LogInfo(">> Previous Mass: %f", [local2])
+    local3 = local2 + self
+    MassCompensateSuspensionLength(vehicle.GetChassis(local1), local2, local3, 1.0)
+    vehicle.SetMass(local1, local3)
+    local4 = lib_entity_proxy.SafeGetChild(local1, "script.damagesystem.FireDamageHandler")
+    scriptgo.Call(local4, @C18B9C17)
+    if DEBUG_ENABLED():
+        debug.LogInfo(">> New Mass: %f", [local3])
+
+def LinearProgression(self, arg1, arg2, arg3):
+    return math.Lerp(math.Scale01(self, 0.0, arg1), arg2, arg3)
+
+def GetSniperUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @8146058A)
+
+def GetRepairTime(self):
+    return LinearProgression(self, 2.0, 35.0, 10.0)
+
+def GetHoodOrnamentUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @6347A13E)
+
+def ChangeTopSpeed(self):
+    local1 = vehicle.GetSignatureVehicle()
+    local2 = vehicle.GetChassis(local1)
+    local3 = local2.Drivetrain
+    local4 = local3.ScriptVariables
+    local4.topSpeedRatio = self
+    if not local4.maxTopSpeed:
+        local4.maxTopSpeed = local2.AeroSpeedCap
+    RecomputeGearbox()
+
+def GetHarpoonEnabled():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @1D1460D7)
+
+def RecomputeGearbox():
+    local0 = vehicle.GetSignatureVehicle()
+    local1 = vehicle.GetChassis(local0)
+    local2 = local1.Drivetrain
+    local3 = local2.ScriptVariables
+    local4 = local3.topSpeedRatio
+    if not local4:
+        return
+    if local3.additionalTopSpeedRatio:
+        local4 = local4 + local3.additionalTopSpeedRatio
+    local5 = local2.GearRatios
+    local6 = local2.AutoUpshifts
+    local7 = local2.NeutralGearIndex + 1.0
+    local8 = local2.EngineRpms[len(local2.EngineRpms) - 1.0]
+    local9 = local8 * 2.0 * math.Pi() / 60.0
+    local10 = vehicle.GenerateEngineTorque(local0, local8)
+    local11 = local9 * local10
+    local12 = lib_entity_proxy.SafeGetChild(local0, "script.physics.aerodynamics")
+    local1.AeroSpeedCap = local3.maxTopSpeed * local4
+    local13 = 10.0
+    while 50.0 > local13:
+        local14 = scriptgo.Call2(local12, @29E932B7, local0, vector.Set(local13, 0.0, 0.0, 0.0))
+        if local14 * local13 > local11:
+            pass
+        else:
+            local13 = local13 + 1.0
+        local13 = math.Min(50.0, local13 + 1.0)
+        local15 = local13 / local1.Axles[1.0].LeftWheel.Radius / local9
+        local16 = 1.0 / local15
+        local17 = local5[local7]
+        local18 = 1.0 / local17
+        local19 = len(local5) - local7 - 2.0
+        local21 = 0.0
+        local22 = 1.0
+        local20 = local19
+        while local20 > local21:
+            local23 = 1.0 / math.Lerp((local21 + 1.0) / local19, local18, local15)
+            local6[local21] * local5[local7 + local21 + 1.0] / local23[local6] = local21
+            local23[local5] = local7 + local21 + 1.0
+            local21 = local22 + local21
+        local2.GearRatios = local5
+        local2.AutoUpshifts = local6
+        return
+
+def GetArmorUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @CFB6D1AC)
+
+def GetAccelerationLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, "fxQD")
+
+def GetBoardingDefenseUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @A4B3D58F)
+
+def MassCompensateSuspensionLength(self, arg1, arg2, arg3):
+    local4 = 1.0 - self.FrontAxleToCoMDistance / (self.FrontAxleToCoMDistance + self.RearAxleToCoMDistance)
+    local5 = self.Axles
+    if len(local5) > 2.0:
+        debug.LogError("vehicleupgrades", "MassCompensateSuspensionLength doesn't support vehicles with more than 2 axles")
+    local6 = 2.0 * (local5[0.0].SuspensionSpringStrength + local5[1.0].SuspensionSpringStrength)
+    local7 = (arg1 - 2034.32) * 9.81 / local6
+    local8 = (arg2 - 2034.32) * 9.81 / (local6 * arg3 * arg3)
+    local10 = 0.0
+    local11 = 1.0
+    local9 = len(local5)
+    while local9 > local10:
+        if local10 == 0.0:
+            local12 = 0.5 * local4
+        elif local10 == 1.0:
+            local12 = 0.5 * (1.0 - local4)
+        local13 = local5[local10]
+        local14 = local13.SuspensionSpringStrength
+        local15 = local13.SuspensionSpringStrength * arg3 * arg3
+        local16 = local12 * arg1 * 9.81 / local14
+        local17 = local12 * arg2 * 9.81 / local15
+        local13.SuspensionMaxLength = local13.SuspensionMaxLength - local16 + local17 + local7 - local8
+        local10 = local11 + local10
+
+def GetBoostUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @5710BCCA)
+
+def GetSuspensionUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @0E028CCF)
+
+def GetExplosiveHarpoonUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @D38F2D9C)
+
+def GetBoostEnabled():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @5710BCCA)
+
+def ChangeTireGrip(self):
+    local1 = vehicle.GetSignatureVehicle()
+    vehicle.ClearAllTireParameters(local1)
+    local2 = lib_entity_proxy.SafeGetChild(local1, "script.physics.tirefriction")
+    local3 = scriptgo.GetProperties(local2)
+    local3.upgradeLevel = self
+
+def GetWheelArmorUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @1D8A2421)
+
+def GetRammingUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @ACB56E9B)
+
+def GetBodyworkUpgradeLevel():
+    local0 = game.GetGameObjectByAlias("garage.state")
+    if not local0:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    return garagestate.GetUpgradeLevel(local0, @BC162D2B)
+
+def DEBUG_ENABLED():
+    return false

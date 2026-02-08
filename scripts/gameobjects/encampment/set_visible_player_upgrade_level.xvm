@@ -1,0 +1,14 @@
+module set_visible_player_upgrade_level
+
+def Trigger(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.is_tool:
+        visibleplayerupgrades.DebugSetTool(local1.attr_id, local1.level > 0.0)
+        return
+    if local1.is_perk:
+        visibleplayerupgrades.DebugSetPerk(local1.attr_id, local1.level > 0.0)
+        return
+    local2 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel(local1.part_id, local1.attr_id)
+    if local1.only_if_currently_lower and local2 > local1.level:
+        return
+    visibleplayerupgrades.DebugSetVisiblePlayerUpgrade(local1.part_id, local1.attr_id, local1.level)

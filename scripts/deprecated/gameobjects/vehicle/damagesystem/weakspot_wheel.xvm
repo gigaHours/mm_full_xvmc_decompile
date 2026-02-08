@@ -1,0 +1,188 @@
+module weakspot_wheel
+import @7464AC79
+import @42D0E955
+import @B1360AAD
+
+def OnWheelDeatched(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetChildByScriptName(local1.car, "driver_hit_reaction.xpy")
+    if local2:
+        scriptgo.Call1(local2, @8A9C6EC2, local1.wheel_index)
+
+def GetRootTransform(self):
+    local1 = scriptgo.GetProperties(self)
+    return vehicle.GetWheelTransform(local1.car, local1.wheel_index)
+
+def GetHealthComponent(self):
+    return lib_weakspot.GetHealthComponent(self)
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car != none:
+        Deregister(self, local1.car)
+    if lib_weakspot.DEBUG():
+        scriptgo.SetRenderFunction(self, "")
+
+def GetRenderTransform(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return vehicle.GetWheelRenderTransform(local2.car, local2.wheel_index, arg1)
+
+def GetProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.protectingParent
+
+def OnHitByBullet(self, arg1, arg2):
+    local3 = lib_damage_types.DAMAGE_SHOTGUN()
+    if arg2.AmmunitionType == 5.0:
+        local3 = lib_damage_types.DAMAGE_SNIPER()
+    WeakspotHitByBullet(self, arg1, local3)
+
+def DisableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @00E5221E)
+
+def ExplodesWith(self, arg1, arg2):
+    return CollidesWith(self, arg1)
+
+def RenderTestOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    debug.Sphere(GetPosition(self), local2.wheel.Radius, lib_color.RED(0.35))
+
+def GetTargetObject(self):
+    return scriptgo.GetProperties(self).car
+
+def HideOutline(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = self
+    if none != local1.lastWeakspotToOutline:
+        local2 = local1.lastWeakspotToOutline
+    lib_weakspot.HideOutline(local2)
+
+def OnDirectHitByBullet(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.physicsPartName:
+        local2 = vehicle.GetWheelPart(local1.car, local1.wheel_index)
+        WeakspotHitByBullet(self, local2, lib_damage_types.DAMAGE_SHOTGUN())
+
+def EnableShotgunTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.shotgunTarget:
+        scriptgo.Call(local1.shotgunTarget, @AF26B08B)
+
+def DeregisterChildWeakspot(self, arg1):
+    lib_weakspot.DeregisterChildWeakspot(self, arg1)
+
+def Init(self):
+    lib_weakspot.Init(self)
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetChassis(local1.car)
+    local1.wheel = local2.Wheels[local1.wheel_index]
+    if none == local1.protectingParent:
+        EnableShotgunTarget(self)
+
+def GetPosition(self):
+    return GetRootTransform(self).r3
+
+def GetWheelPart(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.physicsPartName:
+        local2 = vehicle.GetWheelPart(local1.car, local1.wheel_index)
+        return local2
+    return none
+
+def GetRenderPosition(self, arg1):
+    return GetRenderTransform(self, arg1).r3
+
+def GetPhysicsPartName(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.physicsPartName
+
+def ClearProtectingParent(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.protectingParent = none
+
+def RenderDebug(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.Call(local2.healthComponent, @F4E205B5)
+    local4 = 1.0 - local3
+    local5 = local3
+    local6 = 0.0
+    local7 = vehicle.GetWheelRenderTransform(local2.car, local2.wheel_index, arg1).r3
+    local8 = game.GetRenderTransform(local2.car, arg1)
+    if local2.hitPos:
+        debug.Sphere(matrix.MulVec(local8, local2.hitPos), 0.1, vector.Set(1.0, 0.0, 0.0, 0.5))
+    debug.Sphere(local7, 2.1 * local2.wheel.Radius, vector.Set(0.0, 0.0, 1.0, 0.05))
+    debug.Sphere(local7, local2.wheel.Radius, vector.Set(local4, local5, local6, 0.3))
+
+def GetMinTargetingDistance(self):
+    return 0.0
+
+def DisableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @00E5221E)
+
+def ShowOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = self
+    if not arg1:
+        local3 = game.GetChild(game.GetChild(local2.car, "Weakspots"), "weakspot.Body")
+    lib_weakspot.ShowOutline(local3, arg1)
+    local2.lastWeakspotToOutline = local3
+
+def Register(self, arg1):
+    lib_weakspot.Register(self, arg1)
+    EnableHarpoonTarget(self)
+    EnableShotgunTarget(self)
+
+def EnableHarpoonTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.harpoonTarget:
+        scriptgo.Call(local1.harpoonTarget, @AF26B08B)
+
+def GetChildWeakspot(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.childWeakspot
+
+def WeakspotHitByBullet(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if not lib_weakspot.IsBulletBlocked(self):
+        if none == local3.protectingParent:
+            if arg1 != none:
+                if local3.healthComponent != none:
+                    scriptgo.Call2(local3.healthComponent, @CA4FD849, 1.0, arg2)
+            else:
+                debug.LogError("WeakspotWheel", "Invalid part to use for hit by bullet")
+
+def IsArmor(self):
+    return false
+
+def Update(self, arg1):
+    if not lib_weakspot.UpdateBlockBullets(self, arg1):
+        scriptgo.SetUpdateFunction(self, "")
+
+def CollidesWith(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = game.GetTransform(local2.car)
+    local4 = vector.Sub(matrix.MulVec(local3, arg1), GetPosition(self))
+    if vector.Length(local4) > 2.1 * local2.wheel.Radius:
+        return false
+    if lib_weakspot.DEBUG():
+        local2.hitPos = arg1
+    return true
+
+def RegisterChildWeakspot(self, arg1):
+    lib_weakspot.RegisterChildWeakspot(self, arg1)
+
+def GetNormal(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetRootTransform(self)
+    local3 = GetPosition(self)
+    local4 = game.GetTransform(local1.car).r3
+    local5 = vector.Sub(local3, local4)
+    local5 = vector.Scale(local2.r0, vector.Dot(local5, local2.r0))
+    return vector.Normalize(local5)
+
+def Deregister(self, arg1):
+    lib_weakspot.Deregister(self, arg1)

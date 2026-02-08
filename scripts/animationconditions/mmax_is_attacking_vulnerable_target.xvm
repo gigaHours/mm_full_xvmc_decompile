@@ -1,0 +1,15 @@
+module mmax_is_attacking_vulnerable_target
+
+def Evaluate(self, arg1):
+    local2 = 15.0
+    local3 = 18.0
+    local4 = 6.0
+    local5 = animation.GetLinkTarget(self)
+    if local5:
+        if character.IsStateBitSet(local5, local4):
+            return 1.0
+        if character.IsContextBitSet(local5, local2) or character.IsContextBitSet(local5, local3) or character.HasCategoryItem(local5, "Shield") or character.GetCharacterLevel(local5) == 2.0:
+            if not (character.HasBuff(local5, "dazed") or 0.05 >= character.GetFloatRegister(local5, 21.0)):
+                return 1.0
+            return 0.0
+    return 1.0

@@ -1,0 +1,15 @@
+module ch_sendevent_to_driver
+import @BAFDB405
+
+def Enter(self, arg1):
+    arg1.fired = false
+
+def Update(self, arg1, arg2):
+    if arg1.fired != true:
+        local3 = character.GetVehicle(self)
+        if local3:
+            local4 = vehicle.GetVehicleDriver(local3)
+            if local4:
+                if lib_character.SegmentNonExistentOrWithin(self, @E063F6A0, @CA90DC1A):
+                    game.QueueAct(local4, "ACT_PULLED_FROM_VEHICLE")
+                    arg1.fired = true

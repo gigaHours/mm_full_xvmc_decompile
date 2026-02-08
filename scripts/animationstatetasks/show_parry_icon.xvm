@@ -1,0 +1,50 @@
+module show_parry_icon
+import @42D0E955
+import @80A1852C
+
+def UpdateRender(self, arg1, arg2):
+    if arg1.IconToShow:
+        gui.Show3dIconFloat(arg1.IconToShow, GetIconPos(self, arg1), arg1.IconData)
+
+def UnblockableAttack(self, arg1):
+    arg1.IconToShow = 2.0
+    if arg1.BerserkerEventPosted == none:
+        arg1.BerserkerEventPosted = true
+        game.PostEventNone("global.berserker_attack.initiated")
+
+def GetIconPos(self, arg1):
+    local2 = game.GetTransform(self)
+    local3 = animation.GetPoseTransformById(self, "Head")
+    local4 = matrix.Mul(local3, local2)
+    local5 = local4.r3
+    local5.y = local5.y + arg1.YOffset
+    return local5
+
+def Update(self, arg1, arg2):
+    arg1.IconToShow = 0.0
+    arg1.IconData = -1.0
+    local3 = animation.GetSegmentInfo(self, @E063F6A0, @8681CA7E)
+    if local3:
+        if local3.Inside > 0.0:
+            UnblockableAttack(self, arg1)
+            return
+    local4 = animation.GetSegmentInfo(self, @E063F6A0, @18D2BD90)
+    if local4 and (not animation.IsWithinSegment(self, @E063F6A0, @85C9FD13)):
+        if local4.Inside > 0.0:
+            local5 = animation.GetLinkTarget(self)
+            if local5:
+                if animation.IsWithinSegment(local5, @E063F6A0, @2EB6518D):
+                    return
+            local6 = lib_gameplay.GetMaximumParryAmount(character.GetPlayer(), self)
+            if local6 == 0.0:
+                UnblockableAttack(self, arg1)
+                return
+            local7 = local4.Start
+            local8 = local4.End
+            arg1.IconToShow = 4.0
+            if local6 == 2.0:
+                local9 = animation.GetSegmentInfo(self, @E063F6A0, @D61482D3)
+                if local9:
+                    local8 = local9.Start
+            local10 = math.Scale01(animation.GetTime(self), local7, local8)
+            arg1.IconData = 1.0 - local10

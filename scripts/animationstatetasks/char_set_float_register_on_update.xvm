@@ -1,0 +1,32 @@
+module char_set_float_register_on_update
+
+def Enter(self, arg1):
+    local2 = self
+    if arg1.UsePlayerRegister and arg1.UsePlayerRegister == 1.0:
+        local2 = character.GetPlayer()
+    elif arg1.UseLinkTarget and arg1.UseLinkTarget == 1.0:
+        local2 = animation.GetLinkTarget(self)
+    if local2:
+        character.SetFloatRegister(local2, arg1.RegIndex, arg1.SetValue)
+
+def Exit(self, arg1):
+    local2 = self
+    if arg1.UsePlayerRegister and arg1.UsePlayerRegister == 1.0:
+        local2 = character.GetPlayer()
+    elif arg1.UseLinkTarget and arg1.UseLinkTarget == 1.0:
+        local2 = animation.GetLinkTarget(self)
+    if local2:
+        character.SetFloatRegister(local2, arg1.RegIndex, arg1.SetValue)
+
+def Update(self, arg1, arg2):
+    local3 = self
+    if arg1.UsePlayerRegister and arg1.UsePlayerRegister == 1.0:
+        local3 = character.GetPlayer()
+    elif arg1.UseLinkTarget and arg1.UseLinkTarget == 1.0:
+        local3 = animation.GetLinkTarget(self)
+    if arg1.Segment:
+        if animation.IsWithinSegment(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+            character.SetFloatRegister(local3, arg1.RegIndex, arg1.SetValue)
+        return
+    if local3:
+        character.SetFloatRegister(local3, arg1.RegIndex, arg1.SetValue)

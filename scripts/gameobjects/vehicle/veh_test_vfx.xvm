@@ -1,0 +1,6 @@
+module veh_test_vfx
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car:
+        effect.SpawnerPlay(local1.test_vfx)

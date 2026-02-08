@@ -1,0 +1,6 @@
+module char_statebit_is_set_on_mmax
+
+def Evaluate(self, arg1):
+    if character.IsStateBitSet(character.GetPlayer(), arg1.Property0):
+        return 1.0
+    return 0.0

@@ -1,0 +1,33 @@
+module veh_force_stop_behavior
+import @58351C01
+import @45098D7D
+
+def DoSetup(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if not vehicle.IsPlayerVehicle(local2.car):
+        return
+    local2.input = lib_entity_proxy.GetPlayerInput(local2.car)
+    local2.forceExit = arg1
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def TriggerPlayerForceStopAndExit(self):
+    DoSetup(self, true)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.car = lib_vehicle.GetParentVehicle(self)
+
+def TriggerPlayerForceStop(self):
+    DoSetup(self, false)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = 0.5
+    if vector.Length(vehicle.GetVelocity(local2.car)) > local3:
+        scriptgo.Call(local2.input, @EA78F609)
+    else:
+        scriptgo.Call(local2.input, @14FA7049)
+        if local2.forceExit:
+            local4 = character.GetPlayer()
+            game.QueueAct(local4, "ACT_EXIT_VEHICLE")
+        scriptgo.SetUpdateFunction(self, "")

@@ -1,0 +1,37 @@
+module veh_gameplay_signature
+import @42D0E955
+import @F76070AE
+import @58351C01
+
+def UpgradeMenuRepair(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = lib_entity_proxy.GetWeakspotList(local1.car)
+    if local2 == none:
+        debug.LogError("signature vehicle", "Weakspot list missing from a vehicle.")
+        return
+    local4 = 0.0
+    local5 = 1.0
+    local3 = golist.NbGameObjects(local2)
+    while local3 > local4:
+        local6 = golist.Get(local2, local4)
+        local7 = game.WeakspotGetHealthScript(local6)
+        scriptgo.Call2(local7, @F0A0E288, 1.0, 0.0)
+        local4 = local5 + local4
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.harpoon_cooldown = 0.0
+    local1.harpoon_cooldown_max = 0.0
+    local1.harpoon_cooldown_timout = 0.0
+    local1.in_combat = false
+    local1.one_enemy = false
+    local1.player_is_in_signature_vehicle_area = false
+    local1.flameFuelConsumptionRateScale = 1.0
+    local2 = gui.GetBlackboard()
+    local2.veh_weapon_harpoon_reload_time = 0.0
+
+def Reset(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.harpoon_cooldown = 0.0
+    local1.harpoon_cooldown_max = 0.0
+    local1.harpoon_cooldown_timout = 0.0

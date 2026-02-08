@@ -1,0 +1,11 @@
+module is_send_act_to_user
+
+def Evaluate(self, arg1):
+    local2 = interaction.GetCharacter(self)
+    if arg1.segment_to_be_in_fullbody != "any":
+        if animation.IsWithinSegment(local2, @E063F6A0, game.GameHashString(arg1.segment_to_be_in_fullbody)):
+            game.QueueAct(local2, arg1.act_to_send)
+            return 1.0
+        return 0.0
+    game.QueueAct(local2, arg1.act_to_send)
+    return 1.0

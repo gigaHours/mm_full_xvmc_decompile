@@ -1,0 +1,7 @@
+module lookat_set_closest_npc_as_target
+import @05896E5A
+
+def Update(self, arg1, arg2):
+    local3 = 20.0
+    local4 = 0.1
+    local5 = lib_lookat.SetClosestNpcAsTarget(self, local4, local3)

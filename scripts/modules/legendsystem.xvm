@@ -1,0 +1,7 @@
+module legendsystem
+
+def UnlockScreen(self):
+    pass
+
+def LockScreen(self, arg1):
+    pass

@@ -1,0 +1,6 @@
+module is_game_state
+import @80A1852C
+
+def Evaluate(self, arg1):
+    local2 = character.GetPlayer()
+    return lib_gameplay.IsGameStateCombat(local2)

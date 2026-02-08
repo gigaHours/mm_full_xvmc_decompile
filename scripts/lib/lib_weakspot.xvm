@@ -1,0 +1,161 @@
+module lib_weakspot
+
+def IsBulletBlocked(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.bullet_blocked_time > 0.0
+
+def GetHealthComponent(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.healthComponent
+    return local2
+
+def BlockBullets(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.bullet_blocked_time = 0.1
+    scriptgo.SetUpdateFunction(self, "Update")
+    if local1.childWeakspot != none:
+        BlockBullets(local1.childWeakspot)
+
+def DEBUG():
+    return false
+
+def HideOutline(self):
+    if none != self:
+        local1 = scriptgo.GetProperties(self)
+        local2 = local1.outline
+        if none != local2:
+            if model.IsOutline(local2):
+                model.SetOutlineVisible(local2, false)
+
+def DeregisterChildWeakspot(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.childWeakspot = none
+    local3 = scriptgo.GetProperties(arg1)
+    local3.protectingParent = none
+    scriptgo.Call(arg1, @E085C01F)
+    scriptgo.Call(arg1, "irao")
+    if DEBUG():
+        debug.LogInfo("LIB_WEAKSPOT DeregisterChildWeakspot", [])
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.car
+    local1.bullet_blocked_time = 0.0
+    local1.lastWeakspotToOutline = none
+    local1.debugColor = lib_color.WHITE(0.8)
+    local3 = local1.outline
+    if none != local3:
+        if model.IsOutline(local3):
+            model.SetOutlineVisible(local3, false)
+    if DEBUG():
+        debug.LogInfo("lib_weakspot Init", [])
+    local4 = GetHealthComponent(self)
+    if local4 != none:
+        scriptgo.Call1(local4, @6E3A45E2, self)
+    if none != local1.protectingParent:
+        scriptgo.Call1(local1.protectingParent, @F81E7600, self)
+
+def UpdateBlockBullets(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.bullet_blocked_time > 0.0:
+        local2.bullet_blocked_time = local2.bullet_blocked_time - arg1
+    if 0.0 >= local2.bullet_blocked_time:
+        return false
+    return true
+
+def OutLineFadeTime():
+    return 1.0
+
+def ShowOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.outline
+    if none != local3:
+        if model.IsOutline(local3):
+            local4 = -1.0
+            if arg1:
+                if none != local2.physicsPartName:
+                    local5 = vehicle.GetPart(local2.car, local2.physicsPartName)
+                    if local5 != none:
+                        local4 = local5.Index
+            model.SetOutlineModelIndex(local3, local4)
+            model.SetOutlineColor(local3, lib_color.WHITE(1.0), 0.0)
+            model.SetOutlineAnimationStrength(local3, 0.0)
+            model.SetOutlineWidth(local3, 100.0)
+            model.SetOutlineVisible(local3, true)
+
+def Register(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1 == none:
+        debug.LogError("damage system", "Weakspot.Register() called with car set to None.")
+    if not vehicle.IsVehicle(arg1):
+        debug.LogError("damage system", "Weakspot.Register() called with an object that is not a vehicle.")
+    local2.car = arg1
+    local3 = lib_entity_proxy.GetWeakspotList(arg1)
+    if local3 == none:
+        debug.LogError("damage system", "Weakspot list missing from a vehicle.")
+        return
+    local5 = 0.0
+    local6 = 1.0
+    local4 = golist.NbGameObjects(local3)
+    while local4 > local5:
+        if game.IsObjectEqualTo(golist.Get(local3, local5), self):
+            return
+        local5 = local6 + local5
+    golist.Add(local3, self)
+    if DEBUG():
+        debug.LogInfo("Registered weakspot.", [])
+        scriptgo.SetRenderFunction(self, "RenderDebug")
+
+def DebugDrawHealth(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.debugColor
+    local4 = GetHealthComponent(self)
+    local5 = scriptgo.Call(local4, @F4E205B5)
+    local6 = 1.0 - local5
+    local7 = local5
+    local8 = scriptgo.Call1(self, @2DF28E8C, arg1)
+    local9 = local8.r3
+    debug.Sphere(local9, 0.3, vector.Set(local6, local7, 0.0, 0.5))
+    if none != local2.childWeakspot:
+        local10 = 0.35
+        local11 = 0.05
+        local12 = 0.3
+        local13 = scriptgo.Call(self, @FB4DD739)
+        local14 = vector.Add(local9, vector.Scale(local13, local12))
+        local15 = local8.r1
+        local16 = vector.Normalize(vector.Cross(local13, local15))
+        local17 = vector.Add(vector.Add(local14, vector.Scale(local16, -local10)), vector.Scale(local15, local10))
+        local18 = vector.Add(vector.Add(local14, vector.Scale(local16, local10)), vector.Scale(local15, local10))
+        local19 = vector.Add(vector.Add(local14, vector.Scale(local16, local10)), vector.Scale(local15, -local10))
+        local20 = vector.Add(vector.Add(local14, vector.Scale(local16, -local10)), vector.Scale(local15, -local10))
+        lib_debugdraw.RenderPolyLine([local17, local18, local19, local20], local3)
+        debug.Sphere(local17, local11, local3)
+        debug.Sphere(local18, local11, local3)
+        debug.Sphere(local19, local11, local3)
+        debug.Sphere(local20, local11, local3)
+
+def RegisterChildWeakspot(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.childWeakspot = arg1
+    local3 = scriptgo.GetProperties(arg1)
+    local3.protectingParent = self
+    scriptgo.Call(arg1, @BC4D16B7)
+    scriptgo.Call(arg1, @398B8C34)
+    if DEBUG():
+        debug.LogInfo("LIB_WEAKSPOT RegisterChildWeakspot %go", [local2.childWeakspot])
+
+def Deregister(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1 == none:
+        debug.LogWarning("damage system", "Attempted to deregister weakspot on a car that doesn't exist.")
+        return
+    if not vehicle.IsVehicle(arg1):
+        debug.LogError("damage system", "Weakspot.Deregister() called with an object that is not a vehicle.")
+    local3 = lib_entity_proxy.GetWeakspotList(arg1)
+    if local3 == none:
+        debug.LogWarning("damage system", "Attempted to deregister weakspot from a wsList that doesn't exist.")
+        return
+    golist.Rem(local3, self)
+    scriptgo.SetRenderFunction(self, "")
+    if DEBUG():
+        debug.LogInfo("Deregistered weakspot.", [])

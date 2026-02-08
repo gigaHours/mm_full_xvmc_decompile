@@ -1,0 +1,79 @@
+module ram_target
+import @B79BE9DF
+import @58351C01
+import @45098D7D
+
+def Disable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.disabled = true
+
+def ContactPointCallback(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if not local2.healthTracker:
+        return
+    if local2.disabled:
+        return
+    local3 = scriptgo.GetProperties(local2.healthTracker)
+    if 0.0 >= local3.health:
+        arg1.Disabled = local3.ignoreCollisionIfDestroyed
+        return
+    if not physics.IsPhysicsObject(arg1.OtherGameObject):
+        debug.LogError("ContactPointCallback", "Collided with non physics object")
+        return
+    if local2.minimumRammingUpgradeLvlToRam > 0.0:
+        if not vehicle.IsSignatureVehicle(arg1.OtherGameObject):
+            scriptgo.Call1(local2.healthTracker, @2925E205, 0.0)
+            return
+        local4 = lib_entity_proxy.GetVehicleStats(arg1.OtherGameObject)
+        local5 = scriptgo.Call1(local4, @6229A949, "ramming")
+        if local2.minimumRammingUpgradeLvlToRam > local5:
+            scriptgo.Call1(local2.healthTracker, @2925E205, 0.0)
+            scriptgo.PostEvent(self, @77391587)
+            return
+    local6 = physics.GetPointVelocity(arg1.SelfGameObject, arg1.Position)
+    local7 = physics.GetPointVelocity(arg1.OtherGameObject, arg1.Position)
+    local8 = vector.Dot(arg1.SelfNormal, local6)
+    local9 = vector.Dot(arg1.OtherNormal, local7)
+    local10 = 0.0
+    if 0.0 > local8:
+        local10 = local9 + local8
+    else:
+        local10 = local9
+    if 0.0 > local10:
+        scriptgo.Call1(local2.healthTracker, @2925E205, 0.0)
+        return
+    local11 = physics.GetMass(arg1.OtherGameObject)
+    local12 = false
+    local13 = 1.0
+    if vehicle.IsVehicle(arg1.OtherGameObject):
+        local14 = game.GetChild(arg1.OtherGameObject, "script.damagesystem.CollisionDamageHandler")
+        local13 = 1.0
+        local15 = lib_damage.IsCollidingWithFront(arg1.OtherGameObject, arg1.Position)
+        if local15:
+            local16 = scriptgo.GetProperties(local14)
+            local13 = local16.rammingDamageScale
+    if local11 == 0.0:
+        debug.LogWarning("damage system", "ram_target getting rammed by a static object is not supported yet")
+        scriptgo.Call1(local2.healthTracker, @2925E205, 0.0)
+        return
+    local17 = lib_damage.CalculateRammingDamage(local10, local11, local13, local2.armorSpeedThreshold / 3.6, local2.armorDamageScale)
+    if local17 > local2.damageGatingThreshold:
+        local12 = scriptgo.Call1(local2.healthTracker, @2925E205, local17)
+    if local17 > 0.0 and local2.damageGatingThreshold > 0.0 and vehicle.IsPlayerVehicle(arg1.OtherGameObject):
+        local18 = gui.GetBlackboard()
+        local18.ramometer_value = local17 / local2.damageGatingThreshold
+        debug.LogInfo("Ram-o-Meter: %f", [local18.ramometer_value])
+    if local12:
+        arg1.Disabled = local3.ignoreCollisionIfDestroyed
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.damageGatingThreshold:
+        local1.damageGatingThreshold = 0.0
+    local1.disabled = local1.startDisabled
+    if local1.healthTracker == none:
+        debug.LogError("ram target", "no health tracker assigned to ram target")
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.disabled = false

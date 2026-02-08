@@ -1,0 +1,42 @@
+module force_jerrycan_on_graph_exit
+
+def TransferObject(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.IsGettingCan:
+        local2 = character.GetCharacterByName("chumbucket")
+        local3 = character.GetPlayer()
+    else:
+        local3 = character.GetCharacterByName("chumbucket")
+        local2 = character.GetPlayer()
+    if local2 != none and local3 != none:
+        local4 = character.TransferObject(local2, local3, "jerrycan")
+        if local1.IsGettingCan:
+            game.SendEventNone("hide.parked.jerrycan")
+            local5 = character.GetWieldedObject(local3)
+            if (not local4) and (not local5) and local1.wielded_jerrycan:
+                character.GiveObject(local3, local1.wielded_jerrycan)
+            game.DoAct(local3, "ACT_FORCE_RIGHTHAND_JERRYCAN")
+        else:
+            game.SendEventNone("show.parked.jerrycan")
+            if not local4:
+                if local1.wielded_jerrycan:
+                    character.GiveObject(local3, local1.wielded_jerrycan)
+    else:
+        debug.LogInfo("Unable to give item from %go to %go", [local2, local3])
+    scriptgo.SetUpdateFunction(self, "")
+
+def EntryGetCan(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.IsGettingCan = true
+    local1.wielded_jerrycan = none
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if not local2.wielded_jerrycan:
+        local2.wielded_jerrycan = character.GetWieldedObject(character.GetPlayer())
+
+def EntryPutCan(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.IsGettingCan = false
+    local1.wielded_jerrycan = character.GetWieldedObject(character.GetPlayer())

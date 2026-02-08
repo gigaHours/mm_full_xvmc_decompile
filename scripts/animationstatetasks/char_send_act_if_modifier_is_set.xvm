@@ -1,0 +1,7 @@
+module char_send_act_if_modifier_is_set
+
+def Enter(self, arg1):
+    if character.IsModifierSet(self, game.GameHashFloat(arg1.Modifier)):
+        local2 = character.GetPlayer()
+        if local2:
+            game.DoAct(local2, arg1.Act)

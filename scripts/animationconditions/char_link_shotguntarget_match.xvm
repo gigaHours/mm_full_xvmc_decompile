@@ -1,0 +1,23 @@
+module char_link_shotguntarget_match
+
+def Evaluate(self, arg1):
+    local2 = false
+    local3 = character.GetWorldMatrix(self)
+    local4 = animation.GetLinkTarget(self)
+    local5 = lib_entity_proxy.GetShotgun(self)
+    local6 = none
+    if local2:
+        debug.LogInfo("char_link_shotguntarget_match Evaluate", [])
+    if none != local5:
+        local6 = scriptgo.GetProperties(local5).target
+    if none != local4 and none != local6:
+        local7 = scriptgo.GetProperties(local6)
+        if local2:
+            debug.LogInfo("Compare target, linktarget: %go, shotguntarget.char: %go", [local4, local7.char])
+        if not game.IsObjectEqualTo(local4, local7.char):
+            if local2:
+                debug.LogInfo("char_link_shotguntarget_match: Has linktarget and shotguntarget but they do not match, return 0", [])
+            return 0.0
+    if local2:
+        debug.LogInfo("char_link_shotguntarget_match: return 1", [])
+    return 1.0

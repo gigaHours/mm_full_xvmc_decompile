@@ -1,0 +1,5 @@
+module set_anim_weight
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    if arg1.Property0:
+        animation.GetSampler(arg3, 0.0).Weight = arg1.Property0

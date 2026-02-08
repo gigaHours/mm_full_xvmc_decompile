@@ -1,0 +1,67 @@
+module mounted_sniper
+
+def DisableSniperMode(self):
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.SetRenderFunction(self, "")
+    gui.PostEvent("hide_gui_binoculars_01")
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.SetRenderFunction(self, "")
+    ResetState(self)
+
+def EnableSniperMode(self):
+    ResetState(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+    scriptgo.SetRenderFunction(self, "Render")
+    gui.PostEvent("show_gui_binoculars_01")
+
+def Render(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = character.GetWeaponAmmo(local2.weapon)
+    debug.PrintValue(local3, "Sniper Ammo", 3.0)
+
+def Recoil(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.pitch = local1.pitch + 0.03
+    local1.yaw = local1.yaw + 0.03 * (math.Rand() - 0.5)
+
+def ResetState(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.yaw = 0.0
+    local1.pitch = 0.0
+    local1.yaw_sway = 0.0
+    local1.pitch_sway = 0.0
+    local1.breath = 1.0
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = input.GetLookInput()
+    local4 = input.GetSensitivity()
+    local5 = input.UnitCircleNormalize(local3.x * local2.yaw_sensitivity * local4.x * arg1)
+    local6 = input.UnitCircleNormalize(local3.y * local2.pitch_sensitivity * local4.y * arg1)
+    local7 = local2.yaw_limit * 3.1415 / 180.0
+    local8 = local2.pitch_limit * 3.1415 / 180.0
+    local2.yaw = math.Clamp(local2.yaw + local5, -local7, local7)
+    local2.pitch = math.Clamp(local2.pitch + local6, -local8, local8)
+    local2.yaw_sway = local2.yaw_sway + 2.0 * arg1
+    local2.pitch_sway = local2.pitch_sway + 3.0 * arg1
+    local9 = 0.0003 * math.Sin(local2.yaw_sway)
+    local10 = 0.0006 * math.Sin(local2.pitch_sway)
+    local11 = local2.breath
+    if local2.breath > 1.0:
+        local2.breath = local2.breath - arg1
+    elif input.GetButtonInput(@2A9529F2) > 0.0:
+        local2.breath = local2.breath - arg1
+        if -1.0 > local2.breath:
+            local2.breath = 5.0
+    else:
+        local2.breath = 1.0
+    local11 = math.Clamp(local2.breath, 0.0, 5.0)
+    local12 = local2.yaw + local9 * local11
+    local13 = local2.pitch + local10 * local11
+    local14 = matrix.RotationMatrix(local12, local13, 0.0)
+    game.SetLocalTransform(local2.weapon, local14)
+    if input.IsButtonClicked(@F63A5CA1):
+        character.WeaponFireStraightAhead(local2.weapon, character.GetPlayer())

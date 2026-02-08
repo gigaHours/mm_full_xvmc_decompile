@@ -1,0 +1,66 @@
+module char_get_up_from_ragdoll_or_die
+import @87A2ECFD
+
+def UpdateWithGetUp(self, arg1, arg2):
+    local3 = game.GetTransform(self)
+    local4 = character.GetRagdollCollisionInfoCount(self)
+    local6 = 0.0
+    local7 = 1.0
+    local5 = local4
+    while local5 > local6:
+        local8 = character.GetRagdollCollisionInfo(self, local6)
+        local9 = local8.CollidedObject
+        local10 = local8.Position
+        local11 = local8.Normal
+        local12 = local8.Impact
+        if true:
+            debug.LogInfo("impact: %f", [local12])
+            debug.Sphere(local10, 0.3, lib_color.RED(1.0))
+        local6 = local7 + local6
+    if character.IsDead(self):
+        game.QueueAct(self, "ACT_DIE")
+        return
+    local13 = animation.GetPoseTransformById(self, "UpperHips")
+    local14 = animation.GetPoseTransformById(self, "Head")
+    local15 = matrix.PositionLocalToWorld(local3, local13.r3)
+    local16 = matrix.DirectionLocalToWorld(local3, local13.r2)
+    local17 = vector.Set(0.0, 1.0, 0.0, 0.0)
+    local18 = matrix.PositionLocalToWorld(local3, local14.r3)
+    local19 = vector.Set(1.0, 0.0, 0.0, 0.0)
+    local20 = lib_math.RemoveVectorDirection(local19, local17)
+    local21 = true
+    local22 = vector.Dot(local16, local17)
+    if local22 > 0.0:
+        local21 = false
+        local20 = vector.Scale(local20, -1.0)
+    local23 = matrix.Matrix(local20, local17, vector.Add(local3.r3, vector.Set(0.0, -0.1, 0.0, 0.0)))
+    game.SetTransform(self, local23)
+    game.SetBlackboardValueToObject(self, @70BB9EF7, local20)
+    if true:
+        debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local3.r2, 3.0)), 0.1, lib_color.BLUE(0.6))
+        debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local20, 2.0)), 0.1, lib_color.WHITE(0.6))
+    local24 = vector.Length(character.GetVelocityLS(self))
+    if 0.8 > local24:
+        if 1.0 == animation.GetStateBit(self, 11.0):
+            local25 = "ACT_GOTO_FACE_DOWN"
+            if local21:
+                local25 = "ACT_GOTO_FACE_UP"
+            game.QueueAct(self, local25)
+        else:
+            local26 = game.GetBlackboardValueFromObject(self, @312B8EB5)
+            if 0.0 >= local26:
+                game.QueueAct(self, "ACT_GET_UP")
+            else:
+                if true:
+                    debug.Sphere(local3.r3, 1.0, lib_color.YELLOW(0.3))
+                local26 = local26 - arg2
+                game.SetBlackboardValueToObject(self, @312B8EB5, local26)
+    else:
+        game.SetBlackboardValueToObject(self, @312B8EB5, 3.0)
+        if true:
+            debug.Sphere(local3.r3, 1.0, lib_color.RED(0.3))
+
+def Update(self, arg1, arg2):
+    local3 = vector.Length(character.GetVelocityLS(self))
+    if 0.3 > local3:
+        game.QueueAct(self, "ACT_DIE")

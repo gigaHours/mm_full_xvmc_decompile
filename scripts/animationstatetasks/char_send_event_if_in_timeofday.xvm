@@ -1,0 +1,22 @@
+module char_send_event_if_in_timeofday
+import @BAFDB405
+
+def Enter(self, arg1):
+    SendActIfTimeOfDay(self, arg1)
+
+def Exit(self, arg1):
+    SendActIfTimeOfDay(self, arg1)
+
+def SendActIfTimeOfDay(self, arg1):
+    local2 = game.GetTimeOfDay()
+    local3 = false
+    if arg1.TimeOver > arg1.TimeUnder:
+        if local2 >= arg1.TimeOver or arg1.TimeUnder > local2:
+            local3 = true
+    elif local2 >= arg1.TimeOver and arg1.TimeUnder > local2:
+        local3 = true
+    if local3:
+        game.PostEventNone(arg1.EventToPost)
+
+def Update(self, arg1, arg2):
+    SendActIfTimeOfDay(self, arg1)

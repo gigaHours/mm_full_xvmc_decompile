@@ -1,0 +1,109 @@
+module part_hitcounter
+
+def FlHit(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = ["armor_fl1", "armor_fl2"]
+    local3 = ["armor_fl3"]
+    local4 = game.GetParent(self)
+    if local1.rear_removed == 1.0:
+        local1.fl_hit_count = local1.fl_hit_count - 1.0
+        if local1.fl_hit_count == 1.0:
+            DetachPartGroup(local4, local2)
+            game.PostEvent("throbba_plate_destroyed", "")
+        if local1.fl_hit_count == 0.0:
+            DetachPartGroup(local4, local3)
+            game.PostEvent("throbba_enable_targetwheel0", "")
+            game.PostEvent("throbba_plate_destroyed", "")
+
+def FrHit(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = ["armor_fr1", "armor_fr2"]
+    local3 = ["armor_fr3"]
+    local4 = game.GetParent(self)
+    if local1.rear_removed == 1.0:
+        local1.fr_hit_count = local1.fr_hit_count - 1.0
+        if local1.fr_hit_count == 1.0:
+            DetachPartGroup(local4, local2)
+            game.PostEvent("throbba_plate_destroyed", "")
+        if local1.fr_hit_count == 0.0:
+            DetachPartGroup(local4, local3)
+            game.PostEvent("throbba_enable_targetwheel1", "")
+            game.PostEvent("throbba_plate_destroyed", "")
+
+def BackHit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.rear_hit_count = local1.rear_hit_count - 1.0
+    local2 = ["armor_rear1", "armor_rear2"]
+    local3 = ["armor_rear3", "armor_rear4"]
+    local4 = game.GetParent(self)
+    if local1.rear_hit_count == 1.0:
+        DetachPartGroup(local4, local2)
+        game.PostEvent("throbba_plate_destroyed", "")
+    if local1.rear_hit_count == 0.0:
+        DetachPartGroup(local4, local3)
+        local1.rear_removed = 1.0
+        game.PostEvent("throbba_enable_targetfueltank", "")
+        game.PostEvent("throbba_plate_destroyed", "")
+
+def DetachPartGroup(self, arg1):
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(arg1)
+    while local2 > local3:
+        DetachPart(self, arg1[local3])
+        local3 = local4 + local3
+
+def DetachPart(self, arg1):
+    local2 = game.GetChild(self, arg1)
+    if local2:
+        rigidobject.MakeDynamic(local2)
+        rigidobject.EnableCollision(local2)
+
+def BrHit(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = ["armor_br1", "armor_br2", "armor_br3"]
+    local3 = ["armor_br4", "armor_br5"]
+    local4 = ["armor_br6", "armor_br7", "armor_br8"]
+    local5 = game.GetParent(self)
+    if local1.rear_removed == 1.0:
+        local1.br_hit_count = local1.br_hit_count - 1.0
+        if local1.br_hit_count == 2.0:
+            DetachPartGroup(local5, local2)
+            game.PostEvent("throbba_plate_destroyed", "")
+        if local1.br_hit_count == 1.0:
+            DetachPartGroup(local5, local3)
+            game.PostEvent("throbba_plate_destroyed", "")
+        if local1.br_hit_count == 0.0:
+            DetachPartGroup(local5, local4)
+            game.PostEvent("throbba_enable_targetwheel3", "")
+            game.PostEvent("throbba_enable_targetwheel5", "")
+            game.PostEvent("throbba_plate_destroyed", "")
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.rear_hit_count = 2.0
+    local1.bl_hit_count = 3.0
+    local1.br_hit_count = 3.0
+    local1.fl_hit_count = 2.0
+    local1.fr_hit_count = 2.0
+    local1.rear_removed = 0.0
+
+def BlHit(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = ["armor_bl1", "armor_bl2"]
+    local3 = ["armor_bl3", "armor_bl4"]
+    local4 = ["armor_bl5", "armor_bl6", "armor_bl7"]
+    local5 = game.GetParent(self)
+    if local1.rear_removed == 1.0:
+        local1.bl_hit_count = local1.bl_hit_count - 1.0
+        if local1.bl_hit_count == 2.0:
+            DetachPartGroup(local5, local2)
+            game.PostEvent("throbba_plate_destroyed", "")
+        if local1.bl_hit_count == 1.0:
+            DetachPartGroup(local5, local3)
+            game.PostEvent("throbba_plate_destroyed", "")
+        if local1.bl_hit_count == 0.0:
+            DetachPartGroup(local5, local4)
+            game.PostEvent("throbba_enable_targetwheel2", "")
+            game.PostEvent("throbba_enable_targetwheel4", "")
+            game.PostEvent("throbba_plate_destroyed", "")

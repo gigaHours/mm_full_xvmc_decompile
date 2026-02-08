@@ -1,0 +1,68 @@
+module exit_vehicle_camera_coordinator
+
+def HandleTimeout(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.time == none:
+        local2.time = 2.8
+        if false:
+            debug.LogInfo("Starting vehicle Timer at %f", [local2.time])
+    else:
+        local2.time = local2.time - arg1
+        if false:
+            debug.LogInfo("Exit vehicle Timer: %f", [local2.time])
+        if 0.0 > local2.time:
+            local2.time = none
+            if false:
+                debug.LogInfo("Exit vehicle Timer DONE!", [])
+            scriptgo.PostEvent(self, @B1175B62)
+            scriptgo.SetUpdateFunction(self, "")
+
+def StartExitingPassengerVehicle(self):
+    HandleExitCamera(self, 2.0)
+
+def StartExitingDriverVehicle(self):
+    HandleExitCamera(self, 1.0)
+
+def HandleExitCamera(self, arg1):
+    local2 = 0.0
+    local3 = vehicle.GetGlobalProperties()
+    local4 = camera.GetCameraTransform().r2
+    local5 = character.GetVehicle(character.GetPlayer())
+    if local5 != none and (not local3.use_first_person):
+        local6 = game.GetTransform(local5)
+        local7 = local6.r2
+        local8 = local6.r0
+        local9 = vector.Dot(local7, local4)
+        local10 = vector.Dot(local8, local4)
+        if false:
+            debug.LogInfo("side: %f forward: %f", [local10, local9])
+        if arg1 == 1.0:
+            if 0.0 > local10:
+                if local9 > 0.0:
+                    local2 = 2.0
+                else:
+                    local2 = 1.0
+        elif arg1 == 2.0:
+            if local10 > 0.0:
+                if local9 > 0.0:
+                    local2 = 2.0
+                else:
+                    local2 = 1.0
+        else:
+            debug.LogError("ExitVehicleCameraCoordinator", "Unknown side picked!")
+    if local2 == 1.0:
+        if false:
+            debug.LogInfo("front camera picked", [])
+        scriptgo.PostEvent(self, @8F7FADD0)
+        local11 = scriptgo.GetProperties(self)
+        local11.time = 2.8
+        scriptgo.SetUpdateFunction(self, "HandleTimeout")
+    elif local2 == 2.0:
+        if false:
+            debug.LogInfo("back camera picked", [])
+        scriptgo.PostEvent(self, @BA4AE4B2)
+        local11 = scriptgo.GetProperties(self)
+        local11.time = 2.8
+        scriptgo.SetUpdateFunction(self, "HandleTimeout")
+    elif false:
+        debug.LogInfo("camera stays", [])

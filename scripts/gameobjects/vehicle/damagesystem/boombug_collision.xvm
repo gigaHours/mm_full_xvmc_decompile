@@ -1,0 +1,21 @@
+module boombug_collision
+import @B1360AAD
+
+def HandleCustomCollision(self, arg1, arg2, arg3):
+    if arg2 != none:
+        if vehicle.IsVehicle(arg2):
+            local4 = len(arg3)
+            local6 = 0.0
+            local7 = 1.0
+            local5 = local4
+            while local5 > local6:
+                local8 = arg3[local6]
+                if false:
+                    debug.LogInfo("Boombug custom collision %f vs %f", [local8.Impulse, 5000.0])
+                if local8.Impulse > 5000.0:
+                    local9 = scriptgo.GetProperties(self)
+                    if false:
+                        debug.LogInfo("start killing %go", [local9.bodyHealthComponent])
+                    scriptgo.Call1(local9.bodyHealthComponent, @C6EE5209, lib_damage_types.DAMAGE_SIMPLE())
+                    return
+                local6 = local7 + local6

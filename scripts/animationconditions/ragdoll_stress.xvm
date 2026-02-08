@@ -1,0 +1,14 @@
+module ragdoll_stress
+
+def Evaluate(self, arg1):
+    local2 = false
+    local3 = ragdoll.GetRagdoll(self)
+    if local3:
+        local4 = local3.StressOut
+        local5 = arg1.Property0
+        if local2:
+            debug.LogInfo("Ragdoll Stress: %f", [local4])
+            debug.LogInfo("Limit: %f", [local5])
+        if local4 > local5:
+            return 1.0
+    return 0.0

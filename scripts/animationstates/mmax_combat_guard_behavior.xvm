@@ -1,0 +1,42 @@
+module mmax_combat_guard_behavior
+import @BAFDB405
+import @05896E5A
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = character.GetGlobalXvmFloat(self, 8.0)
+    local5 = lib_character.GetFilteredMoveInputWorldDir()
+    local6 = 0.0
+    if vector.Length(local5) > 0.05:
+        local5 = vector.Normalize(local5)
+        local7 = vector.Set(7.7, 5.7, 4.5, 4.2)
+        local6 = lib_character.CalculateBanking(self, local7, arg2, local5, local4)
+    elif gamedirector.GetAiGameStateHashInRangeCount("", 15.0, 1.0):
+        local8 = -1.0
+        if animation.IsWithinSegment(self, @E063F6A0, @8874AABE):
+            local8 = 1.0
+        local9 = vector.Set(1.0, 0.0, 0.0, 0.0)
+        local10 = vector.Set(0.0, 0.0, -1.0, 0.0)
+        local11 = vector.Normalize(character.GetLookAtTarget(self))
+        local12 = vector.Dot(local10, local11)
+        if -0.4 > local12:
+            local6 = local8
+        else:
+            local13 = vector.Dot(local9, local11)
+            local14 = math.Tan(local13)
+            local6 = math.Clamp(math.Tan(local13) * 1.5, -1.0, 1.0)
+    else:
+        local6 = 0.0
+    local4 = math.SpeedLerp(local4, local6, 3.2, arg2)
+    if 0.0 > local4:
+        animation.GetSampler(arg3, 0.0).Weight = -local4
+        animation.GetSampler(arg3, 1.0).Weight = 0.0
+    else:
+        animation.GetSampler(arg3, 0.0).Weight = 0.0
+        animation.GetSampler(arg3, 1.0).Weight = local4
+    character.SetGlobalXvmFloat(self, 8.0, local4)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    animation.GetSampler(arg4, 0.0).Time = animation.GetSampler(arg4, 0.0).Length
+    animation.GetSampler(arg4, 0.0).Speed = 0.0
+    animation.GetSampler(arg4, 1.0).Time = animation.GetSampler(arg4, 1.0).Length
+    animation.GetSampler(arg4, 1.0).Speed = 0.0

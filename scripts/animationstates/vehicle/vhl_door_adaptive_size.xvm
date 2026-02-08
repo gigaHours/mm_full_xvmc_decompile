@@ -1,0 +1,39 @@
+module vhl_door_adaptive_size
+
+def GetVehicleBasedBooster(self):
+    local1 = vehicle.GetSpawnVehicleIdentifier(self)
+    if local1 == none:
+        local1 = vehicle.GetGameObjectVehicleIdentifier(self)
+    if local1 == "s004":
+        return 1.2
+    return 1.0
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    pass
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = game.GetBlackboardValueFromObject(self, @6931FB0E)
+    if local5:
+        local6 = animation.GetSamplerCount(arg4)
+        local8 = 0.0
+        local9 = 1.0
+        local7 = local6
+        while local7 > local8:
+            animation.GetSampler(arg4, local8).WeightUnclamped = local5
+            if local8 == 1.0:
+                local10 = animation.GetSampler(arg4, local8)
+                local10.Time = local10.Length
+                local10.Speed = 0.0
+            local8 = local9 + local8
+
+def OnEnter(self, arg1):
+    if not game.GetBlackboardValueFromObject(self, @6931FB0E):
+        local2 = animation.GetPoseJointIndex(self, "jnt_igp_driver_seat")
+        local3 = animation.GetPoseJointIndex(self, "jnt_vpart_door_r")
+        if local2 and local3:
+            local4 = animation.GetPoseTransform(self, local2)
+            local5 = animation.GetPoseTransform(self, local3)
+            local6 = local4.r3.z - local5.r3.z
+            local7 = 0.943 / local6
+            local8 = local7 * GetVehicleBasedBooster(self)
+            game.SetBlackboardValueToObject(self, @6931FB0E, local8)

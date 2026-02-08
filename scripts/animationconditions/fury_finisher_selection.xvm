@@ -1,0 +1,90 @@
+module fury_finisher_selection
+
+def Evaluate(self, arg1):
+    local2 = 5.0
+    local3 = 4.0
+    local4 = character.GetFloatRegister(self, local2)
+    local5 = math.Rand()
+    if local4 == 6.0:
+        if 0.2 > local5:
+            character.SetFloatRegister(self, local3, 5.0)
+        elif 0.4 > local5:
+            character.SetFloatRegister(self, local3, 4.0)
+        elif 0.6 > local5:
+            character.SetFloatRegister(self, local3, 3.0)
+        elif 0.8 > local5:
+            character.SetFloatRegister(self, local3, 2.0)
+        else:
+            character.SetFloatRegister(self, local3, 1.0)
+        return 1.0
+    if local4 == 5.0:
+        if 0.2 > local5:
+            character.SetFloatRegister(self, local3, 6.0)
+        elif 0.4 > local5:
+            character.SetFloatRegister(self, local3, 4.0)
+        elif 0.6 > local5:
+            character.SetFloatRegister(self, local3, 3.0)
+        elif 0.8 > local5:
+            character.SetFloatRegister(self, local3, 2.0)
+        else:
+            character.SetFloatRegister(self, local3, 1.0)
+        return 1.0
+    if local4 == 4.0:
+        if 0.2 > local5:
+            character.SetFloatRegister(self, local3, 6.0)
+        elif 0.4 > local5:
+            character.SetFloatRegister(self, local3, 5.0)
+        elif 0.6 > local5:
+            character.SetFloatRegister(self, local3, 3.0)
+        elif 0.8 > local5:
+            character.SetFloatRegister(self, local3, 2.0)
+        else:
+            character.SetFloatRegister(self, local3, 1.0)
+        return 1.0
+    if local4 == 3.0:
+        if 0.2 > local5:
+            character.SetFloatRegister(self, local3, 6.0)
+        elif 0.4 > local5:
+            character.SetFloatRegister(self, local3, 5.0)
+        elif 0.6 > local5:
+            character.SetFloatRegister(self, local3, 4.0)
+        elif 0.8 > local5:
+            character.SetFloatRegister(self, local3, 2.0)
+        else:
+            character.SetFloatRegister(self, local3, 1.0)
+        return 1.0
+    if local4 == 2.0:
+        if 0.2 > local5:
+            character.SetFloatRegister(self, local3, 6.0)
+        elif 0.4 > local5:
+            character.SetFloatRegister(self, local3, 5.0)
+        elif 0.6 > local5:
+            character.SetFloatRegister(self, local3, 4.0)
+        elif 0.8 > local5:
+            character.SetFloatRegister(self, local3, 3.0)
+        else:
+            character.SetFloatRegister(self, local3, 1.0)
+        return 1.0
+    if local4 == 1.0:
+        if 0.2 > local5:
+            character.SetFloatRegister(self, local3, 6.0)
+        elif 0.4 > local5:
+            character.SetFloatRegister(self, local3, 5.0)
+        elif 0.6 > local5:
+            character.SetFloatRegister(self, local3, 4.0)
+        elif 0.8 > local5:
+            character.SetFloatRegister(self, local3, 3.0)
+        else:
+            character.SetFloatRegister(self, local3, 2.0)
+        return 1.0
+    if 0.2 > local5:
+        character.SetFloatRegister(self, local3, 6.0)
+    elif 0.4 > local5:
+        character.SetFloatRegister(self, local3, 5.0)
+    elif 0.6 > local5:
+        character.SetFloatRegister(self, local3, 4.0)
+    elif 0.8 > local5:
+        character.SetFloatRegister(self, local3, 3.0)
+    else:
+        character.SetFloatRegister(self, local3, 2.0)
+    return 1.0

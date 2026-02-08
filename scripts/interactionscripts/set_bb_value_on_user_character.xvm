@@ -1,0 +1,5 @@
+module set_bb_value_on_user_character
+
+def Execute(self, arg1, arg2):
+    local3 = interaction.GetCharacter(self)
+    game.SetBlackboardValueToObject(local3, game.GameHashString(arg2.bb_key), arg2.value_float)

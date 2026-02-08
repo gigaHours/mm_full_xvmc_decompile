@@ -1,0 +1,55 @@
+module gui
+
+def ShowScene(self):
+    pass
+
+def FuryEventCallout(self, arg1, arg2):
+    pass
+
+def Show3dIconFloatString(self, arg1, arg2, arg3):
+    pass
+
+def HideScene(self):
+    pass
+
+def MakeLocalizationHashFromTag(self):
+    pass
+
+def GetBlackboard():
+    pass
+
+def Show3dIconFloat(self, arg1, arg2):
+    pass
+
+def PostEvent(self):
+    pass
+
+def SendGuiMessage(self):
+    pass
+
+def PostEventFloat(self, arg1):
+    pass
+
+def CreateDebugLogWindow(self, arg1):
+    pass
+
+def GetGuiMessageData():
+    pass
+
+def Show3dIconString(self, arg1, arg2):
+    pass
+
+def SetActiveButtonText(self):
+    pass
+
+def SetActiveButtonPrompt(self):
+    pass
+
+def DisplayDebugLog(self, arg1, arg2, arg3):
+    pass
+
+def Show3dIcon(self, arg1):
+    pass
+
+def PostEventFloatFloat(self, arg1, arg2):
+    pass

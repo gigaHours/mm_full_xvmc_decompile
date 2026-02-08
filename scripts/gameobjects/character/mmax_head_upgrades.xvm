@@ -1,0 +1,12 @@
+module mmax_head_upgrades
+
+def Init(self):
+    local1 = visibleplayerupgrades.GetVisiblePlayerUpgradeLevel("armor", "armor")
+    scriptgo.SendEvent(self, @F8E9A840)
+    if local1 == 5.0 or local1 == 9.0:
+        scriptgo.SendEvent(self, @8B556F91)
+    elif local1 == 4.0 or local1 == 8.0:
+        scriptgo.SendEvent(self, @087D7683)
+    else:
+        scriptgo.SendEvent(self, @05685E9C)
+    scriptgo.SendEvent(self, @8C9C1FBE)

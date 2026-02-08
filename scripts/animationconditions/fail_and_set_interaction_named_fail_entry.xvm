@@ -1,0 +1,8 @@
+module fail_and_set_interaction_named_fail_entry
+
+def Evaluate(self, arg1):
+    local2 = character.GetInteractionUserProxy(self)
+    if local2:
+        if arg1.Property0 == 0.0:
+            interaction.SetNamedFailEntry(local2, "fail.jimmybar")
+    return 0.0

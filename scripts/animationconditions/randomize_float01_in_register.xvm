@@ -1,0 +1,5 @@
+module randomize_float01_in_register
+
+def Evaluate(self, arg1):
+    character.SetFloatRegister(self, arg1.Property0, math.Rand())
+    return 1.0

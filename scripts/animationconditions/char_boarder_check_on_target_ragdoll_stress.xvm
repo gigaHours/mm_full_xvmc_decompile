@@ -1,0 +1,15 @@
+module char_boarder_check_on_target_ragdoll_stress
+
+def Evaluate(self, arg1):
+    local2 = false
+    local3 = ragdoll.GetRagdoll(self)
+    if local3:
+        local4 = local3.StressOut
+        local5 = 150.0
+        if local4 > local5:
+            if local2:
+                debug.LogInfo("ABOVE LIMIT! Ragdoll Stress: %f, limit: %f", [local4, local5])
+            return 1.0
+        if local2:
+            debug.LogInfo("Ragdoll Stress: %f, limit: %f", [local4, local5])
+    return 0.0

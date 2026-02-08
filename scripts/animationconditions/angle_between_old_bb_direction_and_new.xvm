@@ -1,0 +1,11 @@
+module angle_between_old_bb_direction_and_new
+
+def Evaluate(self, arg1):
+    local2 = game.GetBlackboardValueFromObject(self, @A031ACC0)
+    local3 = game.GetBlackboardValueFromObject(self, @F7D3A7AE)
+    if local2 and local3:
+        local4 = vector.AngleBetween(local2, local3)
+        if local4 > arg1.Property0:
+            if arg1.Property1 > local4:
+                return 1.0
+    return 0.0

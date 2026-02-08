@@ -1,0 +1,12 @@
+module scoring_ai_hit_player
+
+def Evaluate(self, arg1):
+    local2 = 0.0
+    local3 = 1.0
+    local4 = character.GetPlayer()
+    local5 = character.GetFloatRegister(local4, local3)
+    local6 = character.GetFloatRegister(local4, local2)
+    if local5 > local6:
+        character.SetFloatRegister(local4, local2, local5)
+    character.SetFloatRegister(local4, local3, 0.0)
+    return 1.0

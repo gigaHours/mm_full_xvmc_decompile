@@ -1,0 +1,54 @@
+module inheriting_boxblend_calculation
+
+def Enter(self, arg1):
+    game.SetBlackboardValueToObject(self, @7EB76512, vector.Set(0.0, 0.0, 0.0, 0.0))
+    game.SetBlackboardValueToObject(self, @6E938D88, vector.Set(0.0, 0.0, 0.0, 0.0))
+    arg1.item_weight = vector.Set(0.0, -3.8, 0.0, 0.0)
+    local2 = character.GetWorldMatrix(self)
+    local3 = animation.GetPoseTransformById(self, arg1.Bone)
+    game.SetBlackboardValueToObject(self, @F0A5608B, local3.r3)
+    local4 = matrix.Mul(local3, local2)
+    game.SetBlackboardValueToObject(self, @249DB3D3, local4.r3)
+    arg1.debug_measure_point = 0.0
+
+def Update(self, arg1, arg2):
+    local3 = character.GetWorldMatrix(self)
+    local4 = animation.GetPoseTransformById(self, arg1.Bone)
+    local5 = matrix.Mul(local4, local3)
+    local6 = game.GetBlackboardValueFromObject(self, @F0A5608B)
+    local7 = game.GetBlackboardValueFromObject(self, @249DB3D3)
+    local8 = game.GetBlackboardValueFromObject(self, @7EB76512)
+    local9 = game.GetBlackboardValueFromObject(self, @6E938D88)
+    local10 = vector.Sub(local4.r3, local6)
+    local10 = vector.Scale(local10, 1.4)
+    local11 = vector.Sub(local5.r3, local7)
+    local12 = vector.Sub(matrix.MulVec(local3, local11), local3.r3)
+    local12 = vector.Scale(local12, 0.5)
+    local13 = vector.Scale(local9, -0.4)
+    local14 = vector.Scale(arg1.item_weight, arg2)
+    local15 = vector.Add(vector.Add(vector.Add(local10, local12), local13), local14)
+    local8 = vector.Scale(vector.Add(local8, local15), 0.98)
+    local9 = vector.Add(local9, local8)
+    local9 = vector.Scale(local9, 0.9)
+    local9.x = math.Clamp(local9.x, -1.0, 1.0)
+    local9.y = math.Clamp(local9.y, -1.0, 1.0)
+    local9.z = math.Clamp(local9.z, -1.0, 1.0)
+    game.SetBlackboardValueToObject(self, @6E938D88, local9)
+    game.SetBlackboardValueToObject(self, @7EB76512, local8)
+    character.SetGlobalXvmFloat(self, 21.0, local9.x)
+    character.SetGlobalXvmFloat(self, 22.0, local9.y)
+    character.SetGlobalXvmFloat(self, 23.0, local9.z)
+    game.SetBlackboardValueToObject(self, @F0A5608B, local4.r3)
+    game.SetBlackboardValueToObject(self, @249DB3D3, local5.r3)
+    if false:
+        arg1.debug_measure_point = arg1.debug_measure_point + arg2
+        if arg1.debug_measure_point > 0.33:
+            arg1.debug_measure_point = 0.0
+        local16 = matrix.CopyMatrix(local5)
+        local16.r3 = vector.Add(local16.r3, local11)
+        lib_debugdraw.DrawDebugMatrix(local16)
+        lib_debugdraw.DrawDebugMatrix(local5)
+        local17 = lib_debugdraw.GetGoScreenPos(self, vector.Set(0.0, 2.0, 0.0, 0.0), arg2)
+        local18 = 0.75
+        local19 = [[local9, lib_color.YELLOW(local18)], [local8, lib_color.LIGHT_BLUE(local18)]]
+        lib_debugdraw.DrawCoordinateSquare(local17, 0.06, local19)

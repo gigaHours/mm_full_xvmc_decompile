@@ -1,0 +1,7 @@
+module send_trackevent_on_enterexit
+
+def Enter(self, arg1):
+    character.SendTrackEvent(self, arg1.EnterEvent, "")
+
+def Exit(self, arg1):
+    character.SendTrackEvent(self, arg1.ExitEvent, "")

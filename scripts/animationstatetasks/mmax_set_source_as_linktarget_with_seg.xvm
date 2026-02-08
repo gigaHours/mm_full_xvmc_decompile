@@ -1,0 +1,13 @@
+module mmax_set_source_as_linktarget_with_seg
+
+def Update(self, arg1, arg2):
+    local4 = 0.0
+    local5 = 1.0
+    local3 = animation.GetLinkSourceCount(self)
+    while local3 > local4:
+        local6 = animation.GetLinkSource(self, local4)
+        local7 = animation.GetSegmentInfo(local6, @E063F6A0, @93448F0B)
+        if local7:
+            if local7.Inside > 0.0:
+                animation.SetLinkTarget(self, local6)
+        local4 = local5 + local4

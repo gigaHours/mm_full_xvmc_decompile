@@ -1,0 +1,14 @@
+module player_set_last_visited_location
+
+def ResetLocation(self):
+    local1 = character.GetPlayer()
+    game.SetBlackboardValueToObject(local1, "+W@+", 0.0)
+
+def Init(self):
+    ResetLocation(self)
+
+def SetLocation(self):
+    local1 = character.GetPlayer()
+    local2 = game.FindClosestLocationInfo(character.GetWorldMatrix(local1).r3)
+    if local2[0.0] == 1.0:
+        game.SetBlackboardValueToObject(local1, "+W@+", local2[2.0])

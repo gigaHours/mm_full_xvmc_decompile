@@ -1,0 +1,23 @@
+module state_task_give_item
+
+def Enter(self, arg1):
+    arg1.ItemWasGiven = false
+
+def Update(self, arg1, arg2):
+    if arg1.ItemWasGiven == true:
+        return
+    if not animation.IsWithinSegment(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+        return
+    if arg1.Recipient:
+        local3 = character.GetCharacterByName(arg1.Recipient)
+    else:
+        local3 = self
+    if arg1.From:
+        local4 = character.GetCharacterByName(arg1.From)
+    else:
+        local4 = self
+    if local4 != none and local3 != none:
+        character.TransferObject(local4, local3, arg1.Item)
+        arg1.ItemWasGiven = true
+    else:
+        debug.LogInfo("Unable to give item from %go to %go", [local4, local3])

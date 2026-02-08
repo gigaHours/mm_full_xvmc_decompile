@@ -1,0 +1,29 @@
+module bullet_damage_handler
+
+def HitByBullet(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if arg2.Faction == 0.0:
+        game.SetHitByPlayer(arg1)
+    local4 = vehicle.GetPartByShapeKey(arg1, arg2.ShapeKey)
+    if local4:
+        local5 = local4.LinkedGameObject
+        if local5:
+            physics.WeakspotOnHitByBullet(local5, arg2)
+    if false:
+        PrintBulletHit(arg2, arg1)
+
+def PrintBulletHit(self, arg1):
+    debug.LogInfo("- BulletHit -", [])
+    debug.LogInfo("Position: %v", [self.Position])
+    debug.LogInfo("Normal: %v", [self.Normal])
+    debug.LogInfo("Direction: %v", [self.Direction])
+    debug.LogInfo("Damage: %f", [self.Damage])
+    debug.LogInfo("Impulse: %f", [self.Impulse])
+    debug.LogInfo("ShapeKey: %f", [self.ShapeKey])
+    debug.LogInfo("AmmunitionType: %f", [self.AmmunitionType])
+    local2 = vehicle.GetPartByShapeKey(arg1, self.ShapeKey)
+    if local2:
+        debug.LogInfo("PartIndex: %f", [local2.Index])
+        local3 = local2.LinkedGameObject
+        if local3:
+            debug.LogInfo("Weakspot: %go", [local3])

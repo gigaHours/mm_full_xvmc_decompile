@@ -1,0 +1,56 @@
+module harp_state_hooked_no_driver
+import @9B4F6985
+import @3D3D0D9B
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.StopCam(arg1, lib_harpoon.CAM_TETH())
+    if none != local2.projectile_robj:
+        rigidobject.Show(local2.projectile_robj)
+    lib_harpoon.ShowAnchorPoint(arg1)
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    lib_harpoon.HideAnchorPoint(arg1)
+    ai.ClearAiEntityBlackboard(local2.car, "HarpoonVictim")
+    if not lib_weapon.IsNextState(arg1, lib_harpoon.STATE_HOOKED_ID()):
+        if none != local2.projectile_robj:
+            rigidobject.Hide(local2.projectile_robj)
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    lib_harpoon.UpdateRenderHooked(local2, arg1)
+
+def GetId(self):
+    return lib_harpoon.STATE_HOOKED_NO_DRIVER_ID()
+
+def PlayerIsInSniperMode():
+    local0 = character.GetPlayer()
+    return 1.0 == animation.GetStateBit(local0, 19.0)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    lib_harpoon.UpdateHooked(local2, arg1)
+    if lib_weapon.CheckPlayerInDriverSeat(local2, local3.car):
+        lib_weapon.ChangeState(local2, local3.state_hooked)
+    if none != local3.target:
+        lib_harpoon.UpdateConstraintLength(local2)
+        local4 = scriptgo.GetProperties(local3.target)
+        if local4.harpoon_gun_must_detach or local3.input_force_disconnect or local3.input_boarder_landed or local3.input_fire_pressed or PlayerIsInSniperMode():
+            lib_harpoon.DisableConstraint(local2)
+            lib_weapon.ChangeState(local2, local3.state_rollback)
+            if none != local3.target:
+                scriptgo.Call(local3.target, @335BDBC0)
+            return
+    else:
+        lib_harpoon.DisableConstraint(local2)
+        lib_weapon.ChangeState(local2, local3.state_rollback)
+        return
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "HOOKED NO DRIVER"

@@ -1,0 +1,18 @@
+module stick_movement
+
+def Enter(self, arg1):
+    pass
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = input.GetFilteredMoveInput()
+    local4 = camera.TransformInputDirToWorldDir(local3)
+    local5 = 300.0
+    character.UpdateDeltaReferenceFrame(self, arg2)
+    local6 = game.GetTransform(self)
+    local7 = lib_character.RotateDirWS2LS(local6, local4)
+    local8 = vector.Set(local5 * arg2 * local7.x, 0.0, local5 * arg2 * local7.z, 0.0)
+    local9 = character.GetAnimationVelocityLS(self)
+    character.SetAnimationVelocityLS(self, arg2, vector.Scale(local9, 0.5))

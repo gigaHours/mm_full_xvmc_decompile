@@ -1,0 +1,28 @@
+module char_taunt_rotation
+import @BAFDB405
+
+def Enter(self, arg1):
+    pass
+
+def DoRotation(self, arg1, arg2):
+    local3 = arg1.RotSpeed
+    local4 = character.GetWorldMatrix(self)
+    if arg1.UseLinkTarget and arg1.UseLinkTarget == 1.0:
+        local5 = animation.GetLinkTarget(self)
+        if not local5:
+            return
+    else:
+        local5 = character.GetPlayer()
+    local6 = vector.Scale(local4.r2, -1.0)
+    local7 = character.GetWorldMatrix(local5)
+    local8 = vector.Sub(local7.r3, local4.r3)
+    vector.Normalize(local8)
+    local9 = lib_character.CalcCharacterRot(self, arg2, local8, local3)
+    character.RotateInstantly(self, local9)
+
+def Update(self, arg1, arg2):
+    if arg1.Segment:
+        if animation.IsWithinSegment(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+            DoRotation(self, arg1, arg2)
+    else:
+        DoRotation(self, arg1, arg2)

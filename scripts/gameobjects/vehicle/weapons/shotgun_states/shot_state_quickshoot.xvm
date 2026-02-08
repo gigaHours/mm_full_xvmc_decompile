@@ -1,0 +1,29 @@
+module shot_state_quickshoot
+import @9B4F6985
+import @83195642
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local2.quickfiring = true
+
+def Exit(self, arg1):
+    pass
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_shotgun.STATE_QUICKSHOOT_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    if local3.state_time > 0.0:
+        lib_weapon.ChangeState(local2, local3.state_shoot)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "QUICKSHOOT"

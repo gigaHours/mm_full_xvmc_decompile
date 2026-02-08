@@ -1,0 +1,6 @@
+module char_has_target
+
+def Evaluate(self, arg1):
+    if animation.GetLinkTarget(self):
+        return 1.0
+    return 0.0

@@ -1,0 +1,27 @@
+module balloon_handle
+
+def ClearEvent(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.run = false
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetRenderFunction(self, "Update")
+    local1.run = false
+
+def SetEvent(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.run = true
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = character.GetWorldMatrix(local2.rope)
+    local4 = local3.r3
+    local4.y = local4.y + local2.rope_length
+    local5 = local4
+    local5.y = local5.y - local2.rope_length
+    if local2.run == true:
+        local6 = game.GetGameObjectByAlias("balloon_handle_attachment")
+        local7 = character.GetWorldMatrix(local6)
+        local5 = local7.r3
+    rope.SetEndPoints(local2.rope, local5, local4)

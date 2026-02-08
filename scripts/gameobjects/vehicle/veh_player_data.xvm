@@ -1,0 +1,82 @@
+module veh_player_data
+
+def UpdateCombatDialogueIntents(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = lib_gameplay.ENEMY_VEHICLE_RADIUS()
+    local4 = game.GetTransform(local2.car).r3
+    local5 = vehicle.GetNbVehicleEnemies(local4, local3)
+    if local5 > 0.0:
+        if not local2.in_combat:
+            game.PostEvent("trigger_dialogue_intent", "diaint_enter_vh_combat")
+            local2.in_combat = true
+            local2.in_combat_dia_timer = 5.0
+        if local5 == 1.0 and (not local2.one_enemy):
+            game.PostEvent("trigger_dialogue_intent", "diaint_one_enemy_vh_left")
+            local2.one_enemy = true
+        if local2.in_combat:
+            local2.in_combat_dia_timer = local2.in_combat_dia_timer - arg1
+            if 0.0 > local2.in_combat_dia_timer:
+                game.PostEvent("trigger_dialogue_intent", "diaint_vehicle_combat_interval")
+                local2.in_combat_dia_timer = 5.0
+    else:
+        if local2.in_combat:
+            game.PostEvent("trigger_dialogue_intent", "diaint_leaves_vh_combat")
+        local2.one_enemy = false
+        local2.in_combat = false
+    local6 = game.GetTransform(character.GetPlayer()).r3
+
+def Unload(self):
+    pass
+
+def OnPlayerEnter(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.meters_travelled = 0.0
+    local1.statistics_length_driven = 0.0
+    local1.in_combat = false
+    local1.one_enemy = false
+    local1.in_combat_dia_timer = 0.0
+    local1.in_air_time = 0.0
+
+def SendKmDriven(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.statistics_length_driven > 0.0:
+        local3 = local2.statistics_length_driven / 1000.0
+        game.PostEventFloat("km.driven", local3)
+        local2.statistics_length_driven = 0.0
+        if arg1:
+            hydra.HydraUpdateKmDriven(local3)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.IsPlayerVehicle(local2.car)
+    if local3:
+        local4 = math.Abs(vehicle.GetLocalVelocity(local2.car).z)
+        local5 = local4 * arg1
+        local2.meters_travelled = local2.meters_travelled + local5
+        UpdateCombatDialogueIntents(self, arg1)
+        if 0.0 >= vehicle.GetWheelContactRatio(local2.car):
+            local2.in_air_time = local2.in_air_time + arg1
+        else:
+            local2.in_air_time = 0.0
+        local2.statistics_length_driven = local2.statistics_length_driven + local5
+        if local2.statistics_length_driven > 100.0:
+            SendKmDriven(self, true)
+        local6 = 1.0
+        if local2.body_healthcomponent:
+            local6 = scriptgo.Call(local2.body_healthcomponent, @F4E205B5)
+        local7 = false
+        local8 = vehicle.GetSignatureVehicle()
+        if local8:
+            if game.IsObjectEqualTo(local2.car, local8):
+                local7 = true
+        local9 = gui.GetBlackboard()
+        local9.player_vehicle_speed = local4 / 50.0
+        local9.player_vehicle_health = local6
+        local9.player_milage = local2.meters_travelled / 1000.0
+        local9.player_in_signature = local7
+    else:
+        SendKmDriven(self, false)
+        scriptgo.SetUpdateFunction(self, "")

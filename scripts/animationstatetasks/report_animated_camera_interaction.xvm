@@ -1,0 +1,14 @@
+module report_animated_camera_interaction
+import @BAFDB405
+
+def Enter(self, arg1):
+    game.SendEventNone(arg1.Property0)
+    local2 = game.GetGameObjectByAlias(arg1.Property1)
+    local3 = string.FormatFloat("ACT_ANIMATED_CAMERA_%f", [arg1.Property2], "%.0f")
+    game.DoAct(local2, local3)
+    game.SendEventNone("videomode_prohibit_camera")
+
+def Exit(self, arg1):
+    local2 = game.GetGameObjectByAlias(arg1.Property1)
+    game.DoAct(local2, "ACT_ANIMATED_CAMERA_CANCEL")
+    game.SendEventNone("videomode_allow_camera")

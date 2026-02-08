@@ -1,0 +1,20 @@
+module lookat_set_dog_as_target
+import @05896E5A
+
+def Update(self, arg1, arg2):
+    local3 = 333.0
+    local4 = 0.5
+    if not arg1.target:
+        arg1.target = game.GetGameObjectByAlias("dog")
+    if arg1.target:
+        local5 = animation.GetPoseTransformById(arg1.target, "Head")
+        local6 = game.GetTransform(arg1.target)
+        local7 = matrix.Mul(local5, local6)
+        local8 = local7.r3
+        local9 = game.GetTransform(self)
+        local10 = matrix.Inverse(local9)
+        local11 = matrix.MulVec(local10, local8)
+        character.SetLookAtTarget(self, local11)
+        if vector.Length(local11) > local4 and local3 > vector.Length(local11):
+            if lib_lookat.LookAtIsAccepted(self):
+                local12 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)

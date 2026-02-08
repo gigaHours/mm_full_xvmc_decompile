@@ -1,0 +1,10 @@
+module string
+
+def Cat(self, arg1):
+    pass
+
+def FormatFloat(self, arg1, arg2):
+    pass
+
+def Format(self, arg1):
+    pass

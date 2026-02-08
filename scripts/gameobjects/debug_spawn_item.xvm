@@ -1,0 +1,38 @@
+module debug_spawn_item
+
+def PerformSpawn(self):
+    local1 = game.GetParent(self)
+    scriptgo.Call1(local1, @416827AC, self)
+
+def UnloadSpawnLocation(self):
+    local1 = scriptgo.GetProperties(self)
+    if false:
+        debug.LogInfo("unload %s", [local1.item_name])
+    game.PostEvent(local1.unload_event_name, "")
+
+def Respawning(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.reload_time = local2.reload_time - arg1
+    if 0.0 >= local2.reload_time:
+        local3 = game.GetParent(self)
+        scriptgo.Call(local3, @8DEB3FD5)
+        scriptgo.SetUpdateFunction(self, "")
+
+def Respawn(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.reload_time = 2.0
+    scriptgo.SetUpdateFunction(self, "Respawning")
+
+def LoadSpawnLocation(self):
+    local1 = scriptgo.GetProperties(self)
+    if false:
+        debug.LogInfo("load %s using event: %s", [local1.item_name, local1.load_event_name])
+    game.PostEvent(local1.load_event_name, "")
+
+def Register(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = string.Format("%s%s", [arg1, local2.item_name])
+    local4 = string.Format("%s.perform", [local2.load_event_name])
+    local2.unload_event_name = string.Format("%s.unload", [local2.load_event_name])
+    scriptgo.RegisterEventHandler(self, local4, "PerformSpawn")
+    debug.AddDebugMenuItem(local3, local4)

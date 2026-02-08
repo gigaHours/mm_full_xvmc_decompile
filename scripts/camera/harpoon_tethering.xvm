@@ -1,0 +1,62 @@
+module harpoon_tethering
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+
+def IsHarpoonEnabled():
+    local0 = lib_vehicle.GetParentVehicle(character.GetPlayer())
+    local1 = lib_entity_proxy.GetHarpoon(local0)
+    local2 = scriptgo.GetProperties(local1)
+    local3 = local2.constraint
+    if local3 and constraint.IsEnabled(local3):
+        return true
+    return false
+
+def GetHarpoonConstraintLength():
+    local0 = character.GetVehicle(character.GetPlayer())
+    if local0:
+        local1 = lib_entity_proxy.GetHarpoon(local0)
+        local2 = scriptgo.GetProperties(local1)
+        local3 = local2.constraint
+        if local3 and constraint.IsEnabled(local3):
+            local4 = constraint.GetConstraintPivot1LS(local3)
+            local5 = constraint.GetConstraintPivot2LS(local3)
+            return vector.Distance(local4, local5)
+    return 0.0
+
+def GetHarpoonConstraintMidpoint():
+    local0 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1 = lib_vehicle.GetParentVehicle(character.GetPlayer())
+    local2 = lib_entity_proxy.GetHarpoon(local1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = local3.constraint
+    if local4 and constraint.IsEnabled(local4):
+        local5 = constraint.GetConstraintPivot1LS(local4)
+        local6 = constraint.GetConstraintPivot2LS(local4)
+        local0 = vector.Lerp(0.5, local5, local6)
+    return local0
+
+def Update(self, arg1):
+    local2 = self.Properties.azimuth_dead_zone
+    local3 = self.Properties.elevation_dead_zone
+    local4 = self.Properties.min_direct_speed
+    local5 = self.Properties.max_direct_speed
+    local6 = self.Properties.min_top_speed
+    local7 = self.Properties.max_top_speed
+    local8 = math.DegToRad(self.Properties.min_elevation)
+    local9 = math.DegToRad(self.Properties.max_elevation)
+    local10 = input.GetLookInput()
+    local11 = input.GetSensitivity()
+    local12 = -local10.x * local11.x * self.Dt * local7
+    local13 = -local10.y * local11.y * self.Dt * local7
+    local14 = self.OffsetElevation
+    local15 = local13 + local14
+    if local15 > local9:
+        local13 = local9 - local14
+    elif local8 > local15:
+        local13 = local8 - local14
+    local16 = 5.0
+    local17 = GetHarpoonConstraintLength()
+    camera.SetOffsetDeltaOrbit(self, local12, local13)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)

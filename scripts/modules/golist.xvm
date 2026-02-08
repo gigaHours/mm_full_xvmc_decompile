@@ -1,0 +1,19 @@
+module golist
+
+def Add(self, arg1):
+    pass
+
+def HasObject(self, arg1):
+    pass
+
+def Clear(self):
+    pass
+
+def NbGameObjects(self):
+    pass
+
+def Get(self, arg1):
+    pass
+
+def Rem(self, arg1):
+    pass

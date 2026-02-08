@@ -1,0 +1,13 @@
+module char_debug
+import @BAFDB405
+
+def Enter(self, arg1):
+    pass
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = false
+    if local3:
+        lib_character.DrawCharacterDebug(self)

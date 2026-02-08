@@ -1,0 +1,26 @@
+module set_fuelcan_weight_sound_variable
+
+def Enter(self, arg1):
+    WieldedItemHasFuel(self)
+
+def Exit(self, arg1):
+    WieldedItemHasFuel(self)
+
+def WieldedItemHasFuel(self):
+    local1 = 0.0
+    local2 = character.GetWieldedObject(self)
+    if local2:
+        local3 = character.GetItemObjectFloat(local2, "has_fuel")
+        if local3:
+            if local3 > 0.0:
+                local1 = math.Clamp01(local3)
+    soundscripting.SetRouterVariableFloat("gameworld_conditions", "set_variable_value", "jerrycan_fuel", local1, 0.0, 0.0)
+    if false:
+        debug.PrintValue(local1, "Fuel level", 2.0)
+        local4 = vector.Lerp(local1, lib_color.RED(0.3), lib_color.GREEN(0.3))
+        local5 = game.GetTransform(self).r3
+        local5.y = local5.y + 1.0
+        debug.Sphere(local5, 0.5, local4)
+
+def Update(self, arg1, arg2):
+    WieldedItemHasFuel(self)

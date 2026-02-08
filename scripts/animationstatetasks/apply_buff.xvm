@@ -1,0 +1,15 @@
+module apply_buff
+import @BAFDB405
+
+def Enter(self, arg1):
+    arg1.applied = false
+
+def Update(self, arg1, arg2):
+    if arg1.applied == false and lib_character.SegmentNonExistentOrWithin(self, game.GameHashFloat(arg1.Layer), game.GameHashFloat(arg1.Segment)):
+        if arg1.UseLinkTarget:
+            local3 = animation.GetLinkTarget(self)
+            character.AddBuff(local3, arg1.BuffName)
+            arg1.applied = true
+        else:
+            character.AddBuff(local3, arg1.BuffName)
+            arg1.applied = true

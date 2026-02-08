@@ -1,0 +1,67 @@
+module lib_gameplay
+
+def IsInPlayerEnemyFaction(self):
+    local1 = character.GetFaction(self)
+    if local1 == 2.0 or local1 == 3.0 or local1 == 4.0 or local1 == 16.0:
+        return 1.0
+    return 0.0
+
+def IsGameStateCombat(self):
+    if GetGameState(self) == 3.0:
+        return true
+    return false
+
+def IsPlayerInsideCamp(self):
+    local1 = game.GetBlackboardValueFromObject(self, @72CD5541)
+    if local1 == none:
+        return false
+    return local1 > 0.0
+
+def IsGameStateRelaxed(self):
+    if GetGameState(self) == 1.0:
+        return true
+    return false
+
+def IsGameModeInVehicle(self):
+    if GetGameMode(self) == 2.0:
+        return true
+    return false
+
+def GetMaximumParryAmount(self, arg1):
+    local2 = character.GetUpgradeLevel(self, "weapon_parry")
+    if local2 > 0.0:
+        return 2.0
+    local3 = character.GetWieldedObject(arg1)
+    local4 = false
+    if local3:
+        if character.IsItemCategory(local3, "Knife"):
+            return 2.0
+        local5 = character.GetWieldedObject(self)
+        if local5:
+            local4 = character.IsItemCategory(local5, "Club") or character.IsItemCategory(local5, "ThunderStick") or character.IsItemCategory(local5, "Spear")
+        if local4:
+            return 2.0
+        return 0.0
+    return 2.0
+
+def METERS_FOR_OGC_ENEMIES_NEAR_TO_TRIGGER_COMBAT():
+    return 15.0
+
+def IsGameModeOnGround(self):
+    if GetGameMode(self) == 1.0:
+        return true
+    return false
+
+def GetGameMode(self):
+    return game.GetBlackboardValueFromObject(self, @133C6C8C)
+
+def ENEMY_VEHICLE_RADIUS():
+    return 100.0
+
+def GetGameState(self):
+    return game.GetBlackboardValueFromObject(self, @9510F374)
+
+def IsGameStateAlerted(self):
+    if GetGameState(self) == 2.0:
+        return true
+    return false

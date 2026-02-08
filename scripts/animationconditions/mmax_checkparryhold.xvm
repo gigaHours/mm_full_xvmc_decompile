@@ -1,0 +1,8 @@
+module mmax_checkparryhold
+
+def Evaluate(self, arg1):
+    local2 = 10.0
+    local3 = character.GetFloatRegister(self, local2)
+    if local3 > arg1.Property0:
+        return 1.0
+    return 0.0

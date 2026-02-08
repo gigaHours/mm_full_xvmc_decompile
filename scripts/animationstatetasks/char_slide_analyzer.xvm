@@ -1,0 +1,104 @@
+module char_slide_analyzer
+import @F76070AE
+import @BAFDB405
+
+def Enter(self, arg1):
+    arg1.gravity_factor = 4.0
+    local2 = character.GetMeasuredWorldVelocity(self)
+    local3 = vector.Length(local2)
+    if local3 > arg1.gravity_factor:
+        arg1.gravity_factor = local3
+    local4 = character.GetWorldMatrix(self)
+    arg1.slope_forward = local4.r3
+    arg1.exit_timer = 0.5
+
+def Update(self, arg1, arg2):
+    local3 = character.GetWorldMatrix(self)
+    local4 = false
+    local5 = 1.0
+    local6 = false
+    local7 = true
+    if lib_character.CheckIfSlidey(self, local3):
+        if 0.5 > arg1.exit_timer:
+            game.QueueAct(self, "ACT_REENTER_SLIDE")
+        arg1.exit_timer = 0.5
+        if false:
+            local8 = vector.Set(0.5, 0.2, 0.7, 0.5)
+    else:
+        local7 = false
+        arg1.exit_timer = arg1.exit_timer - arg2
+        local4 = true
+        if 0.0 >= arg1.exit_timer:
+            game.QueueAct(self, "ACT_STOP_SLIDE")
+            local4 = false
+        if false:
+            local8 = vector.Set(0.8, 0.2, 0.7, 0.5)
+    local9 = character.GetMeasuredWorldVelocity(self)
+    local10 = game.GetBlackboardValueFromObject(self, @91219935)
+    local11 = vector.Add(local3.r3, vector.Set(0.0, 0.1, 0.0, 0.0))
+    if false:
+        lib_debugdraw.ArrowDir(local11, local10, 0.3, 4.0, local8)
+    local12 = vector.Set(0.0, 1.0, 0.0, 0.0)
+    local13 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local14 = vector.Dot(local10, local12)
+    local15 = 9.81 * 1.25
+    local16 = 4.0 * 9.81 * arg2
+    local17 = vector.Distance(local10, local12)
+    if local17 > 0.0:
+        local18 = vector.Sub(local10, local12)
+        local18.y = 0.0
+        local18 = vector.Normalize(local18)
+        if false:
+            lib_debugdraw.ArrowDir(local11, local18, 0.2, 3.0, vector.Set(0.5, 0.1, 0.1, 0.5))
+        local19 = lib_character.GetFilteredMoveInputWorldDir()
+        local20 = 0.15
+        local21 = vector.Normalize(vector.Lerp(local20, local18, local19))
+        local22 = vector.Dot(local18, vector.Scale(local3.r2, -1.0))
+        local5 = local22
+        if 0.995 > local22:
+            game.QueueAct(self, "ACT_BLEND_SLIDE")
+        local23 = vector.Dot(local18, local3.r0)
+        if local23 > 0.0:
+            local6 = true
+        local24 = vector.Cross(local12, local10)
+        arg1.slope_forward = vector.Cross(local24, local10)
+        if vector.Dot(local19, local19) > 0.0 and local7:
+            character.RotateToward(self, local19, 1.0, 10.0)
+        if local15 > arg1.gravity_factor and local7:
+            arg1.gravity_factor = arg1.gravity_factor + local16 * (1.0 - local14)
+        elif arg1.gravity_factor > 0.0 and (not local7):
+            local25 = 1.0 - local14
+            if arg1.gravity_factor > 4.0:
+                local25 = 1.0 + local14 * 0.5
+            arg1.gravity_factor = arg1.gravity_factor - local16 * local25
+    elif arg1.gravity_factor > 0.0:
+        arg1.gravity_factor = arg1.gravity_factor - local16
+    if 0.0 > arg1.gravity_factor:
+        arg1.gravity_factor = 0.0
+    if local4:
+        if local5 > 0.0:
+            if local6:
+                game.QueueAct(self, "ACT_SLIDE_SETTLE_FWD_RF")
+                local26 = "ACT_SLIDE_SETTLE_FWD_RF"
+            else:
+                game.QueueAct(self, "ACT_SLIDE_SETTLE_FWD_LF")
+                local26 = "ACT_SLIDE_SETTLE_FWD_LF"
+        elif local6:
+            game.QueueAct(self, "ACT_SLIDE_SETTLE_BWD_RF")
+            local26 = "ACT_SLIDE_SETTLE_BWD_RF"
+        else:
+            game.QueueAct(self, "ACT_SLIDE_SETTLE_BWD_LF")
+            local26 = "ACT_SLIDE_SETTLE_BWD_LF"
+    local13 = vector.Scale(arg1.slope_forward, arg1.gravity_factor)
+    if local7:
+        local20 = 0.75 + 1.25 * (1.0 - arg1.gravity_factor / local15)
+        local13 = vector.Add(local13, vector.Scale(local19, local20))
+    if false:
+        debug.DrawText(vector.Set(0.1, 0.15, 0.0, 0.0), "1-sn.up: (%f) target_speed_addition(%f, %f, %f)", [1.0 - local14, local13.x, local13.y, local13.z], lib_color.WHITE(1.0))
+        debug.DrawText(vector.Set(0.1, 0.2, 0.0, 0.0), "previous_vel_ws(%f, %f, %f) gf(%f)", [local9.x, local9.y, local9.z, arg1.gravity_factor], lib_color.WHITE(1.0))
+    local27 = local13
+    if false:
+        if vector.Dot(local27, local27) > 0.0:
+            debug.Arrow(local11, vector.Add(local11, local27), 0.2, vector.Set(0.1, 0.5, 0.1, 0.5))
+    local27 = matrix.Rotate(matrix.Inverse(local3), local27)
+    character.SetAnimationVelocityLS(self, arg2, local27)

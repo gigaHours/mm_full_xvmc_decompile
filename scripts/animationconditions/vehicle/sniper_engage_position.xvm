@@ -1,0 +1,20 @@
+module sniper_engage_position
+
+def Evaluate(self, arg1):
+    local2 = camera.GetCameraTransform()
+    local3 = game.GetTransform(self)
+    local4 = vector.Dot(local2.r2, local3.r2)
+    local5 = vector.Cross(local2.r2, local3.r2)
+    if arg1.Property0 == 1.0:
+        if 0.0 > local5.y and local4 > 0.75 or local5.y > 0.0 and local4 > 0.75:
+            return 1.0
+    elif arg1.Property0 == 2.0:
+        if 0.0 > local5.y and -0.6 > local4 or local5.y > 0.0 and -0.7 > local4:
+            return 1.0
+    elif 0.0 > local5.y and arg1.Property0 == 3.0:
+        if local4 > -0.6 and 0.75 > local4:
+            return 1.0
+    elif local5.y > 0.0 and arg1.Property0 == 4.0:
+        if local4 > -0.7 and 0.75 > local4:
+            return 1.0
+    return 0.0

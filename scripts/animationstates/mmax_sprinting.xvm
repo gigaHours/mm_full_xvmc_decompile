@@ -1,0 +1,82 @@
+module mmax_sprinting
+import @BAFDB405
+import @E45D52B2
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = false
+    game.SetBlackboardValueToObject(self, @D875A82E, game.GetBlackboardValueFromObject(self, @D875A82E) + arg2)
+    local5 = 12.0
+    local6 = 4.5
+    local7 = math.DegToRad(40.0)
+    local8 = character.GetGlobalXvmFloat(self, 9.0)
+    local9 = character.GetGroundInfo(self)
+    local10 = lib_character.CalculateSlope(self, local5, local6, arg2, local7, local8, local9)
+    local11 = 0.45
+    local8 = local11 * local10 + (1.0 - local11) * local8
+    character.SetGlobalXvmFloat(self, 9.0, local8)
+    local12 = character.GetFloatRegister(self, 16.0)
+    if arg1.Property2 > arg1.Property3:
+        local13 = arg1.Property2
+    else:
+        local13 = arg1.Property3
+    if 0.01 > local12 - (local13 - arg1.Property2):
+        game.QueueAct(self, "ACT_INITIAL_BURST_DONE")
+    if 0.01 > local12 - (local13 - arg1.Property3):
+        game.QueueAct(self, "ACT_ADDITIVE_HEAD_DOWN_FINISHED")
+    local14 = lib_character.GetRawMoveInputWorldDir()
+    if vector.Length(local14) > 0.0:
+        local14 = vector.Normalize(local14)
+    local15 = character.GetWorldMatrix(self)
+    local16 = math.Clamp(vector.Dot(local14, local15.r0) / 0.25, -1.0, 1.0)
+    local17 = character.GetGlobalXvmFloat(self, 8.0)
+    local18 = math.Lerp(math.Scale01(math.Abs(local16), 0.35, 0.1), 0.033, 0.2)
+    local17 = math.Lerp(local18, local17, local16)
+    if lib_character.IsCoughing(self):
+        local17 = 0.0
+    character.SetGlobalXvmFloat(self, 8.0, local17)
+    local19 = [0.0, 0.0, 0.0, 0.0, 0.0]
+    if 0.0 > local8:
+        0.0[local19] = 3.0
+        -local8[local19] = 4.0
+    else:
+        local8[local19] = 3.0
+        0.0[local19] = 4.0
+    local20 = 1.0 - math.Abs(local8)
+    if 0.0 > local17:
+        -local17 * local20[local19] = 1.0
+        0.0[local19] = 2.0
+    else:
+        0.0[local19] = 1.0
+        local17 * local20[local19] = 2.0
+    1.0 - local19[1.0] - local19[2.0] - local19[3.0] - local19[4.0][local19] = 0.0
+    character.SetGlobalXvmFloat(self, 18.0, 1.0)
+    local21 = game.GetBlackboardValueFromObject(self, @DD3C0820)
+    if not local21:
+        local21 = 1.0
+    lib_character.SetWeightAndSynchronizeAnimationTimeAndSpeedBasedOnWeightArray(self, local19, arg3, local21)
+    local22 = 25.0
+    lib_character.AddBreath(self, local22 * arg2)
+    if local4:
+        lib_character.DrawFootsteps(self)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    lib_character.ZeroSamplers(arg4, 0.0)
+    if arg1.Property2 > arg1.Property3:
+        local5 = arg1.Property2
+    else:
+        local5 = arg1.Property3
+    character.SetFloatRegister(self, 16.0, local5)
+    character.SetGlobalXvmFloat(self, 2.0, 0.0)
+    if 0.0 != arg1.Property3:
+        game.QueueAct(self, "ACT_DO_ADDITIVE_HEAD_DOWN")
+    lib_animation.setSamplerTimesIfDoingNavigationReentering(self, arg3, arg4, 0.0)
+
+def OnEnter(self, arg1):
+    local2 = animation.IsWithinSegmentSync(self, @E063F6A0, @5F7BB48E)
+    if not local2:
+        character.SetGlobalXvmFloat(self, 8.0, 0.0)
+        character.SetGlobalXvmFloat(self, 9.0, 0.0)
+        game.SetBlackboardValueToObject(self, @D875A82E, 0.0)
+    elif not game.GetBlackboardValueFromObject(self, @D875A82E):
+        game.SetBlackboardValueToObject(self, @D875A82E, 0.0)
+    lib_animation.resetNavigationReenteringIfNotInSegment(self)

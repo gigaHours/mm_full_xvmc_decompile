@@ -1,0 +1,13 @@
+module char_hit_by_bullet
+
+def Evaluate(self, arg1):
+    local2 = game.GetBlackboardValueFromObject(self, @39468D84)
+    local3 = arg1.Property0
+    local4 = -1.0
+    if local2 == 2.0 or local2 == 1.0 or local2 == 3.0 or local2 == 5.0:
+        local4 = 0.0
+    elif local2 == 4.0 or local2 == 6.0:
+        local4 = 1.0
+    if local4 == local3:
+        return 1.0
+    return 0.0

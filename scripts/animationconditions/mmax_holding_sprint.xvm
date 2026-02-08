@@ -1,0 +1,12 @@
+module mmax_holding_sprint
+import @3BDB5A3B
+
+def Evaluate(self, arg1):
+    local2 = input.GetButtonInput(@A0427F74)
+    if arg1.Property0 == 0.0:
+        local3 = lib_player_input.SPRINT_TRIGGER_LIMIT()
+    else:
+        local3 = arg1.Property0
+    if local2 > local3:
+        return 1.0
+    return 0.0

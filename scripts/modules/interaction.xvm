@@ -1,0 +1,61 @@
+module interaction
+
+def GetEntryContext(self, arg1):
+    pass
+
+def GetEntryNodeOccupant(self, arg1):
+    pass
+
+def GetInteractionGraphUser(self, arg1):
+    pass
+
+def GetNodeTransform(self, arg1):
+    pass
+
+def GetCharacter(self):
+    pass
+
+def QueueActToContextOccupants(self, arg1):
+    pass
+
+def GetNodeCount(self):
+    pass
+
+def GetValidEntryContext(self, arg1):
+    pass
+
+def SetNamedFailEntry(self, arg1):
+    pass
+
+def GetInteractionGraph(self, arg1):
+    pass
+
+def GetEntryContextParent(self, arg1):
+    pass
+
+def GetEntryNodeTransform(self, arg1):
+    pass
+
+def GetInteractionGraphUserCount(self):
+    pass
+
+def GetCurrentContext(self):
+    pass
+
+def QueueActToOccupants(self, arg1):
+    pass
+
+def InteractionComponentScriptCall1(self, arg1, arg2):
+    pass
+
+def GetEntryNodePointIdentifier(self, arg1):
+    pass
+
+def FindLinkedResourceId(self):
+    pass
+
+def GetGraphTransform(self):
+    pass
+
+def GetCurrentContextParent(self):
+    pass

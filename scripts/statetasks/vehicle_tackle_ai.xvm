@@ -1,0 +1,21 @@
+module vehicle_tackle_ai
+
+def Enter(self, arg1):
+    local2 = 1.0
+    local3 = vehicle.GetParticipantCCD(self)
+    local4 = vehicle.GetCarCombatTarget(local3)
+    local5 = game.GetRelativePosition(local4, self)
+    animation.SetStateBit(self, local2, 1.0)
+    if 0.0 > local5.x:
+        game.QueueAct(self, "ACT_TACKLE_LEFT")
+    else:
+        game.QueueAct(self, "ACT_TACKLE_RIGHT")
+
+def Exit(self, arg1):
+    pass
+
+def UpdateRender(self, arg1, arg2):
+    pass
+
+def Update(self, arg1, arg2):
+    pass

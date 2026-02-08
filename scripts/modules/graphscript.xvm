@@ -1,0 +1,7 @@
+module graphscript
+
+def GetVariables(self):
+    pass
+
+def FireGraphOutput(self, arg1):
+    pass

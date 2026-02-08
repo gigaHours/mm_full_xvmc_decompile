@@ -1,0 +1,212 @@
+module grinding_effect_handler
+
+def UpdateGrindingEffects(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.grindLocations
+    local4 = 0.0
+    local6 = 0.0
+    local7 = 1.0
+    local5 = len(local3)
+    while local5 > local6:
+        if local3[local6][0.0] != none:
+            local3[local6][1.0] - arg1[local3[local6]] = 1.0
+            if 0.0 > local3[local6][1.0]:
+                effect.SpawnerStop(local3[local6][2.0])
+                if false:
+                    debug.LogInfo("Stopping %go from %go due to timeout", [local3[local6][2.0], local3[local6][0.0]])
+                none[local3[local6]] = 0.0
+            else:
+                local4 = local4 + 1.0
+        local6 = local7 + local6
+    if local4 > 0.0:
+        local2.duration = local2.duration + arg1
+    else:
+        local2.duration = local2.duration - arg1 * 0.5
+    if 0.0 >= local4 and 0.0 >= local2.duration:
+        scriptgo.SetUpdateFunction(self, "")
+    local2.grindLocations = local3
+
+def StopEffects(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.active:
+        local2 = local1.grindLocations
+        local4 = 0.0
+        local5 = 1.0
+        local3 = len(local2)
+        while local3 > local4:
+            local6 = local2[local4][2.0]
+            if local6 != none:
+                if effect.IsEffectSpawner(local6) and effect.SpawnerIsPlaying(local6):
+                    effect.SpawnerStop(local6)
+                    if false:
+                        debug.LogInfo("Stopping %go from %go", [local6, local2[local4][0.0]])
+            none[local2[local4]] = 0.0
+            local4 = local5 + local4
+        local1.grindLocations = local2
+        vehicle.SendVehicleSoundEvent(local1.car, @BEC9EB3A)
+        vehiclemanager.SendGrindingEndendEvent(local1.car, local1.duration)
+    if local1.on_screen_damage_effect != none:
+        if effect.SpawnerIsPlaying(local1.on_screen_damage_effect):
+            effect.SpawnerStop(local1.on_screen_damage_effect)
+    local1.active = false
+
+def DebugRender(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.grindLocations
+    local4 = game.GetParent(self)
+    local5 = game.GetRenderTransform(local4, arg1)
+    debug.DrawText3d(local5.r3, "Grind Damage: %f", [local2.damage], lib_color.WHITE(1.0))
+    if local3:
+        local7 = 0.0
+        local8 = 1.0
+        local6 = len(local3)
+        while local6 > local7:
+            local9 = local3[local7][0.0]
+            if local9 != none:
+                local10 = game.GetRenderTransform(local9, arg1)
+                local11 = local3[local7][2.0]
+                if local11 != none:
+                    local12 = game.GetRenderTransform(local11, arg1)
+                    local13 = lib_color.RED(0.5)
+                    if effect.SpawnerIsPlaying(local11):
+                        local13 = lib_color.GREEN(0.5)
+                    debug.DrawText3d(local12.r3, "Timer: %f Wheel spin: %f", [local3[local7][1.0], local3[local7][3.0]], lib_color.WHITE(1.0))
+                    debug.DrawLine(local12.r3, local10.r3, lib_color.WHITE(1.0))
+                    debug.Sphere(local12.r3, 0.7, local13)
+            local7 = local8 + local7
+
+def StartEffects(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = 0.0
+    local3 = local1.grindLocations
+    local5 = 0.0
+    local6 = 1.0
+    local4 = len(local3)
+    while local4 > local5:
+        if local3[local5][0.0] != none:
+            local7 = local3[local5][2.0]
+            if local7 != none:
+                if effect.IsEffectSpawner(local7) and (not effect.SpawnerIsPlaying(local7)):
+                    effect.SpawnerPlay(local7)
+                    if false:
+                        debug.LogInfo("Starting %go from %go", [local7, local3[local5][0.0]])
+                if effect.SpawnerIsPlaying(local7):
+                    local2 = local2 + 1.0
+        local5 = local6 + local5
+    if local1.on_screen_damage_effect != none:
+        if vehicle.IsPlayerVehicle(local1.car):
+            if not effect.SpawnerIsPlaying(local1.on_screen_damage_effect):
+                effect.SpawnerPlay(local1.on_screen_damage_effect)
+    if (not local1.active) and local2 > 0.0:
+        vehicle.SendVehicleSoundEvent(local1.car, @16AAB629)
+        local1.active = true
+    elif local1.active and 0.0 >= local2:
+        vehicle.SendVehicleSoundEvent(local1.car, @BEC9EB3A)
+        vehiclemanager.SendGrindingEndendEvent(local1.car, local1.duration)
+        local1.active = false
+
+def UpdateGrindingLocation(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = local3.grindLocations
+    local5 = math.Abs(arg2.AngularSpeed * arg2.Radius)
+    local7 = 0.0
+    local8 = 1.0
+    local6 = len(local4)
+    while local6 > local7:
+        if game.IsObjectEqualTo(local4[local7][0.0], arg1):
+            if local4[local7][4.0] == arg2.Index:
+                0.3[local4[local7]] = 1.0
+                local5[local4[local7]] = 3.0
+                local9 = local4[local7][2.0]
+                effect.SpawnerSetAttachObject(local9, arg1)
+                local10 = game.GetTransform(arg1)
+                local11 = vehicle.GetWheelTransform(arg1, arg2.Index)
+                local12 = matrix.Matrix(local11.r0, local10.r1, local11.r3)
+                effect.SpawnerSetWorldTransform(local9, local12)
+                effect.SpawnerSetParameter(local9, "wheel_spin", local5)
+                local3.grindLocations = local4
+                return
+        local7 = local8 + local7
+    local7 = 0.0
+    local14 = 1.0
+    local13 = len(local4)
+    while local13 > local7:
+        if local4[local7][0.0] == none:
+            local9 = local4[local7][2.0]
+            if local9 != none:
+                if effect.IsEffectSpawner(local9):
+                    arg1[local4[local7]] = 0.0
+                    0.3[local4[local7]] = 1.0
+                    local5[local4[local7]] = 3.0
+                    arg2.Index[local4[local7]] = 4.0
+                    effect.SpawnerSetAttachObject(local9, arg1)
+                    local10 = game.GetTransform(arg1)
+                    local11 = vehicle.GetWheelTransform(arg1, arg2.Index)
+                    local12 = matrix.Matrix(local11.r0, local10.r1, local11.r3)
+                    effect.SpawnerSetWorldTransform(local9, local12)
+                    effect.SpawnerSetParameter(local9, "wheel_spin", local5)
+                    scriptgo.SetUpdateFunction(self, "UpdateGrindingEffects")
+                    if false:
+                        debug.LogInfo("Added new grind location from %go", [arg1])
+                    local3.grindLocations = local4
+                    return
+        local7 = local14 + local7
+    debug.LogError("grind_effect_handler", "Limit of grind effect locations is reached")
+    if false:
+        DebugPrintGrindLocations(self)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.damage = 0.0
+    local1.duration = 0.0
+    local1.grindLocations = [[none, 0.0, local1.grind_damage_effect_spawner1, 0.0, 0.0], [none, 0.0, local1.grind_damage_effect_spawner2, 0.0, 0.0], [none, 0.0, local1.grind_damage_effect_spawner3, 0.0, 0.0], [none, 0.0, local1.grind_damage_effect_spawner4, 0.0, 0.0]]
+    local2 = local1.grindLocations
+    local1.active = false
+    local3 = game.GetParent(self)
+    if local3 != none:
+        if vehicle.IsVehicle(local3):
+            local5 = 0.0
+            local6 = 1.0
+            local4 = len(local2)
+            while local4 > local5:
+                local7 = local2[local5][2.0]
+                if local7 != none:
+                    if effect.IsEffectSpawner(local7):
+                        effect.SpawnerSetAttachObject(local7, local3)
+                local5 = local6 + local5
+    if false:
+        scriptgo.SetRenderFunction(self, "DebugRender")
+    else:
+        scriptgo.SetRenderFunction(self, "")
+
+def SetDamage(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.grindLocations
+    local2.damage = arg1
+    local5 = 0.0
+    local6 = 1.0
+    local4 = len(local3)
+    while local4 > local5:
+        if local3[local5][0.0] != none:
+            effect.SpawnerSetParameter(local3[local5][2.0], "damage", arg1)
+        local5 = local6 + local5
+    if local2.on_screen_damage_effect != none:
+        effect.SpawnerSetParameter(local2.on_screen_damage_effect, "Damage", arg1)
+    vehicle.SetVehicleSoundFloatCondition(local2.car, @88A86AF2, arg1)
+
+def DebugPrintGrindLocations(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.grindLocations
+    if local2:
+        debug.LogInfo("Print Grind Locations (%d)", [len(local2)])
+        local4 = 0.0
+        local5 = 1.0
+        local3 = len(local2)
+        while local3 > local4:
+            if local2[local4][0.0] == none:
+                debug.LogInfo("%d - Empty", [local4])
+            else:
+                debug.LogInfo("%d - %go", [local4, local2[local4][0.0]])
+            local4 = local5 + local4
+        return
+    debug.LogInfo("Invalid grind location list", [])

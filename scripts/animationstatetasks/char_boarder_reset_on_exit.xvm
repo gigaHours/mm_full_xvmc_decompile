@@ -1,0 +1,5 @@
+module char_boarder_reset_on_exit
+import @42D0E955
+
+def Exit(self, arg1):
+    game.QueueAct(self, "ACT_RESET_BOARDER")

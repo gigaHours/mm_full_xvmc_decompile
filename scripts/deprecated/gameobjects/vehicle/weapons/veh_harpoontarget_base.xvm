@@ -1,0 +1,157 @@
+module veh_harpoontarget_base
+import @42D0E955
+import @58351C01
+import @45098D7D
+import @8A26F2B5
+
+def Disable(self):
+    lib_harpoontarget.Disable(self, false)
+
+def IgnoreHitDistanceThreshold(self):
+    return 0.0
+
+def GetTargetPos(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @82877941)
+
+def ForceShootCam(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.target_type, "\rt9,")
+
+def Unload(self):
+    if false:
+        debug.LogInfo("HarpoonTargetBase: Unload", [])
+    Disable(self)
+
+def ExitHooked(self):
+    local1 = scriptgo.GetProperties(self)
+    if false:
+        debug.LogInfo("HarpoonTargetBase: ExitHooked", [])
+    scriptgo.Call(local1.target_type, @335BDBC0)
+    local1.stopHealthbarDelay = 1.0
+    scriptgo.SetUpdateFunction(self, "UpdateStopHealthbar")
+    scriptgo.PostEvent(self, @9BCA79CD)
+
+def GetAutoTargetPrio(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.target_type, @47D4451D)
+
+def UpdateStopHealthbar(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.stopHealthbarDelay = local2.stopHealthbarDelay - arg1
+    SetHealthbarValues(self)
+    if 0.0 >= local2.stopHealthbarDelay:
+        lib_harpoontarget.UnRegisterHealthbar(self)
+        scriptgo.SetUpdateFunction(self, "")
+        scriptgo.SetRenderFunction(self, "")
+        ResetState(self)
+
+def HideOutline(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.Call(local1.weakspot, @63B8C080)
+
+def ShouldIgnoreVehicleParts(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.ignore_vehicle_parts
+
+def EnterHooked(self, arg1):
+    if false:
+        debug.LogInfo("HarpoonTargetBase: EnterHooked", [])
+    local2 = scriptgo.GetProperties(self)
+    local2.harpoon_gun_must_detach = false
+    local2.attached_harpoon_gun = arg1
+    local3 = scriptgo.GetProperties(local2.weakspot)
+    local3.attached_harpoon_gun = arg1
+    local4 = scriptgo.GetProperties(local2.target_type)
+    local4.attached_harpoon_gun = arg1
+    local4.healthComp = local3.healthComponent
+    local4.car = local3.car
+    local4.human = local3.human
+    scriptgo.Call(local2.target_type, @71067BFB)
+    scriptgo.SetUpdateFunction(self, "UpdateHooked")
+    scriptgo.PostEvent(self, @986D3C8C)
+    lib_harpoontarget.RegisterHealthbar(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weakspot = game.GetParent(self)
+    local1.harpoon_gun_must_detach = false
+    if none == local1.targetable_by_thunderstick:
+        local1.targetable_by_thunderstick = false
+    if none == local1.targetable_by_harpoon:
+        local1.targetable_by_harpoon = true
+    if none == local1.yanking_impulse_scale:
+        local1.yanking_impulse_scale = 100.0
+    local2 = scriptgo.GetProperties(local1.target_type)
+    local3 = scriptgo.GetProperties(local1.weakspot)
+    local2.weakspot = local1.weakspot
+    local2.human = local3.human
+    if none == local1.minHarpoonStrengthToTarget:
+        local1.minHarpoonStrengthToTarget = 0.0
+
+def SetHealthbarValues(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.health = 0.0
+    local1.last_hit_damage = 0.0
+    local2 = scriptgo.GetProperties(local1.target_type)
+    local3 = local2.healthComp
+    if local3:
+        local1.health = scriptgo.Call(local3, @F4E205B5)
+        local1.last_hit_damage = scriptgo.Call(local3, @9EE31321)
+
+def GetTargetPositionBoneName(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @BCEF87C2)
+
+def GetTargetStrength(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.minHarpoonStrengthToTarget
+
+def Enable(self):
+    lib_harpoontarget.Enable(self, false)
+
+def RenderDebug(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    scriptgo.Call1(local2.target_type, @B35222AC, arg1)
+
+def GetMinTargetingDistance(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @B6D20244)
+
+def GetTargetRenderPos(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return scriptgo.Call1(local2.weakspot, @9EAD4E49, arg1)
+
+def GetAimDotLimit(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.target_type, @BDD43F21)
+
+def ShowOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    scriptgo.Call1(local2.weakspot, @C748D51A, arg1)
+
+def UpdateHooked(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    SetHealthbarValues(self)
+    local3 = scriptgo.Call1(local2.target_type, @D1BEB0DE, arg1)
+    if local3:
+        Disable(self)
+
+def GetTargetPhysObject(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @59FD21A8)
+
+def ResetState(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.attached_harpoon_gun = none
+    local2 = scriptgo.GetProperties(local1.weakspot)
+    local2.attached_harpoon_gun = none
+    local3 = scriptgo.GetProperties(local1.target_type)
+    local3.attached_harpoon_gun = none
+    local3.healthComp = none
+    local3.car = none
+    local3.human = none
+
+def GetNormal(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @FB4DD739)

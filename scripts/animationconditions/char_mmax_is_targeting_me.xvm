@@ -1,0 +1,7 @@
+module char_mmax_is_targeting_me
+
+def Evaluate(self, arg1):
+    if animation.GetLinkSource(self, 0.0):
+        if character.IsStateBitSet(character.GetPlayer(), arg1.Property0):
+            return 1.0
+    return 0.0

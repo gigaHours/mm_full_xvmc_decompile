@@ -1,0 +1,57 @@
+module weapon_aim_hit
+
+def TransitionFrom(self, arg1):
+    pass
+
+def EnterAlignedTransition(self, arg1, arg2):
+    UpdateAutoTarget(self)
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    lib_camera.AlignElevationToSourceCameraClamped(self, arg1, arg2, self.Properties.min_elevation, self.Properties.max_elevation)
+
+def UpdateAutoTarget(self):
+    local1 = GetWeaponGO(self)
+    self.Properties.target = none
+    if local1 != none:
+        self.Properties.target = scriptgo.Call(local1, @FB3AC79C)
+
+def Init(self):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    UpdateAutoTarget(self)
+
+def DoAutoAim(self, arg1, arg2):
+    local3 = self.Properties.target
+    if local3 != none:
+        local4 = game.TargetObjectGetTargetPos(local3)
+        if local4 != none:
+            local5 = lib_camera.GetAzElTowardsPos(self, arg1, local4, arg2)
+            if local5:
+                local6 = math.Clamp(local5[0.0], self.Properties.min_elevation, self.Properties.max_elevation)
+                local6 = ClampAzimuth(local6)
+                camera.SetOffsetDeltaOrbit(self, local6 - self.OffsetAzimuth, 0.0)
+                return true
+    return false
+
+def ClampAzimuth(self):
+    local1 = math.DegToRad(180.0)
+    if -local1 > self:
+        self = 2.0 * local1 + self
+    elif self > local1:
+        self = self - 2.0 * local1
+    return self
+
+def GetWeaponGO(self):
+    local1 = none
+    if 0.0 == self.Properties.weapon:
+        local1 = lib_entity_proxy.GetHarpoon(vehicle.GetSignatureVehicle())
+    elif 1.0 == self.Properties.weapon:
+        local1 = lib_entity_proxy.GetShotgun(character.GetPlayer())
+    return local1
+
+def Update(self, arg1):
+    local2 = DoAutoAim(self, arg1, 0.5)
+    if not local2:
+        UpdateAutoTarget(self)
+    local3 = camera.CalculateCameraTransform(self)
+    arg1.CameraTransform = local3

@@ -1,0 +1,19 @@
+module encampment_menu_connection
+
+def Init(self):
+    local1 = gui.GetBlackboard()
+    local1.enc_leader_menu_garage_event = ""
+    local1.enc_leader_menu_enc_upg_event = ""
+
+def ConnectToGUI(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias(local1.enc_inv_alias)
+    if local2 == none:
+        debug.LogInfo("Can not find encampment inventory with alias: %s", [local1.enc_inv_alias])
+        return
+    local3 = true
+    local4 = gui.GetBlackboard()
+    local4.enc_leader_menu_garage_event = gui.MakeLocalizationHashFromTag(local1.garage_event)
+    local4.enc_leader_menu_enc_upg_event = gui.MakeLocalizationHashFromTag(local1.enc_upg_event)
+    local4.enc_leader_menu_has_garage = local3
+    gui.PostEvent("gui_encampment_menu_show")

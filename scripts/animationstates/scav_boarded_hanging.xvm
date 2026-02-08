@@ -1,0 +1,50 @@
+module scav_boarded_hanging
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = 0.0
+    local5 = 1.0
+    local6 = 2.0
+    local7 = 3.0
+    local8 = 4.0
+    local9 = 5.0
+    local10 = vector.Set(0.0, -10.0, 0.0, 1.0)
+    local11 = -1.0
+    local12 = 10.0
+    local13 = 0.2
+    local14 = character.GetWorldMatrix(self)
+    local15 = animation.GetSampler(arg3, 0.0)
+    local16 = animation.GetSampler(arg3, 1.0)
+    local17 = vehicle.GetVehicleContext()
+    local18 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    if local17:
+        local18 = vector.Set(character.GetGlobalXvmFloat(self, local4), character.GetGlobalXvmFloat(self, local5), character.GetGlobalXvmFloat(self, local6), 1.0)
+        local19 = vector.Set(character.GetGlobalXvmFloat(self, local7), character.GetGlobalXvmFloat(self, local8), character.GetGlobalXvmFloat(self, local9), 1.0)
+        local20 = vector.Dot(local17.At, local17.Acceleration)
+        local21 = vector.Dot(local17.Right, local17.Acceleration)
+        local22 = vector.Dot(local17.Up, local17.Acceleration)
+        local23 = vector.Set(local21, local22, local20, 1.0)
+        local24 = vector.Scale(local18, local11 / arg2 * (1.0 - math.Abs(local18.x) * (1.0 - math.Clamp(math.Abs(local19.x), 0.0, 1.0))))
+        local25 = vector.Set(vector.Dot(local17.Right, local10), vector.Dot(local17.Up, local10), vector.Dot(local17.At, local10), 1.0)
+        local26 = vector.Add(local23, vector.Add(local24, local25))
+        local27 = vector.Scale(local26, arg2 * local12)
+        local19 = vector.Add(vector.Scale(local19, 1.0 - local13), vector.Scale(local27, local13))
+        character.SetGlobalXvmFloat(self, local7, local19.x)
+        character.SetGlobalXvmFloat(self, local8, local19.y)
+        character.SetGlobalXvmFloat(self, local9, local19.z)
+        local18 = vector.Add(local18, vector.Scale(local19, arg2))
+        local28 = arg1.Property0
+        local29 = arg1.Property1
+        local18 = vector.Set(math.Clamp(local18.x, -local28, local28), math.Clamp(local18.y, 0.0, 1.0), math.Clamp(local18.z, -local28, local28), 1.0)
+        character.SetGlobalXvmFloat(self, local4, local18.x)
+        character.SetGlobalXvmFloat(self, local5, local18.y)
+        character.SetGlobalXvmFloat(self, local6, local18.z)
+    local30 = (local18.x + local28) / (local28 * 2.0)
+    if arg1.Property2 > 0.0:
+        local15.Weight = local30
+        local16.Weight = 1.0 - local30
+    else:
+        local16.Weight = local30
+        local15.Weight = 1.0 - local30
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    lib_character.ZeroSamplers(arg4, 0.0)

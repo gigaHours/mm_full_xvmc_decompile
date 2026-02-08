@@ -1,0 +1,9 @@
+module modify_playback_speed_by_difficulty
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    pass
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = playerstats.GetPlayerStats().RealDifficulty
+    local6 = math.Scale(local5, 0.0, 1.0, 0.95, 1.3)
+    animation.GetSampler(arg4, 0.0).Speed = local6

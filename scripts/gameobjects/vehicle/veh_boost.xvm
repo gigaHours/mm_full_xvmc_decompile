@@ -1,0 +1,322 @@
+module veh_boost
+import @45098D7D
+import @42D0E955
+import @F76070AE
+
+def ScaleInOut(self, arg1, arg2, arg3, arg4):
+    if arg2 > self:
+        return math.Clamp01((self - arg1) / (arg2 - arg1))
+    if self > arg3:
+        return 1.0 - math.Clamp01((self - arg3) / (arg4 - arg3))
+    return 1.0
+
+def UpdateCooldown(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.boost_active = false
+    local2.cooldown_time = local2.cooldown_time - arg1
+    if 0.0 >= local2.cooldown_time:
+        EnterRegen(self)
+    if local2.boostTriggered:
+        EnterBoost(self)
+        local2.boostTriggered = false
+
+def External_GetBoostBurstPower(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = debug.GetTweakVariables()
+    return local1.boost_torque * local2.BOOST_BURST_MULTIPLIER
+
+def UpdateBoost(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    SetBoostTorqueTopSpeed(self, local2.boost_burst_torque)
+    local2.boost_active = true
+    local2.boost_burst_time = local2.boost_burst_time - arg1
+    if vehicle.IsPlayerVehicle(local2.car):
+        local3 = debug.GetTweakVariables()
+        local2.external_cameraSignal = (local3.BOOST_BURST_TIME - local2.boost_burst_time) / local3.BOOST_BURST_TIME
+    UpdateSuperSteer(self, arg1, local2)
+    if arg1 >= local2.boost_burst_time:
+        EnterBoostMiddle(self)
+
+def buildList(self, arg1, arg2):
+    local3 = "0_1"
+    if arg1 == 0.0 or arg1 == 1.0:
+        local3 = "0_"
+    if arg1 == 2.0:
+        local3 = "1_"
+    if arg1 == 3.0:
+        local3 = "2_"
+    if arg2:
+        local4 = string.Cat("start_exhaust_blue_boost_lvl", local3)
+    else:
+        local4 = string.Cat("start_exhaust_boost_lvl", local3)
+    local5 = lib_vehicleupgrades.GetTopSpeedUpgradeLevel()
+    local6 = []
+    if local5 == 0.0:
+        local7 = string.Cat(local4, "0")
+        local6 = [local7]
+    if local5 == 1.0 or local5 == 3.0:
+        local7 = string.Cat(local4, "0")
+        local8 = string.Cat(local4, "1")
+        local6 = [local7, local8]
+    if local5 == 2.0 or local5 == 5.0:
+        local7 = string.Cat(local4, "0")
+        local8 = string.Cat(local4, "1")
+        local9 = string.Cat(local4, "2")
+        local6 = [local7, local8, local9]
+    if local5 == 4.0:
+        local7 = string.Cat(local4, "0")
+        local8 = string.Cat(local4, "1")
+        local9 = string.Cat(local4, "2")
+        local10 = string.Cat(local4, "3")
+        local6 = [local7, local8, local9, local10]
+    return local6
+
+def SetBoostPowerLevel(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.boost_power_level = arg1
+    local2.boost_vfx_lst = buildList(self, arg1, local2.use_blue_flames)
+
+def UpdateRegen(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.boost_active = false
+    local3 = 1.0 / (5.0 - 1.0)
+    if vehicle.GetFuelAmount(local2.car) > 0.0:
+        local2.current_boost_capacity = math.Min(local2.max_boost_capacity, local2.current_boost_capacity + local3 * arg1)
+    if local2.boostTriggered:
+        EnterBoost(self)
+        local2.boostTriggered = false
+
+def StopBoostVfx(self):
+    scriptgo.PostEvent(self, @FCBDDDD5)
+
+def EnterBoost(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = debug.GetTweakVariables()
+    local1.boost_burst_torque = local1.boost_torque * local2.BOOST_BURST_MULTIPLIER
+    SetBoostTorqueTopSpeed(self, local1.boost_burst_torque)
+    if local1.current_boost_capacity >= 1.0 and local1.enabled:
+        vehicle.SetBoost(local1.car, true)
+        local1.boost_active = true
+        if vehicle.IsPlayerVehicle(local1.car):
+            hydra.HydraSendVehicleEvent(0.0)
+        if false:
+            debug.LogInfo("ENABLE Boost props.enabled", [])
+        local1.boost_burst_time = local2.BOOST_BURST_TIME
+        local1.boost_after_punch_time = local2.BOOST_AFTER_PUNCH_TIME
+        local1.boost_middle_time = local2.BOOST_MIDDLE_TIME
+        local1.boost_super_steer_time = 0.0
+        PlayBoostVfx(self)
+        Depletion(self)
+        if vehicle.IsPlayerVehicle(local1.car):
+            scriptgo.SendEvent(self, @21037FCE)
+        else:
+            scriptgo.SendEvent(self, @831D9ECB)
+        scriptgo.SetUpdateFunction(self, "UpdateBoost")
+
+def UpdateSuperSteer(self, arg1, arg2):
+    local3 = debug.GetTweakVariables()
+    arg2.boost_super_steer_time = arg2.boost_super_steer_time + arg1
+    local4 = ScaleInOut(arg2.boost_super_steer_time, 0.0, local3.BOOST_SUPERSTEER_FADE_IN, local3.BOOST_SUPERSTEER_FADE_IN + local3.BOOST_SUPERSTEER_DURATION, local3.BOOST_SUPERSTEER_FADE_IN + local3.BOOST_SUPERSTEER_DURATION + local3.BOOST_SUPERSTEER_FADE_OUT)
+    local5 = vehicle.GetChassis(arg2.car)
+    local5.SuperSteerScale = local3.BOOST_SUPERSTEER * local4
+
+def External_SetEnabled(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.enabled = arg1
+
+def Depletion(self):
+    local1 = debug.GetTweakVariables()
+    if not local1.BOOST_INIFINTE:
+        local2 = scriptgo.GetProperties(self)
+        local2.current_boost_capacity = local2.current_boost_capacity - 1.0
+
+def SetBoostTorque(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car and local1.boost_torque:
+        SetBoostTorqueTopSpeed(self, local1.boost_torque)
+
+def PlayBoostVfx(self):
+    local1 = scriptgo.GetProperties(self)
+    SetIsPlayerParameter(local1)
+    local2 = local1.boost_vfx_lst
+    local4 = 0.0
+    local5 = 1.0
+    local3 = len(local2)
+    while local3 > local4:
+        local6 = local2[local4]
+        scriptgo.PostEvent(self, game.GameHashString(local6))
+        local4 = local5 + local4
+
+def UpdateBoostMiddle(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    SetBoostTorqueTopSpeed(self, local2.boost_middle_torque)
+    local2.boost_active = true
+    UpdateSuperSteer(self, arg1, local2)
+    local2.boost_middle_time = local2.boost_middle_time - arg1
+    if vehicle.IsPlayerVehicle(local2.car):
+        local2.external_cameraSignal = 1.0
+    if arg1 >= local2.boost_middle_time:
+        EnterBoostAfterPunch(self)
+
+def EnterBoostMiddle(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = debug.GetTweakVariables()
+    local1.boost_middle_torque = local1.boost_torque * local2.BOOST_MIDDLE_MULTIPLIER
+    local1.boost_active = true
+    SetBoostTorqueTopSpeed(self, local1.boost_middle_torque)
+    vehicle.SetBoost(local1.car, true)
+    scriptgo.SetUpdateFunction(self, "UpdateBoostMiddle")
+
+def TestExit(self):
+    scriptgo.SetRenderFunction(self, "")
+
+def Init(self):
+    Reset(self)
+
+def External_GetBoostBurstTime(self):
+    local1 = debug.GetTweakVariables()
+    return local1.BOOST_BURST_TIME
+
+def TestEnter(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.IsPlayerVehicle(local1.car):
+        local2 = gui.GetBlackboard()
+        local2.current_boost_capacity = local1.current_boost_capacity
+        local2.max_boost_capacity = local1.max_boost_capacity
+        scriptgo.SetRenderFunction(self, "UpdateRender")
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if vehicle.IsPlayerVehicle(local2.car):
+        "pct = props.current_boost_capacity / props.max"
+        local3 = gui.GetBlackboard()
+        local3.current_boost_capacity = local2.current_boost_capacity
+        local3.max_boost_capacity = local2.max_boost_capacity
+    else:
+        scriptgo.SetRenderFunction(self, "")
+
+def SetUseBlueFlames(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.use_blue_flames = arg1
+    local2.boost_vfx_lst = buildList(self, local2.boost_power_level, local2.use_blue_flames)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.current_boost_capacity = 0.0
+    local1.boost_active = false
+    SetBoostPowerLevel(self, 0.0)
+    local1.enabled = true
+    local1.use_blue_flames = false
+    local2 = debug.GetTweakVariables()
+    local2.BOOST_SUPERSTEER_FADE_IN = ["Tweak|Vehicle|Boost|Supersteer Fade In", 0.1, 0.01]
+    local2.BOOST_SUPERSTEER_DURATION = ["Tweak|Vehicle|Boost|Supersteer Duration", 0.15, 0.01]
+    local2.BOOST_SUPERSTEER_FADE_OUT = ["Tweak|Vehicle|Boost|Supersteer Fade Out", 0.2, 0.01]
+    local2.BOOST_SUPERSTEER = ["Tweak|Vehicle|Boost|Supersteer Strength", 0.25, 0.01]
+    local2.BOOST_BURST_TIME = ["Tweak|Vehicle|Boost|Burst Time", 0.5, 0.01]
+    local2.BOOST_MIDDLE_TIME = ["Tweak|Vehicle|Boost|Middle Time", 0.2, 0.01]
+    local2.BOOST_AFTER_PUNCH_TIME = ["Tweak|Vehicle|Boost|After Punch Time", 1.0, 0.01]
+    local2.BOOST_BURST_MULTIPLIER = ["Tweak|Vehicle|Boost|Burst Multiplier", 4.0, 0.1]
+    local2.BOOST_MIDDLE_MULTIPLIER = ["Tweak|Vehicle|Boost|Middle Multiplier", 0.0, 0.1]
+    local2.BOOST_AFTER_PUNCH_MULTIPLIER = ["Tweak|Vehicle|Boost|After Punch Multiplier", -0.5, 0.1]
+    local2.BOOST_INIFINTE = ["Tweak|Vehicle|Boost|Infinite", false]
+    local1.external_cameraSignal = 0.0
+
+def TriggerBoost(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.IsEngineRunning(local1.car):
+        if not local1.boost_active:
+            local1.boostTriggered = true
+
+def EnterBoostAfterPunch(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = debug.GetTweakVariables()
+    local1.boost_after_punch_torque = local1.boost_torque * local2.BOOST_AFTER_PUNCH_MULTIPLIER
+    local1.boost_active = true
+    SetBoostTorqueTopSpeed(self, local1.boost_after_punch_torque)
+    vehicle.SetBoost(local1.car, true)
+    scriptgo.SetUpdateFunction(self, "UpdateBoostAfterPunch")
+
+def Reset(self):
+    if false:
+        debug.LogInfo("BOOST RESET", [])
+    local1 = scriptgo.GetProperties(self)
+    local1.current_boost_capacity = local1.max_boost_capacity
+    local1.cooldown_time = 0.0
+    EnterCooldown(self)
+    SetBoostTorque(self)
+
+def SetUpgradeBoostTorque(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.boost_torque = arg1
+    SetBoostTorque(self)
+
+def EnterRegen(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.boost_active = false
+    scriptgo.SetUpdateFunction(self, "UpdateRegen")
+
+def SetBoostTorqueTopSpeed(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vector.Length(vehicle.GetVelocity(local2.car)) * 3.6
+    if local3 > local2.boost_top_speed:
+        arg1 = 0.0
+    vehicle.SetBoostTorque(local2.car, arg1)
+
+def SetMaximumBoostCapacity(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.max_boost_capacity = arg1
+    if local2.current_boost_capacity > local2.max_boost_capacity:
+        local2.current_boost_capacity = local2.max_boost_capacity
+    if false:
+        debug.LogInfo("max_boost_capacity: %f", [local2.max_boost_capacity])
+    local3 = gui.GetBlackboard()
+    local3.max_boost_capacity = local2.max_boost_capacity
+
+def GetMaximumBoostCapacity(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.max_boost_capacity
+
+def EnterCooldown(self):
+    local1 = scriptgo.GetProperties(self)
+    vehicle.SetBoost(local1.car, false)
+    local1.boost_active = false
+    if false:
+        debug.LogInfo("DISABLE Boost props.enabled", [])
+    local1.cooldown_time = 1.0
+    scriptgo.SendEvent(self, @0D2CA1D4)
+    scriptgo.SetUpdateFunction(self, "UpdateCooldown")
+
+def SetIsPlayerParameter(self):
+    local1 = 0.0
+    if vehicle.IsPlayerVehicle(self.car):
+        local1 = 1.0
+    local2 = []
+    if self.use_blue_flames:
+        local2 = [self.blue_boost_effect_0, self.blue_boost_effect_1, self.blue_boost_effect_2, self.blue_boost_effect_3, self.blue_boost_effect_4, self.blue_boost_effect_5, self.blue_boost_effect_6, self.blue_boost_effect_7, self.blue_boost_effect_8, self.blue_boost_effect_9, self.blue_boost_effect_10, self.blue_boost_effect_11, self.blue_boost_effect_12, self.blue_boost_effect_13, self.blue_boost_effect_14, self.blue_boost_effect_15, self.blue_boost_effect_16, self.blue_boost_effect_17]
+    else:
+        local2 = [self.boost_effect_0, self.boost_effect_1, self.boost_effect_2, self.boost_effect_3, self.boost_effect_4, self.boost_effect_5, self.boost_effect_6, self.boost_effect_7, self.boost_effect_8, self.boost_effect_9, self.boost_effect_10, self.boost_effect_11, self.boost_effect_12, self.boost_effect_13, self.boost_effect_14, self.boost_effect_15, self.boost_effect_16, self.boost_effect_17]
+    local4 = 0.0
+    local5 = 1.0
+    local3 = len(local2)
+    while local3 > local4:
+        if local2[local4] != none:
+            local6 = local2[local4]
+            effect.SpawnerSetParameter(local6, "PlayerVehicle", local1)
+        local4 = local5 + local4
+
+def GetUpgradeBoostTorque(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.boost_torque
+
+def UpdateBoostAfterPunch(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    SetBoostTorqueTopSpeed(self, local2.boost_after_punch_torque)
+    local2.boost_active = true
+    local2.boost_after_punch_time = local2.boost_after_punch_time - arg1
+    if vehicle.IsPlayerVehicle(local2.car):
+        local3 = debug.GetTweakVariables()
+        local2.external_cameraSignal = local2.boost_after_punch_time / local3.BOOST_AFTER_PUNCH_TIME
+    UpdateSuperSteer(self, arg1, local2)
+    if arg1 >= local2.boost_after_punch_time:
+        local2.external_cameraSignal = 0.0
+        EnterCooldown(self)

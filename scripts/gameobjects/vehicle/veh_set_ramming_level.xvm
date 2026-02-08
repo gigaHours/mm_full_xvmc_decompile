@@ -1,0 +1,10 @@
+module veh_set_ramming_level
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.car != none:
+        if local1.level != none:
+            if local1.level > 0.0:
+                physics.SetRigidBodyPropertyCollisionStrength(local1.car, local1.level)
+            else:
+                physics.SetRigidBodyPropertyCollisionStrength(local1.car, 0.01)

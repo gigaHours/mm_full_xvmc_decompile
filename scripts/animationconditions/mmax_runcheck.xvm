@@ -1,0 +1,6 @@
+module mmax_runcheck
+
+def Evaluate(self, arg1):
+    if character.GetGlobalXvmFloat(self, 18.0) > 0.45:
+        return 1.0
+    return 0.0

@@ -1,0 +1,7 @@
+module is_veh_exit_unlocked
+
+def Evaluate(self, arg1):
+    if arg1.input_script:
+        if scriptgo.Call(arg1.input_script, @FFA4D605):
+            return 0.0
+    return 1.0

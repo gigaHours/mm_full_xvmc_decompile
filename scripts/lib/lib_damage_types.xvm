@@ -1,0 +1,31 @@
+module lib_damage_types
+
+def DAMAGE_COLLISION():
+    return 2.0
+
+def DAMAGE_GRINDING():
+    return 9.0
+
+def DAMAGE_REPAIR():
+    return 5.0
+
+def DAMAGE_TENSION():
+    return 3.0
+
+def DAMAGE_EXPLOSION():
+    return 7.0
+
+def DAMAGE_ROLLOVER():
+    return 6.0
+
+def DAMAGE_SIMPLE():
+    return 1.0
+
+def DAMAGE_HEAT():
+    return 4.0
+
+def DAMAGE_SHOTGUN():
+    return 8.0
+
+def DAMAGE_SNIPER():
+    return 10.0

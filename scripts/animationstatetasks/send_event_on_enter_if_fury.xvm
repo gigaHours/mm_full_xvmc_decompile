@@ -1,0 +1,6 @@
+module send_event_on_enter_if_fury
+
+def Enter(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2 and local2.inFuryMode > 0.0:
+        game.SendEventNone(arg1.Event)

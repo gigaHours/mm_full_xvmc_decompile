@@ -1,0 +1,7 @@
+module give_parent_item_to_player
+
+def Init(self):
+    local1 = game.GetParent(self)
+    if not local1:
+        return
+    character.GiveObject(character.GetPlayer(), local1)

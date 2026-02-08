@@ -1,0 +1,106 @@
+module test_input_locomotion_v2
+import @F76070AE
+import @BAFDB405
+
+def Enter(self, arg1):
+    arg1.InputMode = game.GetBlackboardValueFromObject(self, @3E9138CE)
+    if arg1.InputMode == none:
+        arg1.InputMode = 1.0
+    arg1.NextFacingDirection = game.GetBlackboardValueFromObject(self, @8610F763)
+    if arg1.NextFacingDirection == none:
+        arg1.NextFacingDirection = vector.Set(0.0, 0.0, -1.0, 0.0)
+    arg1.NextUrgency = game.GetBlackboardValueFromObject(self, @5F3075CE)
+    if arg1.NextUrgency == none:
+        arg1.NextUrgency = 0.0
+    arg1.NextStyle = game.GetBlackboardValueFromObject(self, @EF905BA7)
+    if arg1.NextStyle == none:
+        arg1.NextStyle = 0.0
+    arg1.NextMovementDirection = game.GetBlackboardValueFromObject(self, @09B5B6D1)
+    if arg1.NextMovementDirection == none:
+        arg1.NextMovementDirection = vector.Set(0.0, 0.0, -1.0, 0.0)
+
+def Exit(self, arg1):
+    pass
+
+def UpdateRender(self, arg1, arg2):
+    debug.PrintValue(0.0, "a: Style, b: mode, y: speed, x: activate_next, rt: nav, blue: facing, red: movement ", 1.0)
+    local3 = arg1.InputMode
+    if local3 == 1.0:
+        debug.PrintValue(0.0, "Input Mode is: INPUT_MODE_CONTINUOUS", 5.0)
+    if local3 == 2.0:
+        debug.PrintValue(0.0, "Input Mode is: INPUT_MODE_TOGGLED", 5.0)
+    if local3 == 3.0:
+        debug.PrintValue(0.0, "Input Mode is: INPUT_MODE_TOGGLED_AUTOON", 5.0)
+    local4 = character.GetWorldMatrix(self)
+    local5 = vector.Add(local4.r3, vector.Set(0.0, 0.3, 0.0, 0.0))
+    lib_debugdraw.ArrowDir(local5, arg1.NextFacingDirection, 0.1, 1.5, lib_color.BLUE(0.3))
+    lib_debugdraw.ArrowDir(local5, arg1.NextMovementDirection, 0.1, 1.5, lib_color.RED(0.3))
+    local6 = lib_debugdraw.GetGoScreenPos(self, vector.Set(0.0, 2.0, 0.0, 0.0), arg2)
+    local7 = vector.Add(local6, vector.Set(0.15, 0.5, 0.0, 0.0))
+    local8 = vector.Add(local6, vector.Set(-0.15, 0.5, 0.0, 0.0))
+    local9 = 0.03
+    local10 = 0.008
+    lib_debugdraw.DrawBarTitle(local7, local9, local10, lib_color.ORANGE(0.7), lib_color.WHITE(0.5), lib_debugdraw.ALIGN_CENTER(), arg1.NextUrgency, "Urgency: %f", [arg1.NextUrgency])
+    lib_debugdraw.DrawBarTitle(local8, local9, local10, lib_color.ORANGE(0.7), lib_color.WHITE(0.5), lib_debugdraw.ALIGN_CENTER(), arg1.NextStyle / 2.0, "Style: %f", [arg1.NextStyle])
+
+def Update(self, arg1, arg2):
+    local3 = input.GetFilteredMoveInput()
+    local4 = camera.TransformInputDirToWorldDir(local3)
+    local5 = vector.Length(local4)
+    local4 = vector.Normalize(local4)
+    local6 = input.GetRawInput()
+    local6.x = -local6.x
+    local7 = vector.Length(local6)
+    local8 = camera.TransformInputDirToWorldDir(local6)
+    local8 = vector.Normalize(local8)
+    local9 = input.IsButtonClicked(@6809F897)
+    local10 = input.IsButtonClicked(@4BCB520C)
+    local11 = input.IsButtonClicked(@AD1009FA)
+    local12 = input.IsButtonClicked(@D21118AF)
+    local13 = input.GetButtonInput(@06ECE8D4)
+    if local12:
+        arg1.InputMode = arg1.InputMode + 1.0
+        if arg1.InputMode > 3.0:
+            arg1.InputMode = 1.0
+        game.SetBlackboardValueToObject(self, @3E9138CE, arg1.InputMode)
+    if local10:
+        arg1.NextUrgency = arg1.NextUrgency + 1.0
+        if arg1.NextUrgency > 2.0:
+            arg1.NextUrgency = 0.0
+    if local9:
+        arg1.NextStyle = arg1.NextStyle + 1.0
+        if arg1.NextStyle > 2.0:
+            arg1.NextStyle = 0.0
+    local14 = arg1.InputMode
+    if local14 == 1.0:
+        if local5 > 0.4:
+            game.SetBlackboardValueToObject(self, @F7D3A7AE, local4)
+            arg1.NextMovementDirection = local4
+            game.QueueAct(self, "ACT_NAVIGATE")
+        else:
+            game.QueueAct(self, "ACT_STOP")
+        if local7 > 0.4:
+            game.SetBlackboardValueToObject(self, @7949DA76, local8)
+            arg1.NextFacingDirection = local8
+    if local14 == 2.0 or local14 == 3.0:
+        if local11:
+            game.SetBlackboardValueToObject(self, @F7D3A7AE, arg1.NextMovementDirection)
+            game.SetBlackboardValueToObject(self, @7949DA76, arg1.NextFacingDirection)
+            game.SetBlackboardValueToObject(self, @17BB2651, arg1.NextUrgency)
+            game.SetBlackboardValueToObject(self, "wC|p", arg1.NextStyle)
+        else:
+            if local5 > 0.4:
+                arg1.NextMovementDirection = local4
+            if local7 > 0.4:
+                arg1.NextFacingDirection = local8
+        if local14 == 3.0:
+            game.QueueAct(self, "ACT_NAVIGATE")
+        if local14 == 2.0:
+            if local13 > 0.5:
+                game.QueueAct(self, "ACT_NAVIGATE")
+            else:
+                game.QueueAct(self, "ACT_STOP")
+    game.SetBlackboardValueToObject(self, @8610F763, arg1.NextFacingDirection)
+    game.SetBlackboardValueToObject(self, @5F3075CE, arg1.NextUrgency)
+    game.SetBlackboardValueToObject(self, @EF905BA7, arg1.NextStyle)
+    game.SetBlackboardValueToObject(self, @09B5B6D1, arg1.NextMovementDirection)

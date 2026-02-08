@@ -1,0 +1,37 @@
+module mash_button_gameplay_in_variable_time
+import @BAFDB405
+import @E45D52B2
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetSampler(arg3, 0.0)
+    local5 = local4.Time
+    local6 = animation.GetSampler(arg3, 1.0)
+    local6.Time = local6.Time + arg2
+    if local6.Time >= local6.Length - arg2:
+        local6.Time = 0.0 + arg2
+    local7 = game.GetBlackboardValueFromObject(self, "_0:&")
+    local8 = 0.05
+    local9 = 0.2
+    local10 = 0.0
+    if local7 == none:
+        local7 = 0.0
+    if local7 >= 1.0:
+        local4.Speed = 1.0
+    elif local7 - local10 > 0.2:
+        local11 = animation.GetSegmentInfo(self, @E063F6A0, @8EADFD52)
+        local12 = lib_character.GetSegmentLength(local11)
+        local13 = local12 * local7 + local11.Start
+        if local7 > 0.75:
+            local4.Time = math.SpeedLerp(local4.Time, local13, 1.0, arg2)
+        else:
+            local4.Time = math.SpeedLerp(local4.Time, local13, local9, arg2)
+        local10 = local10 + local8
+    local14 = math.Abs(local4.Time - local5)
+    local15 = 1.0 - math.Scale01(math.Clamp(local14, 0.0, 0.033), 0.0, 0.033)
+    local6.Weight = math.SpeedLerp(local6.Weight, local15 * 0.42, 1.5, arg2)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    animation.GetSampler(arg4, 1.0).Weight = 0.0
+
+def OnEnter(self, arg1):
+    pass

@@ -1,0 +1,73 @@
+module veh_tutorial_logic
+
+def CheckSlowMoBoarderJumping(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.max_boarder_jumping_slowmo > 0.0:
+        local2 = game.GetGameObjectByAlias("effect.sound.slowmo")
+        if local2:
+            effect.SpawnerPlay(local2)
+            debug.LogInfo("boarder_slomo_triggered", [])
+            local1.max_boarder_jumping_slowmo = local1.max_boarder_jumping_slowmo - 1.0
+            local1.prompt_boarder_jumping_slowmo_timeleft = 0.4
+
+def CheckSlowMoBoarderShakeOff(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.max_boarder_shake_off_slowmo > 0.0:
+        local2 = game.GetGameObjectByAlias("effect.sound.slowmo")
+        if local2:
+            effect.SpawnerPlay(local2)
+            debug.LogInfo("boarder_slomo_triggered", [])
+            local1.max_boarder_shake_off_slowmo = local1.max_boarder_shake_off_slowmo - 1.0
+            local1.prompt_boarder_shakeoff_slowmo_timeleft = 0.5
+
+def SHAKEOFF_SLOWMO_SPEED():
+    return 0.3
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.max_boarder_jumping_prompt = 3.0
+    local1.max_boarder_shake_off_prompt = 5.0
+    local1.prompt_time_buffer = 0.0
+    local1.max_boarder_jumping_slowmo = 1.0
+    local1.max_boarder_shake_off_slowmo = 0.0
+    local1.prompt_boarder_jumping_slowmo_timeleft = 0.0
+    local1.prompt_boarder_shakeoff_slowmo_timeleft = 0.0
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def CheckPromptBoarderJumping(self):
+    local1 = scriptgo.GetProperties(self)
+    if 0.0 >= local1.prompt_time_buffer:
+        if local1.max_boarder_jumping_prompt > 0.0:
+            game.SendEvent("prompt_player_boarder_jumping", "")
+            debug.LogInfo("tutorial_triggered: prompt_player_boarder_jumping", [])
+            local1.max_boarder_jumping_prompt = local1.max_boarder_jumping_prompt - 1.0
+            local1.prompt_time_buffer = 2.0
+
+def JUMPING_SLOWMO_SPEED():
+    return 0.2
+
+def CheckPromptBoarderShakeOff(self):
+    local1 = scriptgo.GetProperties(self)
+    if 0.0 >= local1.prompt_time_buffer:
+        if local1.max_boarder_shake_off_prompt > 0.0:
+            game.SendEvent("prompt_player_boarder_shake_off", "")
+            debug.LogInfo("tutorial_triggered: prompt_player_boarder_shake_off", [])
+            local1.max_boarder_shake_off_prompt = local1.max_boarder_shake_off_prompt - 1.0
+            local1.prompt_time_buffer = 2.0
+
+def Reset(self):
+    local1 = scriptgo.GetProperties(self)
+    Init(self)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = game.GetGameObjectByAlias("effect.sound.slowmo")
+    local2.prompt_time_buffer = local2.prompt_time_buffer - arg1
+    if local2.prompt_boarder_jumping_slowmo_timeleft > 0.0:
+        local2.prompt_boarder_jumping_slowmo_timeleft = local2.prompt_boarder_jumping_slowmo_timeleft - arg1
+        if 0.0 > local2.prompt_boarder_jumping_slowmo_timeleft:
+            effect.SpawnerStop(local3)
+    if local2.prompt_boarder_shakeoff_slowmo_timeleft > 0.0:
+        local2.prompt_boarder_shakeoff_slowmo_timeleft = local2.prompt_boarder_shakeoff_slowmo_timeleft - arg1
+        if 0.0 > local2.prompt_boarder_shakeoff_slowmo_timeleft:
+            effect.SpawnerStop(local3)

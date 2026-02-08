@@ -1,0 +1,43 @@
+module frame_xcc_target
+
+def EnterAlignedTransition(self, arg1, arg2):
+    self.Properties.last_frame_solution = none
+    self.Properties.counter = 0.0
+    if not self.Properties.vertical_offset:
+        self.Properties.vertical_offset = 0.0
+    self.Properties.last_frame_target_transform = none
+    self.Properties.last_frame_target_transform_end = none
+    Update(self, arg2)
+
+def DontUpdatePositionYIfDiffIsToHigh(self, arg1, arg2):
+    if not arg1 == none:
+        if math.Abs(self.r3.y - arg1.r3.y) > arg2:
+            self.r3 = vector.Set(self.r3.x, arg1.r3.y, self.r3.z, 1.0)
+    return self
+
+def EnterUnalignedTransition(self, arg1):
+    self.Properties.last_frame_solution = none
+    self.Properties.counter = 0.0
+    if not self.Properties.vertical_offset:
+        self.Properties.vertical_offset = 0.0
+    self.Properties.last_frame_target_transform = none
+    self.Properties.last_frame_target_transform_end = none
+    Update(self, arg1)
+
+def Update(self, arg1):
+    local2 = lib_camera.GetXccTargetTransform(self.Properties.type_of_target, self.Properties.coordinator)
+    local3 = lib_camera.GetXccTargetTransform(self.Properties.type_of_second_target, self.Properties.coordinator)
+    if local2 != none:
+        if local3 != none:
+            local2 = DontUpdatePositionYIfDiffIsToHigh(local2, self.Properties.last_frame_target_transform, 0.1)
+            local3 = DontUpdatePositionYIfDiffIsToHigh(local3, self.Properties.last_frame_target_transform_end, 0.1)
+            self.Properties.counter = self.Properties.counter + self.Dt / game.GetUpdateSpeed()
+            local4 = (self.Properties.counter - self.Properties.time_before_target_switch) / self.Properties.time_for_target_switch_interpolation
+            local2 = matrix.Slerp(local2, local3, math.Clamp(local4, self.Properties.min_interpolation_to_end_target, self.Properties.max_interpolation_to_end_target))
+        local5 = vector.Add(local2.r3, vector.Set(0.0, self.Properties.vertical_offset, 0.0, 0.0))
+        arg1.CameraTransform = matrix.LookAtMatrix(arg1.CameraTransform.r3, arg1.CameraTransform.r1, local5)
+        self.Properties.last_frame_solution = arg1.CameraTransform
+        self.Properties.last_frame_target_transform = local2
+        self.Properties.last_frame_target_transform_end = local3
+    elif self.Properties.last_frame_solution:
+        arg1.CameraTransform = self.Properties.last_frame_solution

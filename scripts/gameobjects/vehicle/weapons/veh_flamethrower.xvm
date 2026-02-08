@@ -1,0 +1,52 @@
+module veh_flamethrower
+import @42D0E955
+import @58351C01
+import @9B4F6985
+import @CDB16B8A
+
+def WeaponSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weapon_selected = true
+
+def InputSetAimNotHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_aim_held = false
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+
+def GetVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.car
+
+def InputSetFireHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_fire_held = true
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.debug_enabled = false
+    local1.debug_weapon_name = "Flamethrower"
+    local1.debug_weapon_name_order = 3.0
+    if false:
+        debug.LogInfo("Flamethrower INIT", [])
+    lib_weapon.ResetState(local1.state_idle)
+    lib_weapon.ResetState(local1.state_aim)
+    lib_weapon.ResetState(local1.state_shoot)
+    lib_weapon.ClearState(self)
+
+def InputSetAimHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_aim_held = true
+
+def InputSetFirePressed(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_fire_pressed = true
+
+def InputSetFireNotHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_fire_held = false
+
+def WeaponUnSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weapon_selected = false

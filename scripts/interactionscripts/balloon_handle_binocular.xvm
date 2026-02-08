@@ -1,0 +1,12 @@
+module balloon_handle_binocular
+
+def ClearEvent(self):
+    scriptgo.SetUpdateFunction(self, "")
+
+def SetEvent(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def Update(self, arg1):
+    local2 = character.GetPlayer()
+    if local2:
+        character.SetFloatRegister(local2, 26.0, 0.1)

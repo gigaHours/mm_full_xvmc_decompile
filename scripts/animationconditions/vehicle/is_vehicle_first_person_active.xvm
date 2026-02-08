@@ -1,0 +1,7 @@
+module is_vehicle_first_person_active
+
+def Evaluate(self, arg1):
+    local2 = vehicle.GetGlobalProperties()
+    if local2.use_first_person:
+        return 1.0
+    return 0.0

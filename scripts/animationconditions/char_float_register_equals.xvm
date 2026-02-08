@@ -1,0 +1,6 @@
+module char_float_register_equals
+
+def Evaluate(self, arg1):
+    if character.GetFloatRegister(self, arg1.Property0) == arg1.Property1:
+        return 1.0
+    return 0.0

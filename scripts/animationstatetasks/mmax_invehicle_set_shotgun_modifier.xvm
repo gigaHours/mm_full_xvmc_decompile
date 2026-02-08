@@ -1,0 +1,15 @@
+module mmax_invehicle_set_shotgun_modifier
+import @58351C01
+
+def Enter(self, arg1):
+    SetModifier(self)
+
+def SetModifier(self):
+    local1 = lib_entity_proxy.GetShotgunAnimLoader(self)
+    if none != local1:
+        local2 = scriptgo.Call(local1, @FFFB3287)
+        if none != local2:
+            animation.SetModifier(self, @E063F6A0, local2, true)
+
+def Update(self, arg1, arg2):
+    SetModifier(self)

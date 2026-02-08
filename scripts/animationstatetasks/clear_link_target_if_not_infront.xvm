@@ -1,0 +1,15 @@
+module clear_link_target_if_not_infront
+
+def Update(self, arg1, arg2):
+    local3 = animation.GetLinkTarget(self)
+    local3 = character.GetPlayer()
+    if animation.IsWithinSegment(self, @E063F6A0, @A51EEE44) and local3:
+        local4 = game.GetTransform(local3)
+        local5 = game.GetTransform(self)
+        local6 = local4.r3
+        local7 = vector.Sub(local5.r3, local6)
+        local7 = vector.Normalize(local7)
+        local8 = local5.r2
+        local9 = vector.Dot(local8, local7)
+        if 0.8 > local9:
+            animation.ClearLinkTarget(self)

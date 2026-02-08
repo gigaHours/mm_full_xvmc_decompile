@@ -1,0 +1,20 @@
+module set_player_opacity_to_one
+import @78DDD3EE
+
+def TransitionFrom(self, arg1):
+    if self.Properties.events != none:
+        game.PostEventNone(self.Properties.events)
+
+def EnterAlignedTransition(self, arg1, arg2):
+    Update(self, arg2)
+
+def Init(self):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    Update(self, arg1)
+
+def Update(self, arg1):
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    local2 = 1.0
+    character.SetOpacity(character.GetPlayer(), local2)

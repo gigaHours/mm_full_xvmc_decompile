@@ -1,0 +1,16 @@
+module char_boarder_gameplay_update
+import @42D0E955
+
+def Enter(self, arg1):
+    local2 = game.GetChild(self, "script.boarding_gameplay")
+    scriptgo.Call(local2, @E1A56BBA)
+
+def Exit(self, arg1):
+    local2 = game.GetChild(self, "script.boarding_gameplay")
+    scriptgo.Call(local2, @F7CDDDC2)
+
+def UpdateRender(self, arg1, arg2):
+    pass
+
+def Update(self, arg1, arg2):
+    pass

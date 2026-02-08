@@ -1,0 +1,9 @@
+module is_player_only
+
+def Evaluate(self, arg1):
+    local2 = character.GetPlayer()
+    local3 = interaction.GetCharacter(self)
+    local4 = game.IsObjectEqualTo(local2, local3)
+    if local4 == true:
+        return 1.0
+    return 0.0

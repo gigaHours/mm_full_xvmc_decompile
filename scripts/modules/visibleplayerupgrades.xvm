@@ -1,0 +1,43 @@
+module visibleplayerupgrades
+
+def UnlockSpecificMaxTool(self):
+    pass
+
+def HasTool(self):
+    pass
+
+def LockSpecificMaxUpgrade(self, arg1):
+    pass
+
+def GetVisiblePlayerUpgradeLevel(self, arg1):
+    pass
+
+def UnlockSpecificMaxUpgrade(self):
+    pass
+
+def UnlockMaxUpgrades(self):
+    pass
+
+def StoreSetup():
+    pass
+
+def DebugSetTool(self, arg1):
+    pass
+
+def DebugSetPerk(self, arg1):
+    pass
+
+def RestoreSetup():
+    pass
+
+def DebugSetVisiblePlayerUpgrade(self, arg1, arg2):
+    pass
+
+def LockSpecificMaxTool(self, arg1):
+    pass
+
+def SetUpgradeLevelShown(self, arg1, arg2):
+    pass
+
+def LockMaxUpgrades(self, arg1):
+    pass

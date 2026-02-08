@@ -1,0 +1,12 @@
+module char_rotate_towards_shotgun_target
+
+def Update(self, arg1, arg2):
+    local3 = lib_entity_proxy.GetShotgun(self)
+    if none != local3:
+        local4 = scriptgo.GetProperties(local3)
+        if none != local4.target:
+            local5 = character.GetWorldMatrix(self)
+            local6 = scriptgo.Call(local4.target, @0C537298)
+            local7 = vector.Normalize(vector.Sub(local6, local5.r3))
+            local8 = vector.Lerp(1.5 * arg2, local5.r2, local7)
+            character.RotateInstantly(self, local8)

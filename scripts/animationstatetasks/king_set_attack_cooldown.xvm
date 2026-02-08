@@ -1,0 +1,14 @@
+module king_set_attack_cooldown
+
+def Enter(self, arg1):
+    local2 = gamedirector.GetAiGameStateHashInRangeCount("combat", arg1.Range, 0.75)
+    local3 = arg1.EnemiesMax
+    local4 = 1.0
+    local5 = math.Scale01(local2 + 1.0, local4 + 1.0, local3 + 1.0)
+    arg1.wanted_cooldown = math.Lerp(local5, arg1.MinCooldown, arg1.MaxCooldown)
+
+def Update(self, arg1, arg2):
+    if character.HasBuff(self, "berserk_mode"):
+        character.SetFloatRegister(self, arg1.Register, 0.0)
+    elif arg1.wanted_cooldown > character.GetFloatRegister(self, arg1.Register):
+        character.SetFloatRegister(self, arg1.Register, arg1.wanted_cooldown)

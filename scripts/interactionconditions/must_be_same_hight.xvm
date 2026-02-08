@@ -1,0 +1,16 @@
+module must_be_same_hight
+
+def Evaluate(self, arg1):
+    local2 = interaction.GetCharacter(self)
+    local3 = interaction.GetEntryNodeTransform(self, arg1.action_id)
+    if local2 and local3:
+        local4 = game.GetTransform(local2)
+        local5 = local4.r3
+        local6 = local3.r3
+        local7 = local5.y - local6.y
+        if local7 >= 0.0:
+            if arg1.distance_allowed > local7:
+                return 1.0
+        elif local7 > -arg1.distance_allowed:
+            return 1.0
+    return 0.0

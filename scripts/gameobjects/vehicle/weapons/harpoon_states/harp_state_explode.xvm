@@ -1,0 +1,52 @@
+module harp_state_explode
+import @9B4F6985
+import @3D3D0D9B
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local3 = scriptgo.GetProperties(self)
+    local4 = none
+    local5 = none
+    local6 = lib_harpoon.GetAimSourcePos(arg1)
+    if local2.target:
+        local7 = scriptgo.Call(local2.target, @D281A61A)
+        if local7:
+            local5 = scriptgo.Call(local2.target, @FB4DD739)
+            local4 = scriptgo.Call(local2.target, @0C537298)
+            local4 = lib_weapon.RayCastPosition(arg1, local7, local6, local4)
+    if not local4:
+        local4 = local2.manual_target_pos
+        local5 = vector.Normalize(vector.Sub(local4, local6))
+    if local3.explode_effect != none:
+        local8 = matrix.Matrix(local5, vector.Set(0.0, 1.0, 0.0, 0.0), local4)
+        game.SetTransform(local3.explode_effect, local8)
+        effect.PlayPointEmitter(local3.explode_effect)
+    local9 = scriptgo.Call(arg1, @BA545406)
+    game.SetTransform(local9, local8)
+    game.StartForcePulse(local9)
+    local2.manual_target_pos = none
+    lib_weapon.ResetTarget(arg1)
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.StopSlowMo(arg1, 0.0)
+    if none != local2.projectile_robj:
+        rigidobject.Hide(local2.projectile_robj)
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_harpoon.STATE_EXPLODE_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    lib_weapon.ChangeState(local2, local3.state_reload)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "EXPLODE"

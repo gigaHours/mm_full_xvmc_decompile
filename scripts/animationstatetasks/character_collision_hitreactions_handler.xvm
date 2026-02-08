@@ -1,0 +1,146 @@
+module character_collision_hitreactions_handler
+
+def Enter(self, arg1):
+    local2 = 0.0
+    local3 = character.GetCharacterCollisionInfoCount(self)
+    local4 = character.GetLatestSpellInfo(self)
+    local5 = character.GetLatestExplosionDataCount(self)
+    if local5 > 0.0:
+        HandleExplosion(self, arg1, character.GetLatestExplosionData(self))
+        return
+    if local4.IsCurrent > 0.0:
+        local6 = local4
+        local7 = 25.0
+    elif local3 > 0.0:
+        local6 = character.GetCharacterCollisionInfo(self, 0.0)
+        local7 = 0.0
+        if local6.CollidedObject:
+            local7 = physics.GetMass(local6.CollidedObject)
+    else:
+        return
+    local8 = true
+    local9 = vector.Length(local6.CollidedObjectVelocity)
+    if local9 > 4.5:
+        if local7 > 20.0:
+            animation.SetModifier(self, @E063F6A0, @52A6C62F, true)
+            local8 = FalseIfAllowNonSnapping(arg1)
+        else:
+            animation.SetModifier(self, @E063F6A0, @C388586B, true)
+    else:
+        animation.SetModifier(self, @E063F6A0, @C388586B, true)
+    if local6.IsVehicle:
+        HandleVehicleImpact(self, local6, local8)
+    else:
+        HandleImpact(self, local6)
+
+def HandleImpact(self, arg1):
+    local2 = vector.Normalize(arg1.CollidedObjectVelocity)
+    if vector.Length(local2) == 0.0:
+        return
+    local3 = game.GetTransform(self)
+    local4 = local3.r2
+    local5 = vector.Dot(local4, local2)
+    if local5 >= 0.0:
+        animation.SetModifier(self, @E063F6A0, @EB162066, true)
+        local6 = local2
+    else:
+        animation.SetModifier(self, @E063F6A0, @DEE9538F, true)
+        local6 = vector.Scale(local2, -1.0)
+    local6.y = 0.0
+    if vector.Length(local6) == 0.0:
+        return
+    local6 = vector.Normalize(local6)
+    local7 = matrix.Matrix(local6, vector.Set(0.0, 1.0, 0.0, 1.0), local3.r3)
+    if local7.r1.y >= 0.9:
+        game.SetTransform(self, local7)
+
+def HandleExplosion(self, arg1, arg2):
+    local3 = arg2.Direction
+    local4 = game.GetTransform(self)
+    local5 = local4.r2
+    animation.SetModifier(self, @E063F6A0, @9FC062A2, true)
+    local6 = 0.0
+    if not game.IsObjectEqualTo(character.GetPlayer(), self):
+        local6 = character.IsStateBitSet(self, 36.0)
+    local7 = true
+    if arg2.DamageScale > 0.5 or local6:
+        animation.SetModifier(self, @E063F6A0, @52A6C62F, true)
+        local7 = FalseIfAllowNonSnapping(arg1)
+    else:
+        animation.SetModifier(self, @E063F6A0, @C388586B, true)
+    local8 = arg2.Position
+    local8.y = 0.0
+    local9 = local4.r3
+    local9.y = 0.0
+    local10 = vector.Sub(local9, local8)
+    local10 = vector.Normalize(local10)
+    local11 = local5
+    local11.y = 0.0
+    local11 = vector.Normalize(local11)
+    local12 = vector.Dot(local11, local10)
+    if local12 >= 0.0:
+        animation.SetModifier(self, @E063F6A0, @EB162066, true)
+        local13 = local10
+    else:
+        animation.SetModifier(self, @E063F6A0, @DEE9538F, true)
+        local13 = vector.Scale(local10, -1.0)
+    if local7:
+        local13.y = 0.0
+        local13 = vector.Normalize(local13)
+        local14 = matrix.Matrix(local13, vector.Set(0.0, 1.0, 0.0, 1.0), local4.r3)
+        if local14.r1.y >= 0.9:
+            game.SetTransform(self, local14)
+
+def Exit(self, arg1):
+    pass
+
+def HandleVehicleImpact(self, arg1, arg2):
+    local3 = vehicle.GetPreCalcLocalAABBMin(arg1.CollidedObject)
+    local4 = vehicle.GetPreCalcLocalAABBMax(arg1.CollidedObject)
+    local5 = game.GetTransform(arg1.CollidedObject)
+    local6 = game.GetTransform(self)
+    local7 = vector.Sub(local6.r3, local5.r3)
+    local8 = vector.DotXZ(local5.r2, local7)
+    local9 = vector.DotXZ(local5.r0, local7)
+    local10 = math.Abs(local4.x - local9)
+    local11 = math.Abs(local3.x - local9)
+    local12 = math.Abs(local3.z - local8)
+    local13 = math.Abs(local4.z - local8)
+    local14 = true
+    if local11 > local10 and local12 > local10 and local13 > local10:
+        animation.SetModifier(self, @E063F6A0, @60E81209, true)
+    elif local10 > local11 and local12 > local11 and local13 > local11:
+        animation.SetModifier(self, @E063F6A0, @0FAB1AB3, true)
+    else:
+        local15 = vector.Dot(local6.r2, local7)
+        if local9 >= 0.0:
+            animation.SetModifier(self, @E063F6A0, @60E81209, true)
+            if local15 >= 0.0:
+                animation.SetModifier(self, @E063F6A0, @EB162066, true)
+            else:
+                animation.SetModifier(self, @E063F6A0, @DEE9538F, true)
+                local14 = false
+        else:
+            animation.SetModifier(self, @E063F6A0, @0FAB1AB3, true)
+            if local15 >= 0.0:
+                animation.SetModifier(self, @E063F6A0, @EB162066, true)
+            else:
+                animation.SetModifier(self, @E063F6A0, @DEE9538F, true)
+                local14 = false
+        if arg2:
+            local16 = arg1.Normal
+            if local14:
+                local16 = vector.Scale(local16, -1.0)
+            local16.y = 0.0
+            local16 = vector.Normalize(local16)
+            local17 = matrix.Matrix(local16, vector.Set(0.0, 1.0, 0.0, 1.0), local6.r3)
+            if local17.r1.y >= 0.9:
+                game.SetTransform(self, local17)
+
+def FalseIfAllowNonSnapping(self):
+    if self.AllowNonSnapping:
+        return true
+    return false
+
+def Update(self, arg1, arg2):
+    pass

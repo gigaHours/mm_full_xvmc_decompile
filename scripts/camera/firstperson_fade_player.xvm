@@ -1,0 +1,10 @@
+module firstperson_fade_player
+
+def Update(self, arg1):
+    local2 = self.Properties.min_visible_azimuth
+    local3 = self.Properties.max_visible_azimuth
+    local4 = math.Abs(self.OffsetAzimuth)
+    local5 = 1.0
+    if local4 > local2:
+        local5 = math.Scale01(local4, local3, local2)
+        arg1.PlayerOpacity = local5

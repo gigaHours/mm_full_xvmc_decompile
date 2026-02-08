@@ -1,0 +1,140 @@
+module shot_state_aim
+import @9B4F6985
+import @83195642
+
+def ChangeStateIdleAuto(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.weapon_selected:
+        lib_weapon.ChangeState(self, local1.state_auto)
+    else:
+        lib_weapon.ChangeState(self, local1.state_idle)
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local2.quickfiring = false
+    local2.aiming_fully_entered = false
+    local2.enteringTarget = local2.target
+    local2.weapon_gui_counter = 0.0
+    lib_weapon.ForceOutlineUpdate(arg1, true)
+    local2.vehicle_target = none
+    if local2.target:
+        local2.target_from_auto = local2.target
+    if lib_weapon.IsInOgc(arg1):
+        local2.show_crosshair = true
+        lib_weapon.StartCam(arg1, lib_shotgun.CAM_OGC_AIM())
+    else:
+        if local2.align_target == none and local2.enteringTarget == none:
+            local3 = lib_weapon.GetClosestVehicleBodyWeakspot()
+            if local3:
+                local4 = scriptgo.GetProperties(local3)
+                local2.align_target = local4.thunderstickTarget
+                local2.vehicle_target = local2.align_target
+        lib_weapon.StartCam(arg1, lib_shotgun.CAM_VEHICLE_AIM())
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    local2.target_from_auto = none
+    lib_weapon.StopSlowMo(arg1, 0.0)
+    if not lib_weapon.IsNextState(arg1, lib_shotgun.STATE_SHOOT_ID()):
+        lib_weapon.StopSlowMo(arg1, 0.0)
+        lib_shotgun.StopAimCameras(arg1)
+        local3 = local2.wielding_character
+        game.QueueAct(local3, "ACT_SHOTGUN_AIM_END")
+        lib_weapon.ResetTarget(arg1)
+    lib_weapon.ClearGuiTargets(arg1)
+    gui.PostEvent("gui_weapon_invalid_target")
+    lib_weapon.HideCrosshair(arg1)
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    local3 = local1.UI_targets_for_BB
+    if none != local3:
+        local2.veh_weapon_targets = local3
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    lib_weapon.DrawAvailableTargets(local2, local3.local_target_list, local3.target, false, arg1)
+    UpdateGuiBB(local2)
+
+def GetId(self):
+    return lib_shotgun.STATE_AIM_ID()
+
+def DelayedEnter(self, arg1):
+    lib_weapon.ShowCrosshair(arg1)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = lib_weapon.IsInOgc(local2)
+    if 10.0 > local3.weapon_gui_counter:
+        lib_weapon.ShowCrosshair(local2)
+        local3.weapon_gui_counter = local3.weapon_gui_counter + 1.0
+    local5 = local3.wielding_character
+    local6 = animation.IsWithinSegment(local5, @E063F6A0, @C94EBB1D)
+    if local3.input_fire_pressed:
+        local7 = character.GetInventoryItem(local5, "shotgun")
+        local8 = character.GetWieldedObject(local5)
+        if local8 and (not game.IsObjectEqualTo(local7, local8)):
+            game.QueueAct(local5, "ACT_THUNDETSTICK_CANCEL_INTO_SHOTGUN")
+    if not local3.aiming_fully_entered:
+        game.QueueAct(local5, "ACT_SHOTGUN_AIM_START")
+        if local6:
+            DelayedEnter(self, local2)
+            local3.aiming_fully_entered = true
+    else:
+        if local3.input_aim_held and (not local3.slowmo_enabled) and local3.state_time > 0.2:
+            if local4:
+                if lib_weapon.PlayerCloseToEnemyVehicle():
+                    lib_weapon.StartSlowMo(local2, lib_shotgun.SLOWMO_AIM_OGC_WITH_VEHICLES())
+                else:
+                    lib_weapon.StartSlowMo(local2, lib_shotgun.SLOWMO_AIM_OGC())
+            else:
+                lib_weapon.StartSlowMo(local2, lib_shotgun.SLOWMO_AIM())
+        local9 = local3.local_target_list
+        local10 = lib_entity_proxy.GetGlobalShotgunTargetList()
+        local11 = lib_shotgun.GetAimSourcePos(local2)
+        lib_weapon.FilterGlobalTargets(local2, local9, local10, local11, lib_shotgun.GetAimRaycastPos(local2), lib_shotgun.MAX_VIEW_RANGE(), lib_shotgun.FilterTarget, false)
+        if not lib_shotgun.MaxInCorrectAnimation(local2) or not lib_shotgun.CanAim(local2):
+            lib_weapon.ChangeState(local2, local3.state_idle)
+            return
+        local12 = local3.enteringTarget != none or local3.vehicle_target != none
+        local13 = lib_weapon.FindBestScreenSpaceTarget(local2, local9, local11, lib_shotgun.FilterTargetOnRange, lib_shotgun.MAX_SHOT_RANGE(), 0.45, 0.05, 0.4, [0.5625, 1.0], arg1)
+        if local12:
+            local14 = input.GetLookInput()
+            local15 = vector.Length(local14)
+            if local3.vehicle_target:
+                if local15 > 0.0:
+                    local3.vehicle_target = none
+                else:
+                    local13 = none
+            elif local3.enteringTarget:
+                if local15 > 0.0 or not golist.HasObject(local9, local3.enteringTarget) or not lib_shotgun.FilterTargetOnRange(local2, local3.enteringTarget):
+                    local3.enteringTarget = none
+                else:
+                    local13 = local3.enteringTarget
+        if local13 != none or not local12:
+            local3.align_target = local13
+        lib_weapon.SetAndHighlightTarget(local2, local13, true)
+        local16 = false
+        if not local4:
+            local16 = lib_shotgun.IsLoaded(local2)
+        if local3.input_fire_pressed:
+            lib_weapon.ChangeState(local2, local3.state_shoot)
+        if local3.input_throw_pressed:
+            lib_weapon.ChangeState(local2, local3.state_shoot)
+        if not local6:
+            ChangeStateIdleAuto(local2)
+            return
+    if (not local3.input_aim_held) and local3.state_time > 0.5:
+        ChangeStateIdleAuto(local2)
+        return
+    lib_weapon.CheckShowFireIcon(local2, true, local16)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "AIM"

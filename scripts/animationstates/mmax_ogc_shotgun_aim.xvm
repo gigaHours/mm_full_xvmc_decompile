@@ -1,0 +1,37 @@
+module mmax_ogc_shotgun_aim
+import @BAFDB405
+
+def OnExit(self, arg1):
+    if input.GetButtonInput(@7C64FD8A) > 0.1:
+        game.DoAct(self, "ACT_UPB_SHOTGUN_SHEATH_AIM_LF")
+
+def GetTargetTime(self):
+    local1 = 30.0 / 30.0
+    local2 = local1 / 2.0
+    local3 = game.GetTransform(self)
+    local4 = vector.Scale(local3.r2, 1.0)
+    local5 = lib_character.GetFlattenedCameraDir(local3.r1)
+    local6 = math.RadToDeg(vector.AngleBetween(local5, local4))
+    local7 = math.Sign(vector.Dot(local5, local3.r0))
+    if 0.0 > local7:
+        local6 = 180.0 + (180.0 - local6)
+    local8 = 360.0
+    local9 = local1 * (local6 / local8)
+    return local9
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = true
+    local5 = animation.GetSampler(arg3, 0.0)
+    local6 = animation.GetSampler(arg3, 1.0)
+    if local6.Time == local6.Length:
+        local6.Time = 0.0
+    local7 = 0.075
+    local8 = character.GetGlobalXvmFloat(self, 9.0)
+    local9 = GetTargetTime(self)
+    local10 = math.Lerp(local7, local8, local9)
+    character.SetGlobalXvmFloat(self, 9.0, local10)
+    local5.Time = local10
+
+def OnEnter(self, arg1):
+    local2 = GetTargetTime(self)
+    character.SetGlobalXvmFloat(self, 9.0, local2)

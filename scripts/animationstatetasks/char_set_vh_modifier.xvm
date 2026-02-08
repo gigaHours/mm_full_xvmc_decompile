@@ -1,0 +1,10 @@
+module char_set_vh_modifier
+
+def Enter(self, arg1):
+    local2 = character.GetVehicle(self)
+    local3 = vehicle.GetModelIdentifierName(local2)
+    if none != local3:
+        if false:
+            debug.LogInfo("GetModelIdentifierName: %s", [local3])
+        local4 = string.Cat("MOD_", local3)
+        animation.SetModifier(self, @E063F6A0, game.GameHashString(local4), true)

@@ -1,0 +1,385 @@
+module vehicle_camera_coordinator
+import @78DDD3EE
+
+def DeactivateRace(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.InRace = false
+
+def RamCamera(self, arg1):
+    return false
+
+def DeActivateCoordinator(self):
+    DoDeActivateCoordinator(self)
+
+def HandleInput(self, arg1, arg2):
+    local3 = vehicle.GetVehicleDriver(arg2.player_vehicle)
+    if game.IsObjectEqualTo(local3, character.GetPlayer()):
+        if input.IsUsingGamePad():
+            if 0.0 >= arg2.camera_button_held_time:
+                if input.IsButtonClicked(@FAFCAB1A):
+                    arg2.camera_button_held_time = 0.4
+            else:
+                arg2.camera_button_held_time = arg2.camera_button_held_time - arg1
+                if input.IsButtonClicked(@FAFCAB1A):
+                    arg2.use_first_person = not arg2.use_first_person
+                    local4 = vehicle.GetGlobalProperties()
+                    local4.use_first_person = arg2.use_first_person
+                    arg2.camera_button_held_time = 0.0
+        elif input.IsButtonClicked(@FAFCAB1A):
+            arg2.use_first_person = not arg2.use_first_person
+            local4 = vehicle.GetGlobalProperties()
+            local4.use_first_person = arg2.use_first_person
+            arg2.camera_button_held_time = 0.0
+    else:
+        arg2.camera_button_held_time = 0.0
+
+def SendEventAfterButtonReleased(self, arg1):
+    if not input.GetButtonInput(game.GameHashString(arg1)):
+        local3 = 0.0
+        local4 = 1.0
+        local2 = len(self)
+        while local2 > local3:
+            game.PostEventNone(self[local3])
+            local3 = local4 + local3
+        return true
+    return false
+
+def DoDeActivateCoordinator(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.activated:
+        ConditionalDebugMsg("Deactivating Vehicle Camera Coordinator", [])
+        scriptgo.SetUpdateFunction(self, "")
+        PopAllCameras(self)
+        StopAllOfOurCurrentSlowmotions(self, local1)
+        lib_camera.ExitVistaCam(local1)
+        local1.activated = false
+        local2 = vehicle.GetGlobalProperties()
+        local2.previous_cruise_offset = none
+    else:
+        ConditionalDebugMsg("Vehicle Camera Coordinator already deactivated", [])
+
+def IsInSniperCamera(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.IsInSniperCamera = arg1
+
+def CombatModeCamera(self, arg1):
+    if AlreadyInCamera(self, arg1, 1.0):
+        if not lib_gameplay.IsGameStateCombat(character.GetPlayer()) or arg1.InRace:
+            game.PostEventNone("cam.deactivate.in.vehicle.combat")
+            return false
+        return true
+    if lib_gameplay.IsGameStateCombat(character.GetPlayer()) and arg1.IsInSniperCamera == false and arg1.InRace == false:
+        arg1.current_subcamera_type_index = 1.0
+        game.PostEventNone("cam.activate.in.vehicle.combat")
+        return true
+    return false
+
+def SetRammedVehicleThisFrame(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.interesting_rammed_vehicle_this_frame = arg1
+
+def ExplorationCamera(self, arg1):
+    if (not AlreadyInCamera(self, arg1, 2.0)) and arg1.IsInSniperCamera == false:
+        arg1.current_subcamera_type_index = 2.0
+        ConditionalDebugMsg("switching to exploration camera", [])
+        game.PostEventNone("cam.activate.player.driving")
+
+def InterestingVehicleWithinRange(self, arg1):
+    if 30.0 > vector.Distance(game.GetTransform(arg1.interesting_vehicle_this_frame).r3, camera.GetCameraTransform().r3):
+        return true
+
+def ForceDrivingCameraReset(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.forceDrivingCameraReset = true
+
+def GetVistaTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.vista_target
+
+def VehicleTakeDownCamera(self, arg1):
+    if AlreadyInCamera(self, arg1, 3.0):
+        if arg1.timer - arg1.camera_entered_time > 2.0:
+            arg1.current_subcamera_type_index = none
+            arg1.last_action_camera_time = arg1.timer
+            game.PostEventNone("camera.takedown.action.deactivate")
+            game.PostEventNone("camera.actioncameraeffects.deactivate")
+            game.EaseOutCustomUpdateSpeed(2.5, arg1.vehicle_takedown_slowmo_id)
+            arg1.vehicle_takedown_slowmo_id = none
+            arg1.interesting_vehicle = none
+            return false
+        return true
+    if ReadyForActionCamera(self, arg1) and arg1.IsInSniperCamera == false:
+        if arg1.interesting_vehicle_this_frame:
+            local2 = IsCameraSimilarAngleToTarget(camera.GetCameraTransform(), game.GetTransform(arg1.interesting_vehicle_this_frame).r3, 0.49)
+            local3 = IsCameraSimilarPivotAngleToTarget(camera.GetCameraTransform().r3, game.GetTransform(arg1.player_vehicle).r3, game.GetTransform(arg1.interesting_vehicle_this_frame).r3, 2.09)
+            if local2 and local3 and LastEnemy(self, arg1):
+                if InterestingVehicleWithinRange(self, arg1):
+                    arg1.interesting_vehicle = arg1.interesting_vehicle_this_frame
+                    arg1.vehicle_takedown_slowmo_id = game.EaseInCustomUpdateSpeed(0.4, 0.25)
+                    ConditionalDebugMsg("switching to vehicle action camera", [])
+                    game.PostEventNone("camera.takedown.action.activate")
+                    game.PostEventNone("camera.actioncameraeffects.activate")
+                    arg1.current_subcamera_type_index = 3.0
+                    arg1.camera_entered_time = arg1.timer
+                    return true
+
+def DeActivateCoordinatorEject(self):
+    DoDeActivateCoordinator(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.use_first_person = false
+    local1.in_garage = false
+    local2 = vehicle.GetGlobalProperties()
+    local2.use_first_person = local1.use_first_person
+
+def ActivateRace(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.InRace = true
+
+def TriggerVistaCam(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.vista_cam_requested = true
+
+def BoarderActionCamera(self, arg1):
+    if AlreadyInCamera(self, arg1, 0.0):
+        if arg1.timer - arg1.camera_entered_time > 1.54:
+            arg1.current_subcamera_type_index = none
+            arg1.last_action_camera_time = arg1.timer
+            game.PostEventNone("camera.boarder.action.deactivate")
+            game.PostEventNone("camera.actioncameraeffects.deactivate")
+            game.EaseOutCustomUpdateSpeed(2.5, arg1.boarderaction_slowmo_id)
+            arg1.boarderaction_slowmo_id = none
+            CombatModeCamera(self, arg1)
+            arg1.interesting_boarder = none
+            return false
+        return true
+    if ReadyForActionCamera(self, arg1) and arg1.IsInSniperCamera == false:
+        if PotentialBoarderCameraTarget(self, arg1):
+            if not lib_camera.IsCameraSimilarAngleToTargetAsTarget2(camera.GetCameraTransform(), arg1.interesting_boarder_this_frame, arg1.player_vehicle, 0.25):
+                arg1.interesting_boarder = arg1.interesting_boarder_this_frame
+                arg1.boarderaction_slowmo_id = game.EaseInCustomUpdateSpeed(0.4, 0.16)
+                ConditionalDebugMsg("switching to boarding camera", [])
+                game.PostEventNone("camera.boarder.action.activate")
+                game.PostEventNone("camera.actioncameraeffects.activate")
+                arg1.current_subcamera_type_index = 0.0
+                arg1.camera_entered_time = arg1.timer
+                return true
+
+def TriggerVistaGui(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.vista_gui_requested = true
+
+def AlreadyInCamera(self, arg1, arg2):
+    if arg1.current_subcamera_type_index == arg2:
+        return true
+    return false
+
+def ConditionalDebugMsg(self, arg1):
+    if false:
+        debug.LogInfo(self, arg1)
+
+def SniperCamera(self, arg1):
+    if AlreadyInCamera(self, arg1, 9.0):
+        if not arg1.IsInSniperCamera:
+            game.SendEventNone("deactivate_sniper_exploration_cam")
+            return false
+        if not camera.ActiveCameraInAnyGroup("weapon_sniper"):
+            game.SendEventNone("activate_sniper_exploration_cam")
+            ConditionalDebugMsg("re activating sniper cam", [])
+        return true
+    if arg1.IsInSniperCamera:
+        ConditionalDebugMsg("switching to sniper camera", [])
+        game.SendEventNone("camera.driver.firstperson.disable")
+        game.SendEventNone("activate_sniper_exploration_cam")
+        arg1.current_subcamera_type_index = 9.0
+    return false
+
+def EnterGarage(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.in_garage = true
+
+def RequestScarecrowCam(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetGlobalProperties()
+    if local1.activated and (not camera.ActiveCameraInAnyGroup("tethering")) and (not local2.use_first_person):
+        game.PostEventNone("cam.activate.in.vehicle.scarecrow")
+
+def BulletImpact(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.hit_pos = arg2
+    if arg1:
+        if character.IsCharacter(arg1):
+            local3.interesting_sniper_char_target_this_frame = arg1
+        elif vehicle.IsVehicle(arg1):
+            local3.interesting_sniper_vehicle_target_this_frame = arg1
+        else:
+            local3.interesting_sniper_gameobject_target_this_frame = arg1
+    else:
+        local3.no_target_hit_this_frame = true
+
+def GetRammedVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.rammed_vehicle
+
+def ActivateCoordinator(self):
+    local1 = ResetProperties(self)
+    ConditionalDebugMsg("Activating Vehicle Camera Coordinator", [])
+    local1.activated = true
+    SetDefaultCamera(self, local1)
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def StopAllOfOurCurrentSlowmotions(self, arg1):
+    if arg1.vehicle_takedown_slowmo_id != none:
+        game.EaseOutCustomUpdateSpeed(2.5, arg1.vehicle_takedown_slowmo_id)
+        arg1.vehicle_takedown_slowmo_id = none
+    if arg1.boarderaction_slowmo_id != none:
+        game.EaseOutCustomUpdateSpeed(2.5, arg1.boarderaction_slowmo_id)
+        arg1.boarderaction_slowmo_id = none
+    if arg1.sniper_char_slowmo_id != none:
+        game.EaseOutCustomUpdateSpeed(SNIPER_CHAR_ACTION_CAMERA_SLOWMO_OUT_TIME, arg1.sniper_char_slowmo_id)
+        arg1.sniper_char_slowmo_id = none
+    if arg1.sniper_veh_slowmo_id != none:
+        game.EaseOutCustomUpdateSpeed(SNIPER_VHLT_ACTION_CAMERA_SLOWMO_OUT_TIME, arg1.sniper_veh_slowmo_id)
+        arg1.sniper_veh_slowmo_id = none
+    if arg1.sniper_none_slowmo_id != none:
+        game.EaseOutCustomUpdateSpeed(SNIPER_GO_ACTION_CAMERA_SLOWMO_OUT_TIME, arg1.sniper_none_slowmo_id)
+        arg1.sniper_none_slowmo_id = none
+
+def IsCameraSimilarPivotAngleToTarget(self, arg1, arg2, arg3):
+    local4 = vector.Sub(arg1, self)
+    local5 = vector.Sub(arg2, arg1)
+    local4.y = local4.y * 0.02
+    local5.y = local5.y * 0.02
+    local6 = vector.AngleBetween(local4, local5)
+    return arg3 > local6
+
+def ExitGarage(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.in_garage = false
+
+def IsCameraSimilarAngleToTarget(self, arg1, arg2):
+    local3 = self.r3
+    local4 = vector.Set(-self.r2.x, -self.r2.y, -self.r2.z, 0.0)
+    local5 = vector.Sub(arg1, local3)
+    local4.y = local4.y * 0.02
+    local5.y = local5.y * 0.02
+    local6 = vector.AngleBetween(local4, local5)
+    return arg2 > local6
+
+def ReadyForActionCamera(self, arg1):
+    if arg1.timer - arg1.last_action_camera_time > 120.0:
+        return true
+
+def ResetProperties(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.activated = false
+    local1.potential_fo = none
+    local1.interesting_boarder_this_frame = none
+    local1.interesting_boarder = none
+    local1.interesting_vehicle_this_frame = none
+    local1.interesting_vehicle = none
+    local1.interesting_ground_target = none
+    local1.no_target_hit = false
+    local1.no_target_hit_this_frame = false
+    local1.current_subcamera_type_index = none
+    local1.camera_entered_time = 0.0
+    local1.last_action_camera_time = -120.0 + 3.0
+    local1.timer = 0.0
+    local1.deactivation_events = []
+    local1.shouldEaseOut = true
+    local1.IsInSniperCamera = false
+    local1.InRace = false
+    local1.rammed_vehicle = none
+    local1.forceDrivingCameraReset = false
+    local1.camera_button_held_time = 0.0
+    lib_camera.InitVistaTargetSearch(local1)
+    local1.AllowFPCam = false
+    return local1
+
+def LastEnemy(self, arg1):
+    if not arg1.player_vehicle:
+        return false
+    local2 = vehicle.GetNbVehicleEnemies(game.GetTransform(arg1.player_vehicle).r3, lib_gameplay.ENEMY_VEHICLE_RADIUS())
+    return local2 == 0.0
+
+def PopAllCameras(self):
+    ConditionalDebugMsg("Vehicle Camera Coordinator - Pop All Cameras", [])
+    game.PostEventNone("camera.actioncameras.deactivate")
+    game.PostEventNone("camera.actioncameraeffects.deactivate")
+    game.PostEventNone("camera.boarder.action.deactivate")
+    game.PostEventNone("cam.deactivate.in.vehicle.combat")
+    game.PostEventNone("cam.deactivate.player.driving")
+    game.PostEventNone("cam.deactivate.in.vehicle.campvista")
+    game.PostEventNone("cam.deactivate.in.vehicle.campvista.interactive")
+    game.PostEventNone("cam.deactivate.in.vehicle.scarecrow")
+    game.PostEventNone("cam.deactivate.harpoon.tether")
+    game.PostEventNone("camera.driver.firstperson.disable")
+    game.PostEventNone("deactivate_sniper_exploration_cam")
+
+def PotentialBoarderCameraTarget(self, arg1):
+    if arg1.interesting_boarder_this_frame:
+        return true
+
+def PlayerMoving():
+    return vector.Length(character.GetVelocityLS(character.GetPlayer())) > 5.0
+
+def DriverCamera(self, arg1):
+    local2 = 10.0
+    local3 = animation.GetStateBit(character.GetPlayer(), local2) == 1.0
+    if AlreadyInCamera(self, arg1, 8.0):
+        if camera.ActiveCameraInAnyGroup("driver"):
+            if not arg1.use_first_person or not local3:
+                game.SendEventNone("camera.driver.firstperson.disable")
+                return false
+        else:
+            if arg1.IsInSniperCamera:
+                game.SendEventNone("camera.driver.firstperson.disable")
+                return false
+            if camera.ActiveCameraInAnyGroup("vehicle_group") or camera.ActiveCameraInAnyGroup("vehicle_combat_group") or 0.0 >= camera.GetCameraStackSize():
+                game.SendEventNone("camera.driver.firstperson.enable")
+        return true
+    if arg1.use_first_person and local3 and (not camera.ActiveCameraInAnyGroup("rearview")) and (not camera.ActiveCameraInAnyGroup("tethering")) and (not camera.ActiveCameraInAnyGroup("weapon_aim_group")) and arg1.IsInSniperCamera == false:
+        if arg1.current_subcamera_type_index == 1.0 or arg1.current_subcamera_type_index == 2.0 or arg1.current_subcamera_type_index == none:
+            if not arg1.current_subcamera_type_index == 8.0:
+                ConditionalDebugMsg("switching to firstperson camera", [])
+                game.SendEventNone("camera.driver.firstperson.enable")
+                arg1.current_subcamera_type_index = 8.0
+            return true
+    return false
+
+def SetDefaultCamera(self, arg1):
+    if not arg1.in_garage:
+        if arg1.use_first_person:
+            ConditionalDebugMsg("Vehicle Camera Coordinator - SetDefaultCamera - First Person", [])
+            DriverCamera(self, arg1)
+        else:
+            ConditionalDebugMsg("Vehicle Camera Coordinator - SetDefaultCamera - Exploration", [])
+            ExplorationCamera(self, arg1)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.timer = local2.timer + arg1 / game.GetUpdateSpeed()
+    local3 = character.GetPlayer()
+    local2.player_vehicle = character.GetVehicle(local3)
+    lib_camera.UpdateVistaScanning(local2, arg1 / game.GetUpdateSpeed(), true)
+    HandleInput(self, arg1, local2)
+    if SniperCamera(self, local2):
+        pass
+    elif VehicleTakeDownCamera(self, local2):
+        pass
+    elif RamCamera(self, local2):
+        pass
+    elif DriverCamera(self, local2):
+        pass
+    elif CombatModeCamera(self, local2):
+        pass
+    else:
+        ExplorationCamera(self, local2)
+    local2.interesting_boarder_this_frame = none
+    local2.interesting_vehicle_this_frame = none
+    local2.interesting_sniper_char_target_this_frame = none
+    local2.interesting_sniper_vehicle_target_this_frame = none
+    local2.interesting_sniper_gameobject_target_this_frame = none
+    local2.interesting_rammed_vehicle_this_frame = none
+    local2.no_target_hit_this_frame = false

@@ -1,0 +1,5 @@
+module player_drop_weapon_and_jerrycan
+
+def Send(self):
+    game.QueueAct(character.GetPlayer(), "ACT_FORCE_DROP_WEAPON")
+    game.QueueAct(character.GetPlayer(), "ACT_FORCE_DROP_JERRYCAN")

@@ -1,0 +1,7 @@
+module check_rand
+
+def Evaluate(self, arg1):
+    local2 = math.Rand()
+    if arg1.Property0 > local2:
+        return 1.0
+    return 0.0

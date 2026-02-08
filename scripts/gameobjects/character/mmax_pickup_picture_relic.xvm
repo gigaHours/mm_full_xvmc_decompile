@@ -1,0 +1,8 @@
+module mmax_pickup_picture_relic
+
+def Init(self):
+    pass
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    relicsystem.PickupPictureRelic(local1.relic_id)

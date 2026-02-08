@@ -1,0 +1,61 @@
+module lookat_combat_targetting
+import @05896E5A
+
+def Enter(self, arg1):
+    game.SetBlackboardValueToObject(self, @71F4D9D1, 0.0)
+    arg1.last_target = none
+
+def Update(self, arg1, arg2):
+    local3 = 20.0
+    local4 = 0.1
+    local5 = none
+    local6 = arg1.last_target
+    local7 = game.GetBlackboardValueFromObject(self, @71F4D9D1)
+    local7 = math.Max(local7 - arg2, 0.0)
+    local8 = false
+    local9 = ogccoord.GetCurrentAttacker(self)
+    if local9:
+        local5 = local9
+        local8 = true
+    if not local5:
+        local10 = character.GetMovementTargetingList(self, local4, local3, -1.0)
+        if local10.Count > 0.0:
+            local11 = character.GetMovementTarget(local10, 0.0)
+            if local11:
+                if local9:
+                    local12 = game.GetSqDistance(self, local9)
+                    local13 = game.GetSqDistance(self, local11)
+                    if local13 > 0.8 * local12:
+                        local5 = local9
+                    else:
+                        local5 = local11
+                else:
+                    local5 = local11
+    if local5:
+        if none != local6:
+            if not game.IsObjectEqualTo(local6, local5):
+                if local8 or 0.0 >= local7:
+                    local7 = 0.5
+                    if false:
+                        debug.Sphere(game.GetTransform(self).r3, 1.0, lib_color.YELLOW(0.5))
+                else:
+                    local5 = local6
+                    if false:
+                        debug.Sphere(game.GetTransform(self).r3, 0.5, lib_color.GREEN(0.5))
+        local14 = animation.GetPoseTransformById(local5, "Neck")
+        local15 = game.GetTransform(local5)
+        local16 = matrix.Mul(local14, local15)
+        local17 = vector.Sub(local16.r3, vector.Set(0.0, 0.2, 0.0, 0.0))
+        if false:
+            debug.Sphere(local17, 0.07, lib_color.WHITE(1.0))
+        local18 = game.GetTransform(self)
+        local19 = matrix.Inverse(local18)
+        local20 = matrix.MulVec(local19, local17)
+        character.SetLookAtTarget(self, local20)
+        if vector.Length(local20) > local4 and local3 > vector.Length(local20):
+            if lib_lookat.LookAtIsAccepted(self):
+                local21 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)
+            elif false:
+                debug.Sphere(game.GetTransform(self).r3, 0.5, lib_color.RED(0.5))
+    game.SetBlackboardValueToObject(self, @71F4D9D1, local7)
+    arg1.last_target = local5

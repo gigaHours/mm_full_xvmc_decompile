@@ -1,0 +1,400 @@
+module vptirefriction
+import @F76070AE
+
+def RenderDebugStuffs(self, arg1, arg2):
+    if arg2.debugcurves and vehicle.IsPlayerVehicle(self):
+        local3 = vehicle.GetWheelTransform(self, arg1.Index).r3
+        debug.Arrow(local3, vector.Add(local3, vector.Set(0.0, Fz / 2000.0, 0.0, 0.0)), 0.1, vector.Set(1.0, 0.0, 0.0, 1.0))
+        debug.GetCurve(4.0 + arg1.Index).Value = arg1.SurfacePosition.y - math.FloatToInt(arg1.SurfacePosition.y)
+        debug.GetCurve(4.0 + arg1.Index).MinValue = 0.0
+        debug.GetCurve(4.0 + arg1.Index).MaxValue = 1.0
+        debug.GetCurve(arg1.Index).Value = (arg1.AngularSpeed * arg1.Radius - arg1.CenterVelocity.x) / arg1.CenterVelocity.x
+        debug.GetCurve(arg1.Index).MinValue = -2.0
+        debug.GetCurve(arg1.Index).MaxValue = 2.0
+
+def ComputeForces(self, arg1, arg2, arg3, arg4):
+    local5 = arg1.Fz
+    local6 = arg1.xs
+    local7 = arg1.ys
+    if EpsilonCheck(local6) and EpsilonCheck(local7):
+        self.LateralForce = 0.0
+        self.LongitudinalForce = 0.0
+        return
+    local8 = self.Axle
+    local9 = local5 / arg2.xFz[local8]
+    local10 = local9 * (2.0 * arg2.xdF0[local8][0.0] - 0.5 * arg2.xdF0[local8][1.0] - (arg2.xdF0[local8][0.0] - 0.5 * arg2.xdF0[local8][1.0]) * local9)
+    local11 = local9 * (2.0 * arg2.xFM[local8][0.0] - 0.5 * arg2.xFM[local8][1.0] - (arg2.xFM[local8][0.0] - 0.5 * arg2.xFM[local8][1.0]) * local9)
+    local12 = local9 * (2.0 * arg2.xFG[local8][0.0] - 0.5 * arg2.xFG[local8][1.0] - (arg2.xFG[local8][0.0] - 0.5 * arg2.xFG[local8][1.0]) * local9)
+    local13 = arg2.xsM[local8][0.0] + (arg2.xsM[local8][1.0] - arg2.xsM[local8][0.0]) * (local9 - 1.0)
+    local14 = arg2.xsG[local8][0.0] + (arg2.xsG[local8][1.0] - arg2.xsG[local8][0.0]) * (local9 - 1.0)
+    local15 = local5 / arg2.yFz[local8]
+    local16 = local15 * (2.0 * arg2.ydF0[local8][0.0] - 0.5 * arg2.ydF0[local8][1.0] - (arg2.ydF0[local8][0.0] - 0.5 * arg2.ydF0[local8][1.0]) * local15)
+    local17 = local15 * (2.0 * arg2.yFM[local8][0.0] - 0.5 * arg2.yFM[local8][1.0] - (arg2.yFM[local8][0.0] - 0.5 * arg2.yFM[local8][1.0]) * local15)
+    local18 = local15 * (2.0 * arg2.yFG[local8][0.0] - 0.5 * arg2.yFG[local8][1.0] - (arg2.yFG[local8][0.0] - 0.5 * arg2.yFG[local8][1.0]) * local15)
+    local19 = arg2.ysM[local8][0.0] + (arg2.ysM[local8][1.0] - arg2.ysM[local8][0.0]) * (local15 - 1.0)
+    local20 = arg2.ysG[local8][0.0] + (arg2.ysG[local8][1.0] - arg2.ysG[local8][0.0]) * (local15 - 1.0)
+    self.LongitudinalSlip = local6 / local13
+    self.LateralSlip = local7 / local19
+    local21 = local11 / local10
+    local22 = local17 / local16
+    local23 = local6 / local21
+    local24 = local7 / local22
+    local25 = math.Sqrt(local23 * local23 + local24 * local24)
+    local26 = local6 / local21 / local25
+    local27 = local7 / local22 / local25
+    local23 = local10 * local21 * local26
+    local24 = local16 * local22 * local27
+    local28 = math.Sqrt(local23 * local23 + local24 * local24)
+    local23 = local11 * local26
+    local24 = local17 * local27
+    local29 = math.Sqrt(local23 * local23 + local24 * local24)
+    local23 = local12 * local26
+    local24 = local18 * local27
+    local30 = math.Sqrt(local23 * local23 + local24 * local24)
+    local23 = local13 / local21 * local26
+    local24 = local19 / local22 * local27
+    local31 = math.Sqrt(local23 * local23 + local24 * local24)
+    local23 = local14 / local21 * local26
+    local24 = local20 / local22 * local27
+    local32 = math.Sqrt(local23 * local23 + local24 * local24)
+    if 2.0 * local29 / local31 > local28 and vehicle.IsPlayerVehicle(arg3):
+        debug.LogWarning("tire model", "Inclination (tire stiffness) too small. Adjust dF0 or {FM, sM}")
+        debug.LogInfo("Inclination problem @ tire load %f", [local5])
+    local33 = 0.0
+    if local31 >= local25:
+        local34 = local25 / local31
+        local33 = local31 * local28 * local34 / (1.0 + local34 * (local34 + local28 * local31 / local29 - 2.0))
+    elif local32 > local25:
+        local34 = (local25 - local31) / (local32 - local31)
+        local33 = local29 - (local29 - local30) * local34 * local34 * (3.0 - 2.0 * local34)
+    else:
+        local33 = local30
+    local35 = local33 * local26
+    local36 = local33 * local27
+    self.LongitudinalForce = local35
+    self.LateralForce = local36
+
+def UpdateTireExtraChassisForce(self, arg1, arg2):
+    local3 = arg1.Wheels
+    local4 = len(local3)
+    local6 = 0.0
+    local7 = 1.0
+    local5 = local4
+    while local5 > local6:
+        local8 = local3[local6]
+        local9 = math.Abs(local8.CamberAngle)
+        local10 = 1.0 - math.Scale01(local9, 0.7853982, 1.48352981)
+        local11 = 1.0 - math.Scale01(-local8.SurfaceNormal.y, -0.7, -0.2)
+        local8.LateralForce = local10 * local11 * local8.LateralForce
+        local8.LongitudinalForce = local11 * local8.LongitudinalForce
+        local6 = local7 + local6
+    if 0.0 >= vehicle.GetHealth(arg1.VehicleGameObject) or arg1.AngularDamping > 0.0 and (not vehicle.IsPlayerVehicle(arg1.VehicleGameObject)):
+        arg1.RollOverPreventionScale = 0.0
+        return
+    arg1.RollOverPreventionScale = 1.0
+    if false and vehicle.IsPlayerVehicle(arg1.VehicleGameObject):
+        debug.PrintValue(arg1.RollOverPreventionScale, "chassis.RollOverPreventionScale", 0.0)
+    local12 = 0.785
+    local13 = local12 * 15.0
+    local14 = 0.0
+    local15 = arg1.AngularVelocity.x
+    if false and vehicle.IsPlayerVehicle(arg1.VehicleGameObject):
+        debug.PrintValue(local15, "roll_velocity", 0.0)
+    local16 = arg1.Axles
+    local17 = len(local16)
+    local19 = 0.0
+    local20 = 1.0
+    local18 = local17
+    while local18 > local19:
+        local21 = local16[local19]
+        local22 = local21.LeftWheel
+        local23 = local21.RightWheel
+        local24 = local22.Load
+        local25 = local23.Load
+        local26 = (local24 - local25) / (local24 + local25)
+        local27 = math.Clamp(1.0 + local26, 0.0, 1.0)
+        local28 = math.Clamp(1.0 - local26, 0.0, 1.0)
+        local29 = local27 * local12
+        local30 = math.Clamp((local29 - local15) / local12, 0.0, 1.0)
+        local31 = local28 * local12
+        local32 = math.Clamp((local31 + local15) / local12, 0.0, 1.0)
+        local22.MaxRollAcceleration = 1E+08
+        local23.MaxRollAcceleration = 1E+08
+        local22.MinRollAcceleration = local14
+        local23.MinRollAcceleration = local14
+        if false and vehicle.IsPlayerVehicle(arg1.VehicleGameObject) and local19 == 1.0:
+            debug.PrintValue(local27, "left_balance", 1.0)
+            debug.PrintValue(local29, "optimal_left_roll_velocity", 2.0)
+            debug.PrintValue(local30, "left_roll_velocity_diff", 3.0)
+            debug.PrintValue(local28, "right_balance", 1.0)
+            debug.PrintValue(local31, "optimal_right_roll_velocity", 7.0)
+            debug.PrintValue(local32, "right_roll_velocity_diff", 8.0)
+        local19 = local20 + local19
+
+def DisableDebug(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.debugcurves = false
+    local3 = 0.0
+    local4 = 1.0
+    local2 = 8.0
+    while local2 > local3:
+        debug.GetCurve(local3).Visible = false
+        local3 = local4 + local3
+
+def EpsilonCheck(self):
+    return 1E-05 > self and self > -1E-05
+
+def RenderTireVar(self, arg1, arg2):
+    local3 = vehicle.GetWheelTransform(self, arg1.Index)
+    local4 = debug.ProjectPosition(local3.r3)
+    lib_debugdraw.DrawTextDepth(vector.Add(local4, vector.Set(0.0, 0.0, 0.0, 0.0)), "%f", [arg2], 0.0, vector.Set(1.0, 1.0, 0.0, 0.5), lib_debugdraw.ALIGN_LEFT(), none)
+
+def Init(self):
+    vehicle.ClearAllTireParameters(game.GetParent(self))
+    local1 = scriptgo.GetProperties(self)
+    local1.Fzlist = [0.0, 0.0, 0.0, 0.0]
+    local1.debugcurves = true
+    local1.debugprint = false
+    local1.debugarrows = true
+    local1.Fz = 0.0
+    local1.xs = 0.0
+    local1.ys = 0.0
+    local1.additionalUpgrade = 0.0
+    DisableDebug(self)
+
+def EnableDebug(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.debugcurves = true
+    local2 = debug.GetCurve(0.0)
+    local2.Name = "wheel0.LongitudinalForce"
+    local2.PosX = 0.05
+    local2.PosY = 0.5
+    local2.Visible = true
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(1.0)
+    local2.Name = "wheel1.LongitudinalForce"
+    local2.PosX = 0.5
+    local2.PosY = 0.5
+    local2.Visible = true
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(2.0)
+    local2.Name = "wheel2.LongitudinalForce"
+    local2.PosX = 0.05
+    local2.PosY = 0.95
+    local2.Visible = true
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(3.0)
+    local2.Name = "wheel3.LongitudinalForce"
+    local2.PosX = 0.5
+    local2.PosY = 0.95
+    local2.Visible = true
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(4.0)
+    local2.Name = "wheel0.LongitudinalForce"
+    local2.PosX = 0.05
+    local2.PosY = 0.5
+    local2.Visible = false
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(5.0)
+    local2.Name = "wheel1.LongitudinalForce"
+    local2.PosY = 0.5
+    local2.Visible = false
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(6.0)
+    local2.Name = "wheel2.LongitudinalForce"
+    local2.PosX = 0.05
+    local2.Visible = false
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(7.0)
+    local2.Name = "wheel3.LongitudinalForce"
+    local2.Visible = false
+    local2.AutoMin = true
+    local2.AutoMax = true
+
+def RenderDebugSubAngularSpeed(self, arg1, arg2):
+    if arg2.debugcurves and vehicle.IsPlayerVehicle(self):
+        debug.GetCurve(2.0 + arg1.Index).Value = arg1.AngularSpeed
+        debug.GetCurve(2.0 + arg1.Index).MinValue = 0.0
+        debug.GetCurve(2.0 + arg1.Index).MaxValue = 140.0
+
+def RenderDebugAngularSpeed(self, arg1, arg2):
+    if arg2.debugcurves and vehicle.IsPlayerVehicle(self):
+        debug.GetCurve(2.0 + arg1.Index).Value = arg1.AngularSpeed
+        debug.GetCurve(2.0 + arg1.Index).MinValue = 0.0
+        debug.GetCurve(2.0 + arg1.Index).MaxValue = 140.0
+
+def RenderTireForceArrows(self, arg1, arg2, arg3, arg4):
+    local5 = vehicle.GetWheelTransform(self, arg1.Index)
+    local6 = game.GetTransform(self)
+    local7 = 1.0 / 2000.0
+    debug.Arrow(vector.Add(local5.r3, vector.Scale(local6.r1, arg4 * local7)), local5.r3, 0.1, vector.Set(1.0, 0.0, 0.0, 0.5))
+    debug.Arrow(local5.r3, vector.Add(local5.r3, vector.Scale(local5.r0, arg3 * local7)), 0.1, vector.Set(0.0, 1.0, 0.0, 0.5))
+    debug.Arrow(local5.r3, vector.Add(local5.r3, vector.Scale(vector.Cross(local5.r0, local6.r1), arg2 * local7)), 0.1, vector.Set(0.0, 0.0, 1.0, 0.5))
+
+def RenderDebugWheelLoad(self, arg1):
+    local2 = debug.GetCurve(self)
+    local2.Value = arg1
+    local2.MinValue = 0.0
+    local2.MaxValue = 10000.0
+
+def UpdateTireState(self, arg1, arg2):
+    local3 = arg1.Wheels
+    local4 = len(local3)
+    local6 = 0.0
+    local7 = 1.0
+    local5 = local4
+    while local5 > local6:
+        local8 = local3[local6]
+        if 1.0 >= local8.Load:
+            local8.Fz = 0.0
+            local8.Xs = 0.0
+            local8.Ys = 0.0
+        else:
+            local9 = local8.Load
+            local10 = arg1.Mass * vector.Length(physics.GetGravity())
+            if 0.75 != 1.0:
+                local11 = arg1.RearAxleToCoMDistance / (arg1.FrontAxleToCoMDistance + arg1.RearAxleToCoMDistance)
+                local12 = 0.0
+                if local8.Axle == 0.0:
+                    local12 = 0.5 * local10 * local11
+                elif local8.Axle == 1.0:
+                    local12 = 0.5 * local10 * (1.0 - local11)
+                else:
+                    debug.LogError("tire model", "more than 2 axles currently unsupported")
+                local9 = local12 * (1.0 + 0.75 * (local8.Load / local12 - 1.0))
+            local9 = math.Clamp(local9, 0.0, local10)
+            local13 = local8.CenterVelocity.x
+            local14 = local8.CenterVelocity.y
+            local15 = local8.AngularSpeed * local8.Radius
+            local16 = math.Abs(local13)
+            local17 = (local15 - local13) / math.Max(local16, 1.0)
+            local18 = -local14 / math.Max(local16, 1.0)
+            local19 = local8.Tire
+            if local19:
+                local20 = local19.CamberStiffness
+                local18 = math.Tan(math.ATan(local18) - local8.CamberAngle * local20)
+            local21 = math.Sqrt(local17 * local17 + local18 * local18)
+            local22 = math.Max(1.0, local21 / 10.0)
+            local17 = local17 / local22
+            local18 = local18 / local22
+            local8.Xs = local8.Xs + (local15 - local13 - local16 * local8.Xs) * arg2 / 0.91
+            if 0.0 > local8.Xs * local17:
+                local8.Xs = 0.0
+            local8.Xs = local17
+            local8.Ys = local18
+            local8.Fz = local9
+        local6 = local7 + local6
+
+def ComputeTireSurfaceParameters(self, arg1, arg2, arg3):
+    local4 = 1.0
+    local5 = 1.0
+    local6 = 1.0
+    if arg2.upgradeLevel:
+        local5 = 1.0
+        local7 = arg2.upgradeLevel
+        local8 = local7[0.0] + arg2.additionalUpgrade
+        local9 = local7[1.0] + arg2.additionalUpgrade
+        local10 = local7[2.0]
+        local11 = self.SurfaceMaterial.Offroadiness
+        local6 = math.Lerp(local11, 1.0 - 0.25 * local10, 1.0 + 0.25 * local10)
+        local4 = math.Lerp(local11, local8, local9)
+    self.NominalLoad = arg1.NominalLoad * local5
+    self.CamberStiffness = arg1.CamberStiffness
+    if arg3:
+        debug.LogInfo("Generating flat tire...", [])
+    local12 = self.SurfaceMaterial.TireStiffnessScale * self.SurfaceMaterial.TireFrictionScale * local4 * local5 * (0.1 + local6)
+    local13 = self.SurfaceMaterial.TireStiffnessScale
+    local14 = self.SurfaceMaterial.TireFrictionScale * local4 * local5
+    local15 = arg1.XdF0
+    local17 = 0.0
+    local18 = 1.0
+    local16 = 2.0
+    while local16 > local17:
+        local15[local17] * local12[local15] = local17
+        local17 = local18 + local17
+    if arg3:
+        local17 = 0.0
+        local20 = 1.0
+        local19 = 2.0
+        while local19 > local17:
+            local15[local17] * 0.1[local15] = local17
+            local17 = local20 + local17
+    self.XdF0 = local15
+    local21 = arg1.XFM
+    local22 = arg1.XFG
+    local23 = arg1.XsM
+    local24 = arg1.XsG
+    local17 = 0.0
+    local26 = 1.0
+    local25 = 2.0
+    while local25 > local17:
+        local21[local17] * local14[local21] = local17
+        local22[local17] * local14[local22] = local17
+        local23[local17] / local13[local23] = local17
+        local24[local17][local24] = local17
+        local17 = local26 + local17
+    if arg3:
+        local17 = 0.0
+        local28 = 1.0
+        local27 = 2.0
+        while local27 > local17:
+            0.8 * local22[local17][local22] = local17
+            local22[local17][local21] = local17
+            0.8 * local24[local17][local24] = local17
+            local24[local17][local23] = local17
+            local17 = local28 + local17
+    self.XFM = local21
+    self.XFG = local22
+    self.XsM = local23
+    self.XsG = local24
+    local29 = arg1.YdF0
+    local17 = 0.0
+    local31 = 1.0
+    local30 = 2.0
+    while local30 > local17:
+        local29[local17] * local12[local29] = local17
+        local17 = local31 + local17
+    if arg3:
+        local17 = 0.0
+        local33 = 1.0
+        local32 = 2.0
+        while local32 > local17:
+            local29[local17] * 0.1[local29] = local17
+            local17 = local33 + local17
+    self.YdF0 = local29
+    local34 = arg1.YFM
+    local35 = arg1.YFG
+    local36 = arg1.YsM
+    local37 = arg1.YsG
+    local17 = 0.0
+    local39 = 1.0
+    local38 = 2.0
+    while local38 > local17:
+        local34[local17] * local14[local34] = local17
+        local35[local17] * local14[local35] = local17
+        local36[local17] / local13[local36] = local17
+        local37[local17][local37] = local17
+        local17 = local39 + local17
+    if arg3:
+        local17 = 0.0
+        local41 = 1.0
+        local40 = 2.0
+        while local40 > local17:
+            0.8 * local35[local17][local35] = local17
+            local35[local17][local34] = local17
+            0.8 * local37[local17][local37] = local17
+            local37[local17][local36] = local17
+            local17 = local41 + local17
+    self.YFM = local34
+    self.YFG = local35
+    self.YsM = local36
+    self.YsG = local37
+    self.RollingResistanceCoeff = self.SurfaceMaterial.TireRollingResistanceCoeff
+    self.RollingResistanceSpeedCoeff = self.SurfaceMaterial.TireRollingResistanceSpeedCoeff

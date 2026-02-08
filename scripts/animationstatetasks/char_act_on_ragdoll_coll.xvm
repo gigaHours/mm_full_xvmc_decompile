@@ -1,0 +1,14 @@
+module char_act_on_ragdoll_coll
+
+def Update(self, arg1, arg2):
+    local3 = character.GetRagdollCollisionInfoCount(self)
+    if local3 > 0.0:
+        if DEBUG_ENABLED():
+            debug.LogInfo("---->  char_act_on_ragdoll sends ACT!", [])
+            local4 = character.GetWorldMatrix(self)
+            debug.Sphere(local4.r3, 0.6, lib_color.ORANGE(0.4))
+        game.QueueAct(self, arg1.Action)
+
+def DEBUG_ENABLED():
+    local0 = vehicle.GetGlobalProperties()
+    return false or local0.BoardingLandDebugEnabled

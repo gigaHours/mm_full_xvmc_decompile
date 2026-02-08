@@ -1,0 +1,38 @@
+module snip_state_inactive
+import @9B4F6985
+import @30EFB40F
+
+def UpdatePost(self, arg1):
+    pass
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    game.PostEventNone("deactivate_sniper_exploration_cam")
+    game.PostEventNone("disable_sniper_mode_camera")
+
+def Init(self):
+    scriptgo.RegisterEventHandler(self, "signature_sniper_rifle.unwield_and_hide", "UnwieldAndHideWeapon")
+
+def Exit(self, arg1):
+    lib_sniper.DoReload(arg1)
+
+def UpdateRender(self, arg1):
+    pass
+
+def GetId(self):
+    return lib_sniper.STATE_INACTIVE_ID()
+
+def UnwieldAndHideWeapon(self):
+    local1 = scriptgo.GetProperties(self).weapon
+    local2 = scriptgo.GetProperties(local1)
+    local3 = local2.wielding_character
+    lib_sniper.UnWield(local1)
+    lib_sniper.HideRifle(local1)
+    local4 = lib_entity_proxy.GetPlayerWeaponHandling()
+    scriptgo.Call(local4, @B28FF972)
+
+def Update(self, arg1):
+    lib_weapon.ResetState(self)
+
+def GetName(self):
+    return "INACTIVE"

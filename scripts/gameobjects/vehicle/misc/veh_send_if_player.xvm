@@ -1,0 +1,6 @@
+module veh_send_if_player
+
+def CheckEvent(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.IsPlayerVehicle(local1.car):
+        scriptgo.PostEvent(self, @3DA949A9)

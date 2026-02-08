@@ -1,0 +1,17 @@
+module char_damage_vehicle
+
+def Enter(self, arg1):
+    character.SetGlobalXvmFloat(self, 1.0, 0.0)
+
+def Update(self, arg1, arg2):
+    local3 = character.GetGlobalXvmFloat(self, 1.0)
+    local3 = local3 + arg2
+    if local3 > arg1.Property0 and 1000.0 > local3:
+        local4 = game.GetGameObjectByAlias("PlayerRammer")
+        local5 = 70.0
+        local3 = 1000.0
+        if local4:
+            local6 = game.GetChild(local4, "ScriptHealth")
+            if local6:
+                scriptgo.Call1(local6, @E1A0A84F, local5)
+    character.SetGlobalXvmFloat(self, 1.0, local3)

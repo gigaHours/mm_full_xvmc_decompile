@@ -1,0 +1,408 @@
+module vehicle_driving
+import @78DDD3EE
+import @42D0E955
+import @45098D7D
+
+def EnterAlignedTransition(self, arg1, arg2):
+    if self.Properties.align_elevation == 0.0:
+        lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    else:
+        lib_camera.AlignAzimuthElevationToSourceCameraClamped(self, arg1, arg2, math.DegToRad(self.Properties.min_elevation), math.DegToRad(self.Properties.max_elevation), -math.DegToRad(180.0), math.DegToRad(180.0))
+    TransitionReset(self, arg2)
+    Update(self, arg2)
+
+def MIN_AZ_BLEND_SPEED():
+    return 0.0
+
+def RAM_TARGET_ENUM():
+    return 2.0
+
+def Init(self):
+    self.Properties.in_camera_reset = false
+    self.Properties.in_camera_reset_timer = 0.0
+    self.Properties.last_rel_target_pos = vector.Set(0.0, 0.0, 1.0, 0.0)
+    self.Properties.time_since_input = 0.0
+    self.Properties.AccelerationProgress = 0.0
+    self.Properties.onGroundElevation = self.InitialOffsetElevation
+    self.Properties.onGroundDirection = vector.Set(0.0, 0.0, -1.0, 0.0)
+    self.Properties.in_donut_timer = 0.0
+    self.Properties.elevation_tracker = 0.0
+    Reset(self)
+
+def AzimuthSpeedLerp(self, arg1, arg2, arg3):
+    local4 = AzimuthAngleDiff(self, arg1)
+    if local4 > 0.0:
+        local5 = math.Min(arg2 * arg3, local4)
+    else:
+        local5 = math.Max(-arg2 * arg3, local4)
+    return ClampAzimuth(self + local5)
+
+def ExitTransition(self, arg1):
+    pass
+
+def TETHER_TARGET_ENUM():
+    return 1.0
+
+def MAX_AZ_BLEND_SPEED_INITIAL_OFFSET():
+    return 8.8
+
+def TransitionReset(self, arg1):
+    Reset(self)
+    if self.Properties.auto_align_target == CAMP_VISTA_ENUM():
+        lib_camera.VistaCameraReset(self, true, arg1)
+    self.Properties.azimuth_cursor = self.OffsetAzimuth
+    self.Properties.elevation_tracker = self.OffsetElevation
+    self.Properties.azimuth_blend_speed_cursor = MAX_AZ_BLEND_SPEED_INITIAL_OFFSET()
+
+def EnterUnalignedTransition(self, arg1):
+    TransitionReset(self, arg1)
+    Update(self, arg1)
+
+def INITIAL_OFFSET_ENUM():
+    return 0.0
+
+def CAMP_VISTA_ENUM():
+    return 3.0
+
+def AzimuthAngleDiff(self, arg1):
+    local2 = arg1 - self
+    local3 = math.DegToRad(180.0)
+    if math.Abs(local2) >= local3:
+        if 0.0 > self:
+            local2 = -(local3 + self) - (local3 - arg1)
+        else:
+            local2 = local3 - self + (local3 + arg1)
+    return local2
+
+def ClampAzimuth(self):
+    local1 = math.DegToRad(180.0)
+    if -local1 > self:
+        self = 2.0 * local1 + self
+    elif self > local1:
+        self = self - 2.0 * local1
+    return self
+
+def AzimuthLerp(self, arg1, arg2):
+    local3 = AzimuthAngleDiff(arg1, arg2)
+    local4 = local3 * self
+    return ClampAzimuth(arg1 + local4)
+
+def VehicleHeadingWeight(self):
+    local1 = 0.03
+    local2 = math.Max(self - local1, 0.0) / (1.0 - local1)
+    local3 = math.Clamp(local2 / 0.2, 0.0, 1.0)
+    return local3
+
+def Reset(self):
+    self.Properties.auto_align_active = true
+    self.Properties.sustained_input_time = 0.0
+    self.Properties.azimuth_blend_speed_cursor = MIN_AZ_BLEND_SPEED()
+    self.Properties.steering_cursor_in_speed = 0.0
+    self.Properties.steering_cursor_out_speed = 0.0
+    self.Properties.steering_cursor = 0.0
+    self.Properties.steering_time = 0.0
+    self.Properties.smooth_yaw_velocity = 0.0
+    self.Properties.ram_azimuth_anchor = self.OffsetAzimuth
+    self.Properties.in_donut_timer = 0.0
+    self.Properties.lastPitch = self.InitialOffsetPitch
+    lib_camera.ResetDamping(self)
+
+def ClampDelta(self, arg1):
+    if self == 0.0:
+        return 0.0
+    if 0.0 > self:
+        arg1 = math.Max(arg1, self)
+    else:
+        arg1 = math.Min(arg1, self)
+    return arg1
+
+def Update(self, arg1):
+    local2 = math.DegToRad(180.0)
+    if self.Properties.auto_align_target == none:
+        self.Properties.auto_align_target = INITIAL_OFFSET_ENUM()
+    if self.Properties.align_elevation == none:
+        self.Properties.align_elevation = 0.0
+    if self.Properties.auto_align_input_threshold_time == none:
+        self.Properties.auto_align_input_threshold_time = 0.0
+    if self.Properties.auto_elevation_offset == none:
+        self.Properties.auto_elevation_offset = 28.0
+    if self.Properties.ram_target_max_angle == none:
+        self.Properties.ram_target_max_angle = 50.0
+    local3 = lib_camera.GetInVehicleCameraCoordinator()
+    if local3 != none:
+        local4 = scriptgo.GetProperties(local3)
+        if local4.forceDrivingCameraReset:
+            self.Properties.in_camera_reset = true
+            local4.forceDrivingCameraReset = false
+    local5 = self.Properties.azimuth_dead_zone
+    local6 = self.Properties.elevation_dead_zone
+    local7 = self.Properties.min_direct_speed
+    local8 = self.Properties.max_direct_speed
+    local9 = self.Properties.min_top_speed
+    local10 = self.Properties.max_top_speed
+    local11 = self.Properties.max_top_speed_mouse
+    local12 = self.Properties.acceleration_speed
+    local13 = self.Properties.acceleration_clamp
+    local14 = self.Properties.auto_align_timer
+    if self.Properties.auto_align_blend_speed == none:
+        self.Properties.auto_align_blend_speed = 4.0
+    local15 = self.Properties.auto_align_blend_speed
+    local16 = math.DegToRad(self.Properties.min_elevation)
+    local17 = math.DegToRad(self.Properties.max_elevation)
+    local18 = 11.0
+    local19 = 0.5
+    local20 = self.Dt
+    local21 = 1000000.0
+    if local20 > 0.0:
+        local21 = 1.0 / local20
+    local22 = input.GetLookInput()
+    local23 = vector.Length(local22)
+    self.Properties.time_since_input = self.Properties.time_since_input + local20
+    if local23 > 0.0:
+        self.Properties.time_since_input = 0.0
+        self.Properties.sustained_input_time = self.Properties.sustained_input_time + local20
+        self.Properties.azimuth_blend_speed_cursor = MIN_AZ_BLEND_SPEED()
+        self.Properties.AccelerationProgress = math.Clamp(self.Properties.AccelerationProgress + local20 * local12, local13, local23)
+    else:
+        self.Properties.sustained_input_time = 0.0
+        self.Properties.AccelerationProgress = 0.0
+    if self.Properties.auto_align_input_threshold_time > 0.0 and self.Properties.sustained_input_time > self.Properties.auto_align_input_threshold_time:
+        self.Properties.auto_align_active = false
+    local24 = self.Properties.time_since_input
+    local25 = input.GetSensitivity()
+    if input.IsUsingGamePad():
+        local26 = -local22.x * local25.x * local20 * self.Properties.AccelerationProgress * local10
+        local27 = -local22.y * local25.y * local20 * self.Properties.AccelerationProgress * local10
+    else:
+        local26 = -local22.x * local25.x * local20 * local11
+        local27 = -local22.y * local25.y * local20 * local11
+    local28 = character.GetVehicle(character.GetPlayer())
+    local29 = 0.0
+    if local28:
+        local29 = vehicle.GetWheelContactRatio(local28)
+    if input.IsUsingGamePad():
+        if 15.0 != 0.0:
+            local30 = lib_camera.GetDeltaAzElDamped(self, local26, local27, 15.0, local20)
+            local26 = local30[0.0]
+            local27 = local30[1.0]
+    local31 = none
+    if self.Properties.auto_align_target == TETHER_TARGET_ENUM():
+        local32 = lib_entity_proxy.GetHarpoon(vehicle.GetSignatureVehicle())
+        local31 = scriptgo.Call(local32, @0C537298)
+        if local31 == none:
+            local31 = vector.Add(self.CameraBaseTransform.r3, self.Properties.last_rel_target_pos)
+        else:
+            self.Properties.last_rel_target_pos = vector.Sub(local31, self.CameraBaseTransform.r3)
+    elif self.Properties.auto_align_target == RAM_TARGET_ENUM():
+        local3 = lib_camera.GetInVehicleCameraCoordinator()
+        local33 = scriptgo.Call(local3, @B0E57FF6)
+        if local33 != none:
+            local31 = game.GetTransform(local33).r3
+    elif self.Properties.auto_align_target == CAMP_VISTA_ENUM():
+        if lib_camera.UpdateVistaCam(self, arg1, 0.0, true, local20):
+            return
+    if self.Properties.in_camera_reset:
+        self.Properties.in_camera_reset_timer = self.Properties.in_camera_reset_timer + local20
+        local34 = self.InitialOffsetAzimuth
+        local35 = self.OffsetAzimuth
+        local36 = local34 - local35
+        if math.Abs(local36) >= local2:
+            if 0.0 > local35:
+                local36 = local34 - (2.0 * local2 + local35)
+            else:
+                local36 = 2.0 * local2 + local34 - local35
+        local37 = self.InitialOffsetElevation
+        local38 = self.OffsetElevation
+        local39 = local37 - local38
+        if math.Abs(local39) >= local2:
+            if 0.0 > local38:
+                local39 = local37 - (2.0 * local2 + local38)
+            else:
+                local39 = 2.0 * local2 + local37 - local38
+        if (math.Abs(local36) > 0.05 or math.Abs(local39) > 0.05) and local19 > self.Properties.in_camera_reset_timer:
+            local26 = local36 * local18 * local20
+            local27 = local39 * local18 * local20
+        else:
+            self.Properties.in_camera_reset = false
+    else:
+        self.Properties.in_camera_reset_timer = 0.0
+        if local23 == 0.0 and local24 > local14 and self.Properties.auto_align_active:
+            local39 = 0.0
+            local40 = local15
+            local41 = 0.0
+            local42 = self.OffsetAzimuth
+            if self.Properties.auto_align_target == CAMP_VISTA_ENUM():
+                pass
+            elif self.Properties.auto_align_target == INITIAL_OFFSET_ENUM() and local28 != none:
+                local43 = matrix.Inverse(self.CameraBaseTransform)
+                local44 = matrix.Mul(local43, self.PreviousBaseTransform)
+                local45 = matrix.ToAngles(local44)
+                local46 = local45.y * 180.0 / (local2 * local20)
+                self.Properties.smooth_yaw_velocity = math.SpeedLerp(self.Properties.smooth_yaw_velocity, local46, 45.0, local20)
+                local47 = vector.Scale(vehicle.GetLocalVelocity(local28), -1.0)
+                local48 = matrix.MulVec(local43, self.PreviousBaseTransform.r3)
+                local49 = vector.Length(local47)
+                local50 = vector.Clone(local47)
+                local50.y = 0.0
+                local51 = vector.Length(local50)
+                local52 = math.Clamp(math.Scale(local51, 0.0, 22.0, 0.2, 1.0), 0.2, 1.0)
+                local53 = true
+                local54 = 7.0
+                if 0.0 > local50.z:
+                    local53 = false
+                local55 = lib_vehicle.InDonut(local28)
+                if self.Properties.in_donut_timer > 1.5 and (not local55):
+                    self.Properties.azimuth_blend_speed_cursor = MIN_AZ_BLEND_SPEED()
+                self.Properties.in_donut = local55
+                if local55:
+                    self.Properties.in_donut_timer = self.Properties.in_donut_timer + local20
+                else:
+                    self.Properties.in_donut_timer = 0.0
+                if self.Properties.in_donut_timer > 1.5:
+                    local56 = 100.0
+                    self.Properties.azimuth_blend_speed_cursor = math.SpeedLerp(self.Properties.azimuth_blend_speed_cursor, local56, 4.0, local20)
+                else:
+                    if local53 and local51 > local54 and self.Properties.time_since_input > 1.0 and (self.TranslationWeight > 0.5 and self.RotationWeight > 0.5 or math.Abs(local46) > 45.0):
+                        local50 = vector.Normalize(local50)
+                        local57 = 1.0 - math.Abs(vector.Dot(local50, vector.Set(0.0, 0.0, 1.0, 0.0)))
+                        local58 = math.Scale01(local57, 0.03, 0.06)
+                        local59 = 0.0
+                        local60 = 1.0
+                        if 0.5 >= local29:
+                            local58 = 0.0
+                            local60 = 0.1
+                        if vehicle.GetSideRamAttackEnabled(local28):
+                            local58 = 1.0
+                            local60 = 0.0
+                            self.Properties.azimuth_blend_speed_cursor = 0.0
+                        local61 = vector.Scale(local47, -1.0 * local51 * local20)
+                        local31 = matrix.MulVec(self.CameraBaseTransform, local61)
+                        local61 = vector.Scale(local61, -1.0)
+                        local59 = math.ATan2(local61.x, local61.z)
+                        if false:
+                            local62 = lib_color.WHITE(1.0)
+                            debug.Sphere(local31, 0.2, local62)
+                            debug.DrawText(vector.Set(0.1, 0.3, 0.0, 0.0), "ahead: %v ", [local61], local62)
+                            debug.DrawText(vector.Set(0.1, 0.35, 0.0, 0.0), "heading: %f drift_level: %f target azi: %f", [local58, local57, local59], local62)
+                        local63 = AzimuthLerp(local58, local59, self.InitialOffsetAzimuth)
+                        local64 = vehicle.GetChassis(local28)
+                        local22 = 0.0
+                        local65 = local64.Axles
+                        local66 = len(local65)
+                        local67 = 0.0
+                        local69 = 0.0
+                        local70 = 1.0
+                        local68 = local66
+                        while local68 > local69:
+                            local71 = local65[local69]
+                            if local71.Steered:
+                                local72 = (local71.LeftWheel.SteeringAngle + local71.RightWheel.SteeringAngle) / 2.0
+                                local22 = local22 + local72
+                                local67 = local67 + 1.0
+                            local69 = local70 + local69
+                        if local67 > 0.0:
+                            local22 = local22 / local67
+                        local22 = local22 * 2.0
+                        local22 = math.Clamp(local22, -local64.MaxSteeringAngle, local64.MaxSteeringAngle)
+                        local73 = math.Abs(local22)
+                        local74 = vehicle.GetSteeringInput(local28)
+                        local75 = math.Abs(local74)
+                        local76 = 1.0
+                        if local75 > 0.2:
+                            if math.Sign(local22) != math.Sign(self.Properties.steering_cursor):
+                                local76 = 3.0
+                            if 1.6 > self.Properties.steering_time:
+                                self.Properties.steering_time = self.Properties.steering_time + local20
+                        elif self.Properties.steering_time > 0.0:
+                            self.Properties.steering_time = self.Properties.steering_time - local20 * 2.0
+                        local77 = input.GetButtonInput(@677A49E9) > 0.0
+                        if local75 > 0.2 and local29 >= 0.75 and self.Properties.steering_time >= 1.6 and (not local77):
+                            self.Properties.steering_cursor_in_speed = math.SpeedLerp(self.Properties.steering_cursor_in_speed, 0.5, 1.0, local20)
+                            self.Properties.steering_cursor = math.SpeedLerp(self.Properties.steering_cursor, local22, self.Properties.steering_cursor_in_speed * local76, local20)
+                            self.Properties.steering_cursor_out_speed = 0.0
+                        else:
+                            self.Properties.steering_cursor_in_speed = 0.0
+                            self.Properties.steering_cursor_out_speed = math.SpeedLerp(self.Properties.steering_cursor_out_speed, 0.9, 0.8, local20)
+                            self.Properties.steering_cursor = math.SpeedLerp(self.Properties.steering_cursor, 0.0, self.Properties.steering_cursor_out_speed, local20)
+                        local78 = self.Properties.steering_cursor * -1.0
+                        if false:
+                            debug.DrawText(vector.Set(0.1, 0.4, 0.0, 0.0), "steering: %f steering_angle: %f time: %f", [local22, local78, self.Properties.steering_time], local62)
+                            debug.DrawText(vector.Set(0.1, 0.45, 0.0, 0.0), "steering cursor: %f in_speed: %f out_speed: %f", [self.Properties.steering_cursor, self.Properties.steering_cursor_in_speed, self.Properties.steering_cursor_out_speed], local62)
+                        local79 = 0.0
+                        local42 = local63 + local78 + local79 * math.DegToRad(40.0)
+                        local56 = MAX_AZ_BLEND_SPEED_INITIAL_OFFSET() * local52 * local60
+                        self.Properties.azimuth_cursor = AzimuthSpeedLerp(self.Properties.azimuth_cursor, ClampAzimuth(local42), math.DegToRad(180.0), local20)
+                        local42 = self.Properties.azimuth_cursor
+                        local39 = self.InitialOffsetElevation - self.OffsetElevation
+                        self.Properties.azimuth_blend_speed_cursor = math.SpeedLerp(self.Properties.azimuth_blend_speed_cursor, local56, 4.0, local20)
+                        local40 = self.Properties.azimuth_blend_speed_cursor
+                        local35 = self.OffsetAzimuth
+                        local36 = ClampAzimuth(AzimuthAngleDiff(local35, local42))
+                        if false:
+                            local62 = lib_color.WHITE(1.0)
+                            debug.DrawText(vector.Set(0.1, 0.1, 0.0, 0.0), "azi blend speed: %f target azimuth: %f diff: %f build_up_speed: %f", [local40, local42, local36, 4.0], local62)
+                        local85 = local36 * local40 + math.Sign(local36) * local41
+                        if math.Abs(local85 * local20) > math.Abs(local36):
+                            local85 = local36 / local20
+                        local86 = local39 * local40 + math.Sign(local39) * local41
+                        if math.Abs(local86 * local20) > math.Abs(local39):
+                            local86 = local39 / local20
+                        local26 = ClampDelta(local36, local85 * local20)
+                        local27 = ClampDelta(local39, local86 * local20)
+                        local38 = self.Properties.elevation_tracker
+                        if local38 == none:
+                            local38 = 0.0
+                        self.Properties.onGroundElevation = local38
+                        local87 = math.Clamp(local27 + local38, local16, local17)
+                        self.Properties.elevation_tracker = local87
+                        local27 = local87 - self.OffsetElevation
+                        if false:
+                            local62 = lib_color.WHITE(1.0)
+                            debug.DrawText(vector.Set(0.1, 0.2, 0.0, 0.0), "target elevation: %f diff: %f", [local87, local27], local62)
+                        camera.SetOffsetDeltaOrbit(self, local26, local27)
+                        if local28 != none:
+                            local88 = vector.Set(0.0, 1.0, 0.0, 0.0)
+                            local89 = game.GetTransform(local28).r1
+                            local90 = vector.Dot(local88, local89)
+                            if 0.0 > local90:
+                                local91 = math.Scale(math.Abs(local90), 0.0, 1.0, 0.0, 0.5)
+                                if local91 > 0.0:
+                                    local92 = self.CameraBaseTransform
+                                    local92.r3 = vector.Add(local92.r3, vector.Set(0.0, local91, 0.0, 0.0))
+                                    camera.SetBaseTransform(self, local92)
+                        arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+                        return
+                    local56 = MIN_AZ_BLEND_SPEED()
+                    self.Properties.azimuth_blend_speed_cursor = math.SpeedLerp(self.Properties.azimuth_blend_speed_cursor, local56, 4.0, local20)
+                    local40 = self.Properties.azimuth_blend_speed_cursor
+                    local42 = self.Properties.azimuth_cursor
+            elif local31 != none:
+                local43 = matrix.Inverse(self.CameraBaseTransform)
+                local80 = matrix.MulVec(local43, local31)
+                local81 = vector.Set(local80.x, 0.0, local80.z, 0.0)
+                local82 = vector.Length(local81)
+                if local82 > 0.0:
+                    local42 = math.ATan2(-local81.x / local82, -local81.z / local82)
+                    if self.Properties.auto_align_target != RAM_TARGET_ENUM():
+                        local83 = math.ASin(-local80.y / vector.Length(local80)) + math.DegToRad(self.Properties.auto_elevation_offset)
+                        local39 = local83 - self.OffsetElevation
+                    else:
+                        local36 = AzimuthAngleDiff(self.Properties.ram_azimuth_anchor, local42)
+                        local84 = math.DegToRad(self.Properties.ram_target_max_angle)
+                        if -local84 > local36:
+                            local42 = self.Properties.ram_azimuth_anchor - local84
+                        elif local36 > local84:
+                            local42 = self.Properties.ram_azimuth_anchor + local84
+                        local42 = ClampAzimuth(local42)
+
+def AzimuthPeek(self):
+    local1 = 40.0
+    local2 = 80.0
+    local3 = math.Abs(self)
+    if local1 > local3:
+        return 0.0
+    local4 = -math.Sign(self)
+    if local3 > local2:
+        return local4
+    local5 = (local3 - local1) / (local2 - local1)
+    return local4 * math.BezierCurve(0.0, 1.0 / 3.0, 2.0 / 3.0, 1.0, local5)

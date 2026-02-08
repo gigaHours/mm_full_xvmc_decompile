@@ -1,0 +1,12 @@
+module max_upgrades_locker
+
+def unlock(self):
+    local1 = scriptgo.GetProperties(self)
+    visibleplayerupgrades.UnlockMaxUpgrades(local1.type)
+
+def lock(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.reason_string_id == none:
+        visibleplayerupgrades.LockMaxUpgrades(local1.type, gui.MakeLocalizationHashFromTag(""))
+    else:
+        visibleplayerupgrades.LockMaxUpgrades(local1.type, gui.MakeLocalizationHashFromTag(local1.reason_string_id))

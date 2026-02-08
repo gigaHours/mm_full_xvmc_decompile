@@ -1,0 +1,22 @@
+module interaction_entry_occupant_faction
+import @80A1852C
+
+def Evaluate(self, arg1):
+    local2 = character.GetInteractionUserProxy(self)
+    if local2:
+        local3 = none
+        if arg1.Property2 == 0.0:
+            local4 = interaction.GetEntryNodeOccupant(local2, arg1.Property1)
+            if local4:
+                local3 = interaction.GetCharacter(local4)
+        else:
+            local5 = interaction.GetEntryContextParent(local2, arg1.Property1)
+            if vehicle.IsVehicle(local5):
+                if arg1.Property2 == 2.0:
+                    local3 = vehicle.GetVehicleDriver(local5)
+                elif arg1.Property2 == 4.0:
+                    local3 = vehicle.GetVehiclePassenger(local5)
+        if local3:
+            if arg1.Property0 == 1.0:
+                return lib_gameplay.IsInPlayerEnemyFaction(local3)
+    return 0.0

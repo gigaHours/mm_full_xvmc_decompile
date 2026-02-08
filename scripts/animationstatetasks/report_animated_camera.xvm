@@ -1,0 +1,12 @@
+module report_animated_camera
+
+def Enter(self, arg1):
+    if false:
+        debug.LogInfo("report_animated_camera %f,%f", [arg1.Property0, arg1.Property1])
+    if arg1.Property0 == 0.0:
+        local2 = lib_camera.GetInVehicleCameraCoordinator()
+        vcc_props.animated_camera_this_frame = arg1.Property1
+    if arg1.Property0 == 1.0:
+        local3 = lib_camera.GetOnGroundCameraCoordinator()
+        local4 = scriptgo.GetProperties(local3)
+        local4.animated_camera_this_frame = arg1.Property1

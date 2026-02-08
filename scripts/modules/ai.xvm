@@ -1,0 +1,19 @@
+module ai
+
+def ClearAiEntityBlackboard(self, arg1):
+    pass
+
+def SetAiEntityBlackboardFlag(self, arg1):
+    pass
+
+def GetAiEntityBlackboardCounter(self, arg1):
+    pass
+
+def GetAiEntityBlackboardFlag(self, arg1):
+    pass
+
+def IncreaseAiEntityBlackboardCounter(self, arg1, arg2):
+    pass
+
+def SetAiEntityBlackboardObject(self, arg1, arg2):
+    pass

@@ -1,0 +1,128 @@
+module body_collision_visual_damage
+import @58351C01
+import @45098D7D
+
+def DisableDeform(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetProperties(local1.car)
+    if local2.armorPieceCount != none:
+        if local2.armorPieceCount > 0.0:
+            local2.isDeforming = false
+
+def ConfigureHangingPart(self, arg1):
+    debug.LogInfo("configuring hpart", [])
+    self.State = self.STATE_OPENED
+    self.MinAngle = 0.0
+    self.MaxAngle = 3.14159274 * 0.4
+    self.Friction = 0.0
+    self.AutoLock = false
+    vehicle.HingedPartApplyHingeTorque(self, 1000.0)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    if not vehicle.IsVehicle(local1.car):
+        debug.LogError("body_collision_visual_handler.xpy", "car property is not a valid vehicle")
+    local2 = vehicle.GetProperties(local1.car)
+    local2.isDeforming = false
+    if false:
+        scriptgo.SetRenderFunction(self, "UpdateRenderDebug")
+    else:
+        scriptgo.SetRenderFunction(self, "")
+
+def UpdateRenderDebug(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetChassis(local2.car)
+    local4 = vehicle.SAEToAbsVector(local3.Extents)
+    local5 = vehicle.SAEToVector(local3.CenterOfMassPosition)
+    local6 = local3.FrontAxleToCoMDistance
+    local7 = local3.RearAxleToCoMDistance
+    local8 = game.GetRenderTransform(local2.car, arg1)
+    local9 = 0.3
+    local10 = vector.Set(local5.x, local5.y, local5.z - local6, 1.0)
+    local11 = matrix.MulVec(local8, vector.Set(local10.x + local4.x * 0.5, local10.y + 0.5 * local4.y + local9, local10.z, 1.0))
+    local12 = matrix.MulVec(local8, vector.Set(local10.x - local4.x * 0.5, local10.y + 0.5 * local4.y + local9, local10.z, 1.0))
+    local13 = matrix.MulVec(local8, vector.Set(local10.x - local4.x * 0.5, local10.y - 0.5 * local4.y + local9, local10.z, 1.0))
+    local14 = matrix.MulVec(local8, vector.Set(local10.x + local4.x * 0.5, local10.y - 0.5 * local4.y + local9, local10.z, 1.0))
+    lib_debugdraw.RenderPolyLine([local11, local12, local13, local14], lib_color.YELLOW(0.7))
+    local10 = vector.Set(local5.x - local4.x * 0.25, local5.y, local5.z, 1.0)
+    local11 = matrix.MulVec(local8, vector.Set(local10.x, local10.y + 0.5 * local4.y + local9, local10.z + local7, 1.0))
+    local12 = matrix.MulVec(local8, vector.Set(local10.x, local10.y + 0.5 * local4.y + local9, local10.z - local6, 1.0))
+    local13 = matrix.MulVec(local8, vector.Set(local10.x, local10.y - 0.5 * local4.y + local9, local10.z - local6, 1.0))
+    local14 = matrix.MulVec(local8, vector.Set(local10.x, local10.y - 0.5 * local4.y + local9, local10.z + local7, 1.0))
+    lib_debugdraw.RenderPolyLine([local11, local12, local13, local14], lib_color.WHITE(0.7))
+    local10 = vector.Set(local5.x + local4.x * 0.25, local5.y, local5.z, 1.0)
+    local11 = matrix.MulVec(local8, vector.Set(local10.x, local10.y + 0.5 * local4.y + local9, local10.z + local7, 1.0))
+    local12 = matrix.MulVec(local8, vector.Set(local10.x, local10.y + 0.5 * local4.y + local9, local10.z - local6, 1.0))
+    local13 = matrix.MulVec(local8, vector.Set(local10.x, local10.y - 0.5 * local4.y + local9, local10.z - local6, 1.0))
+    local14 = matrix.MulVec(local8, vector.Set(local10.x, local10.y - 0.5 * local4.y + local9, local10.z + local7, 1.0))
+    lib_debugdraw.RenderPolyLine([local11, local12, local13, local14], lib_color.WHITE(0.7))
+
+def ApplyDamagePct(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.car
+    local4 = scriptgo.Call(lib_entity_proxy.GetCollision(local3), @C7522287)
+    local5 = vehicle.GetProperties(local3)
+    if local5.armorPieceCount == none:
+        lib_vehicle.GetArmorCount(local3)
+    local6 = vehicle.GetHealth(local3) > 0.0 and local2.allow_deformation_when_alive or 0.0 >= vehicle.GetHealth(local3)
+    if local5.isDeforming and local6:
+        local7 = local4.Impulse
+        local8 = vehicle.GetMass(local3)
+        local9 = local7 / local8
+        local10 = 0.2
+        local11 = 15.0
+        local12 = math.Scale01(local9, local10, local11)
+        local13 = false
+        if local4.GameObject != none:
+            local13 = vehicle.IsVehicle(local4.GameObject)
+        if local9 > 1.0 or local13 or 0.0 >= vehicle.GetHealth(local3):
+            if false:
+                debug.LogInfo("DEFORM dmgPct: %f  Acc: %f -> %f", [arg1, local9, local12])
+            vehicle.ApplyDecalDamage(local3, false, local4.SelfLocalPosition, local12)
+        elif false:
+            debug.LogInfo("DEFORM dmgPct: %f  Acc: %f -> %f IGNORED (impulseAcc <= %f)", [arg1, local9, local12, 1.0])
+    else:
+        local12 = math.Clamp(2.0 * arg1, 0.0, 1.0)
+        vehicle.ApplyDecalDamage(local3, true, local4.SelfLocalPosition, local12)
+
+def RepairPct(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.car
+    if arg2 == 1.0:
+        vehicle.ClearDecalDamage(local5, 1.0, arg3)
+    elif arg2 > 1.0 / 2.0:
+        vehicle.ClearDecalDamage(local5, 2.0 * arg1, arg3)
+    local6 = vehicle.GetHingedPart(local5, "vpart_hood")
+    if local6:
+        local6.AutoLock = true
+    local6 = vehicle.GetHingedPart(local5, "vpart_door_r")
+    if local6:
+        local6.AutoLock = true
+    local6 = vehicle.GetHingedPart(local5, "vpart_door_l")
+    if local6:
+        local6.AutoLock = true
+
+def EnableDeform(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.allow_deformation_when_alive and vehicle.GetHealth(local1.car) > 0.0 or 0.0 >= vehicle.GetHealth(local1.car):
+        local2 = vehicle.GetProperties(local1.car)
+        local2.isDeforming = true
+
+def FindPartToHang(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.car
+    local4 = vehicle.GetRelativePosition(arg1, local3)
+    debug.LogInfo("localpos x: %f, y: %f, z: %f", [local4.x, local4.y, local4.z])
+    local5 = vehicle.GetChassis(local3)
+    local6 = vehicle.SAEToAbsVector(local5.Extents)
+    local7 = vehicle.SAEToVector(local5.CenterOfMassPosition)
+    local8 = local5.FrontAxleToCoMDistance
+    local9 = local5.RearAxleToCoMDistance
+    if local7.z - local8 > local4.z:
+        return vehicle.GetHingedPart(local3, "vpart_hood")
+    if local7.z + local9 > local4.z and local4.z > local7.z - local8:
+        if local4.x > local7.x + local6.x * 0.25:
+            return vehicle.GetHingedPart(local3, "vpart_door_r")
+        if local7.x - local6.x * 0.25 > local4.x:
+            return vehicle.GetHingedPart(local3, "vpart_door_l")
+    return none

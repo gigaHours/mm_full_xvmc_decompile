@@ -1,0 +1,11 @@
+module check_watersource_amount
+
+def Evaluate(self, arg1):
+    local2 = interaction.FindLinkedResourceId(self)
+    if local2 != none:
+        local3 = game.GetEconomyResourceAmount(local2, true)
+        if local3 > 0.0:
+            return 1.0
+        interaction.SetNamedFailEntry(self, "entry.water_resource_empty")
+        return 0.0
+    return 1.0

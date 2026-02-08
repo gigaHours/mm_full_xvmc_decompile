@@ -1,0 +1,61 @@
+module matrix
+
+def IdentityMatrix():
+    pass
+
+def Mul(self, arg1):
+    pass
+
+def DirectionLocalToWorld(self, arg1):
+    pass
+
+def OrthoNormalize(self):
+    pass
+
+def Slerp(self, arg1, arg2):
+    pass
+
+def RotationMatrix(self, arg1, arg2):
+    pass
+
+def Offset(self, arg1):
+    pass
+
+def Rotate(self, arg1):
+    pass
+
+def DirectionWorldToLocal(self, arg1):
+    pass
+
+def LookAtMatrix(self, arg1, arg2):
+    pass
+
+def ToAngles(self):
+    pass
+
+def CopyMatrix(self):
+    pass
+
+def RotationAxisMatrix(self, arg1):
+    pass
+
+def MatrixY(self, arg1, arg2):
+    pass
+
+def Inverse(self):
+    pass
+
+def Matrix(self, arg1, arg2):
+    pass
+
+def PositionLocalToWorld(self, arg1):
+    pass
+
+def PositionWorldToLocal(self, arg1):
+    pass
+
+def MulVec(self, arg1):
+    pass
+
+def TranslationAt(self, arg1):
+    pass

@@ -1,0 +1,151 @@
+module lib_entity_proxy
+
+def GetExplosionHandler(self):
+    local1 = SafeGetChildByScriptName(self, "explosion_damage_handler.xpy")
+    return local1
+
+def GetVehicleGameplay(self):
+    local1 = SafeGetChild(self, "script.gameplay")
+    return local1
+
+def GetAero(self):
+    local1 = SafeGetChildByScriptName(self, "vpaerodynamics.xpy")
+    return local1
+
+def GetVehicleStats(self):
+    local1 = SafeGetChild(self, "script.vehicle.stats")
+    return local1
+
+def GetPlayerWeaponHandling():
+    local0 = game.GetGameObjectByAlias("script.player.weapon.handling")
+    return local0
+
+def GetSiderBurner(self):
+    local1 = SafeGetChild(self, "script.weapon.sideburner")
+    return local1
+
+def GetHarpoon(self):
+    local1 = SafeGetChild(self, "script.weapon.harpoon")
+    return local1
+
+def GetShotgunTarget(self):
+    local1 = SafeGetChild(self, "script.shotgun_target.base")
+    return local1
+
+def GetDamageTracker(self):
+    local1 = SafeGetChild(self, "script.damagesystem.DamageTracker")
+    return local1
+
+def GetChumbucket():
+    return game.GetGameObjectByAlias("chumbucket")
+
+def GetSignatureVehicleGameplayScript():
+    local0 = SafeGetChild(vehicle.GetSignatureVehicle(), "script.gameplay")
+    return local0
+
+def SafeGetChildByScriptName(self, arg1):
+    if self == none:
+        debug.LogError("lib_entity_proxy", "SafeGetChildByScriptName() called with object=None")
+        return none
+    local2 = game.GetChildByScriptName(self, arg1)
+    if local2 == none:
+        debug.LogError("missing script subobject using", arg1)
+    return local2
+
+def SafeGetChild(self, arg1):
+    if self == none:
+        debug.LogError("lib_entity_proxy", "SafeGetChild() called with object=None")
+        return none
+    local2 = game.GetChild(self, arg1)
+    return local2
+
+def GetBodyHealth(self):
+    local1 = GetBodyWeakspot(self)
+    local1 = game.WeakspotGetHealthScript(local1)
+    return local1
+
+def GetWeakspotList(self):
+    local1 = game.GetChild(self, "Weakspots")
+    return local1
+
+def GetPlayerInput(self):
+    local1 = SafeGetChildByScriptName(self, "veh_player_input.xpy")
+    return local1
+
+def GetFireDamageHandler(self):
+    local1 = SafeGetChildByScriptName(self, "fire_damage_handler.xpy")
+    return local1
+
+def GetWeakspotHuman(self):
+    local1 = game.GetChildWithNameHash(self, @7393B8FF)
+    return local1
+
+def GetTensionDamage(self):
+    local1 = SafeGetChild(self, "script.damagesystem.TensionDamageHandler")
+    return local1
+
+def GetShotgun(self):
+    local1 = SafeGetChild(self, "script.weapon.shotgun")
+    return local1
+
+def GetPlayerData(self):
+    local1 = SafeGetChildByScriptName(self, "veh_player_data.xpy")
+    return local1
+
+def GetShotgunAnimLoader(self):
+    local1 = SafeGetChildByScriptName(self, "veh_shotgun_anim_loader.xpy")
+    return local1
+
+def GetGlobalShotgunTargetList():
+    local0 = game.GetGameObjectByAlias("shotgun_target_list")
+    return local0
+
+def GetRepair(self):
+    local1 = GetBodyHealth(self)
+    local1 = SafeGetChild(local1, "script.damagesystem.StoppedState")
+    return local1
+
+def GetCollision(self):
+    local1 = SafeGetChildByScriptName(self, "collision_damage_handler.xpy")
+    return local1
+
+def GetGrillWeakspot(self):
+    local1 = SafeGetChild(self, "Weakspots")
+    local1 = SafeGetChild(local1, "VehicleWeakspot.Grill")
+    return local1
+
+def GetGlobalHarpoonTargetList():
+    local0 = game.GetGameObjectByAlias("harpoon_target_list")
+    return local0
+
+def GetFlamethrower(self):
+    local1 = SafeGetChild(self, "script.weapon.flamethrower")
+    return local1
+
+def GetHarpoonDataWeapon(self):
+    local1 = none
+    local2 = game.GetChildWithNameHash(self, @F6D5C94A)
+    if local2 != none:
+        local1 = game.GetChildWithNameHash(local2, @C6A1F1FE)
+    return local1
+
+def GetChumGameplay(self):
+    local1 = SafeGetChild(self, "ScriptGameplay")
+    return local1
+
+def GetSniper(self):
+    local1 = SafeGetChild(self, "script.weapon.sniper")
+    return local1
+
+def GetBodyWeakspot(self):
+    local1 = SafeGetChild(self, "Weakspots")
+    local1 = SafeGetChild(local1, "VehicleWeakspot.Body")
+    return local1
+
+def GetBoost(self):
+    local1 = SafeGetChild(self, "script.boost")
+    return local1
+
+def GetHealthId(self):
+    local1 = SafeGetChild(self, "script.damagesystem.HealthId")
+    return local1

@@ -1,0 +1,7 @@
+module char_boarder_set_vehicle_link_target
+import @42D0E955
+
+def Enter(self, arg1):
+    local2 = character.GetVehicle(self)
+    if local2:
+        animation.SetLinkTarget(self, local2)

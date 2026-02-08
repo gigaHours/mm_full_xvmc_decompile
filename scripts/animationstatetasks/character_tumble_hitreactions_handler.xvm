@@ -1,0 +1,39 @@
+module character_tumble_hitreactions_handler
+
+def Enter(self, arg1):
+    local2 = game.GetTransform(self)
+    local3 = local2.r2
+    local4 = local2.r0
+    local5 = character.GetCharacterCollisionInfoCount(self)
+    local6 = character.GetLatestSpellInfo(self)
+    local7 = character.GetLatestExplosionDataCount(self)
+    local8 = character.GetMeasuredWorldVelocity(self)
+    if local6.IsCurrent > 0.0:
+        local9 = local6
+        local8 = local9.CollidedObjectVelocity
+    elif local5 > 0.0:
+        local9 = character.GetCharacterCollisionInfo(self, 0.0)
+        local8 = local9.CollidedObjectVelocity
+    elif local7 > 0.0:
+        local9 = character.GetLatestExplosionData(self)
+        local8 = local9.Direction
+    if vector.Length(local8) == 0.0:
+        local8 = character.GetMeasuredWorldVelocity(self)
+    local10 = vector.Normalize(local8)
+    local10.y = 0.0
+    local11 = vector.Dot(local4, local10)
+    if local11 >= 0.0:
+        animation.SetModifier(self, @E063F6A0, @A4E03846, true)
+    else:
+        animation.SetModifier(self, @E063F6A0, @89E89D03, true)
+        local10 = vector.Scale(local10, -1.0)
+    local12 = vector.Cross(local10, vector.Set(0.0, 1.0, 0.0, 1.0))
+    local13 = matrix.Matrix(local12, vector.Set(0.0, 1.0, 0.0, 1.0), local2.r3)
+    if local13.r1.y >= 0.9:
+        game.SetTransform(self, local13)
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    pass

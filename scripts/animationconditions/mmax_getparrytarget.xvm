@@ -1,0 +1,56 @@
+module mmax_getparrytarget
+
+def Evaluate(self, arg1):
+    local2 = animation.GetLinkSourceCount(self)
+    local3 = none
+    local4 = 0.0
+    local5 = arg1.Property0 > 0.0
+    while local2 > 0.0:
+        local2 = local2 - 1.0
+        local6 = animation.GetLinkSource(self, local2)
+        if local6:
+            local7 = character.GetWorldMatrix(local6)
+            if arg1.Property5 > 0.0:
+                local8 = @BBAD2427
+            else:
+                local8 = @18D2BD90
+            if animation.IsWithinSegment(local6, @E063F6A0, local8):
+                local9 = animation.GetSegmentInfo(local6, @E063F6A0, local8)
+            else:
+                local9 = false
+            if local9:
+                local10 = 1.0 - local9.LocalTime
+                local11 = local9.End - local9.Start
+                local12 = local10 * local11
+                if local4 > 0.0:
+                    if local4 > local12:
+                        local3 = local6
+                        local4 = local12
+                else:
+                    local3 = local6
+                    local4 = local12
+    if local3:
+        local13 = character.GetWorldMatrix(local3).r3
+        local14 = character.GetWorldMatrix(character.GetPlayer()).r3
+        if math.Abs(local13.y - local14.y) > 0.4:
+            return 0.0
+        if arg1.Property2 != animation.GetStateBit(local3, 2.0):
+            return 0.0
+        local15 = character.GetWorldMatrix(self)
+        local16 = character.GetWorldMatrix(local3)
+        local17 = vector.Distance(local16.r3, local16.r3)
+        if local17 > arg1.Property1:
+            return 0.0
+        local18 = vector.Normalize(vector.Sub(local16.r3, local15.r3))
+        local19 = vector.Dot(local18, local16.r2)
+        if (not local19 >= arg1.Property3) and arg1.Property4 >= local19:
+            return 0.0
+        local20 = animation.GetLinkTarget(self)
+        if local20:
+            game.QueueAct(local20, "ACT_BREAK")
+        animation.SetLinkTarget(self, local3)
+    if local5:
+        if local3:
+            return 1.0
+        return 0.0
+    return 1.0

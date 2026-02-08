@@ -1,0 +1,58 @@
+module vehiclemanager
+
+def StartCombo(self):
+    pass
+
+def StartComboTarget(self, arg1):
+    pass
+
+def GetComboTargetProgress(self, arg1):
+    pass
+
+def SendVehicleWeakspotDestroyedEvent(self, arg1, arg2, arg3, arg4):
+    pass
+
+def SendVehicleDefeatedEvent(self, arg1, arg2, arg3):
+    pass
+
+def Estimate(self, arg1):
+    pass
+
+def GetPlayerEnvironmentDamageScale():
+    pass
+
+def GetCallSignatureSettings():
+    pass
+
+def IsComboActive(self):
+    pass
+
+def GetComboProgress(self):
+    pass
+
+def ProgressCombo(self):
+    pass
+
+def AddEstimateFunction(self, arg1):
+    pass
+
+def SendShakeOffBoarderEvent(self, arg1):
+    pass
+
+def GetAllVehicles():
+    pass
+
+def SendGrindingEndendEvent(self, arg1):
+    pass
+
+def SendVehicleCruiseSpeedEvent(self, arg1, arg2, arg3):
+    pass
+
+def SetPlayerEnvironmentDamageScale(self):
+    pass
+
+def ProgressComboTarget(self, arg1):
+    pass
+
+def SetStatAnalyzerScriptGameObject(self):
+    pass

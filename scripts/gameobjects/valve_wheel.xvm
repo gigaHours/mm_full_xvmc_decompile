@@ -1,0 +1,49 @@
+module valve_wheel
+
+def Init(self):
+    pass
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    if animation.IsWithinSegment(self, @E063F6A0, @C31FAEE3):
+        local4 = character.GetPlayer()
+        local5 = animation.GetBoneWorldMatrixById(local4, "AttachHandRight")
+        local6 = animation.GetPoseTransformById(self, "Reference")
+        local7 = matrix.Mul(local6, local5)
+        game.SetTransform(self, local7)
+
+def StartUpdate(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+    local1 = scriptgo.GetProperties(self)
+    local1.initiated = 1.0
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = character.GetPlayer()
+    if animation.IsWithinSegment(local3, @E063F6A0, @F07C698F):
+        local4 = animation.GetPoseTransformById(local3, "AttachHandRight")
+        local5 = local4.r2
+        local6 = 0.0
+        if not local2.initiated == 1.0:
+            local6 = vector.AngleBetween(local5, local2.previous_rotation)
+        else:
+            debug.LogInfo("BLUBB", [])
+            local2.initiated = 0.0
+        local2.previous_rotation = local5
+        debug.LogInfo("Wheel angle differance: %f", [local6])
+        local7 = matrix.RotationAxisMatrix(vector.Set(1.0, 0.0, 0.0, 0.0), -local6)
+        local8 = matrix.Mul(local7, game.GetTransform(local2.item_to_turn))
+        game.SetTransform(local2.item_to_turn, local8)
+
+def StopUpdate(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "")
+    local1.initiated = 0.0
+
+def OnEnter(self, arg1):
+    if animation.IsWithinSegment(self, @E063F6A0, @B3F087C1):
+        local2 = character.GetPlayer()
+        if local2:
+            local3 = animation.GetBoneWorldMatrixById(local2, "AttachHandRight")
+            local4 = animation.GetPoseTransformById(self, "Reference")
+            local5 = matrix.Mul(local4, local3)
+            game.SetTransform(self, local5)

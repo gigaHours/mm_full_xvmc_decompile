@@ -1,0 +1,76 @@
+module chum_rotate
+import @BAFDB405
+import @42D0E955
+
+def Enter(self, arg1):
+    local2 = game.GetTransform(character.GetVehicle(self))
+    local3 = game.GetTransform(self)
+    local4 = local2.r1
+    local5 = vector.Scale(local2.r2, -1.0)
+    local6 = vector.Set(character.GetGlobalXvmFloat(self, 4.0), character.GetGlobalXvmFloat(self, 5.0), character.GetGlobalXvmFloat(self, 6.0), 0.0)
+    if 0.0 == arg1.Property0:
+        local7 = local6
+        local8 = local5
+    if 1.0 == arg1.Property0:
+        local7 = local5
+        local8 = lib_character.GetFlattenedCameraDir(local4)
+    elif 2.0 == arg1.Property0:
+        local7 = local6
+        local8 = local6
+    elif 3.0 == arg1.Property0:
+        local7 = local5
+        local9 = lib_character.GetFlattenedCameraDir(local4)
+        local8 = local9
+        local10 = lib_entity_proxy.GetHarpoon(character.GetVehicle(self))
+        if none != local10:
+            local11 = scriptgo.Call(local10, @0C537298)
+            if local11:
+                local12 = vector.Normalize(vector.Sub(local11, local3.r3))
+            else:
+                local12 = local9
+        if 0.0 == arg1.Property1:
+            local8 = local12
+        elif 1.0 == arg1.Property1:
+            local8 = vector.Scale(local12, -1.0)
+        elif 2.0 == arg1.Property1:
+            local8 = vector.Cross(local12, local4)
+        elif 3.0 == arg1.Property1:
+            local8 = vector.Scale(vector.Cross(local12, local4), -1.0)
+    character.SetGlobalXvmFloat(self, 1.0, local7.x)
+    character.SetGlobalXvmFloat(self, 2.0, local7.y)
+    character.SetGlobalXvmFloat(self, 3.0, local7.z)
+    character.SetGlobalXvmFloat(self, 4.0, local8.x)
+    character.SetGlobalXvmFloat(self, 5.0, local8.y)
+    character.SetGlobalXvmFloat(self, 6.0, local8.z)
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = character.GetWorldMatrix(self)
+    local4 = vector.Set(character.GetGlobalXvmFloat(self, 1.0), character.GetGlobalXvmFloat(self, 2.0), character.GetGlobalXvmFloat(self, 3.0), 0.0)
+    local5 = vector.Set(character.GetGlobalXvmFloat(self, 4.0), character.GetGlobalXvmFloat(self, 5.0), character.GetGlobalXvmFloat(self, 6.0), 0.0)
+    local6 = animation.GetSegmentInfo(self, @E063F6A0, @34AAA720)
+    local7 = animation.GetSegmentInfo(self, @E063F6A0, @777E22DB)
+    local8 = animation.GetSegmentInfo(self, @E063F6A0, @FAC60EEB)
+    if local6:
+        if local6.Inside > 0.0:
+            local9 = vector.Normalize(vector.Lerp(local6.LocalTime, local4, local5))
+            character.RotateInstantly(self, local9)
+            if false:
+                debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local9, 3.0)), 0.2, lib_color.BLUE(0.4))
+    if local7:
+        if local7.Inside > 0.0:
+            local9 = vector.Normalize(vector.Lerp(local7.LocalTime, local5, local4))
+            character.RotateInstantly(self, local9)
+            if false:
+                debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local9, 3.0)), 0.2, lib_color.WHITE(0.4))
+    if local8:
+        if local8.Inside > 0.0:
+            character.RotateInstantly(self, local5)
+            if false:
+                debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local5, 3.0)), 0.2, lib_color.ORANGE(0.4))
+    if false:
+        lib_character.DrawCharacter(self)
+        debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local4, 3.0)), 0.1, lib_color.GREEN(0.3))
+        debug.Arrow(local3.r3, vector.Add(local3.r3, vector.Scale(local5, 6.0)), 0.1, lib_color.ORANGE(0.3))

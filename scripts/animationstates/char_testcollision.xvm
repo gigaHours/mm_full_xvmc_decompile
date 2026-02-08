@@ -1,0 +1,7 @@
+module char_testcollision
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetLinkTarget(self)
+    if local4:
+        local5 = character.GetWorldMatrix(local4)
+        debug.Sphere(local5.r3, 1.0, vector.Set(0.0, 1.0, 0.0, 1.0))

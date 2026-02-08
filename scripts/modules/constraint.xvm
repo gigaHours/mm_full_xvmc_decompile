@@ -1,0 +1,61 @@
+module constraint
+
+def GetAppliedImpulse(self):
+    pass
+
+def GetConstraintLength(self):
+    pass
+
+def SetConstraintPivot2ToCenterOfMass(self):
+    pass
+
+def GetConstraintPivot1LS(self):
+    pass
+
+def SetConstraintLength(self, arg1):
+    pass
+
+def SetConstraintPivot1ToCenterOfMass(self):
+    pass
+
+def GetConstrainedObject1(self):
+    pass
+
+def SetConstraintPivot2LS(self, arg1):
+    pass
+
+def IsEnabled(self):
+    pass
+
+def SetConstraintPivot1LS(self, arg1):
+    pass
+
+def DisableCollisionBetweenConstrainedObjects(self):
+    pass
+
+def SetConstrainedObject2(self, arg1):
+    pass
+
+def ConnectConstraint(self):
+    pass
+
+def SetConstraintMaxLength(self, arg1):
+    pass
+
+def GetConstrainedObject2(self):
+    pass
+
+def DebugDraw(self):
+    pass
+
+def EnableCollisionBetweenConstrainedObjects(self):
+    pass
+
+def DisconnectConstraint(self):
+    pass
+
+def SetConstrainedObject1(self, arg1):
+    pass
+
+def GetConstraintPivot2LS(self):
+    pass

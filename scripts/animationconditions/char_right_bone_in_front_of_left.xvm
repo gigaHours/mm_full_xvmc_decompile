@@ -1,0 +1,20 @@
+module char_right_bone_in_front_of_left
+
+def Evaluate(self, arg1):
+    local2 = none
+    local3 = none
+    if 0.0 == arg1.Property0:
+        local2 = "LeftHand"
+        local3 = "RightHand"
+    elif 1.0 == arg1.Property0:
+        local2 = "LeftFoot"
+        local3 = "RightFoot"
+    if local2 and local3:
+        local4 = animation.GetPoseTransformById(self, local2).r3
+        local5 = animation.GetPoseTransformById(self, local3).r3
+        if false:
+            local6 = game.GetTransform(self)
+            debug.Sphere(matrix.MulVec(local6, local4), 0.07, lib_color.WHITE(1.0))
+            debug.Sphere(matrix.MulVec(local6, local5), 0.07, lib_color.RED(1.0))
+        if local4.z > local5.z:
+            return 1.0

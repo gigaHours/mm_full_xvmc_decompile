@@ -1,0 +1,46 @@
+module coordinator
+
+def ScoreAttackers(self, arg1, arg2, arg3):
+    local4 = true
+    local5 = false
+    local6 = len(arg2)
+    local8 = 0.0
+    local9 = 1.0
+    local7 = local6
+    while local7 > local8:
+        1.0 + 100.0 * (GetMaxValue(100.0 - ogccoord.GetDistanceToTarget(self, arg2[local8], local4), 0.0) + GetMaxValue(12.0 - ogccoord.GetTimeSincePickup(self, arg2[local8]), 0.0) + GetMinValue(ogccoord.GetTimeInsideCamera(self, arg2[local8]), 15.0) * (ogccoord.GetPositionOnScreenScore(self, arg2[local8]) / 3.0))[arg3] = local8
+        local8 = local9 + local8
+
+def GetDroppedSlotCooldown(self):
+    local1 = ai.GetAiEntityBlackboardCounter(self, "pressure")
+    local2 = game.GetBlackboardValueFromObject(self, @A411E240)
+    if local2 and local2 == 1.0:
+        game.SetBlackboardValueToObject(self, @A411E240, 0.0)
+        return 0.0
+    if local1:
+        local3 = playerstats.GetPlayerStats()
+        local1 = math.Clamp(local1, local3.MinPressure, local3.MaxPressure)
+        local4 = local3.RealDifficulty
+        local5 = math.Scale(1.0 - local4, 0.0, 1.0, local3.AttackSlotFrequencyAtMaxPressureOnMaxDifficulty, local3.AttackSlotFrequencyAtMaxPressureOnMinDifficulty)
+        local5 = math.Scale(math.Rand(), 0.0, 1.0, local5, local5 + local3.AttackSlotFrequencyRandomAdd)
+        local6 = math.Scale(1.0 - local4, 0.0, 1.0, local3.AttackSlotFrequencyAtMinPressureOnMaxDifficulty, local3.AttackSlotFrequencyAtMinPressureOnMinDifficulty)
+        local7 = game.GetBlackboardValueFromObject(character.GetPlayer(), @0549D1F9)
+        if local7 != none:
+            if local7 > 0.0:
+                local6 = local5 * 0.5
+                local5 = local5 * 0.5
+        return math.Scale(local1, local3.MinPressure, local3.MaxPressure, local6, local5)
+    return 2.0
+
+def GetMinValue(self, arg1):
+    if arg1 > self:
+        return self
+    return arg1
+
+def GetSwitchCooldown(self):
+    return 1.5
+
+def GetMaxValue(self, arg1):
+    if self > arg1:
+        return self
+    return arg1

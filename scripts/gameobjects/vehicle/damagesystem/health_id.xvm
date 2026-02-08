@@ -1,0 +1,5 @@
+module health_id
+
+def GetId(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.healthId

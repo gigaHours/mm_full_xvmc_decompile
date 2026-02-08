@@ -1,0 +1,60 @@
+module mmax_alerted_additive
+
+def GetFullBodySegmentSyncTime(self, arg1, arg2):
+    local3 = animation.GetSegmentInfo(self, @E063F6A0, @4725DF52)
+    if local3:
+        local4 = math.Clamp01(local3.LocalTime)
+        local5 = arg2.Length * arg1.Property2
+        local6 = arg2.Length * local4 + local5
+        if local6 > arg2.Length:
+            local6 = local6 - arg2.Length
+        return local6
+    return arg2.Time
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = character.GetGlobalXvmFloat(self, 20.0) * 0.7
+    if arg1.Property0 > 0.5:
+        if animation.IsWithinSegment(self, @E063F6A0, @8DB6B1A6) or animation.IsWithinSegment(self, @E063F6A0, @3DEDB516):
+            local5 = 1.0
+            if arg1.Property1 > 0.5:
+                local6 = character.GetGlobalXvmFloat(self, 8.0)
+                local7 = character.GetGlobalXvmFloat(self, 9.0)
+            else:
+                local6 = 0.0
+                local7 = 0.0
+            local8 = 1.0 - math.Scale01(math.Clamp(local7, 0.1, 1.0), 0.1, 1.1)
+            local9 = 1.9
+            local10 = 0.4
+            local5 = 1.0 - math.Scale01(math.Abs(local6), local10, local9)
+            local4 = local4 * local5
+            local11 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            local12 = character.GetGlobalXvmFloat(self, 18.0)
+            local13 = [0.0, 0.0, 0.0]
+            if 0.0 > local6:
+                -local6[local13] = 1.0
+                0.0[local13] = 2.0
+            else:
+                0.0[local13] = 1.0
+                local6[local13] = 2.0
+            1.0 - local13[1.0] - local13[2.0][local13] = 0.0
+            local13[0.0] * local8 * local4 * math.Clamp(local12, 0.0, 1.0)[local11] = 0.0
+            local13[1.0] * local8 * local4 * math.Clamp(local12, 0.0, 1.0)[local11] = 1.0
+            local13[2.0] * local8 * local4 * math.Clamp(local12, 0.0, 1.0)[local11] = 2.0
+            local13[0.0] * local8 * local4 * math.Clamp(1.0 - local12, 0.0, 1.0)[local11] = 3.0
+            local13[1.0] * local8 * local4 * math.Clamp(1.0 - local12, 0.0, 1.0)[local11] = 4.0
+            local13[2.0] * local8 * local4 * math.Clamp(1.0 - local12, 0.0, 1.0)[local11] = 5.0
+            local14 = animation.GetSampler(arg3, 0.0)
+            local14.Time = GetFullBodySegmentSyncTime(self, arg1, local14)
+            lib_character.SetWeightAndSynchronizeAnimationTimeAndSpeedBasedOnWeightArray(self, local11, arg3, 1.0)
+        elif animation.IsWithinSegment(self, @E063F6A0, @CE4E5705):
+            local14 = animation.GetSampler(arg3, 0.0)
+            local14.Time = GetFullBodySegmentSyncTime(self, arg1, local14)
+            local14.Weight = local4
+        else:
+            animation.GetSampler(arg3, 0.0).Weight = local4
+    else:
+        animation.GetSampler(arg3, 0.0).Weight = local4
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    if 0.5 > arg1.Property0:
+        animation.GetSampler(arg4, 0.0).Time = animation.GetSampler(arg4, 0.0).Length

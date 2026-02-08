@@ -1,0 +1,52 @@
+module lib_color
+
+def WEAKSPOT_GREY(self):
+    return vector.Set(0.2, 0.2, 0.2, self)
+
+def GREY(self):
+    return vector.Set(0.3, 0.3, 0.3, self)
+
+def BLUE(self):
+    return vector.Set(0.0, 0.0, 1.0, self)
+
+def WHITE(self):
+    return vector.Set(1.0, 1.0, 1.0, self)
+
+def BLACK(self):
+    return vector.Set(0.0, 0.0, 0.0, self)
+
+def MAGENTA(self):
+    return vector.Set(1.0, 0.0, 1.0, self)
+
+def GREEN(self):
+    return vector.Set(0.0, 1.0, 0.0, self)
+
+def ORANGE(self):
+    return vector.Set(229.0 / 255.0, 61.0 / 255.0, 0.0, self)
+
+def DIRTY_ORANGE(self):
+    return vector.Set(100.0 / 255.0, 40.0 / 255.0, 0.0, self)
+
+def LIGHT_BLUE(self):
+    return vector.Set(0.0, 153.0 / 255.0, 204.0 / 255.0, self)
+
+def YELLOW(self):
+    return vector.Set(1.0, 1.0, 0.0, self)
+
+def RANDOM(self):
+    local1 = math.Rand() * 255.0
+    local2 = math.Rand() * 255.0
+    local3 = math.Rand() * 255.0
+    return vector.Set(local1, local2, local3, self)
+
+def CYAN(self):
+    return vector.Set(0.0, 1.0, 1.0, self)
+
+def PURPLE(self):
+    return vector.Set(0.5, 0.1, 0.6, self)
+
+def DARK_GREEN(self):
+    return vector.Set(118.0 / 255.0, 191.0 / 255.0, 44.0 / 255.0, self)
+
+def RED(self):
+    return vector.Set(1.0, 0.0, 0.0, self)

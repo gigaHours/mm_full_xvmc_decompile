@@ -1,0 +1,226 @@
+module global_damage_config
+
+def ConfigureHealthComponent(self, arg1, arg2, arg3, arg4, arg5):
+    scriptgo.Call2(self, @3F98B310, arg3, arg2)
+    scriptgo.Call1(self, @003FB0FF, arg5)
+    scriptgo.Call2(self, @4BC7717D, arg4, true)
+
+def ConfigureDamageSettings(self, arg1, arg2):
+    if arg1 == "SIGNATURE_BASE":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 150.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 22.5, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 15.0, 7.5)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "HIGH_VALUE_VEHICLE":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 100.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 15.0, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 15.0, 7.5)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENEMY_LIGHT":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 50.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 7.5, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 10.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENEMY_HEAVY":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 100.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 15.0, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 20.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "WARCHIEF":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 150.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 22.5, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 30.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "INTERCEPTOR":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 400.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 60.0, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 15.0, 7.5)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENEMY_MEDIUM":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 70.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 10.5, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 14.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENCAMPMENT_BUGGY":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 400.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 60.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "LANDMOVER":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 2000.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 300.0, 15.0)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 400.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "RESOURCE_TRUCK":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 120.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 18.0, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 24.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENEMY_LIGHT_SCROTUS_L1":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 60.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 9.0, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 12.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENEMY_LIGHT_SCROTUS_L2":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 70.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 10.5, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 14.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENEMY_MEDIUM_SCROTUS_L1":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 80.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 12.0, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 16.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    elif arg1 == "ENEMY_MEDIUM_SCROTUS_L2":
+        if arg2 == "COLLISION_DAMAGE":
+            scriptgo.Call2(self, @ECD819C0, 0.0, 1.0)
+        elif arg2 == "BODY":
+            ConfigureHealthComponent(self, arg2, 1.0, 20.0, 90.0, 100.0)
+        elif arg2 == "WHEEL":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 13.5, 15.0)
+        elif arg2 == "DOOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "DOOR_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.125, 20.0, 5.0, 7.5)
+        elif arg2 == "WHEEL_ARMOR":
+            ConfigureHealthComponent(self, arg2, 0.4, 20.0, 18.0, 15.0)
+        else:
+            if not arg2:
+                arg2 = "(None)"
+            debug.LogWarning("No dmg cfg component", arg2)
+    else:
+        if not arg1:
+            arg1 = "(None)"
+        debug.LogWarning("No dmg cfg for", arg1)

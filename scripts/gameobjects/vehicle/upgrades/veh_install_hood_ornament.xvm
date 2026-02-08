@@ -1,0 +1,20 @@
+module veh_install_hood_ornament
+
+def TriggerBack(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.active:
+        relicsystem.InstallHoodOrnament(local1.relic_id, true)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.active = false
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.active = true
+    relicsystem.PickupHoodOrnament(local1.relic_id)
+
+def Trigger(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.active:
+        relicsystem.InstallHoodOrnament(local1.relic_id, false)

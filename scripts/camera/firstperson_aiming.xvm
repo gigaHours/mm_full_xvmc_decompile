@@ -1,0 +1,10 @@
+module firstperson_aiming
+
+def Update(self, arg1):
+    local2 = math.Abs(self.OffsetAzimuth)
+    if self.TranslationWeight >= 1.0 and self.RotationWeight >= 1.0:
+        if local2 > self.Properties.azimuth_threshold:
+            if self.Properties.weapon == 1.0:
+                game.SendEventNone("cam.activate.shotgun.aim")
+            elif self.Properties.weapon == 0.0:
+                game.SendEventNone("cam.activate.harpoon.aim")

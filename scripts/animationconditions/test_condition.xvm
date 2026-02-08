@@ -1,0 +1,7 @@
+module test_condition
+
+def Evaluate(self, arg1):
+    __debugout("Testing return values")
+    local2 = 1234.0
+    __debugout(local2)
+    return local2

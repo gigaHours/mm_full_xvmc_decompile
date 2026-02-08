@@ -1,0 +1,8 @@
+module mmax_jerrycan_idle
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetSampler(arg3, 0.0)
+    local5 = animation.GetSampler(arg3, 1.0)
+    if local5.Time == local5.Length:
+        local5.Time = 0.0

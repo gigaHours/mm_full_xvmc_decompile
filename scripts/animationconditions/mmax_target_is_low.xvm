@@ -1,0 +1,17 @@
+module mmax_target_is_low
+
+def Evaluate(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    if local2:
+        local3 = character.GetWorldMatrix(local2).r3
+        local4 = character.GetWorldMatrix(self).r3
+        local5 = local4.y - local3.y
+        if false:
+            debug.Sphere(local3, 0.1, lib_color.RED(1.0))
+            debug.Sphere(local4, 0.1, lib_color.WHITE(1.0))
+            debug.LogInfo("mmax_target_is_low.xpy: yDif: %f", [local5])
+        if local5 > 0.6:
+            if false:
+                debug.Sphere(local3, 0.5, lib_color.GREEN(0.5))
+            return 1.0
+    return 0.0

@@ -1,0 +1,61 @@
+module scriptgo
+
+def Call4(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def IsScriptGameObject(self):
+    pass
+
+def GetProperties(self):
+    pass
+
+def SendEvent(self, arg1):
+    pass
+
+def LoadGameObjectData(self, arg1):
+    pass
+
+def RegisterEventHandler(self, arg1, arg2):
+    pass
+
+def IsPostSimFunction(self, arg1):
+    pass
+
+def IsRenderFunction(self, arg1):
+    pass
+
+def Call3(self, arg1, arg2, arg3, arg4):
+    pass
+
+def SetPostSimFunction(self, arg1):
+    pass
+
+def Call1(self, arg1, arg2):
+    pass
+
+def PostEvent(self, arg1):
+    pass
+
+def SaveGameObjectData(self, arg1, arg2):
+    pass
+
+def Call(self, arg1):
+    pass
+
+def SetRenderFunction(self, arg1):
+    pass
+
+def PreInit():
+    pass
+
+def SetUpdateFunction(self, arg1):
+    pass
+
+def IsUpdateFunction(self, arg1):
+    pass
+
+def Call2(self, arg1, arg2, arg3):
+    pass
+
+def RegisterEventHandler1f(self, arg1, arg2):
+    pass

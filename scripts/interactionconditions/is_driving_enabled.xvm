@@ -1,0 +1,7 @@
+module is_driving_enabled
+
+def Evaluate(self, arg1):
+    if arg1.car != none:
+        if vehicle.IsDrivingEnabled(arg1.car):
+            return 1.0
+    return 0.0

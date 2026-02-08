@@ -1,0 +1,249 @@
+module veh_upgrade_menu
+
+def ATT_HARPOON():
+    return @1D1460D7
+
+def Mission1030UpgradeSetup(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    garagestate.DebugSetUpgrade(local1, ATT_RAMMING(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_ARMOR(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_BOARDING_DEFENSE(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON_EXPLOSIVE(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_TOP_SPEED(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_BOOST(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_ACCELERATION(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_GRIP(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_SUSPENSION(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_WHEEL_ARMOR(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_BODYWORK(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_DECAL(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HOOD_ORNAMENT(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_REPAIR_SPEED(), 1.0)
+
+def ATT_BODYWORK():
+    return @BC162D2B
+
+def DebugRandomizeUpgrades(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    local2 = [["RAM", math.Ceil(math.Rand() * 6.0) - 1.0], ["ARMOR", math.Ceil(math.Rand() * 6.0) - 1.0], ["BOARDING_DEFENSE", math.Ceil(math.Rand() * 4.0) - 1.0], ["HARPOON", math.Ceil(math.Rand() * 7.0)], ["HARPOON_EXPLOSIVE", math.Ceil(math.Rand() * 5.0) - 1.0], ["TOP SPEED", math.Ceil(math.Rand() * 6.0) - 1.0], ["BOOST", math.Ceil(math.Rand() * 5.0) - 1.0], ["ACCELERATION", math.Ceil(math.Rand() * 12.0) - 1.0], ["GRIP", math.Ceil(math.Rand() * 6.0) - 1.0], ["SUSPENSION", math.Ceil(math.Rand() * 6.0) - 1.0], ["WHEEL_ARMOR", math.Ceil(math.Rand() * 4.0) - 1.0], ["BODYWORK", math.Ceil(math.Rand() * 4.0) - 1.0], ["DECAL", math.Ceil(math.Rand() * 4.0) - 1.0], ["REPAIR_SPEED", math.Ceil(math.Rand() * 3.0) - 1.0]]
+    garagestate.DebugSetUpgrade(local1, ATT_RAMMING(), local2[0.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_ARMOR(), local2[1.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_BOARDING_DEFENSE(), local2[2.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON(), local2[3.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON_EXPLOSIVE(), local2[4.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_TOP_SPEED(), local2[5.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_BOOST(), local2[6.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_ACCELERATION(), local2[7.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_GRIP(), local2[8.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_SUSPENSION(), local2[9.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_WHEEL_ARMOR(), local2[10.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_BODYWORK(), local2[11.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_DECAL(), local2[12.0][1.0])
+    garagestate.DebugSetUpgrade(local1, ATT_REPAIR_SPEED(), local2[13.0][1.0])
+    local3 = scriptgo.GetProperties(self)
+    local3.rands = local2
+    local3.render_random_timer = 8.0
+    scriptgo.SetRenderFunction(self, "RenderRandomUpgrades")
+
+def ITEM_CHASSIS():
+    return @2BF2B0C8
+
+def ATT_GRIP():
+    return @A6A45243
+
+def ATT_ACCELERATION():
+    return "fxQD"
+
+def DebugOpenUpgradeScreenNoTeleport(self):
+    if character.GetVehicle(character.GetPlayer()) == none:
+        game.SendEvent("ply.contextual_idle.enter", "")
+    game.SendEvent("upg.vehicles.unlockallattributes", "")
+    game.SendEvent("gui_event", "quit_to_event")
+    game.SendEvent("gui_event", "fe_change_to_in_game_state")
+    game.SendEvent("gui_event", "gui_debug_show_vehicle_upgrades")
+
+def ATT_REPAIR_SPEED():
+    return @4253804A
+
+def ATT_HARPOON_EXPLOSIVE():
+    return @D38F2D9C
+
+def ITEM_CHUMBUCKET():
+    return @25C4DF08
+
+def ITEM_WHEELS():
+    return @AE400980
+
+def ReducePlayerEnvironmentDamage(self):
+    vehiclemanager.SetPlayerEnvironmentDamageScale(0.25)
+
+def ATT_TOP_SPEED():
+    return @E949E9FA
+
+def DebugOpenUpgradeScreen(self):
+    game.SendEvent("game_teleport_interceptor_to_camera", "")
+    game.SendEvent("upg.vehicles.unlockallattributes", "")
+    game.SendEvent("gui_event", "quit_to_event")
+    game.SendEvent("gui_event", "fe_change_to_in_game_state")
+    game.SendEvent("gui_event", "gui_debug_show_vehicle_upgrades")
+
+def ATT_ARMOR():
+    return @CFB6D1AC
+
+def ITEM_HARPOON():
+    return @DBE3BC14
+
+def ATT_RAMMING():
+    return @ACB56E9B
+
+def ITEM_FLAMETHROWER():
+    return @5CDB83F8
+
+def BeefUpUpgrades(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    garagestate.DebugSetUpgrade(local1, ATT_RAMMING(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_ARMOR(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON(), 3.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON_EXPLOSIVE(), 4.0)
+    garagestate.DebugSetUpgrade(local1, ATT_TOP_SPEED(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_BOOST(), 2.0)
+    garagestate.DebugSetUpgrade(local1, ATT_ACCELERATION(), 2.0)
+    garagestate.DebugSetUpgrade(local1, ATT_GRIP(), 2.0)
+    garagestate.DebugSetUpgrade(local1, ATT_SUSPENSION(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_REPAIR_SPEED(), 2.0)
+
+def RammingLevel1(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    garagestate.DebugSetUpgrade(local1, ATT_RAMMING(), 1.0)
+
+def MenuStart(self):
+    pass
+
+def ATT_BOARDING_DEFENSE():
+    return @A4B3D58F
+
+def ToggleRandomizeRender(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.alwaysShowRandomizeRender = not local1.alwaysShowRandomizeRender
+    if local1.alwaysShowRandomizeRender:
+        local1.render_random_timer = 8.0
+        scriptgo.SetRenderFunction(self, "RenderRandomUpgrades")
+    else:
+        scriptgo.SetRenderFunction(self, "")
+
+def ATT_WHEEL_ARMOR():
+    return @1D8A2421
+
+def PreInit(self):
+    local1 = "menu.vehicle.upgrade.randomize"
+    scriptgo.RegisterEventHandler(self, local1, "DebugRandomizeUpgrades")
+    local2 = gui.GetBlackboard()
+    local2.player_vehicle_speed = 0.0
+    local2.player_milage = 0.0
+    local2.player_vehicle_health = 1.0
+    local2.vehicle_need_to_repair = false
+
+def ATT_BOOST():
+    return @5710BCCA
+
+def RammingLevel4(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    garagestate.DebugSetUpgrade(local1, ATT_RAMMING(), 4.0)
+
+def ATT_DECAL():
+    return @B989D2E1
+
+def ATT_HOOD_ORNAMENT():
+    return @6347A13E
+
+def ITEM_SNIPER_RIFLE():
+    return @E7B5F1A9
+
+def RenderRandomUpgrades(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if not local2.alwaysShowRandomizeRender:
+        local2.render_random_timer = local2.render_random_timer - 1.0 / 30.0 * arg1
+    if local2.render_random_timer > 0.0:
+        local3 = vector.Set(0.085, 0.35, 0.0, 0.0)
+        local4 = 0.025
+        local5 = 0.05
+        local6 = 1.0
+        if 0.75 > local2.render_random_timer:
+            local6 = local2.render_random_timer / 0.75
+        debug.DrawText(local3, "RANDOMIZED UPGRADES", [], lib_color.WHITE(local6))
+        local3.y = local3.y + local4
+        local8 = 0.0
+        local9 = 1.0
+        local7 = len(local2.rands)
+        while local7 > local8:
+            debug.DrawText(local3, "%f", [local2.rands[local8][1.0]], lib_color.ORANGE(local6))
+            local10 = vector.Set(local3.x, local3.y, local3.z, 0.0)
+            local10.x = local10.x + local5
+            debug.DrawText(local10, "%s", [local2.rands[local8][0.0]], lib_color.GREY(local6))
+            local3.y = local3.y + local4
+            local8 = local9 + local8
+        return
+    scriptgo.SetRenderFunction(self, "")
+
+def ITEM_BODYWORK():
+    return @75AFD765
+
+def Reset(self):
+    pass
+
+def JeetTerritoryUpgrades(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    garagestate.DebugSetUpgrade(local1, ATT_RAMMING(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_ARMOR(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON(), 3.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON_EXPLOSIVE(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_TOP_SPEED(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_BOOST(), 2.0)
+    garagestate.DebugSetUpgrade(local1, ATT_ACCELERATION(), 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_GRIP(), 3.0)
+    garagestate.DebugSetUpgrade(local1, ATT_SUSPENSION(), 0.0)
+    garagestate.DebugSetUpgrade(local1, ATT_REPAIR_SPEED(), 1.0)
+
+def ATT_SUSPENSION():
+    return @0E028CCF
+
+def BeefUpUpgradesPlus(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    garagestate.DebugSetUpgrade(local1, ATT_RAMMING(), math.Ceil(math.Rand() * 5.0))
+    garagestate.DebugSetUpgrade(local1, ATT_ARMOR(), math.Ceil(math.Rand() * 5.0))
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON(), math.Ceil(math.Rand() * 6.0) + 1.0)
+    garagestate.DebugSetUpgrade(local1, ATT_HARPOON_EXPLOSIVE(), math.Ceil(math.Rand() * 5.0))
+    garagestate.DebugSetUpgrade(local1, ATT_TOP_SPEED(), math.Ceil(math.Rand() * 5.0))
+    garagestate.DebugSetUpgrade(local1, ATT_BOOST(), math.Ceil(math.Rand() * 4.0))
+    garagestate.DebugSetUpgrade(local1, ATT_ACCELERATION(), math.Ceil(math.Rand() * 5.0))
+    garagestate.DebugSetUpgrade(local1, ATT_GRIP(), math.Ceil(math.Rand() * 5.0))
+    garagestate.DebugSetUpgrade(local1, ATT_SUSPENSION(), math.Ceil(math.Rand() * 5.0))
+    garagestate.DebugSetUpgrade(local1, ATT_REPAIR_SPEED(), math.Ceil(math.Rand() * 5.0))
+
+def ITEM_ENGINE():
+    return @74D067FD
+
+def RestorePlayerEnvironmentDamage(self):
+    vehiclemanager.SetPlayerEnvironmentDamageScale(1.0)

@@ -1,0 +1,11 @@
+module ch_act_on_veh_velocity
+
+def Update(self, arg1, arg2):
+    local3 = character.GetVehicle(self)
+    if local3:
+        local4 = vector.Length(vehicle.GetVelocity(local3))
+        if arg1.Property0:
+            if local4 > arg1.Property0:
+                game.QueueAct(self, "ACT_VEH_VEL_OVER")
+            if arg1.Property0 > local4:
+                game.QueueAct(self, "ACT_VEH_VEL_UNDER")

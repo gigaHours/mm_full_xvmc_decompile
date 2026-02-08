@@ -1,0 +1,4 @@
+module logbook
+
+def IsMissionCompleted(self):
+    pass

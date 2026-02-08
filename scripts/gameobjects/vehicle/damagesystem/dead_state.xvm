@@ -1,0 +1,123 @@
+module dead_state
+import @B1360AAD
+import @58351C01
+import @DE140614
+import @45098D7D
+
+def CheckSignature(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = graphscript.GetVariables(self)
+    local3.vehicle = local2.car
+    graphscript.FireGraphOutput(arg1, "OnVehicleDeath")
+
+def BurnWheels(self):
+    local1 = vehicle.GetNumWheels(self)
+    if local1 == 2.0:
+        local2 = [0.0, 2.0]
+    elif local1 == 4.0:
+        local2 = [1.0, 2.0]
+    elif local1 > 2.0:
+        local2 = [0.0, local1 - 1.0]
+    else:
+        return
+    local4 = 0.0
+    local5 = 1.0
+    local3 = len(local2)
+    while local3 > local4:
+        local6 = local2[local4]
+        local7 = vehicle.GetWheelPart(self, local6)
+        if not local7.IsDisconnected:
+            local7.Burning = true
+        local4 = local5 + local4
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.deathWithPlayer:
+        game.SetDictionaryFloat(@378BEE96, 0.0)
+
+def Check(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.deathToGraph:
+        local2.deathToGraph = false
+        local3 = graphscript.GetVariables(self)
+        local3.vehicle = local2.car
+        graphscript.FireGraphOutput(arg1, "OnVehicleDeath")
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.car
+    local6 = vehicle.GetProperties(local5)
+    local6.isDeforming = true
+    vehicle.DisableDriving(local5)
+    if not local4.isDead:
+        local4.isDead = true
+        local4.deathWithPlayer = vehicle.IsPlayerVehicle(local5)
+        if local4.despawn_when_dead:
+            scriptgo.PostEvent(self, @FA153114)
+        lib_vehicle.SendVehicleDefeatedEvent(local5, arg2)
+        local7 = vehicle.GetChassis(local5)
+        local7.TurtleEnabled = false
+        if lib_vehicle.ValidateKill(local4.car):
+            scriptgo.PostEvent(self, @322B9FDF)
+        lib_takedown.HandleDetachParts(local5, arg2)
+        scriptgo.SendEvent(self, @8ADABCDF)
+        local4.deathToGraph = true
+        lib_takedown.PerformStandardTakedowns(local5, arg1, arg2)
+        if vehicle.IsPlayerVehicle(local4.car):
+            game.QueueAct(character.GetPlayer(), "ACT_VEHICLE_IN_STOPPED_STATE")
+    local4.isDead = true
+    if local4.despawn_when_dead:
+        scriptgo.SetUpdateFunction(self, "UpdateDespawnTimer")
+
+def RestoreBody(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetPart(local1.car, "vpart_decoration")
+    if local2:
+        local2.Visible = true
+        scriptgo.PostEvent(self, @86C5F0D1)
+    lib_takedown.RestoreNonWeakspotVehicleParts(local1.car)
+
+def HidePimpParts(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetPart(local1.car, "vpart_decoration")
+    if local2:
+        local2.Visible = false
+        scriptgo.PostEvent(self, @110E67E8)
+    if local1.pimp != none:
+        rigidobject.Hide(local1.pimp)
+
+def UpdateDespawnTimer(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.despawn_timer = local2.despawn_timer - arg1
+    if 0.0 > local2.despawn_timer:
+        vehicle.SetShouldDespawn(local2.car)
+        scriptgo.SetUpdateFunction(self, "")
+
+def RepairHealth(self, arg1):
+    if arg1 > 0.9:
+        local2 = scriptgo.GetProperties(self)
+        local2.isDead = false
+        RestoreBody(self)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.isDead = false
+    local1.deathToGraph = false
+    local1.despawn_timer = 3.0
+    local1.deathWithPlayer = false
+
+def OnExplode(self):
+    local1 = scriptgo.GetProperties(self)
+    BurnWheels(local1.car)
+
+def Reset(self, arg1):
+    PreInit(self)
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetPart(local2.car, "vpart_decoration")
+    if local3:
+        local3.Visible = true
+    if local2.pimp != none:
+        rigidobject.Show(local2.pimp)
+    vehicle.EnableDriving(local2.car)
+    local4 = gui.GetBlackboard()
+    local4.car_in_repair_state = false

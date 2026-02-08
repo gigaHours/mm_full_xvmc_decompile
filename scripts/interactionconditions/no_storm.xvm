@@ -1,0 +1,5 @@
+module no_storm
+
+def Evaluate(self, arg1):
+    interaction.SetNamedFailEntry(self, "entry.vantage_point_storm_ongoing")
+    return 0.0

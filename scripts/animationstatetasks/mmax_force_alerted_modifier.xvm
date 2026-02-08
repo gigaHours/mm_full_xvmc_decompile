@@ -1,0 +1,5 @@
+module mmax_force_alerted_modifier
+
+def Enter(self, arg1):
+    if arg1.Property0 > 0.0:
+        animation.SetModifier(self, @3DCDF149, @428FF9D5, true)

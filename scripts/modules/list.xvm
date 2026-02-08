@@ -1,0 +1,7 @@
+module list
+
+def MakeList(self, arg1):
+    pass
+
+def SortList(self, arg1):
+    pass

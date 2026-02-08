@@ -1,0 +1,541 @@
+module vehicle
+
+def EnableDriving(self):
+    pass
+
+def GetSlideSpeed(self):
+    pass
+
+def SetCurrentSignatureVehicle(self, arg1):
+    pass
+
+def SAEToAbsVector(self):
+    pass
+
+def GetHingedPartByIndex(self, arg1):
+    pass
+
+def GetProperties(self):
+    pass
+
+def VehiclePartReattach(self):
+    pass
+
+def ChangeStatBuffValue(self, arg1):
+    pass
+
+def SetCarCombatPointPreferenceModifier(self, arg1, arg2):
+    pass
+
+def GetArchetypeCanBeInstalled(self):
+    pass
+
+def SetPart(self, arg1, arg2):
+    pass
+
+def SetAnimatedWheels(self, arg1):
+    pass
+
+def SetCollisionEffectScale(self, arg1):
+    pass
+
+def IsVehicle(self):
+    pass
+
+def StopEngine(self):
+    pass
+
+def GetCameraOffsetDistance(self):
+    pass
+
+def SetPreviewLevel(self, arg1, arg2, arg3):
+    pass
+
+def IsInvulnerable(self):
+    pass
+
+def SetAnimCmdDeltaFrame(self, arg1):
+    pass
+
+def GetVehiclePartByIndex(self, arg1):
+    pass
+
+def SetSoundRPMScale(self, arg1):
+    pass
+
+def GetNbCarCombatEnemies(self):
+    pass
+
+def GetAcceleration(self):
+    pass
+
+def GetWheelRenderTransform(self, arg1, arg2):
+    pass
+
+def SetShouldDespawn(self):
+    pass
+
+def GetPartByShapeKey(self, arg1):
+    pass
+
+def GetHitInfo(self):
+    pass
+
+def IsBoostEnabled(self):
+    pass
+
+def SetPartLevel(self, arg1, arg2, arg3):
+    pass
+
+def GetCarCombatForwardDirection(self):
+    pass
+
+def GetAngularVelocity(self):
+    pass
+
+def GetSideRamAttackEnabled(self):
+    pass
+
+def ClearAllTireParameters(self):
+    pass
+
+def GetWheelTransform(self, arg1):
+    pass
+
+def UpdateInfiniteGear(self):
+    pass
+
+def GetHealth(self):
+    pass
+
+def RemoveUpgradeCallback(self, arg1):
+    pass
+
+def SetAnimCmdInAirMotion(self, arg1):
+    pass
+
+def GetGameObjectVehicleIdentifier(self):
+    pass
+
+def AddUpgradeCallback(self, arg1):
+    pass
+
+def SetOpacity(self, arg1):
+    pass
+
+def SetReverseInput(self, arg1):
+    pass
+
+def SetAnimCmdAdditiveVelocity(self, arg1):
+    pass
+
+def GetLastExplosionDamageType(self):
+    pass
+
+def IsLockedForPlayer(self):
+    pass
+
+def Destroy(self):
+    pass
+
+def GetSelfNormal(self):
+    pass
+
+def VectorToAbsSAE(self):
+    pass
+
+def GetMass(self):
+    pass
+
+def SetAnimCmdAlignForward(self, arg1, arg2):
+    pass
+
+def SetBoostTorque(self, arg1):
+    pass
+
+def SAEToVector(self):
+    pass
+
+def SetHealth(self, arg1):
+    pass
+
+def GetGameObject(self):
+    pass
+
+def IsBike(self):
+    pass
+
+def ConsumeFuel(self, arg1):
+    pass
+
+def SetAnimCmdWeights(self, arg1, arg2):
+    pass
+
+def GetLocalAngularVelocity(self):
+    pass
+
+def GetChassis(self):
+    pass
+
+def GetGlobalProperties():
+    pass
+
+def GetWheelContactRatio(self):
+    pass
+
+def GetVelocity(self):
+    pass
+
+def GetPart(self, arg1):
+    pass
+
+def GetQuickRefuelCost(self):
+    pass
+
+def SetEngineTorqueScale(self, arg1):
+    pass
+
+def SetMass(self, arg1):
+    pass
+
+def GetLastExplosionDamageFaction(self):
+    pass
+
+def DisableDriving(self):
+    pass
+
+def GenerateEngineTorque(self, arg1):
+    pass
+
+def GetQuickRepairCost(self):
+    pass
+
+def GetCollisionEffectScale(self):
+    pass
+
+def GetDeformValue(self, arg1):
+    pass
+
+def GetHingedPart(self, arg1):
+    pass
+
+def GetSteeringInput(self):
+    pass
+
+def GetDeformValueFront(self):
+    pass
+
+def GetAnimCmdAdditiveVelocity(self):
+    pass
+
+def IsDrivingEnabled(self):
+    pass
+
+def SetAcceleratorInput(self, arg1):
+    pass
+
+def GetCarCombatEnemy(self, arg1):
+    pass
+
+def GetSoundRPMScale(self):
+    pass
+
+def IsPlayerVehicle(self):
+    pass
+
+def GetCarCombatTarget(self):
+    pass
+
+def GetPosition(self):
+    pass
+
+def GetNrArchetypes():
+    pass
+
+def IsEngineRunning(self):
+    pass
+
+def UnregisterWeapon(self, arg1):
+    pass
+
+def GetCarCombatTransform(self):
+    pass
+
+def GetWheelPart(self, arg1):
+    pass
+
+def GetSignatureVehicleCompanion():
+    pass
+
+def SetBoost(self, arg1):
+    pass
+
+def SetSteeringInput(self, arg1):
+    pass
+
+def IsHitRolling(self):
+    pass
+
+def BreakWheel(self, arg1, arg2):
+    pass
+
+def GetCombinedFriction(self):
+    pass
+
+def IsHitColliding(self):
+    pass
+
+def GetVehicleFromVehicleCameraContext(self):
+    pass
+
+def SetAngularVelocity(self, arg1):
+    pass
+
+def GetParticipantCCD(self):
+    pass
+
+def SetSideRamAttackEnabled(self, arg1, arg2):
+    pass
+
+def GetTopSpeed(self):
+    pass
+
+def IsHitSliding(self):
+    pass
+
+def GetSignatureVehicle():
+    pass
+
+def ClearDecalDamage(self, arg1, arg2):
+    pass
+
+def ApplyMaxDecalDamage(self):
+    pass
+
+def GetNumWheels(self):
+    pass
+
+def SetStat(self, arg1, arg2):
+    pass
+
+def SetHandbrakeInput(self, arg1):
+    pass
+
+def GetHitSelfVelocity(self):
+    pass
+
+def SetVelocity(self, arg1):
+    pass
+
+def GetEngineLoad(self):
+    pass
+
+def GetVehicleContext():
+    pass
+
+def GetLastExplosionHitPosition(self):
+    pass
+
+def ApplyVehicleEngineUpgrade(self):
+    pass
+
+def GetSelfMaterial(self):
+    pass
+
+def GetAcceleratorInput(self):
+    pass
+
+def GetModelIdentifierName(self):
+    pass
+
+def GetVehicleDriver(self):
+    pass
+
+def GetLastExplosionImpulse(self):
+    pass
+
+def SetAttributeLevel(self, arg1, arg2, arg3):
+    pass
+
+def StartBackfireRpm(self):
+    pass
+
+def GetTargetCCD(self):
+    pass
+
+def RegisterWeapon(self, arg1, arg2, arg3, arg4):
+    pass
+
+def GetCenterOfMass(self):
+    pass
+
+def GetSpawnVehicleIdentifier(self):
+    pass
+
+def HingedPartApplyHingeTorque(self, arg1):
+    pass
+
+def GetPreCalcLocalAABBMax(self):
+    pass
+
+def SendVehicleSoundEvent(self, arg1):
+    pass
+
+def ClearVehicleEngineUpgrade(self):
+    pass
+
+def SetVehicleSoundFloatCondition(self, arg1, arg2):
+    pass
+
+def GetDeformValueBack(self):
+    pass
+
+def StartEngine(self):
+    pass
+
+def ApplyDecalDamage(self, arg1, arg2, arg3):
+    pass
+
+def SetVehicleSoundBoolCondition(self, arg1, arg2):
+    pass
+
+def GetAttributeLevel(self, arg1):
+    pass
+
+def GetBoostTorque(self):
+    pass
+
+def GetOtherMaterial(self):
+    pass
+
+def GetReverseInput(self):
+    pass
+
+def GetTweakVariables():
+    pass
+
+def GetHandbrakeInput(self):
+    pass
+
+def SetAnimCmdSnapToGround(self, arg1):
+    pass
+
+def GetMaterialFromGroundBelow(self):
+    pass
+
+def VectorToSAE(self):
+    pass
+
+def GetMaxDeformValue(self):
+    pass
+
+def StartAnimCmd(self):
+    pass
+
+def SetEngineResistanceScale(self, arg1):
+    pass
+
+def IsAIVehicle(self):
+    pass
+
+def GetFilteredNormalizedRPM(self):
+    pass
+
+def GetOtherNormal(self):
+    pass
+
+def GetNumberOfHingedParts(self):
+    pass
+
+def HingedPartBreak(self, arg1):
+    pass
+
+def GetSignatureVehicleDecalColor():
+    pass
+
+def IsWheelBroken(self, arg1):
+    pass
+
+def GetVehiclePassenger(self):
+    pass
+
+def SetCurrentSignatureVehicleCompanion(self, arg1):
+    pass
+
+def GetFuelAmount(self):
+    pass
+
+def SetMaxTorque(self, arg1):
+    pass
+
+def IsEnemyInAttackMove(self, arg1):
+    pass
+
+def GetEngineResistanceScale(self):
+    pass
+
+def GetLocalVelocity(self):
+    pass
+
+def WeakspotGetPhysicsPart(self):
+    pass
+
+def GetImpulse(self):
+    pass
+
+def ChangeAdditionalEngineTorqueScale(self, arg1):
+    pass
+
+def GetPreCalcLocalAABBMin(self):
+    pass
+
+def EngineRpmToWheelSpeed(self, arg1, arg2, arg3):
+    pass
+
+def GetEngineTorqueScale(self):
+    pass
+
+def EncampmentPopulateAvailableVehicleUnlocks(self, arg1):
+    pass
+
+def SetAnimCmdFrame(self, arg1):
+    pass
+
+def GetMaxTorque(self):
+    pass
+
+def GetWheelContact(self, arg1):
+    pass
+
+def GetCurrentGear(self):
+    pass
+
+def GetSideRamAttackSide(self):
+    pass
+
+def SetRevStartupTime(self, arg1):
+    pass
+
+def SetTopSpeed(self, arg1):
+    pass
+
+def GetRelativePosition(self, arg1):
+    pass
+
+def CalculateIdealRpm(self):
+    pass
+
+def GetHitOtherVelocity(self):
+    pass
+
+def GetNumberOfVehicleParts(self):
+    pass
+
+def GetNbVehicleEnemies(self, arg1):
+    pass
+
+def GetNumVehiclesFleeing(self):
+    pass
+
+def IsSignatureVehicle(self):
+    pass

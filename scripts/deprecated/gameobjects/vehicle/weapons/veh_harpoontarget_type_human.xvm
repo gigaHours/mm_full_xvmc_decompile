@@ -1,0 +1,59 @@
+module veh_harpoontarget_type_human
+import @42D0E955
+import @358206F4
+
+def ForceShootCam(self):
+    return true
+
+def ExitHooked(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = scriptgo.GetProperties(local1.weakspot)
+    local2.elastic_constraint = none
+    local3 = local1.human
+    game.QueueAct(local3, "ACT_HARPOON_DISCONNECT")
+    local4 = local1.effect_detach
+    if scriptgo.Call(local1.healthComp, @4CFED023):
+        local4 = local1.effect_detach_break
+    if local4:
+        effect.EffectPlayAttached(local3, game.GetTransform(local3), local4)
+
+def GetAutoTargetPrio(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.autoTargetPrio:
+        return local1.autoTargetPrio
+    return 0.0
+
+def EnterHooked(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.human
+    game.QueueAct(local2, "ACT_HARPOON_HIT")
+    local3 = scriptgo.GetProperties(local1.weakspot)
+    local3.elastic_constraint = scriptgo.GetProperties(local1.attached_harpoon_gun).elastic_constraint
+    if local1.effect_attach != none:
+        local4 = scriptgo.Call(local1.weakspot, @0BEAF3A0)
+        effect.EffectPlayAttached(local2, game.GetTransform(local2), local1.effect_attach)
+    if character.GetVehicle(local1.human) != none:
+        scriptgo.Call1(local1.healthComp, @C6EE5209, lib_damage_types.DAMAGE_TENSION())
+
+def Init(self):
+    pass
+
+def RenderDebug(self, arg1):
+    lib_harpoontarget_type.RenderDebug(self, arg1)
+
+def GetAimDotLimit(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = -1.0
+    if none != local1.human:
+        if animation.GetStateBit(local1.human, 21.0) == 1.0:
+            local2 = 0.15
+    return local2
+
+def UpdateHooked(self, arg1):
+    local2 = lib_harpoontarget_type.CheckExitHumanTarget(self)
+    local3 = lib_harpoontarget_type.DamageHumanTarget(self, arg1)
+    if local3:
+        hydra.HydraSendVehicleEvent(6.0)
+    elif local2:
+        hydra.HydraSendVehicleEvent(5.0)
+    return local2 or local3

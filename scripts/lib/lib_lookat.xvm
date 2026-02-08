@@ -1,0 +1,289 @@
+module lib_lookat
+
+def SetSuperSoftBlendSpeeds(self):
+    character.SetLookAtBoneBlendSpeeds(self, "Spine", vector.Set(0.8 * 2.0, 0.6 * 2.0, 1.8 * 0.5, 4.6 * 0.5))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine1", vector.Set(0.8 * 2.0, 0.6 * 2.0, 1.8 * 0.5, 4.6 * 0.5))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine2", vector.Set(0.8 * 2.0, 0.6 * 2.0, 1.8 * 0.5, 4.6 * 0.5))
+    character.SetLookAtBoneBlendSpeeds(self, "Neck", vector.Set(0.9 * 2.0, 0.4 * 2.0, 0.9 * 0.5, 4.4 * 0.5))
+    character.SetLookAtBoneBlendSpeeds(self, "Head", vector.Set(1.0 * 2.0, 0.25 * 2.0, 1.0 * 0.5, 4.75 * 0.5))
+    if false:
+        PrintAndLog("using SetSuperSoftBlendSpeeds!", 5.0)
+
+def SetUseMuchHeadBitOSpine(self):
+    character.SetLookAtValidTargetCosAngle(self, -0.3)
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.1, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.3, 0.03, 0.01, 0.99))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.4, 0.05, 0.05, 0.95))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.36, 0.35, 0.5, 0.5))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.45, 0.48, 0.6, 0.4))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.1, -0.1, 0.01, -0.01))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.1, -0.1, 0.01, -0.01))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.2, -0.2, 0.04, -0.01))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(0.4, -0.4, 0.2, -0.3))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(0.4, -0.4, 0.2, -0.3))
+    if false:
+        PrintAndLog("using SetUseMuchHeadBitOSpine!", 4.0)
+
+def GetLookAtCosValue(self):
+    local1 = vector.Normalize(character.GetLookAtTarget(self))
+    local2 = vector.Set(0.0, 0.0, -1.0, 0.0)
+    return math.Cos(vector.AngleBetween(local1, local2))
+
+def SetUseMuchHeadAndSpine(self):
+    character.SetLookAtValidTargetCosAngle(self, -0.3)
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.1, 0.02, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.3, 0.05, 0.01, 0.99))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.3, 0.15, 0.1, 0.9))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.36, 0.25, 0.25, 0.75))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.45, 0.48, 0.6, 0.4))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.1, -0.1, 0.01, -0.01))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.2, -0.2, 0.05, -0.02))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.3, -0.3, 0.1, -0.05))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(0.4, -0.4, 0.2, -0.3))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(0.4, -0.4, 0.2, -0.3))
+    if false:
+        PrintAndLog("using SetUseMuchHeadBitOSpine!", 4.0)
+
+def HasClearLosToTarget(self):
+    if game.IsObjectEqualTo(character.GetPlayer(), self):
+        local1 = game.GetChild(self, "raycaster_seethrough")
+        if local1:
+            local2 = game.GetTransform(self)
+            local3 = character.GetLookAtTarget(self)
+            local4 = matrix.MulVec(local2, local3)
+            local5 = vector.Add(local2.r3, vector.Set(0.0, 1.5, 0.0, 0.0))
+            local6 = vector.Distance(local5, local4)
+            if 0.33 * 2.05 > local6:
+                return true
+            local7 = 0.33 / local6
+            local8 = vector.Lerp(local7, local5, local4)
+            local9 = vector.Lerp(local7, local4, local5)
+            return not lib_character.CastRays(local1, [[local8, local9]], lib_character.CharacterFilterHit, false)
+    else:
+        return true
+    return false
+
+def SetUseBalancedHeadAndSpine(self):
+    character.SetLookAtValidTargetCosAngle(self, -0.7)
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.5, 0.0, 0.2, 0.1))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.7, 0.2, 0.7, 0.4))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.9, 0.4, 1.0, 0.1))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(1.0, -1.7, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(1.0, -1.7, 0.3, -0.3))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(1.0, -1.7, 0.4, -0.4))
+    if false:
+        PrintAndLog("using SetUseBalancedHeadAndSpine!", 4.0)
+
+def SetUseDog(self):
+    character.SetLookAtValidTargetCosAngle(self, -1.0)
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.5, 0.6, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.7, 0.85, 0.0, 1.0))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(1.0, -1.0, 0.4, 0.4))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(1.0, -1.0, 1.1, -0.7))
+    if false:
+        PrintAndLog("using SetUseDog!", 4.0)
+
+def SetHardBlendSpeeds(self):
+    character.SetLookAtBoneBlendSpeeds(self, "Spine", vector.Set(0.8 * 10.0, 0.6 * 10.0, 1.8 * 5.0, 4.6 * 5.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine1", vector.Set(0.8 * 10.0, 0.6 * 10.0, 1.8 * 5.0, 4.6 * 5.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine2", vector.Set(0.8 * 10.0, 0.6 * 10.0, 1.8 * 5.0, 4.6 * 5.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Neck", vector.Set(0.9 * 10.0, 0.4 * 10.0, 0.9 * 5.0, 4.4 * 5.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Head", vector.Set(1.0 * 10.0, 0.25 * 10.0, 1.0 * 5.0, 4.75 * 5.0))
+    if false:
+        PrintAndLog("using SetHardBlendSpeeds!", 5.0)
+
+def BB_BLOCK_KEY():
+    return @BAD4812A
+
+def SetUseNone(self):
+    if character.IsCharacter(self):
+        character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.0, 0.0, 0.0, 1.0))
+        character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 1.0))
+        character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 1.0))
+        character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.0, 0.0, 0.0, 1.0))
+        character.SetLookAtBoneWeights(self, "Head", vector.Set(0.0, 0.0, 0.0, 1.0))
+        character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.0, 0.0, 0.0, 0.0))
+        character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 0.0))
+        character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 0.0))
+        character.SetLookAtBoneLimits(self, "Neck", vector.Set(0.0, 0.0, 0.0, 0.0))
+        character.SetLookAtBoneLimits(self, "Head", vector.Set(0.0, 0.0, 0.0, 0.0))
+
+def SetUseOnlyHead(self):
+    character.SetLookAtValidTargetCosAngle(self, 0.0)
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.5, 0.6, 0.5, 0.5))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.7, 0.85, 0.8, 0.2))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(0.6, -0.6, 0.4, 0.4))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(1.0, -1.0, 1.1, -0.7))
+    if false:
+        debug.PrintValue(1.0, "using SetUseOnlyHead!", 4.0)
+
+def SetSnapSpeeds(self):
+    if character.IsCharacter(self):
+        character.SetLookAtBoneBlendSpeeds(self, "Spine", vector.Set(10000.0, 10000.0, 10000.0, 10000.0))
+        character.SetLookAtBoneBlendSpeeds(self, "Spine1", vector.Set(10000.0, 10000.0, 10000.0, 10000.0))
+        character.SetLookAtBoneBlendSpeeds(self, "Spine2", vector.Set(10000.0, 10000.0, 10000.0, 10000.0))
+        character.SetLookAtBoneBlendSpeeds(self, "Neck", vector.Set(10000.0, 10000.0, 10000.0, 10000.0))
+        character.SetLookAtBoneBlendSpeeds(self, "Head", vector.Set(10000.0, 10000.0, 10000.0, 10000.0))
+
+def SetUseCombatHead(self):
+    character.SetLookAtValidTargetCosAngle(self, -0.95)
+    if animation.IsWithinSegment(self, @E063F6A0, @8874AABE):
+        local1 = 0.25
+        local2 = 1.8
+        local3 = 1.0
+    else:
+        local1 = 1.8
+        local2 = 0.25
+        local3 = 0.0
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.0, 0.4, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.0, 0.4, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.0, 0.4, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.76, 0.26, 0.25, 0.4))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.75, 0.4, 0.2, 0.3))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(local1 * 0.7, local2 * -0.7, 0.4, -0.4))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(local1 * 1.0, local2 * -1.0, 0.5, -0.5))
+    if false:
+        if local3 == 1.0:
+            PrintAndLog("using SetUseCombatHead! (max) left hand fwd .", 7.0)
+        else:
+            PrintAndLog("using SetUseCombatHead! (max) right hand fwd .", 7.0)
+
+def SetSoftBlendSpeeds(self):
+    character.SetLookAtBoneBlendSpeeds(self, "Spine", vector.Set(0.8 * 3.2, 0.6 * 3.2, 1.8 * 1.8, 4.6 * 1.8))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine1", vector.Set(0.8 * 3.2, 0.6 * 3.2, 1.8 * 1.8, 4.6 * 1.8))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine2", vector.Set(0.8 * 3.2, 0.6 * 3.2, 1.8 * 1.8, 4.6 * 1.8))
+    character.SetLookAtBoneBlendSpeeds(self, "Neck", vector.Set(0.9 * 3.2, 0.4 * 3.2, 0.9 * 1.8, 4.4 * 1.8))
+    character.SetLookAtBoneBlendSpeeds(self, "Head", vector.Set(1.0 * 3.2, 0.25 * 3.2, 1.0 * 1.8, 4.75 * 1.8))
+    if false:
+        PrintAndLog("using SetSoftBlendSpeeds!", 5.0)
+
+def SetClosestNpcAsTarget(self, arg1, arg2):
+    local3 = -0.2
+    local4 = character.GetMovementTargetingList(self, arg1, arg2, local3)
+    if local4.Count > 0.0:
+        local5 = character.GetMovementTarget(local4, 0.0)
+        if local5:
+            local6 = animation.GetPoseTransformById(local5, "Head")
+            local7 = game.GetTransform(local5)
+            local8 = matrix.Mul(local6, local7)
+            local9 = local8.r3
+            local10 = game.GetTransform(self)
+            local11 = matrix.Inverse(local10)
+            local12 = matrix.MulVec(local11, local9)
+            character.SetLookAtTarget(self, local12)
+            if vector.Length(local12) > arg1 and arg2 > vector.Length(local12):
+                if lib_lookat.LookAtIsAccepted(self):
+                    local13 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)
+                    return local13
+    return false
+
+def SetSittingOrLayingDown(self):
+    character.SetLookAtValidTargetCosAngle(self, 0.0)
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.25, 0.3, 0.25, 0.25))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.35, 0.4, 0.4, 0.1))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.0, 0.0, 0.0, 0.0))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(0.6, -0.6, 0.4, 0.4))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(1.0, -1.0, 1.1, -0.7))
+    if false:
+        debug.PrintValue(1.0, "using SetSittingOrLayingDown!", 4.0)
+
+def SetSoftInMediumOutBlendSpeeds(self):
+    character.SetLookAtBoneBlendSpeeds(self, "Spine", vector.Set(0.8 * 3.2, 0.6 * 3.2, 1.8 * 1.8, 4.6 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine1", vector.Set(0.8 * 3.2, 0.6 * 3.2, 1.8 * 1.8, 4.6 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine2", vector.Set(0.8 * 3.2, 0.6 * 3.2, 1.8 * 1.8, 4.6 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Neck", vector.Set(0.9 * 3.2, 0.4 * 3.2, 0.9 * 1.8, 4.4 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Head", vector.Set(1.0 * 3.2, 0.25 * 3.2, 1.0 * 1.8, 4.75 * 3.0))
+    character.SetLookAtBlendCurve(self, vector.Set(0.0, 0.34, 0.66, 1.0))
+    if false:
+        PrintAndLog("using SetSoftInMediumOutBlendSpeeds!", 5.0)
+
+def PrintAndLog(self, arg1):
+    debug.PrintValue(0.0, self, arg1)
+    debug.LogInfo(self, [])
+
+def DrawLookAtTargetSphere(self, arg1):
+    if false:
+        local2 = character.GetWorldMatrix(self)
+        local3 = character.GetLookAtTarget(self)
+        local4 = matrix.MulVec(local2, local3)
+        if game.IsObjectEqualTo(character.GetPlayer(), self):
+            if arg1:
+                debug.Sphere(local4, 0.08, vector.Set(0.1, 0.5, 0.3, 0.8))
+            else:
+                debug.Sphere(local4, 0.08, vector.Set(1.0, 0.0, 0.0, 0.8))
+        elif arg1:
+            debug.Sphere(local4, 0.08, vector.Set(0.3, 0.0, 0.3, 0.8))
+        else:
+            debug.Sphere(local4, 0.08, vector.Set(1.0, 0.0, 0.2, 0.8))
+
+def SetMediumBlendSpeeds(self):
+    character.SetLookAtBoneBlendSpeeds(self, "Spine", vector.Set(0.8 * 6.0, 0.6 * 6.0, 1.8 * 3.0, 4.6 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine1", vector.Set(0.8 * 6.0, 0.6 * 6.0, 1.8 * 3.0, 4.6 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Spine2", vector.Set(0.8 * 6.0, 0.6 * 6.0, 1.8 * 3.0, 4.6 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Neck", vector.Set(0.9 * 6.0, 0.4 * 6.0, 0.9 * 3.0, 4.4 * 3.0))
+    character.SetLookAtBoneBlendSpeeds(self, "Head", vector.Set(1.0 * 6.0, 0.25 * 6.0, 1.0 * 3.0, 4.75 * 3.0))
+    if false:
+        PrintAndLog("using SetMediumBlendSpeeds!", 5.0)
+
+def ActivateLookAtIfWithinValidAngle(self):
+    if GetLookAtCosValue(self) > character.GetLookAtValidTargetCosAngle(self):
+        local1 = HasClearLosToTarget(self)
+        DrawLookAtTargetSphere(self, local1)
+        if false:
+            if game.IsObjectEqualTo(character.GetPlayer(), self):
+                debug.PrintValue(1.0, "LookAt active for Max", 8.0)
+            else:
+                debug.PrintValue(1.0, "LookAt active for npc(s)", 9.0)
+        if local1:
+            character.SetLookAtGain(self, 1.0)
+            return true
+    return false
+
+def SetUseMostlyHead(self):
+    character.SetLookAtValidTargetCosAngle(self, -0.1)
+    character.SetLookAtBoneWeights(self, "Spine", vector.Set(0.01, 0.0, 0.0, 1.0))
+    character.SetLookAtBoneWeights(self, "Spine1", vector.Set(0.01, 0.01, 0.1, 0.9))
+    character.SetLookAtBoneWeights(self, "Spine2", vector.Set(0.03, 0.02, 0.2, 0.75))
+    character.SetLookAtBoneWeights(self, "Neck", vector.Set(0.46, 0.36, 0.25, 0.4))
+    character.SetLookAtBoneWeights(self, "Head", vector.Set(0.65, 0.5, 0.3, 0.4))
+    character.SetLookAtBoneLimits(self, "Spine", vector.Set(0.1, -0.1, 0.01, -0.01))
+    character.SetLookAtBoneLimits(self, "Spine1", vector.Set(0.1, -0.1, 0.01, -0.01))
+    character.SetLookAtBoneLimits(self, "Spine2", vector.Set(0.2, -0.2, 0.05, -0.01))
+    character.SetLookAtBoneLimits(self, "Neck", vector.Set(0.3, -0.3, 0.4, -0.4))
+    character.SetLookAtBoneLimits(self, "Head", vector.Set(0.4, -0.4, 0.5, -0.5))
+    if false:
+        PrintAndLog("using SetUseMostlyHead xax!", 4.0)
+
+def LookAtIsAccepted(self):
+    local1 = game.GetBlackboardValueFromObject(self, BB_BLOCK_KEY())
+    local2 = lib_character.SegmentNonExistentOrWithin(self, @E063F6A0, @10FF8C9D)
+    local3 = animation.IsWithinSegment(self, @E063F6A0, @301D630B)
+    if (not local3) and animation.HasLayer(self, @6217CCDD):
+        local3 = animation.IsWithinSegment(self, @6217CCDD, @301D630B)
+    if (not local1) and (not local3) and local2:
+        return true
+    return false

@@ -1,0 +1,4 @@
+module gamedirector
+
+def GetAiGameStateHashInRangeCount(self, arg1, arg2):
+    pass

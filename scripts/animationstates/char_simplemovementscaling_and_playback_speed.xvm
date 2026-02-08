@@ -1,0 +1,40 @@
+module char_simplemovementscaling_and_playback_speed
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = false
+    character.UpdateDeltaReferenceFrame(self, arg2)
+    local5 = 1.0
+    local6 = 0.0
+    if arg1.Property0 and arg1.Property0 > 0.0:
+        if animation.IsWithinSegment(self, @E063F6A0, @95B1542F):
+            local5 = arg1.Property0
+            local6 = 1.0
+    if arg1.Property1 and arg1.Property1 > 0.0:
+        if animation.IsWithinSegment(self, @E063F6A0, @2F1EE967):
+            local5 = arg1.Property1
+            local6 = 1.0
+    if arg1.Property2 and arg1.Property2 > 0.0:
+        if animation.IsWithinSegment(self, @E063F6A0, @62FB97E0):
+            local5 = arg1.Property2
+            local6 = 1.0
+    if local6 > 0.0:
+        local7 = vector.Scale(character.GetAnimationVelocityLS(self), local5)
+        character.SetAnimationVelocityLS(self, arg2, local7)
+    local8 = 1.0
+    local9 = 0.0
+    if arg1.Property3 and arg1.Property3 > 0.0:
+        if animation.IsWithinSegment(self, @E063F6A0, @627D0E89):
+            local8 = arg1.Property3
+            local9 = 1.0
+    if arg1.Property4 and arg1.Property4 > 0.0:
+        if animation.IsWithinSegment(self, @E063F6A0, @FEED6420):
+            local8 = arg1.Property4
+            local9 = 1.0
+    if arg1.Property5 and arg1.Property5 > 0.0:
+        if animation.IsWithinSegment(self, @E063F6A0, @23E12EB7):
+            local8 = arg1.Property5
+            local9 = 1.0
+    animation.GetSampler(arg3, 0.0).Speed = local8
+    if local4 and local9:
+        local10 = vector.Set(0.05, 0.05, 0.0, 0.0)
+        debug.DrawText(local10, "anim_speed: (%f) char_simplemovementscaling_and_playback_speed", [local8], lib_color.WHITE(1.0))

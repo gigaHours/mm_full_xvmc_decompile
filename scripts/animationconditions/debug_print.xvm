@@ -1,0 +1,5 @@
+module debug_print
+
+def Evaluate(self, arg1):
+    debug.LogInfo("Condition %f evaluated", [arg1.Property0])
+    return 1.0

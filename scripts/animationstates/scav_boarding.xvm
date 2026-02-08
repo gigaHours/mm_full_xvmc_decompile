@@ -1,0 +1,7 @@
+module scav_boarding
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = character.GetWorldMatrix(self)
+
+def OnEnter(self, arg1):
+    local2 = character.GetWorldMatrix(self)

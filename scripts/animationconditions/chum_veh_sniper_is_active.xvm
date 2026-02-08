@@ -1,0 +1,11 @@
+module chum_veh_sniper_is_active
+import @58351C01
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    if none != local2:
+        local3 = lib_entity_proxy.GetSniper(local2)
+        if none != local3:
+            if scriptgo.Call(go_harp, @C95079FE):
+                return 1.0
+    return 0.0

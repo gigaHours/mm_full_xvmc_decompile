@@ -1,0 +1,79 @@
+module mmax_timeblend_based_on_slope
+import @F76070AE
+
+def getTimeValue(self, arg1):
+    local2 = vector.Clone(arg1)
+    local2.y = 0.0
+    if vector.Dot(local2, local2) > 0.0:
+        local2 = vector.Normalize(local2)
+        if false:
+            local3 = vector.Add(self.r3, vector.Set(0.0, 0.1, 0.0, 0.0))
+            lib_debugdraw.ArrowDir(local3, local2, 0.2, 3.0, vector.Set(0.1, 0.1, 1.0, 0.5))
+            lib_debugdraw.ArrowDir(local3, arg1, 0.2, 3.0, vector.Set(0.1, 1.0, 0.1, 0.5))
+        local4 = vector.Dot(local2, vector.Scale(self.r2, -1.0))
+        local4 = local4 + 1.0
+        local4 = local4 * 0.5
+        local4 = math.Clamp(local4, 0.0, 1.0)
+        if local4 > 0.995:
+            local4 = 1.0
+        return local4
+    return 1.0
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = game.GetTransform(self)
+    local5 = game.GetBlackboardValueFromObject(self, @91219935)
+    local6 = getTimeValue(local4, local5)
+    animation.GetSampler(arg3, 1.0).Time = local6
+    animation.GetSampler(arg3, 2.0).Time = local6
+    local7 = vector.Set(0.1, 0.1, 0.0, 0.0)
+    local8 = animation.GetSampler(arg3, 0.0).Time
+    local8 = local8 + arg2
+    if local8 >= animation.GetSampler(arg3, 0.0).Length:
+        animation.GetSampler(arg3, 0.0).Time = 0.0
+    local8 = animation.GetSampler(arg3, 3.0).Time
+    local8 = local8 + arg2
+    if local8 >= animation.GetSampler(arg3, 3.0).Length:
+        animation.GetSampler(arg3, 3.0).Time = 0.0
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = game.GetTransform(self)
+    local6 = game.GetBlackboardValueFromObject(self, @91219935)
+    animation.GetSampler(arg4, 0.0).Time = 0.0
+    local7 = getTimeValue(local5, local6)
+    animation.GetSampler(arg4, 1.0).Time = local7
+    animation.GetSampler(arg4, 2.0).Time = local7
+    animation.GetSampler(arg4, 3.0).Time = 0.0
+    animation.GetSampler(arg4, 0.0).Speed = 1.0
+    animation.GetSampler(arg4, 1.0).Speed = 0.0
+    animation.GetSampler(arg4, 2.0).Speed = 0.0
+    animation.GetSampler(arg4, 3.0).Speed = 1.0
+    animation.GetSampler(arg4, 0.0).Weight = 1.0
+    animation.GetSampler(arg4, 3.0).Weight = 1.0
+    local8 = getSideRatio(self)
+    if local8 > 0.0:
+        animation.GetSampler(arg4, 2.0).Weight = 1.0
+        animation.GetSampler(arg4, 1.0).Weight = 0.0
+    elif 0.0 > local8:
+        animation.GetSampler(arg4, 1.0).Weight = 1.0
+        animation.GetSampler(arg4, 2.0).Weight = 0.0
+    else:
+        game.QueueAct(self, "ACT_SLIDE_IS_ALIGNED")
+
+def getSideRatio(self):
+    local1 = game.GetBlackboardValueFromObject(self, @91219935)
+    local2 = local1
+    local2.y = 0.0
+    if vector.Dot(local2, local2) > 0.0:
+        local2 = vector.Normalize(local2)
+        local3 = game.GetTransform(self)
+        local4 = vector.Dot(local2, local3.r0)
+        if false:
+            if local4 > 0.0:
+                debug.LogInfo("max_timeblend_based_on_slope: RIGHT_SIDE_SLIDE (%f)", [local4])
+            else:
+                debug.LogInfo("max_timeblend_based_on_slope: LEFT_SIDE_SLIDE (%f)", [local4])
+        return local4
+    return 0.0
+
+def OnEnter(self, arg1):
+    local2 = 0.0

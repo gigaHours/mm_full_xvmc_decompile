@@ -1,0 +1,262 @@
+module veh_player_input
+import @58351C01
+import @3BDB5A3B
+
+def CheckVehicleRearviewInput(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if input.GetButtonInput(@3B91D694) > 0.0 and input.GetButtonInput(@0C7A5C41) > 0.0:
+        if local3.rearViewEnabled:
+            DisableRearviewCam()
+            local3.rearViewEnabled = false
+    elif (not local3.rearViewEnabled) and input.GetButtonInput(@3B91D694) > 0.0 and 0.0 >= input.GetButtonInput(@0C7A5C41) and (not arg1):
+        EnableRearviewCam()
+        local3.rearViewEnabled = true
+    elif local3.rearViewEnabled and (0.0 >= input.GetButtonInput(@3B91D694) or arg1):
+        DisableRearviewCam()
+        local3.rearViewEnabled = false
+
+def LockPlayerInsideVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.IsPlayerVehicle(local1.car):
+        local2 = vehicle.GetVehicleDriver(local1.car)
+        if game.IsObjectEqualTo(character.GetPlayer(), local2):
+            local1.playerlockedinside = true
+
+def CheckVehicleBrake(self):
+    local1 = scriptgo.GetProperties(self)
+    if input.IsButtonClicked(@452295D8):
+        scriptgo.SendEvent(self, @53F6B19F)
+        local1.VehicleBrakeActivated = true
+    if local1.VehicleBrakeActivated == true:
+        if 0.0 >= input.GetButtonInput(@452295D8):
+            local1.VehicleBrakeActivated = false
+            scriptgo.SendEvent(self, @CCEF643D)
+
+def ReleaseHandbrake(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.forcehandbrake = false
+
+def Unload(self):
+    pass
+
+def CheckVehicleWeaponAlt(self):
+    local1 = scriptgo.GetProperties(self)
+    if input.IsButtonClicked(@5606814E):
+        scriptgo.SendEvent(self, @06BE8811)
+        local1.VehicleWeaponAltActivated = true
+    if local1.VehicleWeaponAltActivated == true:
+        if 0.0 >= input.GetButtonInput(@5606814E):
+            local1.VehicleWeaponAltActivated = false
+            scriptgo.SendEvent(self, @CDFA55D1)
+
+def CheckVehicleWeaponAlt2(self):
+    local1 = scriptgo.GetProperties(self)
+    if input.IsButtonClicked(@7316AC67):
+        scriptgo.SendEvent(self, @A65822B1)
+        local1.VehicleWeaponAlt2Activated = true
+    if local1.VehicleWeaponAlt2Activated == true:
+        if 0.0 >= input.GetButtonInput(@7316AC67):
+            local1.VehicleWeaponAlt2Activated = false
+            scriptgo.SendEvent(self, @CC122550)
+
+def CheckBoost(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = lib_entity_proxy.GetBoost(local2.car)
+    if local3:
+        local4 = gui.GetBlackboard()
+        if local2.boost_enabled:
+            local4.boost_enabled = true
+            if input.IsButtonClicked(@4C3ACCC7):
+                scriptgo.Call(local3, @AF31CC47)
+        else:
+            local4.boost_enabled = false
+
+def DisableRearview(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.rearview_enabled = false
+
+def EnableBoost(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.boost_enabled = true
+
+def OnPlayerEnter(self):
+    StartUpdate(self)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weapon_handling = lib_entity_proxy.GetPlayerWeaponHandling()
+    local1.rearViewEnabled = false
+    local1.playerlockedinside = false
+    local1.sniper_selected = false
+    local1.rearview_enabled = true
+    local1.sniper_button_hold = 0.0
+    local1.VehicleWeaponAltActivated = false
+    local1.VehicleWeaponAlt2Activated = false
+    local1.VehicleBrakeActivated = false
+
+def DisableRearviewCam():
+    game.SendEvent("cam.deactivate.rearview", "")
+
+def UnlockPlayerInsideVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.playerlockedinside:
+        local1.playerlockedinside = false
+
+def CheckPlayerInDriverSeat(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetVehicleDriver(local1.car)
+    if none != local2:
+        return animation.GetStateBit(local2, 10.0) == 1.0
+    return false
+
+def DisableBoost(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.boost_enabled = false
+
+def PlayerIsInAim(self):
+    return input.GetButtonInput(@7C64FD8A) > 0.0
+
+def PlayerIsInSniperMode(self):
+    return 1.0 == animation.GetStateBit(self, 19.0)
+
+def StartUpdate(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def ResetState(self):
+    local1 = scriptgo.GetProperties(self)
+    UnlockPlayerInsideVehicle(self)
+    scriptgo.SetUpdateFunction(self, "")
+    vehicle.SetSteeringInput(local1.car, 0.0)
+    vehicle.SetAcceleratorInput(local1.car, 0.0)
+    vehicle.SetReverseInput(local1.car, 0.0)
+    if local1.sniper_selected:
+        local1.sniper_selected = false
+        local2 = character.GetVehicle(character.GetPlayer())
+        if local2:
+            scriptgo.Call(local1.weapon_handling, @B28FF972)
+
+def ForceHandbrake(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.forcehandbrake = true
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = character.GetPlayer()
+    local4 = vehicle.GetSignatureVehicleCompanion()
+    local5 = vehicle.IsPlayerVehicle(local2.car)
+    local6 = PlayerIsInSniperMode(local3)
+    local7 = animation.IsWithinSegment(local3, @E063F6A0, @35F8EE1A)
+    local8 = character.GetVehicle(local3)
+    local9 = PlayerIsInAim(local3)
+    if local8:
+        local10 = vehicle.IsDrivingEnabled(local8)
+    else:
+        local10 = false
+    if local2.sniper_selected and (not local6):
+        local2.sniper_selected = false
+        if not local8:
+            scriptgo.Call(local2.weapon_handling, @B28FF972)
+        vehicle.SetSteeringInput(local2.car, 0.0)
+        vehicle.SetAcceleratorInput(local2.car, 0.0)
+        vehicle.SetReverseInput(local2.car, 0.0)
+        vehicle.SetHandbrakeInput(local2.car, 1.0)
+    if character.GetFloatRegister(local3, 28.0) > 0.0:
+        return
+    if local5 and (not local6):
+        if not local7:
+            lib_player_input.CheckWeaponInput(self, true, arg1)
+            lib_player_input.CheckWeaponSelection(self, arg1)
+        if local2.rearview_enabled:
+            CheckVehicleRearviewInput(self, local9, arg1)
+        if not local10:
+            return
+        local11 = animation.GetStateBit(character.GetPlayer(), 10.0) == 1.0
+        if local11:
+            CheckBoost(self, arg1)
+        CheckVehicleWeaponAlt(self)
+        CheckVehicleWeaponAlt2(self)
+        CheckVehicleBrake(self)
+        if local2.forcehandbrake:
+            vehicle.SetHandbrakeInput(local2.car, 1.0)
+            vehicle.SetAcceleratorInput(local2.car, 0.0)
+        if not lib_vehicle.SniperStateUnvailable(local3):
+            if input.GetButtonInput(@861088B6) > 0.0:
+                local12 = false
+                if input.IsUsingGamePad():
+                    local2.sniper_button_hold = local2.sniper_button_hold + arg1
+                    if local2.sniper_button_hold > 0.6:
+                        local12 = true
+                else:
+                    local12 = true
+                if local12:
+                    game.QueueAct(local3, "ACT_TOGGLE_CAR_SNIPER")
+                    game.SendEventNone("enter_sniper_gui_button")
+                    local2.sniper_button_hold = 0.0
+            else:
+                local2.sniper_button_hold = 0.0
+        else:
+            local2.sniper_button_hold = 0.0
+    elif local5 and local6:
+        if not local2.sniper_selected:
+            local2.sniper_selected = true
+        lib_player_input.CheckWeaponInput(self, true, arg1)
+        local13 = local4 != none
+        if (not local9) and local10 and local13:
+            local14 = input.GetButtonInput(@06ECE8D4)
+            local15 = input.GetButtonInput(@32FE41AE)
+            local16 = vector.Length(vehicle.GetVelocity(local2.car))
+            local17 = math.Scale(local16, 0.0, 7.0, 1.0, 0.4)
+            local17 = math.Clamp(local17, 0.4, 1.0)
+            if local16 > 10.0:
+                local17 = math.Scale(local16, 10.0, 13.0, 0.4, 0.0)
+            local17 = math.Clamp01(local17)
+            local18 = local14 * local17
+            local19 = local15 * 0.4
+            vehicle.SetAcceleratorInput(local2.car, local18)
+            vehicle.SetReverseInput(local2.car, local19)
+            local20 = input.GetButtonInput(@C556C760) * 0.9
+            local21 = input.GetButtonInput(@461E680F) * 0.9
+            if local21 > 0.0:
+                vehicle.SetSteeringInput(local2.car, local21 * -1.0)
+            elif local20 > 0.0:
+                vehicle.SetSteeringInput(local2.car, local20)
+            else:
+                vehicle.SetSteeringInput(local2.car, 0.0)
+        else:
+            local15 = 0.0
+            local14 = 0.0
+        if local2.forcehandbrake:
+            vehicle.SetHandbrakeInput(local2.car, 1.0)
+            vehicle.SetAcceleratorInput(local2.car, 0.0)
+        elif local14 > 0.0 or local15 > 0.0:
+            vehicle.SetHandbrakeInput(local2.car, 0.0)
+        else:
+            vehicle.SetHandbrakeInput(local2.car, 1.0)
+        if input.GetButtonInput(@861088B6) > 0.0:
+            local12 = false
+            if input.IsUsingGamePad():
+                local2.sniper_button_hold = local2.sniper_button_hold + arg1
+                if local2.sniper_button_hold > 0.6:
+                    local12 = true
+            else:
+                local12 = true
+            if local12:
+                game.QueueAct(local3, "ACT_TOGGLE_CAR_SNIPER")
+                local2.sniper_button_hold = 0.0
+        else:
+            local2.sniper_button_hold = 0.0
+    else:
+        ResetState(self)
+
+def EnableRearview(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.rearview_enabled = true
+
+def EnableRearviewCam():
+    game.SendEvent("cam.activate.rearview", "")
+
+def IsPlayerLockedInside(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.playerlockedinside:
+        return true
+    return false

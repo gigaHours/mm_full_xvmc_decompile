@@ -1,0 +1,58 @@
+module soundscripting
+
+def SetIntegers(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def GetVariableFloat(self, arg1, arg2):
+    pass
+
+def SetFloats(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def SetRouterVariableInteger(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def Set(self, arg1):
+    pass
+
+def SetString(self, arg1, arg2):
+    pass
+
+def SetVariableHash(self, arg1, arg2, arg3):
+    pass
+
+def SetHash(self, arg1, arg2):
+    pass
+
+def SetRouterVariableFloat(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def GetVariableInteger(self, arg1, arg2):
+    pass
+
+def SetVariableFloat(self, arg1, arg2, arg3):
+    pass
+
+def SetVariableString(self, arg1, arg2, arg3):
+    pass
+
+def SetRouterVariableHash(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def GetVariableHash(self, arg1, arg2):
+    pass
+
+def GetHash(self, arg1):
+    pass
+
+def GetInteger(self, arg1):
+    pass
+
+def SetRouterVariableString(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def SetVariableInteger(self, arg1, arg2, arg3):
+    pass
+
+def GetFloat(self, arg1):
+    pass

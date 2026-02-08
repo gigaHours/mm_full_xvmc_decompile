@@ -1,0 +1,9 @@
+module relock_vehicle_upgrade_level
+
+def trigger(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("garage.state")
+    if local1.attribute_id == none:
+        __debugout("relock_vehicle_upgrade_level: no attribute_id set.")
+        return
+    garagestate.RelockAttributeLevel(local2, gui.MakeLocalizationHashFromTag(local1.attribute_id), local1.level)

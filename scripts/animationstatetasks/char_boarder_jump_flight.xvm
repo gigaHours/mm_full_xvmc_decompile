@@ -1,0 +1,32 @@
+module char_boarder_jump_flight
+import @42D0E955
+
+def Enter(self, arg1):
+    local2 = game.GetBlackboardValueFromObject(self, @D0D9D3A8)
+    local3 = character.GetWorldMatrix(self)
+    local4 = vector.Sub(local2, local3.r3)
+    local5 = game.GetChild(self, "script.boarding_gameplay")
+    character.SetGlobalXvmFloat(self, 1.0, 0.0)
+    character.SetGlobalXvmFloat(self, 2.0, local4.x)
+    character.SetGlobalXvmFloat(self, 3.0, local4.y)
+    character.SetGlobalXvmFloat(self, 4.0, local4.z)
+
+def Update(self, arg1, arg2):
+    local3 = true
+    local4 = character.GetGlobalXvmFloat(self, 1.0)
+    local5 = game.GetTransform(self)
+    local6 = 0.0
+    local7 = vector.Set(character.GetGlobalXvmFloat(self, 2.0), character.GetGlobalXvmFloat(self, 3.0), character.GetGlobalXvmFloat(self, 4.0), 0.0)
+    local8 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local9 = vector.Clone(local7)
+    local9 = vector.Add(local9, local8)
+    local10 = 0.5
+    local11 = matrix.CopyMatrix(local5)
+    local11.r3 = vector.Set(0.0, 0.0, 0.0, 1.0)
+    local12 = matrix.MulVec(matrix.Inverse(local11), local9)
+    local13 = vector.Scale(local12, local10)
+    character.UpdateDeltaReferenceFrame(self, arg2)
+    character.SetAnimationVelocityLS(self, arg2, local13)
+    character.SetGlobalXvmFloat(self, 1.0, local4)
+    if local3:
+        debug.Arrow(local5.r3, vector.Add(local5.r3, local7), 0.2, lib_color.LIGHT_BLUE(0.5))

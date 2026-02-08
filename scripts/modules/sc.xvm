@@ -1,0 +1,28 @@
+module sc
+
+def Add(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def RemIdx(self, arg1):
+    pass
+
+def Clear(self):
+    pass
+
+def NbScoutedObjects(self):
+    pass
+
+def GetInfluence(self, arg1):
+    pass
+
+def GetScrap(self, arg1):
+    pass
+
+def GetFirstInUse(self):
+    pass
+
+def SetCollectionState(self, arg1, arg2):
+    pass
+
+def GetWorldPos(self, arg1):
+    pass

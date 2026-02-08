@@ -1,0 +1,42 @@
+module door_detach_state
+import @B1360AAD
+import @45098D7D
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = scriptgo.GetProperties(game.GetParent(self))
+    local6 = local5.weakspot
+    lib_vehicle.SendVehicleWeakspotDestroyedEvent(local4.car, 0.0, arg2)
+    Detach(self, local6, arg2)
+    if lib_vehicle.ValidateKill(local4.car):
+        scriptgo.PostEvent(self, @322B9FDF)
+    scriptgo.PostEvent(self, @FA153114)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+
+def Detach(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = vehicle.WeakspotGetPhysicsPart(arg1)
+    if local4:
+        local5 = game.WeakspotGetNormal(arg1)
+        vehicle.HingedPartBreak(local4, vector.Scale(local5, 10.0))
+        if local3.effect_detached:
+            effect.SpawnerPlay(local3.effect_detached)
+            effect.SpawnerSetAttachObject(local3.effect_detached, local3.car)
+            local6 = game.WeakspotGetPosition(arg1)
+            effect.SpawnerSetWorldTransform(local3.effect_detached, matrix.TranslationAt(local6, local5))
+    game.WeakspotOnDetach(arg1)
+
+def DetachDoor(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = local3.car
+    local5 = scriptgo.GetProperties(arg1)
+    local6 = local5.wheel_index
+    local7 = scriptgo.Call(arg1, @82877941)
+    if local6 >= 0.0:
+        vehicle.BreakWheel(local4, local6, vector.Scale(arg2, 10.0))
+        if local3.effect_detached:
+            effect.SpawnerPlay(local3.effect_detached)
+            effect.SpawnerSetAttachObject(local3.effect_detached, local4)
+            effect.SpawnerSetWorldTransform(local3.effect_detached, matrix.TranslationAt(local7, arg2))

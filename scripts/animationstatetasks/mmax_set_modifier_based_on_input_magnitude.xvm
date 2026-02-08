@@ -1,0 +1,12 @@
+module mmax_set_modifier_based_on_input_magnitude
+
+def Enter(self, arg1):
+    local2 = lib_character.GetRawMoveInputMagnitude()
+    local3 = lib_character.GetStickLimits()
+    local4 = local3.y
+    local5 = local3.z
+    local6 = (local4 + local5) / 2.0
+    if local2 > local6:
+        animation.SetModifier(self, @E063F6A0, "(eUk", true)
+    else:
+        animation.SetModifier(self, @E063F6A0, @93C507F4, true)

@@ -1,0 +1,81 @@
+module wheel_detach_state
+import @B1360AAD
+import @8A26F2B5
+import @45098D7D
+
+def DoPull(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.car
+    if local5:
+        if false:
+            debug.LogInfo("DoPull, act: %s", [arg2])
+        local6 = game.WeakspotGetPosition(arg3)
+        local7 = vector.Sub(arg1, local6)
+        local7 = vector.Normalize(local7)
+        DetachWheel(self, arg3, local7)
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = lib_vehicle.GetPlayerVehicle()
+    local6 = false
+    local7 = scriptgo.GetProperties(game.GetParent(self))
+    local8 = local7.weakspot
+    lib_vehicle.SendVehicleWeakspotDestroyedEvent(local4.car, 2.0, arg2)
+    if none != local5:
+        if vehicle.IsSignatureVehicle(local5) and arg2 == lib_damage_types.DAMAGE_TENSION():
+            local9 = game.WeakspotHarpoonGetAttachGunPos(local8)
+            local10 = 20.0
+            local11 = "ACT_HARPOON_PULL_LIGHT"
+            if arg1 > local10:
+                local11 = "ACT_HARPOON_PULL_HEAVY"
+            DoPull(self, local9, local11, local8)
+            local6 = true
+    if not local6:
+        local12 = game.WeakspotGetNormal(local8)
+        DetachWheel(self, local8, local12)
+    scriptgo.PostEvent(self, @FA153114)
+    if lib_vehicle.ValidateKill(local4.car):
+        scriptgo.PostEvent(self, @322B9FDF)
+    local13 = lib_entity_proxy.GetCollision(local4.car)
+    if local13:
+        scriptgo.Call(local13, @2548A5C8)
+    game.WeakspotDeregister(local8)
+
+def UpdateHealth(self, arg1, arg2):
+    if arg2 == lib_damage_types.DAMAGE_REPAIR():
+        local3 = scriptgo.GetProperties(self)
+        local4 = scriptgo.GetProperties(game.GetParent(self))
+        local5 = local4.weakspot
+        if arg1 > 0.9:
+            local6 = game.WeakspotWheelGetWheelIndex(local5)
+            if vehicle.IsWheelBroken(local3.car, local6):
+                local7 = vehicle.GetWheelPart(local3.car, local6)
+                if local7 != none:
+                    vehicle.VehiclePartReattach(local7)
+                    game.WeakspotRegister(local5)
+                    local8 = lib_entity_proxy.GetCollision(local3.car)
+                    if local8:
+                        scriptgo.Call(local8, @2548A5C8)
+
+def DisableTargets(self, arg1):
+    scriptgo.Call(arg1, @BC4D16B7)
+    scriptgo.Call(arg1, @398B8C34)
+
+def DetachWheel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = local3.car
+    lib_vehicle.NotifyDriver(local4, "DetachWheel")
+    game.WeakspotOnDetach(arg1)
+    local5 = game.WeakspotWheelGetWheelIndex(arg1)
+    local6 = game.WeakspotGetPosition(arg1)
+    if false:
+        debug.LogInfo("Detach wheel %f", [local5])
+    if local5 >= 0.0:
+        vehicle.BreakWheel(local4, local5, vector.Scale(arg2, 4.0))
+        if 0.0 >= vehicle.GetHealth(local4):
+            local7 = vehicle.GetWheelPart(local4, local5)
+            local7.Burning = true
+        if local3.effect_detached:
+            effect.SpawnerPlay(local3.effect_detached)
+            effect.SpawnerSetAttachObject(local3.effect_detached, local4)
+            effect.SpawnerSetWorldTransform(local3.effect_detached, matrix.TranslationAt(local6, arg2))

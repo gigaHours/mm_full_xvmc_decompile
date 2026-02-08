@@ -1,0 +1,77 @@
+module glory_swaying
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    arg2 = math.Clamp(arg2, 0.0, 1.0 / 30.0)
+    local4 = vector.Set(6.6, 6.0, 7.5, 0.0)
+    local5 = false
+    local6 = animation.GetSampler(arg3, 0.0)
+    local7 = animation.GetSampler(arg3, 1.0)
+    local8 = animation.GetSampler(arg3, 2.0)
+    local9 = animation.GetSampler(arg3, 3.0)
+    local10 = game.GetChild(self, "GlorySways")
+    local11 = scriptgo.Call(local10, @21539CBF)
+    local12 = game.GetTransform(self)
+    local13 = 0.0
+    local14 = 1.0
+    if arg1.Property0 != 0.0:
+        local13 = 0.5 - arg1.Property0 * 0.5
+        local14 = 0.5 + arg1.Property0 * 0.5
+    local15 = character.GetGlobalXvmFloat(self, 10.0)
+    local16 = character.GetGlobalXvmFloat(self, 11.0)
+    local17 = character.GetGlobalXvmFloat(self, 12.0)
+    local18 = math.Clamp(0.5 - local11[1.0] * 0.5 + local11[2.0] * 0.5, local13, local14)
+    local19 = math.Abs(local18 - local15) / arg2
+    local20 = math.Lerp(local4.x * arg2, local15, local18)
+    local21 = math.Abs(local20 - local15) / arg2
+    local18 = math.Clamp(0.5 - local11[4.0] * 0.5 + local11[3.0] * 0.5, local13, local14)
+    local22 = math.Abs(local18 - local15) / arg2
+    local23 = math.Lerp(local4.z * arg2, local16, local18)
+    local24 = math.Abs(local23 - local16) / arg2
+    local18 = math.Clamp(0.5 - local11[5.0] * 0.5 + local11[6.0] * 0.5, local13, local14)
+    local25 = math.Abs(local18 - local17) / arg2
+    local26 = local4.y * arg2
+    local27 = 22.0
+    if local25 > local27 and local15 > local18 and 0.0 >= local18:
+        local26 = local26 * 1.85
+    local28 = math.Lerp(local26, local17, local18)
+    local29 = math.Abs(local28 - local17) / arg2
+    local30 = vector.Set(4.0, 8.0, 4.0, 0.0)
+    local31 = math.Clamp(local21 / local30.x, 0.0, 1.0)
+    local32 = math.Clamp(local29 / local30.y, 0.0, 1.0)
+    local33 = math.Clamp(local24 / local30.z, 0.0, 1.0)
+    local34 = math.Abs((local20 - 0.5) / 0.5) + local31
+    local35 = math.Abs((local23 - 0.5) / 0.5) - local34 + local33
+    local36 = math.Abs((local28 - 0.5) / 0.5) + local32
+    local37 = math.Max(0.0, 1.0 - local34 - local35 - local36)
+    local7.Weight = local34
+    local7.Time = local20
+    local8.Weight = local35
+    local8.Time = local23
+    local9.Weight = local36
+    local9.Time = local28
+    local6.Weight = 1.0
+    local38 = 10.0 / 30.0
+    if local6.Time == local6.Length:
+        local6.Time = 0.0
+        game.DoAct(self, "ACT_SWAYING_LOOP")
+    elif local6.Time > local6.Length - local38:
+        game.DoAct(self, "ACT_SWAYING_EARLY_FINISH")
+    character.SetGlobalXvmFloat(self, 10.0, local20)
+    character.SetGlobalXvmFloat(self, 11.0, local23)
+    character.SetGlobalXvmFloat(self, 12.0, local28)
+    if local5:
+        local39 = lib_debugdraw.GetGoScreenPos(self, vector.Set(0.0, 1.85, 0.0, 0.0), arg2)
+        local39.x = local39.x - 0.2
+        local39.y = local39.y + 0.05
+        debug.DrawText(local39, "WEIGHT - L/R : %f, FWD/BWD: %f, U/D: %f", [local7.Weight, local8.Weight, local9.Weight], lib_color.WHITE(1.0))
+        local39.y = local39.y + 0.05
+        debug.DrawText(local39, "wanted_speed_ud: %f, lerp_speed_ud: %f", [local25, local26], lib_color.WHITE(1.0))
+        local40 = lib_debugdraw.GetGoScreenPos(self, vector.Set(0.0, 2.0, 0.0, 0.0), arg2)
+        local41 = vector.Set(local7.Time * 2.0 - 1.0, local8.Time * -2.0 + 1.0, 0.0, 0.0)
+        local42 = vector.Set(0.0, local9.Time * -2.0 + 1.0, 0.0, 0.0)
+        local43 = 0.75
+        local44 = [[local41, lib_color.YELLOW(local43)], [local42, lib_color.LIGHT_BLUE(local43)]]
+        lib_debugdraw.DrawCoordinateSquare(local40, 0.06, local44)
+
+def OnEnter(self, arg1):
+    character.SetGlobalXvmFloat(self, 13.0, 0.0)

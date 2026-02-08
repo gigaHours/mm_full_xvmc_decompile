@@ -1,0 +1,8 @@
+module set_visible_player_upgrade_shown
+
+def Init(self):
+    pass
+
+def Trigger(self):
+    local1 = scriptgo.GetProperties(self)
+    visibleplayerupgrades.SetUpgradeLevelShown(local1.should_show != 0.0, local1.attr_id, local1.level)

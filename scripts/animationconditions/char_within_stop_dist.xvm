@@ -1,0 +1,18 @@
+module char_within_stop_dist
+
+def Evaluate(self, arg1):
+    local2 = false
+    local3 = character.GetWorldMatrix(self)
+    local4 = local3.r3
+    local5 = game.GetBlackboardValueFromObject(self, "B_I7")
+    local6 = game.GetBlackboardValueFromObject(self, @AC88AD17)
+    if local5 != none and local6 != none:
+        local7 = vector.Length(vector.Sub(local4, local5))
+        local8 = 1.06
+        if local6 * local8 >= local7:
+            return 1.0
+        if local2:
+            debug.LogInfo("char_within_stop_dist.xpy: ACT_STOP outside stopping_distance: %f? from_goal: %f", [local6, local7])
+    elif local2:
+        debug.LogInfo("char_within_stop_dist.xpy: ACT_STOP goal_pos or stopping_distance wasn't set: %f", [1.0])
+    return 0.0

@@ -1,0 +1,21 @@
+module veh_part_disable_on_spawn
+
+def RunPartDisableChance(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetPart(local1.car, local1.part)
+    local3 = math.Rand()
+    if local3 > 0.0:
+        if local1.disable_chance >= local3:
+            game.WeakspotDeregister(local1.weakspot)
+            local2.Visible = false
+    scriptgo.SetUpdateFunction(self, "")
+
+def UpdatePartDisableChance(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.chance_time = local2.chance_time - arg1
+    if arg1 >= local2.chance_time:
+        RunPartDisableChance(self)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "UpdatePartDisableChance")

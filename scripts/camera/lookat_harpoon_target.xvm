@@ -1,0 +1,25 @@
+module lookat_harpoon_target
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    self.Properties.last_rel_target_pos = arg2.CameraTransform.r3
+    Update(self, arg2)
+
+def Init(self):
+    pass
+
+def ExitTransition(self, arg1):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    self.Properties.last_rel_target_pos = arg1.CameraTransform.r3
+    Update(self, arg1)
+
+def Update(self, arg1):
+    local2 = lib_entity_proxy.GetHarpoon(vehicle.GetSignatureVehicle())
+    local3 = scriptgo.Call(local2, @0C537298)
+    if local3 == none:
+        local3 = vector.Add(self.CameraBaseTransform.r3, self.Properties.last_rel_target_pos)
+    else:
+        self.Properties.last_rel_target_pos = vector.Sub(local3, self.CameraBaseTransform.r3)
+    arg1.CameraTransform = matrix.LookAtMatrix(arg1.CameraTransform.r3, vector.Set(0.0, 1.0, 0.0, 0.0), local3)

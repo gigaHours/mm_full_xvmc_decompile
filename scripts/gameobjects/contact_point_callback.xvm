@@ -1,0 +1,7 @@
+module contact_point_callback
+
+def ContactPointCallback(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if vehicle.IsVehicle(arg1.OtherGameObject):
+        arg1.Disabled = true
+        scriptgo.PostEvent(self, @A8DAD229)

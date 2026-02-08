@@ -1,0 +1,40 @@
+module lib_harpoontarget
+
+def Disable(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1:
+        debug.LogInfo("HarpoonTargetBase: Disable", [])
+    local2.harpoon_gun_must_detach = true
+    local3 = lib_entity_proxy.GetGlobalHarpoonTargetList()
+    if local3:
+        golist.Rem(local3, self)
+        if arg1:
+            debug.LogInfo("HarpoonTargetBase: Removed from target list", [])
+    else:
+        debug.LogError("Harpoon Target", "No target list found when disabling harpoon target.")
+
+def GetHealthBarManager():
+    return game.GetGameObjectByAlias("script.healthbar.manager")
+
+def RegisterHealthbar(self):
+    pass
+
+def Enable(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1:
+        scriptgo.SetRenderFunction(self, "RenderDebug")
+        debug.LogInfo("HarpoonTargetBase: Enable", [])
+    local2.harpoon_gun_must_detach = false
+    local3 = lib_entity_proxy.GetGlobalHarpoonTargetList()
+    if local3:
+        if golist.HasObject(local3, self):
+            debug.LogInfo("HarpoonTarget Already in target list! Aborting", [])
+            return
+        golist.Add(local3, self)
+        if arg1:
+            debug.LogInfo("HarpoonTarget Added as target", [])
+    else:
+        debug.LogError("Harpoon Target", "No target list found when enabling harpoon target.")
+
+def UnRegisterHealthbar(self):
+    pass

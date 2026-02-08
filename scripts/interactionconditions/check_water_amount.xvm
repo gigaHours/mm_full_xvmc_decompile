@@ -1,0 +1,14 @@
+module check_water_amount
+
+def Evaluate(self, arg1):
+    local2 = game.GetBlackboardValueFromObject(arg1.wanderer, @3D16CBA0)
+    local3 = character.GetPlayer()
+    local4 = character.GetInventoryItem(local3, "canteen")
+    if local4:
+        local5 = game.GetEconomyResourceId(local4)
+        local6 = game.GetEconomyResourceAmount(local5, true)
+        if local6 >= local2:
+            return 1.0
+        interaction.SetNamedFailEntry(self, "entry.not_enough_water")
+        return 0.0
+    return 0.0

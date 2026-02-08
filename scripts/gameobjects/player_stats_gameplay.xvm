@@ -1,0 +1,863 @@
+module player_stats_gameplay
+import @3BDB5A3B
+import @A93B5C9A
+
+def FuryEventAdd(self):
+    AwardFuryStackPoints(self, 150.0)
+
+def FuryEventWallFinisher(self):
+    AwardHitCounter(self, 1.0)
+    AwardFuryWithMultiplier(self, 12.0)
+    AddDebugCallout(self, 11.0)
+    AwardFuryBonus(self, 3.0, "gui_ogc_callout_wallfinisher")
+    game.PostEventNone("fury_gain_4")
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(24.0, local1.HitCounter)
+
+def FuryEventGroundFinisher(self):
+    FuryEventGroundStrike(self)
+    AwardFuryWithMultiplier(self, 10.0)
+    AwardFuryBonus(self, 0.0, "gui_ogc_callout_groundfinisher")
+    game.PostEventNone("fury_gain_1")
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(26.0, local1.HitCounter)
+
+def EnableFury(self):
+    playerstats.GetPlayerStats().furyEnabled = 1.0
+
+def AwardFury(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2.furyEnabled == 0.0:
+        return
+    if local2.inFuryMode == 0.0:
+        if local2.furyStackPoints == 0.0:
+            local2.UseFromZeroToFuryTimer = 1.0
+            local2.FromZeroToFuryTimer = 0.0
+        local2.AccumulatedFuryDuringCombat = local2.AccumulatedFuryDuringCombat + arg1
+        AwardFuryStackPoints(self, arg1)
+
+def FuryEventChainFinisher4(self):
+    DoFuryEventChainFinisher(self, 19.0, 3.0)
+    AddDebugCallout(self, 5.0)
+    game.PostEventNone("fury_gain_4")
+
+def SendParryFailedEvent(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetLatestSpellInfo(local1)
+    if local2:
+        local3 = local2.CollidedObject
+        if local3:
+            if character.IsCharacter(local3):
+                if animation.IsWithinSegment(local3, @E063F6A0, @B2577E23):
+                    game.PostEventNone("ply.parry.failed")
+
+def CombatExit(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.AccumulatedFuryDuringCombat = 0.0
+    local1.SkillsUsedDuringCombat = game.GetFuryEventSize()
+    local1.SkillCountKeepOnScreenTimer = 4.0
+    game.ClearFuryEventCounters()
+    hydra.HydraSendGroundCombatEvent(28.0, local1.HitCounter)
+    hydra.HydraSendCombatEndEvent(local1.TimeInCombat, local1.TimeInFury, local1.EnemiesKilledInThisFight, local1.EnemiesKilledInFuryInThisFight, local1.LongestHitStreakInThisFight)
+    game.PostEventNone("ply.difficulty.rank.update")
+    ResetCombatEndChallengeVariable(local1)
+    game.PostEvent("ply.blood_fadeout", "45.0")
+
+def FuryEventChainStrike4(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 4.0)
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(7.0, local1.HitCounter)
+
+def FuryEventWeaponKill(self):
+    local1 = character.GetPlayer()
+    AwardFuryWithMultiplier(self, 10.0)
+    AwardFuryBonus(self, 2.0, "gui_ogc_callout_weaponkill")
+    game.PostEventNone("fury_gain_3")
+
+def FuryEventShivChainFinisher(self):
+    FuryEventShivExecution(self, 18.0)
+
+def FuryEventLightStrike(self):
+    local1 = playerstats.GetPlayerStats()
+    AwardFuryWithMultiplier(self, 3.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 0.0)
+    hydra.HydraSendGroundCombatEvent(0.0, local1.HitCounter)
+
+def FuryEventHeadShot(self):
+    AwardFury(self, 100.0)
+    AwardFuryBonus(self, 0.0, "gui_ogc_callout_headshot")
+
+def UpdateInFuryMode(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    local3 = character.GetPlayer()
+    if local2.inFuryMode > 0.0:
+        if local2.furyActivationEffectDelay > 0.0:
+            local2.furyActivationEffectDelay = math.Max(0.0, local2.furyActivationEffectDelay - arg1)
+            if local2.furyActivationEffectDelay == 0.0:
+                local2.furyActivationEffectTimer = 0.2
+        if local2.furyActivationDialogDelay > 0.0:
+            local2.furyActivationDialogDelay = local2.furyActivationDialogDelay - arg1
+            if not local2.furyActivationDialogDelay > 0.0:
+                SendIntentTrigger("diaint_fury_start", 2.0)
+        if not animation.IsWithinSegment(local3, @E063F6A0, @91CE4286):
+            local4 = local2.furyModeReductionSpeed * arg1
+            local2.furyStackPoints = math.Max(0.0, local2.furyStackPoints - local4)
+        local2.TimeInFury = local2.TimeInFury + arg1
+        if local2.furyActivationEffectTimer > 0.0:
+            local2.furyActivationEffectTimer = local2.furyActivationEffectTimer - arg1
+        elif local2.furyDeActivationEffectTimer > 0.0:
+            local2.furyDeActivationEffectTimer = local2.furyDeActivationEffectTimer - arg1
+            if 0.0 >= local2.furyDeActivationEffectTimer:
+                if character.IsStateBitSet(local3, 21.0):
+                    local2.furyDeActivationEffectTimer = local2.furyDeActivationEffectTimer + 0.001
+                else:
+                    FuryModeExit(self)
+        elif 0.0 >= local2.furyStackPoints or local2.furyToggle == 0.0:
+            if not character.IsStateBitSet(local3, 21.0):
+                local2.furyModeExitDelay = local2.furyModeExitDelay - arg1
+                if 0.0 >= local2.furyModeExitDelay:
+                    BeginFuryModeExit(self)
+
+def FuryEventChainStrike3(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 4.0)
+    hydra.HydraSendGroundCombatEvent(6.0, playerstats.GetPlayerStats().HitCounter)
+
+def DoFuryEventChainFinisher(self, arg1, arg2):
+    local3 = playerstats.GetPlayerStats()
+    local4 = character.GetPlayer()
+    AwardFuryWithMultiplier(self, arg1)
+    AwardHitCounter(self, 1.0)
+    AwardFuryBonus(self, arg2, "gui_ogc_callout_chainfinisher")
+
+def StartFuryPreHitAction(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.furyEffectsTimer = 0.13
+    local1.easeId = game.EaseInCustomUpdateSpeed(0.2, 0.6)
+
+def FuryEventThunderstickStabKill(self):
+    AwardHitCounter(self, 1.0)
+    hydra.HydraSendGroundCombatEvent(35.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventChainFinisher3(self):
+    DoFuryEventChainFinisher(self, 16.0, 2.0)
+    AddDebugCallout(self, 5.0)
+    game.PostEventNone("fury_gain_3")
+
+def FuryEventGuard(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = character.GetPlayer()
+    if local1.inFuryMode > 0.0:
+        AwardFuryStackPoints(self, -150.0)
+    else:
+        AwardFuryStackPoints(self, -0.0)
+    local1.RankPoints = local1.RankPoints - 1.0
+
+def GiveAllSkills(self):
+    local1 = character.GetPlayer()
+    character.SetUpgradeLevel(local1, "chain_finisher", 1.0)
+    character.SetUpgradeLevel(local1, "weapon_parry", 1.0)
+    character.SetUpgradeLevel(local1, "charge", 1.0)
+    character.SetUpgradeLevel(local1, "gut_shot", 1.0)
+    character.SetUpgradeLevel(local1, "limb_break_counter", 1.0)
+    character.SetUpgradeLevel(local1, "wall_finisher", 1.0)
+    character.SetUpgradeLevel(local1, "pp_reversal", 1.0)
+    character.SetUpgradeLevel(local1, "wall_shiv", 1.0)
+    character.SetUpgradeLevel(local1, "shiv_grapple_escape", 1.0)
+    character.SetUpgradeLevel(local1, "shield_shatter", 1.0)
+    character.SetUpgradeLevel(local1, "master_bat_reversal", 1.0)
+    character.SetUpgradeLevel(local1, "master_shiv_reversal", 1.0)
+    character.SetUpgradeLevel(local1, "weapon_execution", 1.0)
+    character.SetUpgradeLevel(local1, "fury_ground_execution", 1.0)
+    character.SetUpgradeLevel(local1, "shiv_chain_finisher", 1.0)
+
+def FuryEventWeaponDisarm(self):
+    AwardHitCounter(self, 1.0)
+    hydra.HydraSendGroundCombatEvent(36.0, 0.0)
+
+def FuryEventGrabKnifeEscape(self):
+    FuryEventShivExecution(self, 22.0)
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(3.0, local1.HitCounter)
+
+def FuryModeEnter(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.FuryKillCounter = 0.0
+    local2 = character.GetUpgradeValue(character.GetPlayer(), "FullFuryTime")
+    local1.furyModeReductionSpeed = 105.0
+    local1.furyModeExitDelay = 0.05
+    if local2 != none and local2 > 0.0:
+        local1.furyModeReductionSpeed = 750.0 / local2
+    local1.inFuryMode = 1.0
+    local1.DifficultyScaling = 0.0
+    local1.furyActivationEffectTimerOnAttacker = 0.3
+    local1.furyDeActivationEffectTimer = 0.0
+    local1.furyToggle = -1.0
+    local1.furyActivationEffectDelay = 0.2
+    local1.furyActivationDialogDelay = 1.5
+    soundscripting.SetRouterVariableInteger("gameplay_conditions", "set_variable_value", "gameplay_furymode", 1.0, 0.0, 0.0)
+    game.PostEventNone("fury.vfx.start")
+    game.PostEventNone("ply.fury.enter")
+    hydra.HydraSendGroundCombatEvent(29.0, local1.HitCounter)
+    if local1.UseFromZeroToFuryTimer == 1.0:
+        hydra.HydraSendFuryBeginEvent(local1.FromZeroToFuryTimer)
+        local1.FromZeroToFuryTimer = 0.0
+        local1.UseFromZeroToFuryTimer = 0.0
+
+def FuryEventCounterAttack(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = character.GetPlayer()
+    local3 = character.GetFloatRegister(local2, 2.0)
+    if local3 == 1.0:
+        AwardFuryWithMultiplier(self, 8.0)
+        AddDebugCallout(self, 30.0)
+        hydra.HydraSendGroundCombatEvent(22.0, local1.HitCounter)
+        game.PostEventNone("fury_gain_2")
+    else:
+        AwardFury(self, 10.0)
+        AddDebugCallout(self, 3.0)
+        game.PostEventNone("ply.counter.executed")
+        local1 = playerstats.GetPlayerStats()
+        hydra.HydraSendGroundCombatEvent(21.0, local1.HitCounter)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+
+def UpdateInCombat(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    local3 = gamedirector.GetAiGameStateHashInRangeCount("combat", 30.0, 0.75)
+    if character.GetFloatRegister(character.GetPlayer(), 28.0) == 0.0:
+        if local3 == 0.0:
+            if local2.inCombatCount > 0.0:
+                local2.furyToggle = 0.0
+                local2.bufferExitCombat = 1.0
+        elif local2.inCombatCount == 0.0:
+            CombatEnter(self)
+        local2.inCombatCount = local3
+        if local2.HitCountTimer == 0.0 and local2.bufferExitCombat > 0.0:
+            local2.bufferExitCombat = 0.0
+            CombatExit(self)
+        if local2.inCombatCount > 0.0:
+            local2.TimeInCombat = local2.TimeInCombat + arg1
+
+def FuryEventMeleeWeaponReversal(self):
+    AwardHitCounter(self, 1.0)
+    local1 = playerstats.GetPlayerStats()
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 23.0)
+
+def FuryEventDaze(self):
+    gui.PostEvent("gui_ogc_effects_critical")
+
+def DoFuryEventJawBreaker(self):
+    local1 = character.GetPlayer()
+    local2 = playerstats.GetPlayerStats()
+    AwardFuryWithMultiplier(self, 10.0)
+    if local2.inFuryMode > 0.0:
+        if local2.BlockFuryBonusCalloutTimer == 0.0:
+            gui.FuryEventCallout(1.0, 1.0, "gui_ogc_callout_jawbreaker")
+    else:
+        AwardFuryBonus(self, 1.0, "gui_ogc_callout_jawbreaker")
+    game.PostEventNone("fury_gain_2")
+    hydra.HydraSendGroundCombatEvent(32.0, local2.HitCounter)
+
+def FuryEventGrabEscape(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 29.0)
+    hydra.HydraSendGroundCombatEvent(2.0, playerstats.GetPlayerStats().HitCounter)
+
+def PreHitActions(self):
+    local1 = playerstats.GetPlayerStats()
+    if local1.inFuryMode > 0.0 and (not local1.furyEffectsTimer > 0.0):
+        StartFuryPreHitAction(self)
+
+def RemoveAllSkills(self):
+    local1 = character.GetPlayer()
+    character.SetUpgradeLevel(local1, "chain_finisher", 0.0)
+    character.SetUpgradeLevel(local1, "weapon_parry", 0.0)
+    character.SetUpgradeLevel(local1, "charge", 0.0)
+    character.SetUpgradeLevel(local1, "gut_shot", 0.0)
+    character.SetUpgradeLevel(local1, "limb_break_counter", 0.0)
+    character.SetUpgradeLevel(local1, "wall_finisher", 0.0)
+    character.SetUpgradeLevel(local1, "pp_reversal", 0.0)
+    character.SetUpgradeLevel(local1, "wall_shiv", 0.0)
+    character.SetUpgradeLevel(local1, "shiv_grapple_escape", 0.0)
+    character.SetUpgradeLevel(local1, "shield_shatter", 0.0)
+    character.SetUpgradeLevel(local1, "master_bat_reversal", 0.0)
+    character.SetUpgradeLevel(local1, "master_shiv_reversal", 0.0)
+    character.SetUpgradeLevel(local1, "weapon_execution", 0.0)
+    character.SetUpgradeLevel(local1, "fury_ground_execution", 0.0)
+    character.SetUpgradeLevel(local1, "shiv_chain_finisher", 0.0)
+
+def ResetHitCounter(self):
+    local1 = playerstats.GetPlayerStats()
+    if local1.furyEnabled == 0.0:
+        return
+    gui.PostEventFloatFloat("gui_hit_counter_reset", local1.HitCounter, local1.ComboRecord)
+    if local1.HitCounter >= local1.ComboRecord:
+        local1.ComboRecord = float(local1.HitCounter)
+    if local1.HitCounter >= local1.LongestHitStreakInThisFight:
+        local1.LongestHitStreakInThisFight = float(local1.HitCounter)
+    hydra.HydraSendGroundCombatEvent(34.0, local1.HitCounter)
+    local1.HitCounter = 0.0
+    local1.HitCountTimer = 0.0
+    local1.HitCountFreezeTimer = 0.0
+
+def FuryEventChainFinisher1(self):
+    DoFuryEventChainFinisher(self, 10.0, 0.0)
+    AddDebugCallout(self, 5.0)
+    game.PostEventNone("fury_gain_1")
+
+def FuryEventWallStrike(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 10.0)
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(23.0, local1.HitCounter)
+
+def AwardHitCounter(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2.furyEnabled == 0.0:
+        return
+    local2.HitCounter = math.Clamp(local2.HitCounter + arg1, 0.0, 999.0)
+    if local2.HitCountTimer == 0.0:
+        local2.HitCountTimer = 3.0
+
+def AwardFuryBonus(self, arg1, arg2):
+    local3 = playerstats.GetPlayerStats()
+    gui.GetBlackboard().fury_hitCounter = local3.HitCounter
+    if local3.furyEnabled == 0.0:
+        return
+    if local3.inFuryMode == 0.0 and arg2 != "":
+        gui.FuryEventCallout(1.0, arg1, arg2)
+    local3.HitCountTimer = 3.0
+    FreezeHitCountTimer(self, 2.5)
+    local4 = character.GetFloatRegister(character.GetPlayer(), 2.0)
+    if local4 != 1.0:
+        SendIntentTrigger("diaint_ogc_max_rocks", 2.0)
+
+def Init(self):
+    ResetState(self)
+    lib_player_stats_gameplay.Init(self)
+
+def FreezeHitCountTimer(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    local2.HitCountFreezeTimer = math.Max(local2.HitCountFreezeTimer, arg1)
+
+def FuryEventShivMasterReversal(self):
+    FuryEventShivExecution(self, 21.0)
+
+def FuryEventWeaponHeavyStrike(self):
+    AwardFury(self, 10.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 8.0)
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(18.0, local1.HitCounter)
+    game.PostEventNone("fury_gain_1")
+
+def AwardFuryStackPoints(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2.furyEnabled == 0.0:
+        return
+    local2.furyStackPoints = math.Clamp(local2.furyStackPoints + arg1, 0.0, GetFuryStackMaxSize(self))
+
+def AddDebugCallout(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    local3 = scriptgo.GetProperties(self)
+    local2.CStackTime0 = 3.5
+    local2.CStackID0 = arg1
+    game.RecordFuryEvent(game.GameHashString(local3.CallOutIdList[arg1]))
+
+def FuryEventChainStrike1(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 4.0)
+    hydra.HydraSendGroundCombatEvent(4.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventShivReversal(self):
+    if character.IsModifierSet(character.GetPlayer(), @0ED57A88):
+        FuryEventShivExecution(self, 21.0)
+    else:
+        FuryEventShivExecution(self, 20.0)
+
+def FuryEventShivPunisher(self):
+    FuryEventShivExecution(self, 19.0)
+
+def ForceFinalKill(self):
+    playerstats.GetPlayerStats().ForceFinalKill = 1.0
+
+def ResetCombatEndChallengeVariable(self):
+    self.TimeInCombat = 0.0
+    self.TimeInFury = 0.0
+    self.EnemiesKilledInThisFight = 0.0
+    self.EnemiesKilledInFuryInThisFight = 0.0
+    self.LongestHitStreakInThisFight = 0.0
+
+def FuryEventMeleeWeaponMasterReversal(self):
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 24.0)
+
+def FuryEventShoulderCharge(self):
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 26.0)
+
+def FuryEventJawBreaker(self):
+    playerstats.GetPlayerStats().JawbreakerBufferTimer = 0.001
+
+def CombatEnter(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.combatKillCount = 0.0
+    hydra.HydraSendGroundCombatEvent(27.0, 0.0)
+    ResetCombatEndChallengeVariable(local1)
+
+def FuryEventWeaponExecution(self):
+    AwardHitCounter(self, 1.0)
+    AddDebugCallout(self, 25.0)
+    FuryEventWeaponKill(self)
+
+def FuryEventGroundStrike(self):
+    AwardFury(self, 10.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 6.0)
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(25.0, local1.HitCounter)
+
+def UpdateFuryEffects(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2 and local2.furyEffectsTimer > 0.0:
+        local2.furyEffectsTimer = local2.furyEffectsTimer - arg1
+        if not local2.furyEffectsTimer > 0.0:
+            game.EaseOutCustomUpdateSpeed(0.033, local2.easeId)
+
+def GetFuryStackMaxSize(self):
+    return 750.0
+
+def FuryEventChainStrike2(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 4.0)
+    hydra.HydraSendGroundCombatEvent(5.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventCritical(self):
+    gui.PostEvent("gui_ogc_effects_critical")
+
+def FuryEventFuryChainStrike(self):
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 15.0)
+    hydra.HydraSendGroundCombatEvent(14.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventReFill(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.furyStackPoints = GetFuryStackMaxSize(self)
+
+def DisableRendering(self):
+    scriptgo.SetRenderFunction(self, "")
+
+def FuryEventParryConditional(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetFloatRegister(local1, 2.0)
+    AddDebugCallout(self, 2.0)
+    if local2 == 1.0:
+        local3 = playerstats.GetPlayerStats()
+        if local3.inFuryMode > 0.0:
+            if local3.BlockFuryBonusCalloutTimer == 0.0:
+                gui.FuryEventCallout(1.0, 1.0, "gui_ogc_callout_perfectparry")
+        else:
+            AwardFuryBonus(self, 1.0, "gui_ogc_callout_perfectparry")
+        hydra.HydraSendGroundCombatEvent(20.0, 0.0)
+        game.PostEventNone("ply.limb_breaking_counter.ready")
+    else:
+        hydra.HydraSendGroundCombatEvent(19.0, 0.0)
+        game.PostEventNone("ply.counter.ready")
+
+def OnGenericDamage(self, arg1):
+    local2 = 0.3
+    local3 = 0.6
+    arg1 = character.GetUnitHealth(character.GetPlayer())
+    if 0.0 >= arg1:
+        SendIntentTrigger("diaint_player_death", 0.0)
+    elif local2 >= arg1:
+        SendIntentTrigger("diaint_health_hint", 0.0)
+    elif local3 >= arg1:
+        SendIntentTrigger("diaint_health_half", 0.0)
+
+def FuryEventWallKill(self):
+    local1 = character.GetPlayer()
+    AwardFuryWithMultiplier(self, 10.0)
+    AwardFuryBonus(self, 2.0, "gui_ogc_callout_wallkill")
+    game.PostEventNone("fury_gain_3")
+
+def FuryEventFuryExecution(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = character.GetPlayer()
+    AddDebugCallout(self, 17.0)
+    AwardHitCounter(self, 1.0)
+    AwardFuryBonus(self, 2.0, "")
+    hydra.HydraSendGroundCombatEvent(16.0, local1.HitCounter)
+    game.PostEventNone("fury_gain_3")
+
+def FuryEventGuardBreak(self):
+    gui.PostEvent("gui_ogc_effects_guardbreak")
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+
+def ReduceFuryLarge(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = character.GetPlayer()
+    if local1.inFuryMode > 0.0:
+        AwardFuryStackPoints(self, -250.0)
+    else:
+        AwardFuryStackPoints(self, -0.0)
+    local1.RankPoints = local1.RankPoints - 3.0
+    local1.DifficultyScaling = math.Clamp(local1.DifficultyScaling - 0.3, 0.0, 1.0)
+    SendParryFailedEvent(self)
+    SendIntentTrigger("diaint_ogc_max_sucks", 2.0)
+
+def Render(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    local3 = scriptgo.GetProperties(self)
+    local4 = local2.HitCounter
+    if local2.inFuryMode > 0.0:
+        local2.FuryKillCountKeepOnScreenTimer = 4.0
+    if local2.FuryKillCountKeepOnScreenTimer > 0.0:
+        debug.DrawFloatFmt(vector.Set(0.82, 0.02, 0.0, 0.0), "%2.0f FURY KILLS", local2.FuryKillCounter, vector.Set(1.0, 1.0, 1.0, 1.0), 1.3)
+    if local2.SkillCountKeepOnScreenTimer > 0.0:
+        if local2.SkillsUsedDuringCombat > 0.0:
+            debug.DrawFloatFmt(vector.Set(0.02, 0.02, 0.0, 0.0), "%2.0f SKILLS USED", local2.SkillsUsedDuringCombat, vector.Set(1.0, 1.0, 1.0, 1.0), 1.3)
+
+def FuryEventShivWallExecution(self):
+    FuryEventShivExecution(self, 12.0)
+
+def FuryEventShieldShatter(self):
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 28.0)
+    AwardFury(self, 15.0)
+
+def UpdateGuiValues(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = scriptgo.GetProperties(self)
+    local3 = gui.GetBlackboard()
+    if local1.furyEnabled > 0.0:
+        local3.fury_meterProgress = local1.furyStackPoints / GetFuryStackMaxSize(self)
+    else:
+        local3.fury_meterProgress = -1.0
+    local3.fury_inFuryMode = local1.inFuryMode
+    local3.fury_hitCounter = local1.HitCounter
+    local3.fury_hitCountTimerCountdown = local1.HitCountTimer / 3.0
+    local3.fury_ActionCalloutTimer0 = local1.CStackTime0
+    local3.fury_ActionCalloutString0 = game.GameHashString(local2.CallOutIdList[local1.CStackID0])
+    local4 = false
+    if local1.inCombatCount > 0.0:
+        local4 = true
+    local3.isincombat = local4
+    local3.shivs_current = character.GetInventoryItemCount(character.GetPlayer(), "generic_shiv")
+    local3.shivs_max = character.GetUpgradeValue(character.GetPlayer(), "ShivCap")
+
+def UpdateEnemiesKilledThisFight(self):
+    local1 = character.GetPlayer()
+    self.EnemiesKilledInThisFight = self.EnemiesKilledInThisFight + 1.0
+    local2 = character.GetAbsoluteHealth(local1)
+    local3 = self.PlayerLastKillHealth
+    if local2 >= self.PlayerLastKillHealth:
+        self.PlayerLastKillHealth = local2
+        self.EnemiesKilledWithoutTakingDamageInARow = self.EnemiesKilledWithoutTakingDamageInARow + 1.0
+    if self.inFuryMode > 0.0:
+        self.EnemiesKilledInFuryInThisFight = self.EnemiesKilledInFuryInThisFight + 1.0
+        self.FuryKillCounter = self.FuryKillCounter + 1.0
+
+def AwardFuryWithMultiplier(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2.furyEnabled == 0.0:
+        return
+    if local2.inFuryMode == 0.0:
+        local3 = local2.HitCounter + 1.0
+        local4 = math.Log(local3 + 10.0) * 20.0 - 46.9
+        arg1 = arg1 * local4
+        AwardFury(self, arg1)
+
+def FuryEventFuryHeavyStrike(self):
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 14.0)
+    hydra.HydraSendGroundCombatEvent(14.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventFuryFinisher(self):
+    AddDebugCallout(self, 16.0)
+    AwardHitCounter(self, 1.0)
+    AwardFuryBonus(self, 0.0, "gui_ogc_callout_furyfinisher")
+    game.PostEventNone("fury_gain_2")
+    SendIntentTrigger("diaint_fury_finisher", 2.0)
+    hydra.HydraSendGroundCombatEvent(15.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventChainStrike5(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 4.0)
+    hydra.HydraSendGroundCombatEvent(8.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventChainFinisher5(self):
+    DoFuryEventChainFinisher(self, 22.0, 4.0)
+    AddDebugCallout(self, 5.0)
+    game.PostEventNone("fury_gain_5")
+    game.PostEventNone("ply.fury_chain_finisher.ready")
+
+def FuryEventGutShot(self):
+    AwardFuryBonus(self, 1.0, "gui_ogc_callout_gutshot")
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 27.0)
+
+def FuryEventSpellKill(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = character.GetPlayer()
+    OnFuryEventKill(self)
+    UpdateEnemiesKilledThisFight(local1)
+    SendIntentTrigger("diaint_ogc_max_rocks", 2.0)
+
+def BeginFuryModeExit(self):
+    local1 = playerstats.GetPlayerStats()
+    soundscripting.SetRouterVariableInteger("gameplay_conditions", "set_variable_value", "gameplay_furymode", 0.0, 0.0, 0.0)
+    local1.furyDeActivationEffectTimer = 0.3
+    game.PostEventNone("fury.vfx.stop")
+    game.PostEventNone("ply.fury.exit")
+
+def ReduceFuryMedium(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = character.GetPlayer()
+    if local1.inFuryMode > 0.0:
+        AwardFuryStackPoints(self, -200.0)
+    else:
+        AwardFuryStackPoints(self, -0.0)
+    local1.RankPoints = local1.RankPoints - 2.5
+    local1.DifficultyScaling = math.Clamp(local1.DifficultyScaling - 0.2, 0.0, 1.0)
+    SendParryFailedEvent(self)
+    SendIntentTrigger("diaint_ogc_max_sucks", 2.0)
+
+def DisableFury(self):
+    playerstats.GetPlayerStats().furyEnabled = 0.0
+
+def FuryEventPartShatter(self):
+    gui.PostEvent("gui_ogc_effects_shatter")
+    AwardHitCounter(self, 1.0)
+    AwardFury(self, 15.0)
+    FreezeHitCountTimer(self, 0.6)
+
+def FuryEventChainFinisher2(self):
+    DoFuryEventChainFinisher(self, 13.0, 1.0)
+    AddDebugCallout(self, 5.0)
+    game.PostEventNone("fury_gain_2")
+
+def EnableRendering(self):
+    scriptgo.SetRenderFunction(self, "Render")
+
+def SendIntentTrigger(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2.inCombatCount >= arg1:
+        character.SendTrackEvent(character.GetPlayer(), "cdia.intenttrigger", self)
+
+def FuryEventHeavyStrike(self):
+    AwardFuryWithMultiplier(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 1.0)
+    hydra.HydraSendGroundCombatEvent(1.0, playerstats.GetPlayerStats().HitCounter)
+
+def ResetState(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.CallOutIdList = ["gui_ogc_action_light_strike", "gui_ogc_action_heavy_strike", "gui_ogc_action_parry", "gui_ogc_action_counter", "gui_ogc_action_chain_strike", "gui_ogc_action_chain_finisher", "gui_ogc_action_ground_strike", "gui_ogc_action_weapon_strike", "gui_ogc_action_heavy_w_strike", "gui_ogc_action_limb_counter", "gui_ogc_action_wall_strike", "gui_ogc_action_wall_finisher", "gui_ogc_action_wall_shiv_exec", "gui_ogc_action_fury_strike", "gui_ogc_action_fury_heavy", "gui_ogc_action_fury_chain", "gui_ogc_action_fury_finisher", "gui_ogc_action_fury_execution", "gui_ogc_action_shiv_chain_fin", "gui_ogc_action_shiv_punisher", "gui_ogc_action_shiv_reversal", "gui_ogc_action_shiv_master", "gui_ogc_action_shiv_escape", "gui_ogc_action_mw_reversal", "gui_ogc_action_mw_m_reversal", "gui_ogc_action_mw_g_execution", "gui_ogc_action_charge", "gui_ogc_action_gut_shot", "gui_ogc_action_shield_shatter", "gui_ogc_action_escape", "gui_ogc_action_perfect_counter"]
+    local2 = playerstats.GetPlayerStats()
+    local2.ForceFinalKill = 0.0
+    local2.furyEnabled = 1.0
+    local2.JawbreakerBufferTimer = 0.0
+    local2.FuryKillCalloutBufferTimer = 0.0
+    local2.BlockFuryBonusCalloutTimer = 0.0
+    local2.FuryKillCountKeepOnScreenTimer = 0.0
+    local2.SkillCountKeepOnScreenTimer = 0.0
+    local2.inFuryMode = 0.0
+    local2.furyEffectsTimer = 0.0
+    local2.furyActivationEffectTimer = 0.0
+    local2.furyActivationEffectDelay = 0.0
+    local2.furyActivationEffectTimerOnAttacker = 0.0
+    local2.furyDeActivationEffectTimer = 0.0
+    local2.furyToggle = -1.0
+    local2.furyActivationDialogDelay = 0.0
+    local2.inCombatCount = 0.0
+    local2.combatKillCount = 0.0
+    local2.furyKillCount = 0.0
+    local2.bufferExitCombat = 0.0
+    local2.HitCountTimer = 0.0
+    local2.HitCountFreezeTimer = 0.0
+    local2.HitCounter = 0.0
+    local2.HitReactionCountTimer = 0.0
+    local2.HitReactionCounter = 0.0
+    local2.ComboRecord = 0.0
+    local2.furyStackPoints = 0.0
+    local2.AccumulatedFuryDuringCombat = 0.0
+    local2.SkillsUsedDuringCombat = 0.0
+    local2.CStackTime0 = 0.0
+    local2.CStackID0 = 0.0
+    local2.TimeSinceLastFury = 0.0
+    local2.FuryKillCounter = 0.0
+    local2.FromZeroToFuryTimer = 0.0
+    local2.UseFromZeroToFuryTimer = 0.0
+    local2.EnemiesKilledWithoutTakingDamageInARow = 0.0
+    local2.PlayerLastKillHealth = 0.0
+    ResetCombatEndChallengeVariable(local2)
+    local2.RankKills = 0.0
+    local2.RankPoints = 0.0
+    local2.DifficultyScaling = 1.0
+
+def OnFuryEventKill(self):
+    local1 = character.GetPlayer()
+    if character.GetVehicle(local1):
+        return
+    local2 = playerstats.GetPlayerStats()
+    local2.combatKillCount = local2.combatKillCount + 1.0
+    local2.RankKills = local2.RankKills + 1.0
+    local2.RankPoints = local2.RankPoints + 1.0
+    if local2.inFuryMode > 0.0:
+        local2 = playerstats.GetPlayerStats()
+        local2.FuryKillCalloutBufferTimer = 0.0001
+        character.ApplyToHealthBlock(local1, "Health", 100.0)
+        if gamedirector.GetAiGameStateHashInRangeCount("combat", 30.0, 0.75) > 1.0 and local2.furyStackPoints > 0.0:
+            AwardFuryStackPoints(self, 100.0)
+    else:
+        AwardFury(self, 100.0)
+        FreezeHitCountTimer(self, 1.5)
+        game.PostEventNone("fury_gain_1")
+
+def FuryEventShivExecution(self, arg1):
+    local2 = character.GetPlayer()
+    AddDebugCallout(self, arg1)
+    AwardFuryWithMultiplier(self, 15.0)
+    AwardHitCounter(self, 1.0)
+    AwardFuryBonus(self, 2.0, "gui_ogc_callout_shivexecution")
+    game.PostEventNone("fury_gain_3")
+    hydra.HydraSendGroundCombatEvent(31.0, playerstats.GetPlayerStats().HitCounter)
+
+def Update(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    local3 = character.GetPlayer()
+    local4 = scriptgo.GetProperties(self)
+    local5 = character.GetAbsoluteHealth(local3)
+    if local5 > local2.PlayerLastKillHealth:
+        local2.PlayerLastKillHealth = local5
+    if local2.PlayerLastKillHealth > local5:
+        hydra.HydraSendEnemiesKilledInARowWithoutDamageEvent(local2.EnemiesKilledWithoutTakingDamageInARow)
+        local2.PlayerLastKillHealth = local5
+        local2.EnemiesKilledWithoutTakingDamageInARow = 0.0
+    if local2.JawbreakerBufferTimer > 0.0:
+        local2.JawbreakerBufferTimer = math.Max(0.0, local2.JawbreakerBufferTimer - arg1)
+        if local2.JawbreakerBufferTimer == 0.0:
+            DoFuryEventJawBreaker(self)
+    if local2.FuryKillCalloutBufferTimer > 0.0:
+        local2.FuryKillCalloutBufferTimer = math.Max(0.0, local2.FuryKillCalloutBufferTimer - arg1)
+        if local2.FuryKillCalloutBufferTimer == 0.0:
+            gui.FuryEventCallout(1.0, 4.0, "gui_ogc_callout_furykill")
+            game.PostEventNone("fury_gain_5")
+            local2.BlockFuryBonusCalloutTimer = 0.2
+    if local2.BlockFuryBonusCalloutTimer > 0.0:
+        local2.BlockFuryBonusCalloutTimer = math.Max(0.0, local2.BlockFuryBonusCalloutTimer - arg1)
+    if local2.FuryKillCountKeepOnScreenTimer > 0.0:
+        local2.FuryKillCountKeepOnScreenTimer = math.Max(0.0, local2.FuryKillCountKeepOnScreenTimer - arg1)
+    if local2.SkillCountKeepOnScreenTimer > 0.0:
+        local2.SkillCountKeepOnScreenTimer = math.Max(0.0, local2.SkillCountKeepOnScreenTimer - arg1)
+    if local2.CStackTime0 > 0.0:
+        local2.CStackTime0 = math.Max(0.0, local2.CStackTime0 - arg1)
+    local6 = 0.05
+    local7 = game.GetBlackboardValueFromObject(local3, @0549D1F9)
+    if local7 != none:
+        if local7 > 0.0:
+            local6 = 0.15
+    if local2.inFuryMode:
+        local2.DifficultyScaling = math.Clamp(local2.DifficultyScaling + local6 * arg1, 0.0, 0.7)
+    else:
+        local2.DifficultyScaling = math.Clamp(local2.DifficultyScaling + local6 * arg1, 0.0, 1.0)
+    if not animation.IsWithinSegment(local3, @E063F6A0, @623AF23C):
+        local2.HitCountFreezeTimer = math.Max(0.0, local2.HitCountFreezeTimer - arg1)
+        if local2.HitCountFreezeTimer == 0.0 and local2.HitCountTimer > 0.0:
+            local2.HitCountTimer = math.Max(0.0, local2.HitCountTimer - arg1)
+            if local2.HitCountTimer == 0.0:
+                ResetHitCounter(self)
+    if local2.furyStackPoints == GetFuryStackMaxSize(self) and (not local2.inFuryMode > 0.0) and (not character.GetVehicle(local3)):
+        FuryModeEnter(self)
+    if local2.furyActivationEffectTimerOnAttacker > 0.0:
+        local2.furyActivationEffectTimerOnAttacker = local2.furyActivationEffectTimerOnAttacker - arg1
+    if local2.UseFromZeroToFuryTimer == 1.0:
+        local2.FromZeroToFuryTimer = local2.FromZeroToFuryTimer + arg1
+    UpdateInCombat(self, arg1)
+    UpdateFuryEffects(self, arg1)
+    UpdateInFuryMode(self, arg1)
+    UpdateGuiValues(self)
+
+def FuryEventStopFuryMode(self):
+    playerstats.GetPlayerStats().furyToggle = 0.0
+
+def FuryEventFuryStrike(self):
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 13.0)
+    hydra.HydraSendGroundCombatEvent(14.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventShotgunKill(self):
+    if character.GetVehicle(character.GetPlayer()):
+        return
+    AwardFuryWithMultiplier(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    hydra.HydraSendGroundCombatEvent(33.0, playerstats.GetPlayerStats().HitCounter)
+
+def FuryEventShatter(self):
+    gui.PostEvent("gui_ogc_effects_shatter")
+    AwardFury(self, 20.0)
+    FreezeHitCountTimer(self, 0.6)
+
+def FuryEventWeaponStrike(self):
+    AwardFury(self, 5.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 0.6)
+    AddDebugCallout(self, 7.0)
+    local1 = playerstats.GetPlayerStats()
+    hydra.HydraSendGroundCombatEvent(17.0, local1.HitCounter)
+
+def ReduceFurySmall(self):
+    local1 = playerstats.GetPlayerStats()
+    local2 = character.GetPlayer()
+    if local1.inFuryMode > 0.0:
+        AwardFuryStackPoints(self, -150.0)
+    else:
+        AwardFuryStackPoints(self, -0.0)
+    local1.RankPoints = local1.RankPoints - 2.0
+    local1.DifficultyScaling = math.Clamp(local1.DifficultyScaling - 0.1, 0.0, 1.0)
+    SendParryFailedEvent(self)
+    SendIntentTrigger("diaint_ogc_max_sucks", 2.0)
+
+def FuryModeExit(self):
+    local1 = playerstats.GetPlayerStats()
+    local1.inFuryMode = 0.0
+    hydra.HydraSendGroundCombatEvent(30.0, local1.HitCounter)
+    hydra.HydraSendFuryEndEvent(local1.FuryKillCounter)
+
+def FuryEventLimbBreakingCounter(self):
+    local1 = playerstats.GetPlayerStats()
+    AwardFuryWithMultiplier(self, 12.0)
+    AddDebugCallout(self, 9.0)
+    AwardHitCounter(self, 1.0)
+    FreezeHitCountTimer(self, 2.5)
+    hydra.HydraSendGroundCombatEvent(22.0, local1.HitCounter)
+    game.PostEventNone("fury_gain_3")
+    SendIntentTrigger("diaint_ogc_max_rocks", 2.0)

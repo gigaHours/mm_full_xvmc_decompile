@@ -1,0 +1,11 @@
+module lookat_blackboard_value
+
+def Update(self, arg1, arg2):
+    if not animation.IsWithinSegment(self, @3DCDF149, @2F518478):
+        local3 = game.GetBlackboardValueFromObject(self, @71A8E4F0)
+        character.SetLookAtGain(self, 1.0)
+        local4 = game.GetTransform(self)
+        local5 = matrix.Inverse(local4)
+        local6 = matrix.MulVec(local5, local3)
+        character.SetLookAtTarget(self, local6)
+        local7 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)

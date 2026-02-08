@@ -1,0 +1,12 @@
+module chum_veh_harpoon_is_reloading
+import @58351C01
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    if local2 != none:
+        local3 = lib_entity_proxy.GetHarpoonDataWeapon(local2)
+        if local3 != none:
+            local4 = game.StateContainerDataWeaponGetReloadTimeLeft(local3)
+            if local4 > 0.0:
+                return 1.0
+    return 0.0

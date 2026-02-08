@@ -1,0 +1,11 @@
+module float_tracks_test
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = ["float_wrinkle_1a", "float_wrinkle_1b", "float_wrinkle_2a", "float_wrinkle_2b", "float_wrinkle_3a", "float_wrinkle_3b", "float_RightFoot_IK_gain", "float_LeftFoot_IK_gain"]
+    local6 = 0.0
+    local7 = 1.0
+    local5 = len(local4)
+    while local5 > local6:
+        local8 = local4[local6]
+        local9 = animation.GetFloatSlotValue(self, local8)
+        local6 = local7 + local6

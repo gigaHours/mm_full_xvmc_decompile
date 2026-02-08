@@ -1,0 +1,39 @@
+module char_snaptotarget
+
+def Evaluate(self, arg1):
+    local2 = none
+    if arg1.Property0 == 0.0:
+        local3 = animation.GetLinkTarget(self)
+        if local3:
+            local2 = character.GetWorldMatrix(local3).r3
+    if arg1.Property0 == 1.0:
+        local3 = animation.GetLinkSource(self, 0.0)
+        if local3:
+            local2 = character.GetWorldMatrix(local3).r3
+    if arg1.Property0 == 2.0:
+        local3 = character.GetPlayer()
+        if local3:
+            local2 = character.GetWorldMatrix(local3).r3
+    if arg1.Property0 == 3.0:
+        local4 = lib_entity_proxy.GetShotgun(self)
+        if none != local4:
+            local5 = scriptgo.GetProperties(local4)
+            if none != local5.target:
+                local2 = scriptgo.Call(local5.target, @0C537298)
+            else:
+                local6 = character.GetWorldMatrix(self)
+                local7 = vector.Add(local6.r3, vector.Scale(local6.r1, 1.2))
+                local8 = camera.GetCameraTransform()
+                local9 = vector.Scale(local8.r2, -1.0)
+                local2 = vector.Add(local7, vector.Scale(local9, 7.0))
+    local6 = character.GetWorldMatrix(self)
+    if none != local2:
+        local10 = vector.Sub(local2, local6.r3)
+        local10.y = 0.0
+        if vector.Length(local10) > 0.0:
+            vector.Normalize(local10)
+        if arg1.Property1 > 0.0:
+            local11 = matrix.RotationAxisMatrix(vector.Set(0.0, 1.0, 0.0, 0.0), arg1.Property1)
+            local10 = matrix.MulVec(local11, local10)
+        character.RotateInstantly(self, local10)
+    return 1.0

@@ -1,0 +1,18 @@
+module mmax_set_hand_forward_modifiers
+
+def Enter(self, arg1):
+    local2 = animation.GetPoseTransformById(self, "RightHand").r3
+    local3 = animation.GetPoseTransformById(self, "LeftHand").r3
+    local4 = local3.z > local2.z
+    local5 = 1.0 == animation.GetStateBit(self, 15.0)
+    if false:
+        debug.LogInfo("LeftHand: %v, RightHand: %v, rh_fwd: %b", [local3, local2, local4])
+    local6 = @6217CCDD
+    if arg1.Layer:
+        local6 = game.GameHashFloat(arg1.Layer)
+    if local4:
+        animation.SetModifier(self, local6, @026F2163, true)
+    if local5:
+        animation.SetModifier(self, local6, @1DD526DF, true)
+        if false:
+            debug.LogInfo("set MOD_NAVIGATING", [])

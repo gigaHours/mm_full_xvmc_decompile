@@ -1,0 +1,11 @@
+module veh_landmover
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetPart(local2.car, "vpart_door_l")
+    local3.State = local3.STATE_OPENED
+    local3.AutoLock = false

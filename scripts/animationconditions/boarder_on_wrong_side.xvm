@@ -1,0 +1,21 @@
+module boarder_on_wrong_side
+
+def Evaluate(self, arg1):
+    local2 = game.GetTransform(self).r3
+    local3 = character.GetVehicle(self)
+    local4 = character.GetPlayer()
+    if local3 and local4:
+        local5 = character.GetVehicle(local4)
+        if local5:
+            local6 = game.GetBlackboardValueFromObject(local3, @31F1558B)
+            if local6:
+                local7 = game.GetTransform(local5).r3
+                local8 = game.GetTransform(local3).r3
+                local9 = vector.Sub(local6, local7)
+                local10 = vector.Sub(local2, local8)
+                if vector.Length(local9) > 0.0 and vector.Length(local10) > 0.0:
+                    local9 = vector.Normalize(local9)
+                    local10 = vector.Normalize(local10)
+                    if vector.Dot(local9, local10) > 0.0:
+                        return 1.0
+    return 0.0

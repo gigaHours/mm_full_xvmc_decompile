@@ -1,0 +1,10 @@
+module char_top_dog_shiv_weakness_buff
+
+def Exit(self, arg1):
+    if character.HasBuff(self, "topdog_weak_against_shiv"):
+        character.RemoveBuff(self, "topdog_weak_against_shiv")
+
+def Update(self, arg1, arg2):
+    if game.IsTaged(self, "rimjobbie"):
+        if not character.HasBuff(self, "topdog_weak_against_shiv"):
+            character.AddBuff(self, "topdog_weak_against_shiv")

@@ -1,0 +1,83 @@
+module chum_aiming
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = game.GetTransform(self)
+    local5 = animation.GetSampler(arg3, 0.0)
+    local5.Weight = 1.0
+    local6 = 0.0
+    local7 = vector.Scale(local4.r2, -1.0)
+    local8 = local4.r1
+    local9 = character.GetVehicle(self)
+    if 2.0 == arg1.Property0:
+        if local9:
+            local10 = lib_entity_proxy.GetHarpoon(local9)
+            local11 = scriptgo.Call(local10, @0C537298)
+            if local11:
+                local8 = vector.Normalize(vector.Sub(local11, local4.r3))
+            else:
+                local8 = lib_character.GetFlattenedCameraDir(local4.r1)
+                if false:
+                    debug.Arrow(local4.r3, vector.Add(local4.r3, vector.Scale(local8, 3.0)), 0.3, lib_color.RED(1.0))
+    local12 = lib_character.GetFlattenedCameraDir(local8)
+    local13 = vector.AngleBetween(local12, local7)
+    local14 = math.Sign(vector.Dot(local12, local4.r0))
+    if local9:
+        local15 = 0.3
+        local16 = 180.0 / 30.0
+        local17 = local16 / 2.0
+        local18 = 360.0
+        local19 = [[35.0 / 30.0 / local16 * local18, 43.0 / 30.0 / local16 * local18], [72.0 / 30.0 / local16 * local18, 80.0 / 30.0 / local16 * local18]]
+        local20 = math.RadToDeg(local13)
+        local21 = 0.2
+        if 1.0 == arg1.Property0:
+            local20 = 0.0
+            local21 = 0.2
+        elif 0.0 > local14:
+            local20 = 180.0 + (180.0 - local20)
+        local23 = 0.0
+        local24 = 1.0
+        local22 = len(local19)
+        while local22 > local23:
+            local25 = local19[local23]
+            local26 = local25[0.0]
+            local27 = local25[1.0]
+            if local20 > local26 and local27 > local20:
+                local28 = math.Abs(local20 - local26)
+                local29 = math.Abs(local20 - local27)
+                if local29 > local28:
+                    local20 = local26
+                else:
+                    local20 = local27
+            local23 = local24 + local23
+        local30 = character.GetGlobalXvmFloat(self, 9.0)
+        local31 = local16 * (local20 / local18)
+        local32 = local31
+        local33 = local31 - local30
+        local34 = math.Sign(local33)
+        local33 = math.Abs(local33)
+        local35 = math.Min(math.Lerp(local15, 0.0, local33), local21)
+        if false:
+            debug.LogInfo("target_ang: %f, aim_time_target: %f, aim_time_curr: %f, dif: %f, lerp_step: %f", [local20, local31, local30, local33, local35])
+        if local33 > local17:
+            if local31 > local17:
+                if local30 > local35:
+                    local6 = math.Max(local30 - local35, 0.0)
+                else:
+                    local6 = local16 - local30
+            elif local17 > local31:
+                if local16 - local35 > local30:
+                    local6 = math.Min(local30 + local35, local16)
+                else:
+                    local6 = local35 - (local16 - local30)
+        else:
+            local6 = local30 + local34 * local35
+            if 2.0 > local33:
+                game.QueueAct(self, "ACT_CHUM_ROTATION_DONE")
+    character.SetGlobalXvmFloat(self, 9.0, local6)
+    local5.Time = local6
+    if false:
+        lib_character.DrawCharacter(self)
+
+def OnEnter(self, arg1):
+    character.SetGlobalXvmFloat(self, 9.0, 0.0)

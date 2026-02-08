@@ -1,0 +1,47 @@
+module sniper
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate sniper level %f", [self])
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate sniper level %f", [self])
+    local2 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    local3 = lib_entity_proxy.GetSniper(vehicle.GetSignatureVehicle())
+    if local3:
+        scriptgo.Call1(local3, @A5A1DDC8, GetMagazineSize(self))
+        scriptgo.Call1(local3, @325E1B00, GetAnimationReloadFactor(self))
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending sniper stats", [])
+    scriptgo.Call2(local2, @ECB59C6B, self, arg1)
+
+def GetAnimationReloadFactor(self):
+    if self == 0.0:
+        return 1.0
+    if self == 1.0:
+        return 1.0
+    if self == 2.0:
+        return 1.25
+    if self == 3.0:
+        return 1.25
+    if self == 4.0:
+        return 1.5
+    if self == 5.0:
+        return 1.5
+
+def GetMagazineSize(self):
+    if self == 0.0:
+        return 3.0
+    if self == 1.0:
+        return 3.0
+    if self == 2.0:
+        return 3.0
+    if self == 3.0:
+        return 4.0
+    if self == 4.0:
+        return 4.0
+    if self == 5.0:
+        return 5.0

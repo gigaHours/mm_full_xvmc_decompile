@@ -1,0 +1,14 @@
+module check_chum_repair_upgrade_level
+
+def Evaluate(self, arg1):
+    local2 = game.GetGameObjectByAlias("garage.state")
+    if not local2:
+        debug.LogInfo("check_chum_repair_upgrade_level.xpy: no garage state", [])
+        return 0.0
+    local3 = garagestate.GetUpgradeLevel(local2, @4253804A)
+    if local3 != none:
+        if local3 > arg1.Property0:
+            return 1.0
+        return 0.0
+    debug.LogInfo("check_chum_repair_upgrade_level.xpy: could not find repair_speed ugprade", [])
+    return 0.0

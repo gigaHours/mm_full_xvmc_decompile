@@ -1,0 +1,8 @@
+module camp_alerted
+
+def Evaluate(self, arg1):
+    local2 = game.GetBlackboardValueFromObject(character.GetPlayer(), @0549D1F9)
+    if local2:
+        if local2 > 0.0:
+            return 1.0
+    return 0.0

@@ -1,0 +1,6 @@
+module char_link_target_character_level
+
+def Evaluate(self, arg1):
+    if character.GetCharacterLevel(self) == arg1.Property0:
+        return 1.0
+    return 0.0

@@ -1,0 +1,42 @@
+module veh_sideburner
+import @42D0E955
+import @58351C01
+import @9B4F6985
+
+def WeaponSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weapon_selected = true
+    scriptgo.SetUpdateFunction(self, "UpdateState")
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+
+def UpdateState(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if not local2.weapon_selected or (not local2.input_fire_held) and local2.currently_active:
+        local2.currently_active = false
+        scriptgo.SendEvent(self, "W)q'")
+    elif local2.weapon_selected and local2.input_fire_held and (not local2.currently_active):
+        local2.currently_active = true
+        scriptgo.SendEvent(self, @4702FAFB)
+    if not local2.weapon_selected:
+        scriptgo.SetUpdateFunction(self, "")
+
+def GetVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.car
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.debug_enabled = false
+    local1.debug_weapon_name = "Sideburner"
+    local1.debug_weapon_name_order = 3.0
+    local1.currently_active = false
+    if false:
+        debug.LogInfo("Sideburner INIT", [])
+    lib_weapon.ClearInputFlags(self)
+
+def WeaponUnSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.weapon_selected = false
+    local1.currently_active = false

@@ -1,0 +1,57 @@
+module lookat_stronghold_civilian_reaction
+import @05896E5A
+
+def LookAtPart(self, arg1, arg2):
+    local3 = animation.GetPoseTransformById(arg1, arg2)
+    local4 = game.GetTransform(arg1)
+    local5 = matrix.Mul(local3, local4)
+    local6 = local5.r3
+    local7 = game.GetTransform(self)
+    local8 = matrix.Inverse(local7)
+    local9 = matrix.MulVec(local8, local6)
+    character.SetLookAtTarget(self, local9)
+    if lib_lookat.LookAtIsAccepted(self):
+        local10 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)
+
+def Update(self, arg1, arg2):
+    local3 = 8.0
+    local4 = 4.0
+    local5 = 0.5
+    local6 = character.GetPlayer()
+    if local6:
+        local7 = game.GetBlackboardValueFromObject(self, @F29021EA)
+        if local7 == none:
+            local7 = 0.0
+        local8 = game.GetTransform(local6)
+        local9 = local8.r3
+        local10 = game.GetTransform(self)
+        local11 = local10.r3
+        local12 = vector.Distance(local9, local11)
+        if local7 >= arg1.Property0:
+            if local12 > local5:
+                if local3 > local12:
+                    LookAtPart(self, local6, "Head")
+        elif local12 > local5:
+            if local3 > local12:
+                if local4 > local12:
+                    local13 = vector.Sub(local9, local11)
+                    local13 = vector.Normalize(local13)
+                    local14 = vector.Set(1.0, 0.0, 0.0, 0.0)
+                    local14 = matrix.MulVec(local10, local14)
+                    local14 = vector.Sub(local14, local11)
+                    local14 = vector.Normalize(local14)
+                    local15 = vector.Dot(local13, local14)
+                    local16 = 0.0
+                    if local15 >= 0.0:
+                        local16 = (1.0 - local15) * 2.0
+                        local16 = local16 * local16
+                        local16 = -local16
+                    else:
+                        local16 = (local15 + 1.0) * 2.0
+                        local16 = local16 * local16
+                    local17 = vector.Set(local16, -1.0, -0.8, 0.0)
+                    character.SetLookAtTarget(self, local17)
+                    if lib_lookat.LookAtIsAccepted(self):
+                        local18 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)
+                else:
+                    LookAtPart(self, local6, "Head")

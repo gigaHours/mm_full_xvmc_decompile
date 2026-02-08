@@ -1,0 +1,19 @@
+module veh_signature_idle
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+    ResetTimer(self)
+
+def ResetTimer(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.idle_timer = 0.0
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.idle_timer = local2.idle_timer + arg1
+    local3 = vector.Length(vehicle.GetVelocity(local2.car))
+    if local3 > 0.0:
+        ResetTimer(self)
+    if local2.idle_timer >= 30.0:
+        ResetTimer(self)
+        scriptgo.PostEvent(self, @061A3958)

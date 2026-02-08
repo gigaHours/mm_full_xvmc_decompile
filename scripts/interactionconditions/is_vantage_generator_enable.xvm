@@ -1,0 +1,5 @@
+module is_vantage_generator_enable
+
+def Evaluate(self, arg1):
+    interaction.SetNamedFailEntry(self, "entry.vantage_point_generator_fail")
+    return 0.0

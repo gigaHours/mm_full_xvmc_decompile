@@ -1,0 +1,405 @@
+module onground_camera_coordinator
+import @78DDD3EE
+
+def WeaponCamera(self, arg1):
+    if camera.ActiveCameraInAnyGroup("weapon_aim"):
+        SetCameraMode(self, 7.0)
+        return true
+    return false
+
+def InNarrowSpace(self):
+    local1 = character.GetPlayer()
+    local2 = false
+    local3 = false
+    if local1:
+        if animation.GetStateBit(local1, 43.0):
+            return true
+        if animation.GetStateBit(local1, 46.0):
+            return true
+        local4 = game.GetChild(local1, "raycaster")
+        if local4:
+            local5 = game.GetTransform(local1)
+            raycast.ClearRays(local4)
+            local6 = local5.r1
+            local7 = vector.Scale(local5.r2, -1.0)
+            local8 = 1.8
+            local9 = 4.0
+            local10 = 4.0
+            local11 = 1.5
+            local12 = vector.Add(local5.r3, vector.Scale(local6, local8))
+            local13 = vector.Add(local12, vector.Scale(local7, local11))
+            local14 = vector.Add(local12, vector.Scale(local6, local9))
+            local15 = vector.Add(vector.Add(local12, vector.Scale(local6, local9)), vector.Scale(local7, local10))
+            local16 = vector.Add(local13, vector.Scale(local6, local9))
+            local17 = camera.GetCameraTransform()
+            local18 = vector.Set(0.0, 1.0, 0.0, 1.0)
+            local19 = vector.Scale(local17.r2, -1.0)
+            local20 = local17.r3
+            local21 = vector.Add(local20, vector.Scale(local18, local9))
+            local22 = [none, none, none]
+            raycast.AddRay(local4, local12, local14)[local22] = 0.0
+            raycast.AddRay(local4, local20, local21)[local22] = 1.0
+            raycast.CastRays(local4)
+            local23 = lib_color.WHITE(0.7)
+            if not self.has_triggerd_narrow:
+                local25 = 0.0
+                local26 = 1.0
+                local24 = len(local22)
+                while local24 > local25:
+                    local27 = local22[local25]
+                    local23 = lib_color.WHITE(0.7)
+                    if local27:
+                        local28 = local27.Hits
+                        if local28:
+                            local30 = 0.0
+                            local31 = 1.0
+                            local29 = len(local28)
+                            while local29 > local30:
+                                local32 = local28[local30]
+                                local33 = vector.Set(0.0, -1.0, 0.0, 0.0)
+                                if vector.Dot(local33, local32.Normal) > 0.5:
+                                    if local25 == 0.0:
+                                        local3 = true
+                                    else:
+                                        local2 = true
+                                    local23 = lib_color.RED(0.7)
+                                local30 = local31 + local30
+                        if false:
+                            debug.Arrow(local27.From, local27.To, 0.05, local23)
+                    local25 = local26 + local25
+                self.has_triggerd_narrow = local3 and local2
+                return self.has_triggerd_narrow
+            local27 = local22[0.0]
+            if local27:
+                local28 = local27.Hits
+                if local28:
+                    local30 = 0.0
+                    local35 = 1.0
+                    local34 = len(local28)
+                    while local34 > local30:
+                        local32 = local28[local30]
+                        local33 = vector.Set(0.0, -1.0, 0.0, 0.0)
+                        if vector.Dot(local33, local32.Normal) > 0.5:
+                            local3 = true
+                            local23 = lib_color.RED(0.7)
+                        local30 = local35 + local30
+                if false:
+                    debug.Arrow(local27.From, local27.To, 0.05, local23)
+            self.has_triggerd_narrow = local3
+
+def DeActivateCoordinator(self):
+    local1 = scriptgo.GetProperties(self)
+    ConditionalDebugMsg("Deactivating OnGround Camera Coordinator", [])
+    ExitCurrentCameraMode(self)
+    local1.narrow_space_camera_active = false
+    ExitExplorationNarrowSpaceCamera(self, local1)
+    scriptgo.SetUpdateFunction(self, "")
+    lib_camera.ExitVistaCam(scriptgo.GetProperties(self))
+
+def getTimeInActionCamera(self):
+    if self == 1.0:
+        return 1.0
+    return 1.94
+
+def GetCameraModeTitle(self):
+    if 0.0 == self:
+        return "CAMERA_MODE_EXPLORATION_CAMERA"
+    if 1.0 == self:
+        return "CAMERA_MODE_COMBAT_CAMERA"
+    if 2.0 == self:
+        return "CAMERA_MODE_ACTION_CAMERA"
+    if 3.0 == self:
+        return "CAMERA_MODE_EXPLORATION_NARROW_SPACE_CAMERA"
+    if 4.0 == self:
+        return "CAMERA_MODE_STATIC_CLOSE_CAMERA"
+    if 5.0 == self:
+        return "CAMERA_MODE_CUTSCENE"
+    if 6.0 == self:
+        return "CAMERA_MODE_BINOCULAR"
+    if 7.0 == self:
+        return "CAMERA_MODE_WEAPON"
+    if 8.0 == self:
+        return "CAMERA_MODE_PAUSE"
+    if 9.0 == self:
+        return "CAMERA_MODE_STATIC_CLOSE_CAMERA_EXPLORATION"
+    return "?"
+
+def CombatModeCamera(self, arg1):
+    if not lib_gameplay.IsGameStateCombat(character.GetPlayer()):
+        return false
+    if camera.ActiveCameraInAnyGroup("skip_combat"):
+        return false
+    if not IsInCameraMode(self, arg1, 1.0):
+        SetCameraMode(self, 1.0)
+        game.PostEventNone("cam.activate.wasteland.melee")
+    return true
+
+def ExitCombatModeCamera(self, arg1):
+    if not camera.ActiveCameraInAnyGroup("pause"):
+        game.PostEventNone("cam.deactivate.wasteland.melee")
+
+def ExplorationCamera(self, arg1):
+    if not IsInCameraMode(self, arg1, 0.0):
+        SetCameraMode(self, 0.0)
+
+def GetVistaTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.vista_target
+
+def ExplorationNarrowSpaceCamera(self, arg1):
+    if not camera.ActiveCameraInAnyGroup("exploration"):
+        return false
+    if camera.ActiveCameraInAnyGroup("skip_narrowspace"):
+        return false
+    local2 = InNarrowSpace(arg1)
+    if arg1.narrow_space_camera_active:
+        if not local2:
+            ExitExplorationNarrowSpaceCamera(self, arg1)
+            arg1.narrow_space_camera_active = false
+        return local2
+    if local2:
+        SetCameraMode(self, 3.0)
+        game.PostEventNone("cam.activate.wasteland.exploration.narrow")
+        arg1.narrow_space_camera_active = true
+        if false:
+            debug.LogInfo("onground_camera_coordinator, send event: cam.activate.wasteland.exploration.narrow", [])
+        return true
+    return false
+
+def AnimatedCamera(self, arg1):
+    local2 = false
+    if arg1.animated_camera_did_act_delay_count > 0.0 and arg1.animated_camera_this_frame == none:
+        return true
+    if arg1.animated_camera_this_frame != none:
+        ConditionalDebugMsg("Animated camera reported this frame: %f", [arg1.animated_camera_this_frame])
+        if true:
+            local3 = [game.GetGameObjectByAlias("camera_on_ground_animated_modifier"), game.GetGameObjectByAlias("camera_on_ground_animated_modifier_with_fast_transition"), game.GetGameObjectByAlias("camera_on_ground_animated_modifier_with_transition"), game.GetGameObjectByAlias("camera_on_ground_animated_jerrycan_modifier"), game.GetGameObjectByAlias("camera_on_ground_animated_cut_in_cut_out_initial_modifier"), game.GetGameObjectByAlias("camera_on_ground_animated_cut_in_cut_out_no_fade_modifier"), game.GetGameObjectByAlias("camera_on_ground_animated_modifier_no_dof")]
+            local5 = 0.0
+            local6 = 1.0
+            local4 = len(local3)
+            while local4 > local5:
+                local7 = local3[local5]
+                if local7 != none:
+                    game.DoAct(local7, "ACT_ANIMATED_CAMERA_CANCEL")
+                    ConditionalDebugMsg("Sent act: ACT_ANIMATED_CAMERA_CANCEL to gameobject", [])
+                    local8 = string.FormatFloat("ACT_ANIMATED_CAMERA_%f", [arg1.animated_camera_this_frame], "%.0f")
+                    ConditionalDebugMsg("Sent act: %s to gameobject", [local8])
+                    game.DoAct(local7, local8)
+                    local2 = true
+                    arg1.animated_camera_did_act_delay_count = 3.0
+                else:
+                    ConditionalDebugMsg("Animation dummy object was none", [])
+                local5 = local6 + local5
+            return local2
+        ConditionalDebugMsg("Received request to activate animated camera, but an animated camera was already active", [])
+
+def StaticCloseCamera(self, arg1):
+    local2 = animation.IsWithinSegment(character.GetPlayer(), @E063F6A0, @CBC87904)
+    if IsInCameraMode(self, arg1, 4.0):
+        if local2:
+            return true
+        local3 = character.GetPlayer()
+        arg1.player_position_at_static_camera_exit = character.GetWorldMatrix(local3).r3
+        game.SendEventNone("cam.activate.close.static.exploration")
+        SetCameraMode(self, 9.0)
+    elif local2:
+        SetCameraMode(self, 4.0)
+        if animation.IsWithinSegment(character.GetPlayer(), @E063F6A0, @7F037DF5):
+            game.PostEventNone("cam.activate.close.static.glory")
+        else:
+            game.PostEventNone("cam.activate.close.static")
+        return true
+    if IsInCameraMode(self, arg1, 9.0):
+        local3 = character.GetPlayer()
+        local4 = vector.Distance(character.GetWorldMatrix(local3).r3, arg1.player_position_at_static_camera_exit)
+        if 2.3 > local4:
+            return true
+    return false
+
+def ReadyForNormalPriorityActionCamera(self, arg1):
+    if arg1.interesting_character_this_frame:
+        if ReadyForActionCamera(self, arg1):
+            return true
+    return false
+
+def ExitCurrentCameraMode(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.current_subcamera_type_index
+    ConditionalDebugMsg("OGCC: Exiting mode %s", [GetCameraModeTitle(local2)])
+    if 0.0 == local2:
+        pass
+    elif 1.0 == local2:
+        ExitCombatModeCamera(self, local1)
+    elif 2.0 == local2:
+        ExitActionCamera(self, local1)
+    elif 5.0 == local2:
+        pass
+    local1.current_subcamera_type_index = none
+
+def IsInCameraMode(self, arg1, arg2):
+    return arg2 == arg1.current_subcamera_type_index
+
+def Init(self):
+    if false:
+        ActivateCoordinator(self)
+
+def TriggerVistaCam(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.vista_cam_requested = true
+
+def SetCameraMode(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1 == local2.current_subcamera_type_index:
+        return
+    ExitCurrentCameraMode(self)
+    ConditionalDebugMsg("OGCC: Entering mode %s", [GetCameraModeTitle(arg1)])
+    local2.current_subcamera_type_index = arg1
+
+def ExitStaticCloseCamera(self, arg1):
+    game.PostEventNone("cam.deactivate.close.static")
+
+def TriggerVistaGui(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.vista_gui_requested = true
+
+def ConditionalDebugMsg(self, arg1):
+    if false:
+        debug.LogInfo(self, arg1)
+
+def PauseCamera(self, arg1):
+    if camera.ActiveCameraInAnyGroup("pause"):
+        SetCameraMode(self, 8.0)
+        return true
+    return false
+
+def ExitStaticCloseExplorationCamera(self, arg1):
+    game.PostEventNone("cam.deactivate.close.static.exploration")
+
+def ActivateCoordinator(self):
+    local1 = ResetProperties(self)
+    SetDefaultCamera(self, local1)
+    scriptgo.SetUpdateFunction(self, "Update")
+    ConditionalDebugMsg("Activating OnGround Camera Coordinator", [])
+
+def ExitActionCamera(self, arg1):
+    arg1.last_action_camera_time = arg1.timer
+    soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", "plr_killing_move", 0.0, 0.0, 0.0)
+    game.PostEventNone("camera.actioncameraeffects.deactivate")
+    game.PostEventNone("camera.coolmoveaction.deactivate")
+    game.PostEventNone("camera.actioncameras.deactivate")
+    arg1.custom_action_camera_type_active = 0.0
+    if arg1.action_slowmo_id:
+        game.EaseOutCustomUpdateSpeed(2.5, arg1.action_slowmo_id)
+        arg1.action_slowmo_id = none
+    arg1.interesting_character = none
+
+def ReadyForFinalKillCamera(self, arg1):
+    if arg1.killed_character_this_frame:
+        if IsFinalKill(self, arg1):
+            return true
+    return false
+
+def ReadyForActionCamera(self, arg1):
+    if arg1.timer - arg1.last_action_camera_time > 30.0:
+        return true
+    return false
+
+def ResetProperties(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.killed_character_this_frame = none
+    local1.interesting_character_this_frame = none
+    local1.interesting_character = none
+    local1.animated_camera_this_frame = none
+    local1.custom_action_camera_type = 0.0
+    local1.custom_action_camera_type_active = 0.0
+    local1.action_slowmo_id = none
+    local1.current_subcamera_type_index = none
+    local1.camera_entered_time = 0.0
+    local1.last_action_camera_time = -30.0 + 2.0
+    local1.timer = 0.0
+    local1.animated_camera_did_act_delay_count = 0.0
+    local1.player_position_at_static_camera_exit = vector.Set(0.0, 0.0, 0.0, 0.0)
+    lib_camera.InitVistaTargetSearch(local1)
+    local1.has_triggerd_narrow = false
+    local1.narrow_space_camera_active = false
+    ExitExplorationNarrowSpaceCamera(self, local1)
+    return local1
+
+def ExitExplorationNarrowSpaceCamera(self, arg1):
+    game.PostEventNone("cam.deactivate.wasteland.exploration.narrow")
+    if false:
+        debug.LogInfo("onground_camera_coordinator, send event: cam.deactivate.wasteland.exploration.narrow", [])
+
+def SetDefaultCamera(self, arg1):
+    ExplorationCamera(self, arg1)
+
+def CutsceneCamera(self, arg1):
+    if lib_camera.InSequence():
+        SetCameraMode(self, 5.0)
+        return true
+    return false
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.timer = local2.timer + arg1 / game.GetUpdateSpeed()
+    lib_camera.UpdateVistaScanning(local2, arg1 / game.GetUpdateSpeed(), false)
+    if PauseCamera(self, local2):
+        pass
+    elif CutsceneCamera(self, local2):
+        pass
+    elif BinocularCamera(self, local2):
+        pass
+    elif WeaponCamera(self, local2):
+        pass
+    elif AnimatedCamera(self, local2):
+        pass
+    elif ActionCamera(self, local2):
+        pass
+    elif CombatModeCamera(self, local2):
+        pass
+    elif ExplorationNarrowSpaceCamera(self, local2):
+        pass
+    else:
+        ExplorationCamera(self, local2)
+    local2.interesting_character_this_frame = none
+    local2.killed_character_this_frame = none
+    local2.animated_camera_this_frame = none
+    local2.custom_action_camera_type = 0.0
+    local2.animated_camera_did_act_delay_count = local2.animated_camera_did_act_delay_count - 1.0
+
+def BinocularCamera(self, arg1):
+    if camera.ActiveCameraInAnyGroup("binocular"):
+        SetCameraMode(self, 6.0)
+        return true
+    return false
+
+def ActionCamera(self, arg1):
+    if IsInCameraMode(self, arg1, 2.0):
+        return getTimeInActionCamera(arg1.custom_action_camera_type_active) >= arg1.timer - arg1.camera_entered_time
+    local2 = ReadyForFinalKillCamera(self, arg1)
+    if local2 or ReadyForNormalPriorityActionCamera(self, arg1):
+        SetCameraMode(self, 2.0)
+        if local2:
+            arg1.interesting_character = arg1.killed_character_this_frame
+        else:
+            arg1.interesting_character = arg1.interesting_character_this_frame
+        if arg1.custom_action_camera_type == 0.0:
+            arg1.action_slowmo_id = game.EaseInCustomUpdateSpeed(0.4, 0.24)
+            ConditionalDebugMsg("switching to finishing camera", [])
+            soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", "plr_killing_move", 1.0, 0.0, 0.0)
+            game.PostEventNone("camera.coolmoveaction.activate")
+        elif arg1.custom_action_camera_type == 1.0:
+            game.PostEventNone("camera.looting.activate")
+        arg1.custom_action_camera_type_active = arg1.custom_action_camera_type
+        game.PostEventNone("camera.actioncameraeffects.activate")
+        arg1.camera_entered_time = arg1.timer
+        return true
+
+def IsFinalKill(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if false:
+        debug.LogInfo("combatKillCount: %f, inCombatCount: %f", [local2.combatKillCount, local2.inCombatCount])
+    if local2.inCombatCount == 1.0 and local2.combatKillCount > 1.0 or local2.ForceFinalKill > 0.0:
+        local2.ForceFinalKill = 0.0
+        return true
+    return false

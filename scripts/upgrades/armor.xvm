@@ -1,0 +1,72 @@
+module armor
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate armor level %f", [self])
+    lib_vehicleupgrades.ChangeMass(-GetUpgradeMass(self))
+    lib_vehicleupgrades.ChangeCollisionEffectScale(-GetUpgradeCollisionEffectScale(self))
+
+def GetArmorSpeedThreshold(self):
+    return lib_vehicleupgrades.DiminishingReturnsProgression(self, 20.0, 40.0)
+
+def GetDebrisArmorScale(self):
+    return lib_vehicleupgrades.DiminishingReturnsProgression(self, 1.0, 0.1)
+
+def GetDebrisArmorSpeedThreshold(self):
+    return lib_vehicleupgrades.DiminishingReturnsProgression(self, 5.0, 15.0)
+
+def GetUpgradeMass(self):
+    return lib_vehicleupgrades.LinearProgression(self, 5.0, 0.0, 1000.0)
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate armor level %f", [self])
+    lib_vehicleupgrades.ChangeMass(GetUpgradeMass(self))
+    lib_vehicleupgrades.ChangeCollisionEffectScale(GetUpgradeCollisionEffectScale(self))
+    local2 = lib_entity_proxy.GetBodyHealth(vehicle.GetSignatureVehicle())
+    local3 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    if local2:
+        scriptgo.Call2(local2, @3F98B310, GetArmorSpeedThreshold(self), GetArmorDamageScale(self))
+        scriptgo.Call2(local2, @57A92F26, GetDebrisArmorScale(self), GetDebrisArmorSpeedThreshold(self))
+        scriptgo.Call1(local2, @15AD6152, GetEnvironmentArmorSpeedThreshold(self))
+    else:
+        debug.LogError("upgrade system", "Failed to get BodyHealthComponent.")
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending armor stats", [])
+    scriptgo.Call2(local3, @53395D1B, self, arg1)
+
+def GetDefensiveAnimatedHitreacts(self):
+    if self == 0.0:
+        return true
+    if self == 1.0:
+        return true
+    if self == 2.0:
+        return true
+    if self == 3.0:
+        return false
+    if self == 4.0:
+        return false
+    if self == 5.0:
+        return false
+
+def GetEnvironmentArmorSpeedThreshold(self):
+    return lib_vehicleupgrades.DiminishingReturnsProgression(self, 6.0, 14.0)
+
+def GetUpgradeCollisionEffectScale(self):
+    if self == 0.0:
+        return -0.3
+    if self == 1.0:
+        return -0.15
+    if self == 2.0:
+        return 0.0
+    if self == 3.0:
+        return 0.0
+    if self == 4.0:
+        return 0.0
+    if self == 5.0:
+        return 0.0
+
+def GetArmorDamageScale(self):
+    return lib_vehicleupgrades.DiminishingReturnsProgression(self, 1.0, 0.33)

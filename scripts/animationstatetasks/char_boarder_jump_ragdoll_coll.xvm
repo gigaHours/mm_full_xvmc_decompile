@@ -1,0 +1,45 @@
+module char_boarder_jump_ragdoll_coll
+import @42D0E955
+
+def Enter(self, arg1):
+    local2 = game.GetTransform(self)
+    arg1.timeCounter = 0.0
+    arg1.previousSpeed = 0.0
+    if DEBUG_ENABLED():
+        debug.LogInfo("---->  RagdollColl Enter", [])
+        return
+    arg1.doFireAct = false
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = character.GetMeasuredWorldVelocity(self)
+    if local3.y > 0.0:
+        local3.y = 0.0
+    local4 = vector.Length(local3)
+    if arg1.previousSpeed > local4 * 1.2:
+        if not animation.IsWithinSegment(self, @E063F6A0, @12754C7F):
+            arg1.doFireAct = true
+            if DEBUG_ENABLED():
+                local5 = character.GetWorldMatrix(self)
+                debug.Sphere(local5.r3, 0.6, lib_color.PURPLE(0.4))
+                debug.LogInfo("---->  props.doFireAct due to current_velocity_vec (%f -> %f)", [arg1.previousSpeed, local4])
+    arg1.previousSpeed = local4
+    local6 = arg1.timeCounter
+    if not animation.IsWithinSegment(self, @E063F6A0, @12754C7F):
+        arg1.timeCounter = local6 + arg2
+    if local6 > 1.0:
+        arg1.doFireAct = true
+        if DEBUG_ENABLED():
+            local5 = character.GetWorldMatrix(self)
+            debug.Sphere(local5.r3, 0.6, lib_color.BLACK(0.4))
+            debug.LogInfo("---->  props.doFireAct due to absolute time", [])
+    if arg1.doFireAct == true:
+        game.QueueAct(self, "ACT_RAGDOLL_HIT_GROUND")
+        if DEBUG_ENABLED():
+            debug.LogInfo("---->  Play ACT_RAGDOLL_HIT_GROUND", [])
+
+def DEBUG_ENABLED():
+    local0 = vehicle.GetGlobalProperties()
+    return false or local0.BoardingLandDebugEnabled

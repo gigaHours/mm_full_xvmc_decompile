@@ -1,0 +1,29 @@
+module fade_out_player_vehicle
+
+def ExitTransition(self, arg1):
+    SetTargetOpacity(self, arg1, 1.0)
+
+def SetTargetOpacity(self, arg1, arg2):
+    arg1.PlayerVehicleOpacity = arg2
+    if self.Properties.fade_player:
+        arg1.PlayerOpacity = arg2
+
+def Update(self, arg1):
+    local2 = self.Properties.min_visible_elevation
+    local3 = self.Properties.max_visible_elevation
+    local4 = vehicle.GetGlobalProperties()
+    local5 = 1.0
+    local6 = 1.0
+    local7 = 1.0
+    local8 = 1.0
+    local9 = math.Abs(local3 - local2)
+    if local9 > 0.0:
+        local6 = math.Scale01(self.OffsetElevation, local3, local2)
+    local10 = math.Abs(self.Properties.max_visible_azimuth_right) - math.Abs(self.Properties.min_visible_azimuth_right)
+    if local10 > 0.0:
+        local7 = math.Scale01(self.OffsetAzimuth, self.Properties.max_visible_azimuth_right, self.Properties.min_visible_azimuth_right)
+    local11 = math.Abs(self.Properties.max_visible_azimuth_left) - math.Abs(self.Properties.min_visible_azimuth_left)
+    if local11 > 0.0:
+        local8 = math.Scale01(self.OffsetAzimuth, self.Properties.max_visible_azimuth_left, self.Properties.min_visible_azimuth_left)
+    local5 = math.Min(local6, math.Min(local8, local7))
+    SetTargetOpacity(self, arg1, local5)

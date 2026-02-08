@@ -1,0 +1,40 @@
+module mmax_vhl_aim_with_shotgun
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetSampler(arg3, 3.0)
+    local5 = animation.GetSampler(arg3, 2.0)
+    local6 = animation.GetSampler(arg3, 1.0)
+    local7 = game.GetBlackboardValueFromObject(self, @6E3715F9)
+    local8 = character.GetWorldMatrix(self)
+    local9 = vector.Scale(local8.r2, -1.0)
+    local10 = math.DegToRad(arg1.Property0)
+    local11 = math.DegToRad(arg1.Property1)
+    local12 = math.DegToRad(arg1.Property2)
+    local13 = math.DegToRad(arg1.Property3)
+    local14 = vector.Dot(local8.r1, local7)
+    local15 = math.ATan(local14)
+    if local15 > 0.0:
+        local16 = math.Scale01(local15, 0.0, local10)
+    else:
+        local16 = -math.Scale01(-local15, 0.0, local11)
+    local17 = vector.Dot(local9, local7)
+    local18 = math.ACos(local17)
+    local19 = math.Scale01(local18, local12, local13)
+    local6.Weight = math.Clamp01(-local16)
+    local5.Weight = 1.0 - math.Abs(local16)
+    local4.Weight = math.Clamp01(local16)
+    local4.Time = local19
+    local5.Time = local19
+    local6.Time = local19
+    local20 = false
+    if local20 == true:
+        debug.LogInfo("vertical_angle: %f ---- front_angle: %f (%f) (%f(%f) - %f(%f) -> time: %f", [math.RadToDeg(local15), math.RadToDeg(local18), local18, arg1.Property2, local12, arg1.Property3, local13, local19])
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    animation.GetSampler(arg4, 3.0).Speed = 0.0
+    animation.GetSampler(arg4, 2.0).Speed = 0.0
+    animation.GetSampler(arg4, 1.0).Speed = 0.0
+    if arg1.Property0 == 0.0 or arg1.Property1 == 0.0:
+        debug.LogError("xvm potential division by infinity error", "Wrong parameters passed to mmax_vhl_aim_with_shotgun.xpy (0.0!!!)")
+    if arg1.Property2 == 0.0:
+        debug.LogError("xvm potential division by infinity error", "Wrong parameters passed to mmax_vhl_aim_with_shotgun.xpy (props.Property2 == props.Property3)")

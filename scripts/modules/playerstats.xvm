@@ -1,0 +1,4 @@
+module playerstats
+
+def GetPlayerStats():
+    pass

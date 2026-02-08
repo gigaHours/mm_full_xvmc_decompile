@@ -1,0 +1,13 @@
+module char_snap_to_ground
+import @BAFDB405
+
+def Update(self, arg1, arg2):
+    if lib_character.SegmentNonExistentOrWithin(self, game.GameHashFloat(arg1.Layer), game.GameHashFloat(arg1.Segment)):
+        local3 = character.GetGroundInfo(self)
+        local4 = game.GetTransform(self)
+        local5 = local4.r3
+        local5.y = local5.y - local3.HeightOverGround
+        local6 = matrix.MatrixY(local4.r2, vector.Set(0.0, 1.0, 0.0, 0.0), local5)
+        local7 = vector.Length(vector.Sub(local4.r3, local6.r3))
+        if local7 > 0.04:
+            game.SetTransform(self, local6)

@@ -1,0 +1,12 @@
+module char_set_float_register_on_target
+
+def Enter(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    if local2:
+        character.SetFloatRegister(local2, arg1.Property0, arg1.Property1)
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    pass

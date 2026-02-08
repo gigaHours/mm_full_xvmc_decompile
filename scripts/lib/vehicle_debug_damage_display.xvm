@@ -1,0 +1,63 @@
+module vehicle_debug_damage_display
+
+def Add(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.dmgDisp
+    local5 = 0.0
+    local6 = 1.0
+    local4 = len(local2.dmgDisp) / 2.0
+    while local4 > local5:
+        if local3[local5 * 2.0 + 1.0] == 0.0:
+            arg1[local3] = local5 * 2.0
+            DAMAGE_DISPLAY_TIME()[local3] = local5 * 2.0 + 1.0
+            local2.dmgDisp = local3
+            return
+        local5 = local6 + local5
+
+def DrawDamageText(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = game.GetTransform(local3.car)
+    local5 = vector.Add(local4.r3, vector.Set(0.0, 2.8 + (1.0 - arg2 / DAMAGE_DISPLAY_TIME()) * DAMAGE_DISPLAY_Y_DISTANCE(), 0.0, 0.0))
+    local6 = debug.ProjectPosition(local5)
+    if local6.z > 0.0:
+        local7 = 0.048
+        local6.x = local6.x - local7 / 2.0
+        local8 = vector.Set(1.0, 0.15, 0.15, arg2 / DAMAGE_DISPLAY_TIME())
+        debug.DrawText(local6, "%f", [arg1], local8)
+
+def DAMAGE_DISPLAY_TIME():
+    return 2.0
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    local1.dmgDisp = local2
+
+def DAMAGE_DISPLAY_Y_DISTANCE():
+    return 3.0
+
+def Render(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local4 = 0.0
+    local5 = 1.0
+    local3 = len(local2.dmgDisp) / 2.0
+    while local3 > local4:
+        if local2.dmgDisp[local4 * 2.0 + 1.0] == 0.0:
+            pass
+        else:
+            DrawDamageText(self, local2.dmgDisp[local4 * 2.0], local2.dmgDisp[local4 * 2.0 + 1.0])
+        local4 = local5 + local4
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.dmgDisp
+    local5 = 0.0
+    local6 = 1.0
+    local4 = len(local3) / 2.0
+    while local4 > local5:
+        local7 = local3[local5 + 1.0] - arg1
+        if 0.0 > local7:
+            local7 = 0.0
+        local7[local3] = local5 + 1.0
+        local5 = local6 + local5
+    local2.dmgDisp = local3

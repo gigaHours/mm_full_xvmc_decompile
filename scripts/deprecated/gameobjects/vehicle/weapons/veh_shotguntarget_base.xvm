@@ -1,0 +1,88 @@
+module veh_shotguntarget_base
+import @42D0E955
+import @58351C01
+import @B1360AAD
+import @10C61CC8
+
+def Disable(self):
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.SetRenderFunction(self, "")
+    lib_shotguntarget.Disable(self)
+
+def IgnoreHitDistanceThreshold(self):
+    return 0.0
+
+def GetTargetPos(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @82877941)
+
+def Unload(self):
+    Disable(self)
+
+def GetAutoTargetPrio(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.target_type, @47D4451D)
+
+def CanBeTargeted(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return scriptgo.Call1(local2.target_type, @60812707, arg1)
+
+def HideOutline(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.Call(local1.weakspot, @63B8C080)
+
+def ShouldIgnoreVehicleParts(self):
+    return false
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.boarding_pos = -1.0
+    local1.weakspot = game.GetParent(self)
+    local2 = scriptgo.GetProperties(local1.target_type)
+    local2.weakspot = local1.weakspot
+    local2.char = local1.char
+    if false:
+        scriptgo.SetRenderFunction(self, "UpdateRender")
+
+def ShowAsUnavailable(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.target_type, @802CC767)
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = GetTargetPos(self)
+    debug.Sphere(local3, 0.2, lib_color.WHITE(0.5))
+
+def Enable(self):
+    lib_shotguntarget.Enable(self)
+
+def GetMinTargetingDistance(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @B6D20244)
+
+def GetTargetRenderPos(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return scriptgo.Call1(local2.weakspot, @9EAD4E49, arg1)
+
+def ShowOutline(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    scriptgo.Call1(local2.weakspot, @C748D51A, arg1)
+
+def GetTargetPhysObject(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @59FD21A8)
+
+def FireAt(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if none != local3.target_type:
+        local4 = scriptgo.GetProperties(local3.target_type)
+        local4.char = local3.char
+        local4.weakspot = local3.weakspot
+        local4.base = self
+        scriptgo.Call2(local3.target_type, @DDEF473F, arg1, arg2)
+    else:
+        debug.LogError("VEH_SHOTGUN_TARGET_BASE", "No props.target_type picket from the target base")
+
+def GetNormal(self):
+    local1 = scriptgo.GetProperties(self)
+    return scriptgo.Call(local1.weakspot, @FB4DD739)

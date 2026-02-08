@@ -1,0 +1,60 @@
+module char_rotate_and_lerp_distance_to_targets_bone
+import @BAFDB405
+import @F76070AE
+import @78DDD3EE
+
+def Enter(self, arg1):
+    arg1.target_transform = game.GetTransform(self)
+    arg1.original_transform = game.GetTransform(self)
+    arg1.target_alignment_bone = "Spine2"
+    arg1.bone_selected = false
+    arg1.looted_character = none
+
+def Update(self, arg1, arg2):
+    if arg1.looted_character == none:
+        arg1.looted_character = animation.GetLinkTarget(self)
+    if arg1.looted_character and arg1.bone_selected == false:
+        local3 = game.GetTransform(arg1.looted_character)
+        local4 = game.GetTransform(self)
+        local5 = animation.GetPoseTransformById(arg1.looted_character, "Neck")
+        local6 = animation.GetPoseTransformById(arg1.looted_character, "Spine2")
+        if local5 and local6:
+            local7 = matrix.Mul(local5, local3)
+            local8 = matrix.Mul(local6, local3)
+            local9 = vector.Distance(local4.r3, local7.r3)
+            local10 = vector.Distance(local4.r3, local8.r3)
+            if local10 > local9:
+                arg1.target_alignment_bone = "Neck"
+        arg1.bone_selected = true
+    if arg1.looted_character:
+        local11 = game.GetTransform(arg1.looted_character)
+        local12 = animation.GetPoseTransformById(arg1.looted_character, arg1.target_alignment_bone)
+        local13 = matrix.Mul(local12, local11)
+    else:
+        local13 = arg1.original_transform
+    if local13:
+        local4 = game.GetTransform(self)
+        local14 = animation.GetPoseTransformById(self, "TargetRef")
+        local15 = vector.Sub(local4.r3, local13.r3)
+        if vector.Length(local15) > 1E-05:
+            local15 = vector.Normalize(local15)
+        local16 = vector.Length(local14.r3)
+        local17 = vector.Scale(local15, local16)
+        local17 = vector.Add(local13.r3, local17)
+        arg1.target_transform = matrix.MatrixY(local15, vector.Set(0.0, 1.0, 0.0, 0.0), local17)
+    local18 = animation.GetSegmentInfo(self, @E063F6A0, game.GameHashFloat(arg1.Segment))
+    if local18:
+        if local18.Inside > 0.0:
+            local19 = matrix.Slerp(arg1.original_transform, arg1.target_transform, local18.LocalTime)
+            game.SetTransform(self, local19)
+        else:
+            arg1.original_transform = game.GetTransform(self)
+    if arg1.looted_character:
+        if lib_character.SegmentNonExistentOrWithin(self, @E063F6A0, @C8E4A971):
+            local20 = lib_camera.GetOnGroundCameraCoordinator()
+            local21 = scriptgo.GetProperties(local20)
+            local21.super_interesting_character_this_frame = arg1.looted_character
+            local21.custom_action_camera_type = 1.0
+    local22 = false
+    if local22:
+        lib_debugdraw.DrawDebugMatrix(arg1.target_transform)

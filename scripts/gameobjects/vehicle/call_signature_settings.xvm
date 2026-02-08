@@ -1,0 +1,20 @@
+module call_signature_settings
+
+def Init(self):
+    local1 = vehiclemanager.GetCallSignatureSettings()
+    local1.MinimumDistanceToSignature = 10.0
+    local1.CompanionName = "chumbucket"
+    local1.UpwardCheckDistance = 300.0
+    local1.MaxDistanceToRoad = 60.0
+    local1.SpawnHeightAboveRoad = 0.6
+    local1.SpawnRoadDistanceOffset = 100.0
+    local1.MinimumRoadDistanceXZ = 50.0
+    local1.MaxAllowedRoadHeightDif = 4.0
+    local1.MinAllowedRoadHeightDif = -30.0
+    local1.TeleportVehicleSpeed = 5.0
+    local1.FlareGunName = "mad_flaregun"
+    local1.DialogueCannotCall = "diaint_cannot_call_chum"
+    local1.DialogueCannotReach = "diaint_mo_cannot_reach"
+    local1.DialogueChumArrived = "diaint_mo_call_chum_arrives"
+    local1.CompanionHearingRange = 90.0
+    local1.CallForCarAction = "CallForCar"

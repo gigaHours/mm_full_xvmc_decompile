@@ -1,0 +1,44 @@
+module idlepose_additives
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = 100.0 + 5.0 * 4.0
+    local5 = animation.GetSampler(arg3, 0.0)
+    local6 = character.GetGlobalXvmFloat(self, 15.0)
+    local7 = animation.GetSampler(arg3, local6)
+    lib_character.ZeroSamplers(arg3, 2.0)
+    local8 = animation.GetSamplerCount(arg3) - 1.0
+    local9 = animation.IsWithinSegment(self, @3DCDF149, @FE364CD9)
+    local10 = animation.IsWithinSegment(self, @3DCDF149, @DAEC2625)
+    local11 = 1.0
+    if local9 and (not local10):
+        local12 = math.BezierCurve(0.0, 0.5, 1.0, 1.0, character.GetGlobalXvmFloat(self, 20.0))
+        animation.GetSampler(arg3, 1.0).Weight = local12 * 0.7
+        local11 = math.Lerp(local12, 0.1, 0.6)
+    if local7.Time >= local7.Length:
+        local13 = local6 + 1.0
+        if local13 > local8:
+            local13 = 2.0
+        character.SetGlobalXvmFloat(self, 15.0, local13)
+        animation.GetSampler(arg3, local13).Time = 0.0
+    local14 = animation.GetSampler(arg3, character.GetGlobalXvmFloat(self, 15.0))
+    local15 = lib_character.AddBreath(self, -(4.0 * arg2)) - 30.0
+    local16 = math.Clamp(local15 / 100.0, 0.0, 1.0) * local11
+    if local5.Time >= local5.Length:
+        local5.Time = 0.0
+    local5.Weight = local16
+    local14.Weight = 1.0 - local16
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    character.SetGlobalXvmFloat(self, 15.0, 2.0)
+    lib_character.ZeroSamplers(arg4, 2.0)
+    if lib_character.IsCoughing(self):
+        lib_character.ZeroBreath(self)
+    local5 = lib_character.GetBreath(self)
+    if local5 > 120.0:
+        game.PostEvent("snd.onft.nav.gen.move.idle.breath.heavy", "")
+    if 120.0 >= local5:
+        if local5 > 50.0:
+            game.PostEvent("snd.onft.nav.gen.move.idle.breath.medium", "")
+    if 50.0 >= local5:
+        if local5 > 10.0:
+            game.PostEvent("snd.onft.nav.gen.move.idle.breath.light", "")

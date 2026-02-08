@@ -1,0 +1,184 @@
+module harpoon_target
+import @8A26F2B5
+import @B79BE9DF
+import @45098D7D
+
+def Disable(self):
+    local1 = scriptgo.GetProperties(self)
+    lib_harpoontarget.Disable(self, false)
+    local1.harpoon_gun_must_detach = true
+
+def IgnoreHitDistanceThreshold(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.ignore_rayhit_distance
+
+def GetTargetPos(self):
+    local1 = scriptgo.GetProperties(self)
+    return game.GetTransform(self).r3
+
+def ForceShootCam(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.forceHarpoonShootCamera:
+        return local1.forceHarpoonShootCamera
+    return false
+
+def ExitHooked(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.is_failing:
+        local2 = matrix.Matrix(game.GetTransform(self).r2, vector.Set(0.0, 1.0, 0.0, 0.0), game.GetTransform(self).r3)
+        if local1.effect_detach != none:
+            effect.SpawnerPlay(local1.effect_detach)
+            effect.SpawnerSetWorldTransform(local1.effect_detach, local2)
+        if false:
+            debug.LogInfo("harpoon_target play detach effect: %go", [local1.effect_detach])
+    scriptgo.PostEvent(self, @FF943F79)
+    local1.stopHealthbarDelay = 1.0
+    scriptgo.SetUpdateFunction(self, "UpdateStopHealthbar")
+    if none != local1.effect_strain:
+        effect.SpawnerStop(local1.effect_strain)
+
+def GetAutoTargetPrio(self):
+    return 0.0
+
+def UpdateStopHealthbar(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.stopHealthbarDelay = local2.stopHealthbarDelay - arg1
+    SetHealthbarValues(self)
+    if 0.0 >= local2.stopHealthbarDelay:
+        lib_harpoontarget.UnRegisterHealthbar(self)
+        scriptgo.SetUpdateFunction(self, "")
+        scriptgo.SetRenderFunction(self, "")
+        ResetState(self)
+
+def HideOutline(self):
+    lib_weakspot.HideOutline(self)
+
+def EnterHooked(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = matrix.LookAtMatrix(game.GetTransform(self).r3, vector.Set(0.0, 1.0, 0.0, 0.0), scriptgo.Call(arg1, @9DC46599))
+    local2.is_failing = false
+    if scriptgo.Call(arg1, @D403D621) >= local2.minHarpoonStrengthToTarget:
+        local2.attached_harpoon_gun = arg1
+        local2.harpoon_gun_must_detach = false
+        scriptgo.PostEvent(self, @986D3C8C)
+        scriptgo.SetUpdateFunction(self, "UpdateHooked")
+    else:
+        local2.harpoon_gun_must_detach = true
+        scriptgo.PostEvent(self, @5C066442)
+        local2.is_failing = true
+    if local2.effect_hooked != none:
+        effect.SpawnerPlay(local2.effect_hooked)
+        effect.SpawnerSetAttachObject(local2.effect_hooked, self)
+        effect.SpawnerSetWorldTransform(local2.effect_hooked, local3)
+        if false:
+            debug.LogInfo("harpoon_target play effect: %go", [local2.effect_hooked])
+    if none != local2.effect_strain:
+        effect.SpawnerPlay(local2.effect_strain)
+    lib_harpoontarget.RegisterHealthbar(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.harpoon_gun_must_detach = false
+    local1.is_failing = false
+    local1.attached_harpoon_gun = none
+    if local1.targetable_by_thunderstick == none:
+        local1.targetable_by_thunderstick = true
+    if local1.targetable_by_harpoon == none:
+        local1.targetable_by_harpoon = true
+    if none == local1.minHarpoonStrengthToTarget:
+        local1.minHarpoonStrengthToTarget = 0.0
+    if none == local1.yanking_impulse_scale:
+        local1.yanking_impulse_scale = 100.0
+    if none == local1.yanking_override_damage:
+        local1.yanking_override_damage = -1.0
+    if not local1.startDisabled:
+        if false:
+            debug.LogInfo("HARPOONTARGET, START ENABLED", [])
+            debug.LogInfo("HARPOONTARGET, Init, startDisabled %f", [local1.startDisabled])
+        Enable(self)
+    elif false:
+        debug.LogInfo("HARPOONTARGET, DO NOT START ENABLED", [])
+        debug.LogInfo("HARPOONTARGET, Init, startDisabled %f", [local1.startDisabled])
+
+def SetHealthbarValues(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.healthTracker
+    local1.health = 0.0
+    local1.last_hit_damage = 0.0
+    if local2:
+        local1.health = scriptgo.Call(local2, @F4E205B5)
+        local1.last_hit_damage = scriptgo.Call(local2, @9EE31321)
+
+def GetTargetStrength(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.minHarpoonStrengthToTarget
+
+def UpdateTest(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    debug.LogInfo("HARPOONTARGET, UpdateTest, startDisabled %f", [local2.startDisabled])
+    if local2.startDisabled:
+        debug.LogInfo("is true", [local2.startDisabled])
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetTargetPhysObject(self)
+    if local2 != none:
+        if physics.IsDestructibleObject(local2):
+            if physics.IsBroken(local2):
+                Disable(self)
+                return
+    lib_harpoontarget.Enable(self, false)
+    local1.harpoon_gun_must_detach = false
+
+def RenderDebug(self, arg1):
+    local2 = GetTargetRenderPos(self, arg1)
+    debug.Sphere(local2, 1.0, vector.Set(1.0, 1.0, 0.0, 0.5))
+
+def GetMinTargetingDistance(self):
+    return 0.0
+
+def GetTargetRenderPos(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return game.GetTransform(self).r3
+
+def GetAimDotLimit(self):
+    return -1.0
+
+def ShowOutline(self, arg1):
+    lib_weakspot.ShowOutline(self, false)
+
+def UpdateHooked(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = false
+    local4 = false
+    if none != local2.attached_harpoon_gun and (not local4):
+        local5 = scriptgo.GetProperties(local2.attached_harpoon_gun).elastic_constraint
+        local6 = scriptgo.Call(local5, @CCD0480A)
+        local7 = lib_damage.CalculateObjectTensionDamage(local6, arg1, local2.minDamageThreshold, local2.maxDamageThreshold, local2.minDps, local2.maxDps)
+        local4 = scriptgo.Call2(local2.healthTracker, @2925E205, local7, @638DD466)
+        local3 = local4
+        SetHealthbarValues(self)
+        local8 = local2.effect_strain
+        lib_harpoontarget_type.UpdateStrainEffect(local8, local6)
+        local9 = scriptgo.Call(local5, @70C48743)
+        local10 = lib_entity_proxy.GetRepair(local9)
+        local11 = scriptgo.GetProperties(local10)
+        if local11.inRepair:
+            local3 = true
+    if local3:
+        local2.harpoon_gun_must_detach = true
+    if local4:
+        Disable(self)
+
+def GetTargetPhysObject(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.overrideParent:
+        return local1.overrideParent
+    return game.GetParent(self)
+
+def ResetState(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.attached_harpoon_gun = none
+
+def GetNormal(self):
+    return game.GetTransform(self).r2

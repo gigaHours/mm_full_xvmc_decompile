@@ -1,0 +1,142 @@
+module fire_damage_handler
+import @42D0E955
+import @F76070AE
+import @B1360AAD
+import @58351C01
+
+def PrintFireHit(self, arg1):
+    debug.LogInfo("- FireHit -", [])
+    debug.LogInfo("CoveredVolume: %f", [self.CoveredVolume])
+    debug.LogInfo("ImpactPosition: %v", [self.ImpactPosition])
+    debug.LogInfo("ImpactDirection: %v", [self.ImpactDirection])
+    debug.LogInfo("LifeTime: %f", [self.LifeTime])
+    debug.LogInfo("SourceHeat: %f", [self.SourceHeat])
+    debug.LogInfo("Faction: %f", [self.Faction])
+
+def SetCompanionHotVehicleState(self):
+    local1 = vehicle.GetSignatureVehicleCompanion()
+    if none != local1:
+        local2 = scriptgo.GetProperties(lib_entity_proxy.GetChumGameplay(local1))
+        local2.vehicle_is_hot = self
+
+def DebugRenderUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.T
+    local4 = lib_debugdraw.GetGoScreenPos(local2.car, vector.Set(0.0, 2.5, 0.0, 0.0), arg1)
+    local5 = 0.2
+    local6 = 0.02
+    local7 = 500.0
+    local8 = lib_debugdraw.GetHeatMapColor(local3, 2.0 * 50.0, 0.8 * 500.0, local7)
+    local9 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local10 = math.Clamp01(local3 / local7)
+    lib_debugdraw.DrawBarDepth(local4, local5, local6, local8, local9, lib_debugdraw.ALIGN_CENTER(), local10, none)
+    if false:
+        lib_debugdraw.DrawTextDepth(local4, "Temperature: %f", [local3], 0.18, lib_color.WHITE(1.0), lib_debugdraw.ALIGN_CENTER(), none)
+
+def CoolingUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.T = local2.T - (1.0 - local2.heatedV) * (local2.T / local2.t0 * arg1)
+    effect.SpawnerSetParameter(local2.firedamage_effect, "Temperature", local2.T)
+    local3 = vehicle.GetVelocity(local2.car)
+    effect.SpawnerSetVelocity(local2.fireimpact_effect, local3)
+    local2.impact_effect_time = local2.impact_effect_time - arg1
+    if 0.0 >= local2.impact_effect_time:
+        local2.impact_effect_time = 0.0
+        effect.SpawnerStop(local2.fireimpact_effect)
+    if false:
+        debug.LogInfo("cooling cooled the vehicle from: %f to: %f", [local2.T + (1.0 - local2.heatedV) * (local2.T / local2.t0 * arg1), local2.T])
+    local4 = vehicle.IsInvulnerable(local2.car)
+    local5 = lib_entity_proxy.GetBodyHealth(local2.car)
+    local6 = lib_damage.CalculateVehicleFireDamage(local2.T, 50.0, 500.0, 0.5, arg1)
+    if not local4:
+        scriptgo.Call2(local5, @CA4FD849, local6, lib_damage_types.DAMAGE_HEAT())
+    if false:
+        debug.LogInfo("FIRE bodyDamagePct: %f%", [local6])
+    if local2.heatedV == 0.0:
+        if 20.0 > local2.T:
+            if false:
+                debug.LogInfo("terminated cooling when temperature reached %f", [local2.T])
+            local2.T = 0.0
+            scriptgo.SetUpdateFunction(self, "")
+            local2.last_damage_faction = -1.0
+            effect.SpawnerStop(local2.firedamage_effect)
+            local2.impact_effect_time = 0.0
+            effect.SpawnerStop(local2.fireimpact_effect)
+            if vehicle.IsSignatureVehicle(local2.car):
+                SetCompanionHotVehicleState(false)
+            if false:
+                scriptgo.SetRenderFunction(self, "")
+    else:
+        local2.heatedV = 0.0
+        if local2.T > 20.0:
+            if vehicle.IsSignatureVehicle(local2.car):
+                SetCompanionHotVehicleState(true)
+
+def HitByFire(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = arg2.SourceHeat
+    local5 = local4 * math.Exp(-(arg2.LifeTime - 0.5) / 0.8)
+    local5 = math.Clamp(local5, 0.0, local4)
+    local3.last_damage_faction = arg2.Faction
+    if arg2.Faction == 0.0:
+        game.SetHitByPlayer(arg1)
+    if not local3.t0:
+        local3.car = arg1
+        local6 = vehicle.GetChassis(arg1)
+        local7 = local6.Extents
+        local3.carSurfaceArea = 2.0 * (local7.z * local7.y + local7.x * local7.z + local7.x * local7.y)
+        RecomputeT0(self)
+        local3.T = 0.0
+    local8 = local5 - local3.T
+    local9 = arg2.CoveredVolume * local8 / local3.t0
+    if 50.0 > local3.T:
+        local3.T = local3.T + local9 * arg2.DeltaTime * (1.0 - local3.fireResistanceFactor)
+    else:
+        local3.T = local3.T + local9 * arg2.DeltaTime
+    local3.heatedV = arg2.CoveredVolume
+    scriptgo.SetUpdateFunction(self, "CoolingUpdate")
+    if local3.T > 0.0:
+        local10 = 0.0
+        if vehicle.IsPlayerVehicle(arg1):
+            local10 = 1.0
+        effect.SpawnerSetParameter(local3.firedamage_effect, "PlayerVehicle", local10)
+        effect.SpawnerPlay(local3.firedamage_effect)
+    local11 = matrix.TranslationAt(arg2.ImpactPosition, arg2.ImpactDirection)
+    if not local3.impact_effect_time:
+        effect.SpawnerInitTransform(local3.fireimpact_effect, local11)
+    elif 0.0 >= local3.impact_effect_time:
+        effect.SpawnerInitTransform(local3.fireimpact_effect, local11)
+        local12 = vehicle.GetVelocity(local3.car)
+        effect.SpawnerSetVelocity(local3.fireimpact_effect, local12)
+    effect.SpawnerSetWorldTransform(local3.fireimpact_effect, local11)
+    effect.SpawnerPlay(local3.fireimpact_effect)
+    local3.impact_effect_time = 0.1
+    if false:
+        debug.LogInfo("fire heated the vehicle from: %f to: %f", [local3.T - local9 * arg2.DeltaTime, local3.T])
+        PrintFireHit(arg2, arg1)
+    if false:
+        scriptgo.SetRenderFunction(self, "DebugRenderUpdate")
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.last_damage_faction = -1.0
+    if not local1.fireResistanceFactor:
+        local1.fireResistanceFactor = 0.0
+
+def RecomputeT0(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.car:
+        return
+    local2 = local1.car
+    local3 = local1.carSurfaceArea
+    local4 = vehicle.GetMass(local2)
+    local5 = 0.466
+    local6 = 10.0
+    local1.t0 = local4 * local5 / local6 / local3
+
+def Reset(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.T = 0.0
+    local1.heatedV = 0.0
+    if local1.t0:
+        scriptgo.SetUpdateFunction(self, "CoolingUpdate")

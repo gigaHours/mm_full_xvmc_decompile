@@ -1,0 +1,9 @@
+module mmax_sprint_was_over_treshold
+
+def Evaluate(self, arg1):
+    local2 = game.GetBlackboardValueFromObject(self, @EF1CE072)
+    if false:
+        debug.LogInfo("treshold: %f, limit: %f", [local2, arg1.Property0])
+    if local2 > arg1.Property0:
+        return 1.0
+    return 0.0

@@ -1,0 +1,14 @@
+module anim_vel_modifier
+
+def Enter(self, arg1):
+    pass
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    character.UpdateDeltaReferenceFrame(self, arg2)
+    local3 = character.GetAnimationVelocityLS(self)
+    character.SetAnimationVelocityLS(self, arg2, vector.Scale(local3, arg1.TranslationScale))
+    if false:
+        debug.Sphere(game.GetTransform(self).r3, 0.5, lib_color.RED(0.7))

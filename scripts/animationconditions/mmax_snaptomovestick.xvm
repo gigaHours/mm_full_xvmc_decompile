@@ -1,0 +1,11 @@
+module mmax_snaptomovestick
+import @BAFDB405
+
+def Evaluate(self, arg1):
+    local2 = lib_character.GetRawMoveInputWorldDir()
+    if vector.Length(local2) > 0.0:
+        if arg1.Property0 > 0.0:
+            local3 = math.DegToRad(arg1.Property0)
+            local2 = matrix.MulVec(matrix.RotationMatrix(local3, 0.0, 0.0), local2)
+        character.RotateInstantly(self, local2)
+    return 1.0

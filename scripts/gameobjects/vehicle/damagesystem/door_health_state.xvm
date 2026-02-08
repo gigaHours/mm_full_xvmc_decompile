@@ -1,0 +1,39 @@
+module door_health_state
+import @B1360AAD
+import @45098D7D
+
+def UpdateHealth(self, arg1, arg2):
+    if arg2 == lib_damage_types.DAMAGE_REPAIR():
+        local3 = scriptgo.GetProperties(self)
+        if arg1 > 0.9:
+            local4 = scriptgo.GetProperties(game.GetParent(self))
+            local5 = local4.weakspot
+            local6 = vehicle.WeakspotGetPhysicsPart(local5)
+            if local6 != none:
+                if local6.IsDisconnected:
+                    vehicle.VehiclePartReattach(local6)
+                    game.WeakspotRegister(local5)
+                    scriptgo.PostEvent(self, @A16561F2)
+
+def Create(self):
+    Init(self)
+
+def ConfigureHangingPart(self, arg1):
+    self.State = self.STATE_OPENED
+    self.MinAngle = 0.0
+    self.MaxAngle = arg1 / 180.0 * 3.14159274
+    self.Friction = 0.0
+    self.AutoLock = false
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.car = lib_vehicle.GetParentVehicle(self)
+    UpdateHealth(self, 1.0, lib_damage_types.DAMAGE_REPAIR())
+    local2 = GetHangingPart(self, local1.car)
+    if local2 != none:
+        scriptgo.PostEvent(self, @A16561F2)
+
+def GetHangingPart(self, arg1):
+    local2 = scriptgo.GetProperties(game.GetParent(self))
+    local3 = local2.weakspot
+    return vehicle.WeakspotGetPhysicsPart(local3)

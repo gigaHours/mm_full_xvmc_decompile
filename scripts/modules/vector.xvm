@@ -1,0 +1,46 @@
+module vector
+
+def Add(self, arg1):
+    pass
+
+def Set(self, arg1, arg2, arg3):
+    pass
+
+def Length(self):
+    pass
+
+def Clone(self):
+    pass
+
+def SpeedSlerp2(self, arg1, arg2, arg3):
+    pass
+
+def Dot(self, arg1):
+    pass
+
+def Cross(self, arg1):
+    pass
+
+def Scale(self, arg1):
+    pass
+
+def Sub(self, arg1):
+    pass
+
+def Normalize(self):
+    pass
+
+def DotXZ(self, arg1):
+    pass
+
+def Distance(self, arg1):
+    pass
+
+def Lerp(self, arg1, arg2):
+    pass
+
+def IntersectionXZ(self, arg1, arg2, arg3):
+    pass
+
+def AngleBetween(self, arg1):
+    pass

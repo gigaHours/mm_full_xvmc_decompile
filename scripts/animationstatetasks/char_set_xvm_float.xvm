@@ -1,0 +1,4 @@
+module char_set_xvm_float
+
+def Update(self, arg1, arg2):
+    character.SetGlobalXvmFloat(self, arg1.Property0, arg1.Property1)

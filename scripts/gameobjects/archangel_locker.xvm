@@ -1,0 +1,9 @@
+module archangel_locker
+
+def lock_archangels(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    garagestate.LockArchangels(local1)
+
+def unlock_archangels(self):
+    local1 = game.GetGameObjectByAlias("garage.state")
+    garagestate.UnlockArchangels(local1)

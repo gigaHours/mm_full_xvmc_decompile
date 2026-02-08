@@ -1,0 +1,68 @@
+module char_vhl_entry_or_vhl_has_door
+
+def IsRelativeAngleToOpenDoorBlocked(self, arg1, arg2, arg3):
+    if arg2 and arg1:
+        local4 = animation.GetPoseJointIndex(arg2, arg3)
+        local5 = arg1.HingeAngle
+        if 0.43 > local5:
+            return 1.0
+        local6 = character.GetWorldMatrix(self)
+        local7 = character.GetWorldMatrix(arg2)
+        local8 = matrix.Inverse(local7)
+        local9 = matrix.Mul(local6, local8).r3
+        local10 = animation.GetPoseTransform(arg2, local4).r3
+        local11 = vector.Sub(local9, local10)
+        if local11.z > 0.0:
+            local12 = math.ATan(local11.x / local11.z) + 0.1
+            if local5 > local12:
+                if false:
+                    debug.Sphere(local6.r3, 0.18, lib_color.GREEN(1.2))
+                return 0.0
+            if false:
+                debug.Sphere(local6.r3, 0.08, lib_color.ORANGE(0.2))
+    return 1.0
+
+def Evaluate(self, arg1):
+    local2 = arg1.Property0
+    local3 = arg1.Property1
+    local4 = character.GetVehicle(self)
+    if not local4:
+        local5 = character.GetInteractionUserProxy(self)
+        if arg1.Property2 > 0.0:
+            local4 = interaction.GetEntryContextParent(local5, arg1.Property2)
+        else:
+            local4 = interaction.GetEntryContextParent(local5, local2)
+    if local4:
+        if vehicle.IsVehicle(local4):
+            local6 = none
+            if local2 == 6.0:
+                local6 = vehicle.GetHingedPart(local4, "vpart_door_l")
+                if local6:
+                    if local3:
+                        if local6.State == local6.STATE_OPENED:
+                            if local6.AutoLock != false:
+                                return 1.0
+                    else:
+                        if local6.State == local6.STATE_DISCONNECTED:
+                            return 0.0
+                        if arg1.Property3:
+                            if local6.State == local6.STATE_OPENED:
+                                return IsRelativeAngleToOpenDoorBlocked(self, local6, local4, "jnt_vpart_door_l")
+                            return 1.0
+                        return 1.0
+            else:
+                local6 = vehicle.GetHingedPart(local4, "vpart_door_r")
+                if local6:
+                    if local3:
+                        if local6.State == local6.STATE_OPENED:
+                            if local6.AutoLock != false:
+                                return 1.0
+                    else:
+                        if local6.State == local6.STATE_DISCONNECTED:
+                            return 0.0
+                        if arg1.Property3:
+                            if local6.State == local6.STATE_OPENED:
+                                return IsRelativeAngleToOpenDoorBlocked(self, local6, local4, "jnt_vpart_door_r")
+                            return 1.0
+                        return 1.0
+    return 0.0

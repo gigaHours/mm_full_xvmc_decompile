@@ -1,0 +1,22 @@
+module gene_simplemovementscaling
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = character.GetGlobalXvmFloat(self, 0.0)
+    local5 = 0.0
+    character.UpdateDeltaReferenceFrame(self, arg2)
+    local6 = arg1.Property0
+    local7 = arg1.Property1
+    local8 = arg1.Property2
+    if local4 >= local7:
+        if local8 > 0.0:
+            if local8 > local4:
+                local5 = 1.0
+        else:
+            local5 = 1.0
+    if local5 > 0.0:
+        local9 = vector.Scale(character.GetAnimationVelocityLS(self), local6)
+        character.SetAnimationVelocityLS(self, arg2, local9)
+    character.SetGlobalXvmFloat(self, 0.0, local4 + arg2)
+
+def OnEnter(self, arg1):
+    character.SetGlobalXvmFloat(self, 0.0, 0.0)

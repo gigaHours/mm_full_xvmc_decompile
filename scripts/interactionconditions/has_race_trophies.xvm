@@ -1,0 +1,14 @@
+module has_race_trophies
+
+def Evaluate(self, arg1):
+    if racetrophies.GetNrRaceTrophies() >= 1.0:
+        return 1.0
+    local2 = vehicle.GetNrArchetypes()
+    local4 = 0.0
+    local5 = 1.0
+    local3 = local2
+    while local3 > local4:
+        if vehicle.GetArchetypeCanBeInstalled(local4):
+            return 1.0
+        local4 = local5 + local4
+    return 0.0

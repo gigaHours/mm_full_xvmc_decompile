@@ -1,0 +1,105 @@
+module flame_handler
+
+def Disable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.enabled = false
+    scriptgo.SetUpdateFunction(self, "")
+
+def ActivateSplutterOn(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = -1.0
+    local3 = vehicle.GetVehicleDriver(game.GetParent(self))
+    if local3:
+        local2 = character.GetFaction(local3)
+    game.SetFlameObjectFaction(local1.flameObject, local2)
+    local1.splutter_on = local1.fireSplutterOn
+    if local1.splutter_cycle > 0.0:
+        scriptgo.SetUpdateFunction(self, "ActivateSplutterOnUpdate")
+        effect.SpawnerPlay(local1.effectSplutter)
+    else:
+        flame.Activate(local1.flameObject)
+        if vehicle.IsPlayerVehicle(local1.car):
+            if local1.flame_main_control:
+                local4 = scriptgo.GetProperties(local1.flame_main_control)
+                local1.fuelConsumptionRateScale = local4.flameFuelConsumptionRateScale
+            scriptgo.SetUpdateFunction(self, "ConsumeFuel")
+
+def Unload(self):
+    local1 = game.GetParent(self)
+    if local1:
+        vehicle.UnregisterWeapon(game.GetParent(self), self)
+
+def UpdateHealth(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.triggerOnHealthPct:
+        if arg1 > local3.healthPctTriggerValue and local3.healthPctTriggerValue > arg2:
+            Activate(self)
+        if local3.healthPctTriggerValue > arg1 and arg2 > local3.healthPctTriggerValue:
+            Deactivate(self)
+    if 0.0 >= arg2:
+        Deactivate(self)
+
+def OnFlamePipeRestore(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.alive = true
+    if local1.register_as_vehicle_activated_weapon:
+        vehicle.RegisterWeapon(game.GetParent(self), "flame_pipe", self, "Activate", "Deactivate")
+
+def Deactivate(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.flameObject != none:
+        flame.Deactivate(local1.flameObject)
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.PostEvent(self, @516BD78A)
+    vehicle.SendVehicleSoundEvent(local1.car, @ED83731A)
+
+def ConsumeFuel(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = arg1 * local2.fuelConsumptionRate * local2.fuelConsumptionRateScale
+    vehicle.ConsumeFuel(local2.car, local3)
+    if 0.0 >= vehicle.GetFuelAmount(local2.car):
+        Deactivate(self)
+
+def ActivateSplutterOffUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.splutter_off = local2.splutter_off - arg1
+    if arg1 >= local2.splutter_off:
+        local2.splutter_cycle = local2.splutter_cycle - 1.0
+        ActivateSplutterOn(self)
+
+def ActivateSplutterOnUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.splutter_on = local2.splutter_on - arg1
+    if arg1 >= local2.splutter_on:
+        ActivateSplutterOff(self)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.alive = true
+    local1.fuelConsumptionRateScale = 1.0
+    if local1.register_as_vehicle_activated_weapon:
+        vehicle.RegisterWeapon(game.GetParent(self), "flame_pipe", self, "Activate", "Deactivate")
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.enabled = true
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.GetFuelAmount(local1.car) > 0.0:
+        if local1.alive and local1.enabled:
+            scriptgo.PostEvent(self, @D365D273)
+            local1.splutter_cycle = local1.splutterCycles
+            ActivateSplutterOn(self)
+
+def ActivateSplutterOff(self):
+    local1 = scriptgo.GetProperties(self)
+    effect.SpawnerStop(local1.effectSplutter)
+    local1.splutter_off = local1.fireSplutterOff
+    scriptgo.SetUpdateFunction(self, "ActivateSplutterOffUpdate")
+
+def OnFlamePipeDeath(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.alive = false
+    vehicle.UnregisterWeapon(game.GetParent(self), self)
+    Deactivate(self)

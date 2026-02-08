@@ -1,0 +1,9 @@
+module send_event
+
+def Execute(self, arg1, arg2):
+    local3 = interaction.GetCharacter(self)
+    if game.IsObjectEqualTo(local3, character.GetPlayer()):
+        if arg2.player_event:
+            game.PostEvent(arg2.player_event, "")
+    elif arg2.npc_event:
+        game.PostEvent(arg2.npc_event, "")

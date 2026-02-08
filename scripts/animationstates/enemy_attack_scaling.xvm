@@ -1,0 +1,64 @@
+module enemy_attack_scaling
+import @BAFDB405
+
+def getAttackSpeedDifficultyScaleFactor(self, arg1, arg2):
+    local3 = playerstats.GetPlayerStats()
+    local4 = local3.RealDifficulty
+    return math.Scale(local4, 0.0, 1.0, arg1.Property1, arg1.Property2)
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    if arg1.Property3 >= 0.0:
+        PlaybackSpeedOnParry(self, arg1, arg2, arg3)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = arg1.Property0 * getAttackSpeedDifficultyScaleFactor(self, arg1, arg2)
+    game.SetBlackboardValueToObject(self, @AA62D167, local5)
+    animation.GetSampler(arg4, 0.0).Speed = local5
+
+def PlaybackSpeedOnParry(self, arg1, arg2, arg3):
+    local4 = 0.5
+    local5 = 5.0 / 30.0
+    local6 = 7.0 / 30.0
+    local7 = animation.GetSegmentInfo(self, @E063F6A0, @175F1CED)
+    if local7 != none:
+        local8 = local7.Start
+    else:
+        local8 = arg1.Property4
+    local9 = animation.GetLinkTarget(self)
+    if local9:
+        local10 = animation.GetSampler(arg3, 0.0)
+        if game.GetBlackboardValueFromObject(self, @BE102B63) == 0.0:
+            if animation.IsWithinSegment(local9, @E063F6A0, @2EB6518D) and animation.GetLinkSource(self, 0.0):
+                if character.GetFloatRegister(local9, 2.0) != 2.0:
+                    game.SetBlackboardValueToObject(self, @BE102B63, 1.0)
+                    local11 = animation.GetTime(self)
+                    local12 = math.Clamp(animation.GetLength(local9) - animation.GetTime(local9), 0.02, 100000.0)
+                    local13 = local8 - local11
+                    local14 = local13 - local12
+                    local15 = local12 + local14 * local4
+                    local15 = math.Clamp(local15, local5, local6)
+                    game.SetBlackboardValueToObject(local9, @9A116356, local12 / local15)
+                    local10.Speed = local13 / local15
+            else:
+                local16 = game.GetBlackboardValueFromObject(self, @AA62D167)
+                if playerstats.GetPlayerStats().furyActivationEffectTimerOnAttacker > 0.0:
+                    local16 = local16 * 0.75
+                if animation.IsWithinSegment(local9, @E063F6A0, @45FCEC6F):
+                    local16 = local16 * 0.7
+                if animation.IsWithinSegment(local9, @E063F6A0, @70183F52):
+                    local16 = local16 * 0.75
+                if local16 > local10.Speed:
+                    local16 = local16 * 1.4
+                local10.Speed = math.Clamp(local16, 0.1, game.GetBlackboardValueFromObject(self, @AA62D167))
+        else:
+            if false:
+                debug.LogInfo("CALCULATED NPC PLAYBACK SPEED: %f", [local10.Speed])
+                debug.LogInfo("CALCULATED MAX PLAYBACK SPEED: %f", [game.GetBlackboardValueFromObject(local9, @9A116356)])
+                debug.LogInfo("CALCULATED TIME BEFORE MAX PARRY END: %f", [(animation.GetLength(local9) - animation.GetTime(local9)) / game.GetBlackboardValueFromObject(local9, @9A116356)])
+                debug.LogInfo("CALCULATED TIME BEFORE NPC HITS: %f", [(local8 - animation.GetTime(self)) / local10.Speed])
+            if local10.Time >= local8:
+                local10.Speed = game.GetBlackboardValueFromObject(self, @AA62D167)
+
+def OnEnter(self, arg1):
+    character.SetGlobalXvmFloat(self, 0.0, 0.0)
+    game.SetBlackboardValueToObject(self, @BE102B63, 0.0)

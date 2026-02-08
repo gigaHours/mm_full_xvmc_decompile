@@ -1,0 +1,19 @@
+module harpoon_attach
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("chumbucket")
+    local3 = local1.harpoon
+    if local2 and local3:
+        character.RemoveObject(local2, local3)
+    else:
+        debug.LogInfo(">>> harpoon de-attach: failed", [])
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("chumbucket")
+    local3 = local1.harpoon
+    if local2 and local3:
+        character.GiveObject(local2, local3)
+    else:
+        debug.LogInfo(">>> harpoon attach: failed", [])

@@ -1,0 +1,9 @@
+module char_rotate_to_blackboard_dir
+
+def Update(self, arg1, arg2):
+    if arg1.Key:
+        local3 = game.GetBlackboardValueFromObject(self, game.GameHashString(arg1.Key))
+        if local3:
+            local4 = game.GetTransform(self)
+            if true:
+                debug.Arrow(local4.r3, vector.Add(local4.r3, vector.Scale(local3, 3.0)), 0.1, lib_color.YELLOW(1.0))

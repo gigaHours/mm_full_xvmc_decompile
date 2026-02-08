@@ -1,0 +1,34 @@
+module veh_signature
+
+def Unload(self):
+    scriptgo.PostEvent(self, @8C6B338B)
+
+def Init(self):
+    local1 = game.GetGameObjectByAlias("vehicle.upgrade.manager")
+    if not local1:
+        debug.LogInfo("UPGRADES MENU: no vehicle upgrade manager", [])
+        return
+    local2 = scriptgo.GetProperties(self)
+    if local2.car != none:
+        vehicle.SetCurrentSignatureVehicle(local1, local2.car)
+    scriptgo.PostEvent(self, @2183C56B)
+    scriptgo.PostEvent(self, @75887710)
+    scriptgo.PostEvent(self, @78A90318)
+    ApplyEngineUpgrade(self)
+
+def ApplyEngineUpgrade(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("garage.state")
+    if not local2:
+        debug.LogInfo("UPGRADES MENU: no garage state", [])
+        return
+    local3 = garagestate.GetUpgradeLevel(local2, "fxQD")
+    local4 = [local1.v6_0, local1.v6_1, local1.v6_2, local1.v6_3, local1.v6_4, local1.v6_5, local1.v8_0, local1.v8_1, local1.v8_2, local1.v8_3, local1.v8_4, local1.v8_5]
+    local5 = none
+    local5 = local4[local3]
+    if local5 and (not game.IsObjectEqualTo(local5, local1.chosen_engine_upgrade)):
+        if local1.chosen_engine_upgrade != none:
+            vehicle.ClearVehicleEngineUpgrade(local1.chosen_engine_upgrade)
+        local1.chosen_engine_upgrade = local5
+        if local1.chosen_engine_upgrade != none:
+            vehicle.ApplyVehicleEngineUpgrade(local5)

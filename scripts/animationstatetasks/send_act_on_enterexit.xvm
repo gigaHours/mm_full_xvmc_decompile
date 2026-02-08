@@ -1,0 +1,7 @@
+module send_act_on_enterexit
+
+def Enter(self, arg1):
+    game.DoAct(self, arg1.Actonenter)
+
+def Exit(self, arg1):
+    game.DoAct(self, arg1.Actonexit)

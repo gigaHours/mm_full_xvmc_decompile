@@ -1,0 +1,102 @@
+module snip_state_idle
+import @9B4F6985
+import @30EFB40F
+
+def UpdatePost(self, arg1):
+    pass
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    gui.PostEvent("enable_sniper_mode")
+    lib_weapon.ShowCrosshair(arg1)
+    local3 = game.GetGameObjectByAlias("vehicle_camera_coordinator")
+    scriptgo.Call1(local3, @32D9C0B1, true)
+    local2.gui_counter = 10.0
+
+def WieldAndShowWeapon(self):
+    local1 = lib_entity_proxy.GetPlayerWeaponHandling()
+    scriptgo.Call(local1, @2B9C00BB)
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.weapon
+    local4 = scriptgo.GetProperties(local3)
+    lib_sniper.Wield(local3)
+    lib_sniper.HideRifle(local3)
+    local4.delay_show = true
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.delay_show = false
+    scriptgo.RegisterEventHandler(self, "signature_sniper_rifle.wield_and_show", "WieldAndShowWeapon")
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    game.SendEvent("stop_bullet_camera_sound", "")
+    if lib_weapon.IsNextState(arg1, lib_sniper.STATE_INACTIVE_ID()):
+        game.PostEventNone("deactivate_sniper_exploration_cam")
+        game.PostEventNone("disable_sniper_mode_camera")
+        local3 = game.GetGameObjectByAlias("vehicle_camera_coordinator")
+        scriptgo.Call1(local3, @32D9C0B1, false)
+        local4 = gui.GetBlackboard()
+        local4.veh_weapon_targets = []
+        gui.PostEvent("disable_sniper_mode")
+        lib_weapon.HideCrosshair(arg1)
+        local5 = vehicle.GetSignatureVehicleCompanion()
+        if local5:
+            if animation.IsInAnimationState(local5, @E063F6A0, @BCB67CD6):
+                game.SendEvent("vhl.chum.force.exit.driver.to.hide", "")
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    local3 = vector.Set(0.5, 0.5, 0.0, 0.0)
+    local4 = [[local3, 1.0, 7.0]]
+    if none != local4:
+        local2.veh_weapon_targets = local4
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    UpdateGuiBB(local2)
+
+def GetId(self):
+    return lib_sniper.STATE_IDLE_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = arg1 / game.GetUpdateSpeed()
+    local5 = local3.wielding_character
+    local6 = scriptgo.GetProperties(self)
+    if local3.delay_show:
+        local2 = local6.weapon
+        lib_sniper.ShowRifle(local2)
+        local3.delay_show = false
+    if local3.gui_counter > 0.0:
+        gui.PostEvent("enable_sniper_mode")
+        lib_weapon.ShowCrosshair(local2)
+        local3.gui_counter = local3.gui_counter - 1.0
+    if local3.cameraSave != none:
+        local7 = input.GetLookInput()
+        if vector.Length(local7) > 0.01:
+            local3.cameraSave = none
+    local8 = animation.IsWithinSegment(local5, @E063F6A0, @35F8EE1A)
+    local9 = animation.IsWithinSegment(local5, @E063F6A0, @749ED222)
+    local10 = 1.0 == animation.GetStateBit(local5, 19.0)
+    if local3.weapon_selected and (not local8) and local10:
+        local11 = animation.IsWithinSegment(local5, @E063F6A0, @9E576A97)
+        if local11 and (not lib_sniper.IsLoaded(local2)) and lib_sniper.CanReload(local2):
+            lib_weapon.ChangeState(local2, local3.state_reload)
+            return
+        if local11 and local3.input_aim_held and (not camera.ActiveCameraInAnyGroup("camp_vista")):
+            lib_weapon.ChangeState(local2, local3.state_aim)
+        if input.GetButtonInput(@D45A53BB) > 0.0:
+            lib_weapon.ChangeState(local2, local3.state_parry)
+            return
+    elif not local9:
+        lib_weapon.ChangeState(local2, local3.state_inactive)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "IDLE"

@@ -1,0 +1,33 @@
+module vh_set_hinged_part_controller
+
+def Enter(self, arg1):
+    SetDoorState(self, arg1, arg1.Property1)
+
+def GetHingedPartFromPropValue(self, arg1):
+    local2 = none
+    if arg1 == 1.0:
+        local2 = "vpart_door_r"
+    if arg1 == 2.0:
+        local2 = "vpart_door_l"
+    if local2:
+        return vehicle.GetHingedPart(self, local2)
+
+def Exit(self, arg1):
+    SetDoorState(self, arg1, arg1.Property2)
+
+def SetDoorState(self, arg1, arg2):
+    if arg2 != 0.0:
+        local3 = GetHingedPartFromPropValue(self, arg1.Property0)
+        if local3:
+            if arg2 == 1.0:
+                local3.State = local3.STATE_LOCKED
+                local3.AutoLock = true
+            if arg2 == 2.0:
+                local3.State = local3.STATE_ANIMATED
+                local3.AutoLock = true
+            if arg2 == 3.0:
+                local3.State = local3.STATE_OPENED
+                local3.MinAngle = 0.0
+                local3.MaxAngle = 1.57
+                local3.Friction = 25.0
+                local3.AutoLock = true

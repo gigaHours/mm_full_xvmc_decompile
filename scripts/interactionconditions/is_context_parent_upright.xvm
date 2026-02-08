@@ -1,0 +1,11 @@
+module is_context_parent_upright
+
+def Evaluate(self, arg1):
+    local2 = interaction.GetEntryContextParent(self, arg1.action_identifier)
+    if local2:
+        local3 = game.GetTransform(local2)
+        local4 = vector.Set(0.0, 1.0, 0.0, 0.0)
+        local5 = vector.Dot(local4, local3.r1)
+        if local5 > 0.7:
+            return 1.0
+    return 0.0

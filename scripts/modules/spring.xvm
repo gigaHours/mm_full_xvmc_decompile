@@ -1,0 +1,10 @@
+module spring
+
+def FloatSpringFunction(self, arg1, arg2):
+    pass
+
+def VectorSpringFunction(self, arg1, arg2):
+    pass
+
+def FloatSpringNonLinearFunction(self, arg1, arg2):
+    pass

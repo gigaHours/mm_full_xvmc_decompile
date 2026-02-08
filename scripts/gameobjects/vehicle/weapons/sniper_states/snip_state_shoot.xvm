@@ -1,0 +1,74 @@
+module snip_state_shoot
+import @9B4F6985
+import @30EFB40F
+
+def UpdatePost(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    local3 = scriptgo.GetProperties(local2)
+    if not local3.fired_in_post:
+        local4 = local3.weapon_item
+        local5 = camera.GetCameraTransform()
+        game.SetTransform(local4, local5)
+        local6 = character.GetVehicle(local3.wielding_character)
+        if local6 != none:
+            character.WeaponAddObjectToIgnore(local4, local6)
+        local7 = vehicle.GetSignatureVehicleCompanion()
+        if local7 != none:
+            character.WeaponAddObjectToIgnore(local4, local7)
+        local8 = game.StateContainerDataWeaponGetAlignTargetPos(local3.target_info)
+        if local8 != none:
+            character.WeaponSetAimTargetPosition(local4, local8)
+            character.WeaponFireAtAimTargetNow(local4, local3.wielding_character)
+        else:
+            character.WeaponFireStraightAheadNow(local4, local3.wielding_character)
+        if character.GetWeaponAmmo(local4) == 1.0:
+            character.BroadcastDialogueIntent(@F07A8956)
+        elif character.GetWeaponAmmo(local4) == 0.0:
+            character.BroadcastDialogueIntent(@EFA47C62)
+        game.SendEventNone("sniper.fired")
+        hydra.HydraSendVehicleEvent(9.0)
+        local3.fired_in_post = true
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local2.fire_delay_time = 0.5
+    local2.exit_aim_delay_time = 0.7
+    local2.fired_in_post = false
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    if not lib_weapon.IsNextState(arg1, lib_sniper.STATE_AIM_ID()):
+        lib_sniper.ExitAimCommon(arg1)
+    if not lib_sniper.CanReload(arg1):
+        if not lib_sniper.IsLoaded(arg1):
+            game.SendEventNone("ply.sniper_rifle_ammo.depleted")
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_sniper.STATE_SHOOT_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = arg1 / game.GetUpdateSpeed()
+    local3.fire_delay_time = math.Max(local3.fire_delay_time - arg1, 0.0)
+    local3.exit_aim_delay_time = math.Max(local3.exit_aim_delay_time - arg1, 0.0)
+    if local3.fired_in_post:
+        if local3.input_aim_held and (not lib_sniper.IsLoaded(local2)) and 0.0 >= local3.exit_aim_delay_time:
+            lib_weapon.ChangeState(local2, local3.state_idle)
+            return
+        if (not local3.input_aim_held) and 0.0 >= local3.fire_delay_time:
+            lib_weapon.ChangeState(local2, local3.state_idle)
+            return
+        if lib_sniper.IsLoaded(local2) and local3.input_aim_held and 0.0 >= local3.fire_delay_time:
+            lib_weapon.ChangeState(local2, local3.state_aim)
+            return
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "SHOOT"

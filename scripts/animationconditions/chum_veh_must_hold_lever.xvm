@@ -1,0 +1,11 @@
+module chum_veh_must_hold_lever
+
+def Evaluate(self, arg1):
+    local2 = character.GetVehicle(self)
+    local3 = 1.0 == arg1.Property0
+    if none != local2:
+        local4 = lib_entity_proxy.GetHarpoon(local2)
+        if none != local4:
+            if scriptgo.Call(local4, @3667BF98):
+                return 1.0
+    return 0.0

@@ -1,0 +1,144 @@
+module input_locomotion_and_bb
+import @BAFDB405
+import @3BDB5A3B
+
+def Enter(self, arg1):
+    if game.GetBlackboardValueFromObject(self, @E28E2967) == none:
+        game.SetBlackboardValueToObject(self, @E28E2967, 0.0)
+    if game.GetBlackboardValueFromObject(self, @E2F641E0) == none:
+        game.SetBlackboardValueToObject(self, @E2F641E0, 0.0)
+
+def Exit(self, arg1):
+    pass
+
+def UpdateRender(self, arg1, arg2):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = game.GetTransform(self)
+    local4 = input.GetButtonInput(@A0427F74)
+    local5 = input.GetFilteredMoveInput()
+    local6 = vector.Length(local5)
+    local7 = lib_character.GetFilteredMoveInputWorldDir()
+    if game.GetBlackboardValueFromObject(self, @B4F53EDB):
+        game.ClearBlackboardValueFromObject(self, @B4F53EDB)
+        game.ClearBlackboardValueFromObject(self, @EF1CE072)
+    local8 = game.GetBlackboardValueFromObject(self, @EF1CE072)
+    if not local8:
+        local8 = 0.0
+    if local4 > local8:
+        local8 = local4
+        if false:
+            debug.LogInfo("sprintButtonHighestTreshold: %f", [local8])
+    if 0.01 > local4:
+        game.SetBlackboardValueToObject(self, @B4F53EDB, 1.0)
+    game.SetBlackboardValueToObject(self, @EF1CE072, local8)
+    local9 = game.GetBlackboardValueFromObject(self, @E2F641E0)
+    local10 = false
+    if local4 > lib_player_input.SPRINT_TRIGGER_LIMIT():
+        local9 = local9 + arg2
+        if local9 > 0.2:
+            local10 = true
+    else:
+        local9 = 0.0
+    if none != local9:
+        game.SetBlackboardValueToObject(self, @E2F641E0, local9)
+    game.SetBlackboardValueToObject(self, @E2F641E0, local9)
+    game.SetBlackboardValueToObject(self, @BD73BFFB, 0.9)
+    game.SetBlackboardValueToObject(self, @DD3C0820, 0.95)
+    if local6 > arg1.InputThreshold:
+        local5 = vector.Normalize(local5)
+        local11 = game.GetBlackboardValueFromObject(self, game.GameHashString(arg1.InputVectorName))
+        if local11:
+            game.SetBlackboardValueToObject(self, game.GameHashString(arg1.InputVectorNameLast), local11)
+        else:
+            game.SetBlackboardValueToObject(self, game.GameHashString(arg1.InputVectorNameLast), local7)
+        game.SetBlackboardValueToObject(self, game.GameHashString(arg1.InputVectorName), local7)
+    elif arg1.BelowThresholdInputVector == 1.0:
+        game.SetBlackboardValueToObject(self, game.GameHashString(arg1.InputVectorName), vector.Scale(local3.r2, -1.0))
+    local12 = game.GetBlackboardValueFromObject(self, @17BB2651)
+    local13 = game.GetBlackboardValueFromObject(self, @A82B168A)
+    if local13 == none:
+        game.SetBlackboardValueToObject(self, @A82B168A, 0.0)
+        local13 = 0.0
+    local14 = game.GetBlackboardValueFromObject(self, @FA5B8296)
+    if not local14:
+        game.SetBlackboardValueToObject(self, @FA5B8296, 0.0)
+    local15 = false
+    if character.GetInventoryItem(self, "jerrycan") and (not input.GetButtonInput(@12C0DE54) == 0.0):
+        local15 = true
+    if input.GetButtonInput(@F2187A90):
+        local16 = game.GetBlackboardValueFromObject(self, @E28E2967)
+        local16 = local16 + arg2
+        if local16 > 0.12:
+            local15 = true
+        game.SetBlackboardValueToObject(self, @E28E2967, local16)
+    else:
+        game.SetBlackboardValueToObject(self, @E28E2967, 0.0)
+    game.SetBlackboardValueToObject(self, @17BB2651, 0.0)
+    local17 = 1.0 == animation.GetStateBit(self, 20.0)
+    if local17:
+        game.SetBlackboardValueToObject(self, @BD73BFFB, 0.9)
+    if local6 > 0.2 and (not local15):
+        local13 = local13 + arg2
+        game.QueueAct(self, "ACT_NAVIGATE")
+        local18 = false
+        local19 = character.IsContextBitSet(self, 3.0) == true
+        local20 = 1.0 == animation.GetStateBit(self, 32.0)
+        local21 = 1.0 == animation.GetStateBit(self, 15.0)
+        local22 = game.GetBlackboardValueFromObject(self, @D5DA6A45)
+        local23 = game.GetBlackboardValueFromObject(self, @89114BDA)
+        if local22 and local23 != none:
+            if local22 > 0.0:
+                local23 = math.SpeedLerp(local23, local22, 5.0, arg2)
+            else:
+                local23 = 0.0
+        else:
+            local23 = 0.0
+        game.SetBlackboardValueToObject(self, @89114BDA, local23)
+        local24 = 0.865
+        local25 = 0.998
+        if local21:
+            local24 = 0.866
+            local25 = 0.999
+        local26 = false
+        local27 = false
+        if local23:
+            local26 = local23 >= local24
+            local27 = local23 >= local25
+        if false:
+            debug.DrawText3d(vector.Add(local3.r3, vector.Set(1.0, 2.0, 0.0, 0.0)), "wallBlockRun: %b, wallBlockStop :%b", [local26, local27], lib_color.WHITE(1.0))
+        if not local27:
+            if local10:
+                local28 = math.Abs(math.Clamp(vector.Dot(local7, local3.r0), -1.0, 1.0))
+                local29 = 0.05
+                if local20:
+                    local29 = 0.2
+                local30 = character.GetInventoryItem(self, "jerrycan") != none
+                local31 = game.GetBlackboardValueFromObject(self, @0079255B)
+                local32 = character.IsContextBitSet(self, 3.0)
+                if (not local31) and (not local30) and (not local26) and (not local32):
+                    game.SetBlackboardValueToObject(self, @17BB2651, 3.0)
+                    local18 = true
+            if not local18:
+                if local6 > 0.7 and (not local26):
+                    game.SetBlackboardValueToObject(self, @17BB2651, 2.0)
+                    local14 = 0.1
+                else:
+                    local14 = math.Max(local14 - arg2, 0.0)
+                    if 0.0 >= local14:
+                        game.SetBlackboardValueToObject(self, @17BB2651, 1.0)
+                    else:
+                        game.SetBlackboardValueToObject(self, @17BB2651, 2.0)
+            local33 = character.GetGroundInfo(self)
+            if local33.Material == 6.0:
+                game.SetBlackboardValueToObject(self, @17BB2651, 1.0)
+                local34 = character.GetFloatRegister(self, 19.0)
+                character.SetFloatRegister(self, 19.0, math.Max(1.0, local34))
+            if false:
+                debug.DrawText3d(vector.Add(local3.r3, vector.Set(-1.0, 2.0, 0.0, 0.0)), "Material: %f", [local33.Material], lib_color.WHITE(1.0))
+            game.SetBlackboardValueToObject(self, @FA5B8296, local14)
+    else:
+        local13 = 0.0
+        game.SetBlackboardValueToObject(self, @FA5B8296, 0.0)
+    game.SetBlackboardValueToObject(self, @A82B168A, local13)

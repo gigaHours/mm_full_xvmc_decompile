@@ -1,0 +1,42 @@
+module human_death_state
+import @B1360AAD
+import @8A26F2B5
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    if not local4.dead:
+        local5 = scriptgo.GetProperties(game.GetParent(self))
+        local6 = local5.weakspot
+        local7 = scriptgo.GetProperties(local6)
+        local8 = game.WeakspotGetAffectedObject(local6)
+        character.InstantDeath(local8)
+        local4.dead = true
+        local9 = character.GetVehicle(local8)
+        if local9 != none:
+            local10 = vehicle.GetVehicleDriver(local9)
+            if local10:
+                if game.IsObjectEqualTo(local8, local10) and arg2 == lib_damage_types.DAMAGE_TENSION():
+                    local11 = character.GetPlayer()
+                    local12 = game.GetTransform(local11).r3
+                    local13 = game.GetTransform(local8)
+                    local14 = vector.Scale(local13.r2, -1.0)
+                    local15 = vector.Sub(local12, local13.r3)
+                    local16 = math.RadToDeg(vector.AngleBetween(local14, local15))
+                    local17 = vector.Dot(local15, local13.r0)
+                    local18 = ""
+                    if 45.0 > local16:
+                        local18 = "ACT_WEAKSPOT_DIE_FRONT"
+                    elif 135.0 > local16:
+                        if local17 > 0.0:
+                            local18 = "ACT_WEAKSPOT_DIE_RIGHT"
+                        else:
+                            local18 = "ACT_WEAKSPOT_DIE_LEFT"
+                    else:
+                        local18 = "ACT_WEAKSPOT_DIE_RIGHT"
+                    game.QueueAct(local8, local18)
+                    return
+        game.QueueAct(local8, "ACT_WEAKSPOT_DIE")
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.dead = false

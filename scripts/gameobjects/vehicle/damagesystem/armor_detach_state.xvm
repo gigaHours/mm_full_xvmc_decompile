@@ -1,0 +1,95 @@
+module armor_detach_state
+import @B1360AAD
+import @45098D7D
+
+def OnDamageTaken(self, arg1, arg2, arg3, arg4):
+    local5 = scriptgo.GetProperties(self)
+    local6 = scriptgo.GetProperties(game.GetParent(self))
+    local7 = local6.weakspot
+    if not local5.isDead:
+        local8 = game.VehicleWeakspotGetVehicle(local7)
+        DamageMainBodyArmorHealth(local8, arg4)
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = scriptgo.GetProperties(game.GetParent(self))
+    local6 = local5.weakspot
+    if not local4.isDead:
+        local7 = game.VehicleWeakspotGetVehicle(local6)
+        if local4.is_wheel_armor:
+            local8 = lib_entity_proxy.GetCollision(local4.car)
+            if local8:
+                scriptgo.Call(local8, @2548A5C8)
+        lib_vehicle.SendVehicleWeakspotDestroyedEvent(local7, 1.0, arg2)
+        DamageMainBodyArmorHealthAndDecrementCount(local7, arg3)
+        Detach(self, local6, arg2)
+        if lib_vehicle.ValidateKill(local7):
+            scriptgo.PostEvent(self, @322B9FDF)
+        scriptgo.PostEvent(self, @FA153114)
+    local4.isDead = true
+
+def UpdateHealth(self, arg1, arg2):
+    if arg2 == lib_damage_types.DAMAGE_REPAIR():
+        local3 = scriptgo.GetProperties(self)
+        if local3.isDead:
+            if arg1 > 0.9:
+                local3.isDead = false
+                local4 = scriptgo.GetProperties(game.GetParent(self))
+                local5 = local4.weakspot
+                local6 = vehicle.WeakspotGetPhysicsPart(local5)
+                if local6 != none:
+                    if local6.IsDisconnected:
+                        vehicle.VehiclePartReattach(local6)
+                        game.WeakspotRegister(local5)
+                        local7 = vehicle.GetProperties(local3.car)
+                        local7.armorPieceCount = none
+                        local7.isDeforming = false
+                        if local3.is_wheel_armor:
+                            local8 = lib_entity_proxy.GetCollision(local3.car)
+                            if local8:
+                                scriptgo.Call(local8, @2548A5C8)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    scriptgo.SetRenderFunction(self, "")
+
+def DisableTargets(self, arg1):
+    scriptgo.Call(arg1, @BC4D16B7)
+    scriptgo.Call(arg1, @398B8C34)
+
+def EnableChildTargets(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.Call(arg1, @E6C9A2E3)
+    if none != local3:
+        scriptgo.Call1(local3, @D25BD0C9, local2.car)
+        scriptgo.Call(local3, @A52732D2)
+
+def DamageMainBodyArmorHealthAndDecrementCount(self, arg1):
+    local2 = vehicle.GetProperties(self)
+    DamageMainBodyArmorHealth(self, arg1)
+    local2.armorPieceCount = local2.armorPieceCount - 1.0
+    if local2.armorPieceCount == 0.0:
+        local2.isDeforming = true
+
+def Detach(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = vehicle.WeakspotGetPhysicsPart(arg1)
+    if local4:
+        local5 = game.WeakspotGetNormal(arg1)
+        vehicle.HingedPartBreak(local4, vector.Scale(local5, 10.0))
+        if local3.effect_detached:
+            effect.SpawnerPlay(local3.effect_detached)
+            effect.SpawnerSetAttachObject(local3.effect_detached, local3.car)
+            local6 = game.WeakspotGetPosition(arg1)
+            effect.SpawnerSetWorldTransform(local3.effect_detached, matrix.TranslationAt(local6, local5))
+    game.WeakspotOnDetach(arg1)
+
+def DamageMainBodyArmorHealth(self, arg1):
+    local2 = lib_vehicle.GetArmorCount(self)
+    local3 = lib_entity_proxy.GetBodyHealth(self)
+    local4 = scriptgo.Call(local3, @F48A1A14)
+    local5 = 1.0 - local4
+    local6 = 1.0 - scriptgo.Call(local3, @F4E205B5)
+    local7 = math.Max(local5 - local6, 0.0)
+    local8 = local7 / local2 * arg1
+    scriptgo.Call2(local3, @CA4FD849, local8, lib_damage_types.DAMAGE_SIMPLE())

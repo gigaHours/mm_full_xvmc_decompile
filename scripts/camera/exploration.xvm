@@ -1,0 +1,583 @@
+module exploration
+import @78DDD3EE
+import @42D0E955
+
+def ScoreAndSortAttackersForCameraAlignment(self):
+    local1 = list.MakeList(len(self), 0.0)
+    local2 = character.GetPlayer()
+    local4 = 0.0
+    local5 = 1.0
+    local3 = len(self)
+    while local3 > local4:
+        local6 = self[local4][1.0]
+        local7 = self[local4][0.0]
+        if animation.GetLinkSource(local7, 0.0) and character.IsStateBitSet(local2, 14.0):
+            local6 = 10100.0 + 300.0
+            game.SetBlackboardValueToObject(local2, @F23F197E, 2.0)
+        elif character.IsStateBitSet(local7, 3.0) and character.IsStateBitSet(local2, 22.0):
+            local6 = 10100.0 + 300.0
+            game.SetBlackboardValueToObject(local2, @F23F197E, 1.0)
+        elif character.IsContextBitSet(local7, 8.0) and character.IsStateBitSet(local7, 37.0):
+            local6 = 10100.0 + 100.0
+        if local6 == none:
+            if character.IsContextBitSet(local7, 9.0) and character.GetFirstItemObjectFromCategoryId(local7, "Shield") != none:
+                local6 = 10100.0
+            elif character.IsContextBitSet(local7, 10.0) or character.IsContextBitSet(local7, 11.0):
+                local6 = 10100.0
+            else:
+                local8 = game.GetBlackboardValueFromObject(self[local4][0.0], @5DDE7229)
+                if local8:
+                    local6 = local8
+                else:
+                    local6 = 9900.0
+        else:
+            game.SetBlackboardValueToObject(self[local4][0.0], @5DDE7229, local6)
+        local6[local1] = local4
+        local4 = local5 + local4
+    self = list.SortList(self, local1)
+    return self
+
+def IncreaseCameraDistSpeed(self, arg1, arg2, arg3):
+    if arg2 > self.camera_distance_speed:
+        self.camera_distance_speed = math.SpeedLerp(self.camera_distance_speed, arg2, arg3, arg1)
+    else:
+        self.camera_distance_speed = arg2
+
+def EnterAlignedTransition(self, arg1, arg2):
+    local3 = GET_MIN_ELEVATION(self)
+    local4 = GET_MAX_ELEVATION(self)
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    if lib_camera.ALIGN_CURR_SRC_AZIM_INIT_DST_ELEV() == self.EnterTransitionAlignmentType:
+        camera.SetOffsetDeltaOrbit(self, 0.0, self.InitialOffsetElevation - self.OffsetElevation)
+    else:
+        lib_camera.AlignElevationToSourceCameraClamped(self, arg1, arg2, local3, local4)
+    TransitionResetState(self, arg2)
+    lib_camera.ResetDamping(self)
+
+def HandleLadder(self, arg1, arg2, arg3):
+    if character.IsStateBitSet(self, 43.0):
+        local4 = animation.GetSegmentInfo(self, @E063F6A0, @38066566)
+        if none != local4:
+            if local4.Inside > 0.0:
+                local5 = character.GetInteractionUserProxy(self)
+                local6 = interaction.GetGraphTransform(local5)
+                if none != local6:
+                    local7 = local6.r2
+                    local7.y = 0.0
+                    local7 = vector.Normalize(local7)
+                    local8 = local6.r0
+                    local8.y = 0.0
+                    local8 = vector.Normalize(local8)
+                    local9 = camera.GetCameraTransform().r2
+                    local9.y = 0.0
+                    local9 = vector.Normalize(local9)
+                    local10 = vector.DotXZ(local7, local9)
+                    local11 = vector.DotXZ(local8, local9)
+                    local12 = math.Clamp01(local4.LocalTime)
+                    local13 = math.BezierCurve(0.0, 0.0, 1.0, 1.0, local12)
+                    local14 = math.BezierCurve(1.0, 1.0, 0.0, 0.0, local12)
+                    local12 = math.Min(local13, local14) * 3.0
+                    local15 = 0.0
+                    if 0.6 > local10:
+                        if local10 > 0.0 and local11 > 0.0 or 0.0 > local10 and local11 > 0.5:
+                            local15 = -math.RadToDeg(vector.AngleBetween(local7, local9))
+                        else:
+                            local15 = math.RadToDeg(vector.AngleBetween(local7, local9))
+                            if local11 > 0.0:
+                                local15 = local15 + 90.0
+                        local16 = local15 / 50.0 * local12 * arg1
+                        arg2 = arg2 + local16
+                    local17 = local6.r1
+                    local17 = vector.Normalize(local17)
+                    local9 = camera.GetCameraTransform().r2
+                    local9 = vector.Normalize(local9)
+                    local18 = vector.Dot(local17, local9)
+                    if 0.9 > local18:
+                        local15 = math.RadToDeg(vector.AngleBetween(local17, local9))
+                        local16 = local15 / 25.0 * local12 * arg1
+                        arg3 = arg3 + local16
+    return [arg2, arg3]
+
+def AutoALingCameraWithAttackers(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8):
+    local9 = PropertyWithDefault(self.Properties.auto_align_attackers_blend_speed, 3.0)
+    local10 = PropertyWithDefault(self.Properties.auto_align_attackers_blend_fadeout_dist, 8.0)
+    local11 = math.DegToRad(PropertyWithDefault(self.Properties.auto_align_attackers_blend_speed_constant, 45.0))
+    local12 = math.DegToRad(PropertyWithDefault(self.Properties.auto_align_attackers_acc, 90.0))
+    local13 = PropertyWithDefault(self.Properties.auto_align_attackers_ignore_closest_dist, 4.0)
+    local14 = PropertyWithDefault(self.Properties.auto_align_attackers_angle_shift_dist, 5.0)
+    local15 = math.DegToRad(PropertyWithDefault(self.Properties.auto_align_attackers_angle_shift, 25.0))
+    local16 = GET_MIN_ELEVATION(self)
+    local17 = GET_MAX_ELEVATION(self)
+    local18 = -1.0
+    local19 = -1.0
+    local20 = 0.0
+    local21 = character.GetWorldMatrix(arg1).r3
+    local23 = 0.0
+    local24 = 1.0
+    local22 = len(arg4)
+    while local22 > local23:
+        local25 = character.GetWorldMatrix(arg4[local23][0.0]).r3
+        local26 = vector.Length(vector.Sub(local21, local25))
+        if lib_gameplay.METERS_FOR_OGC_ENEMIES_NEAR_TO_TRIGGER_COMBAT() > local26:
+            if local18 > local26 or 0.0 > local19:
+                local18 = local26
+                local19 = local23
+            local20 = local20 + 1.0
+        else:
+            none[arg4[local23]] = 0.0
+        local23 = local24 + local23
+    if local20 > 0.0:
+        if local18 > local13:
+            local19 = -1.0
+        if local20 > 1.0 and local19 >= 0.0:
+            local20 = local20 - 1.0
+        else:
+            local19 = -1.0
+        local27 = GetWeightedPos(self, arg4, local20, local19)
+        local28 = matrix.Inverse(self.CameraBaseTransform)
+        local29 = vector.Add(matrix.MulVec(local28, local27), vector.Set(0.0, 2.0, 0.0, 0.0))
+        local30 = vector.Set(local29.x, 0.0, local29.z, 0.0)
+        local31 = vector.Length(local30)
+        local32 = 0.3
+        local33 = math.Min(math.Max((local31 - local10 * local32) / (local10 * (1.0 - local32)), 0.0), 1.0)
+        local34 = local33 * local9
+        local35 = local33 * local11
+        if self.Properties.LastFrameWeightedPos:
+            local36 = vector.Distance(self.Properties.LastFrameWeightedPos, local27)
+            if local36 > 0.2:
+                self.Properties.camera_align_pos_is_invalid = false
+        else:
+            self.Properties.camera_align_pos_is_invalid = false
+        if not arg8:
+            return [local27, 0.0, 0.0, 0.0]
+        self.Properties.LastFrameWeightedPos = local27
+        if local31 > 0.0:
+            local37 = math.ATan2(-local30.x / local31, -local30.z / local31)
+            local38 = vector.Distance(local27, local21)
+            local39 = 0.6
+            local40 = 0.3
+            local41 = math.Scale(local38, 5.0, lib_gameplay.METERS_FOR_OGC_ENEMIES_NEAR_TO_TRIGGER_COMBAT() - 3.0, local39, local40)
+            local42 = math.Clamp(math.ASin(-local29.y / vector.Length(local29)) + math.DegToRad(arg3.FOV), 0.0, local17) * local41
+            local43 = matrix.RotationMatrix(local37 - self.InitialOffsetAzimuth, self.InitialOffsetElevation - local42, 0.0)
+            local43 = matrix.Mul(self.InitialOffsetTransform, local43)
+            matrix.OrthoNormalize(local43)
+            local43 = matrix.Mul(local43, self.CameraBaseTransform)
+            if not self.Properties.camera_align_pos_is_invalid:
+                local44 = game.GetChild(arg1, "raycaster")
+                local21 = vector.Set(local21.x, local21.y + 1.0, local21.z, 1.0)
+                local45 = [[local43.r3, local21]]
+                local46 = lib_character.CastRays(local44, local45, FilterHit, false)
+                if local46:
+                    arg8 = false
+            if not arg8 or self.Properties.camera_align_pos_is_invalid:
+                self.Properties.camera_align_pos_is_invalid = true
+                return [local27, 0.0, 0.0, 0.0]
+            local47 = local15 * math.Min(2.0 * math.Max(local14 - local31, 0.0) / local14, 1.0)
+            local48 = lib_camera.NormalizeAngleDifference(self.OffsetAzimuth, local37 - local47)
+            local49 = lib_camera.NormalizeAngleDifference(self.OffsetAzimuth, local37 + local47)
+            if math.Abs(local49) > math.Abs(local48):
+                local50 = local48
+            else:
+                local50 = local49
+            local51 = lib_camera.NormalizeAngleDifference(self.OffsetElevation, local42)
+            local52 = local50 * local34 + math.Sign(local50) * local35
+            if math.Abs(local52 * arg2) > math.Abs(local50):
+                local52 = local50 / arg2
+            local53 = local51 * local34 + math.Sign(local51) * local35
+            if math.Abs(local53 * arg2) > math.Abs(local51):
+                local53 = local51 / arg2
+            local54 = local52 - self.Properties.AlignAttackerAzimuthVel
+            local55 = local53 - self.Properties.AlignAttackerElevationVel
+            self.Properties.AlignAttackerAzimuthVel = self.Properties.AlignAttackerAzimuthVel + ClampDelta(local54, math.Sign(local54) * local12 * arg2)
+            self.Properties.AlignAttackerElevationVel = self.Properties.AlignAttackerElevationVel + ClampDelta(local55, math.Sign(local55) * local12 * arg2)
+            arg5 = ClampDelta(local50, self.Properties.AlignAttackerAzimuthVel * arg2)
+            arg6 = ClampDelta(local51, self.Properties.AlignAttackerElevationVel * arg2)
+            arg7 = 0.0
+    return [local27, arg5, arg6, arg7]
+
+def HandleFalling(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = GET_MIN_ELEVATION(self)
+    local7 = GET_MAX_ELEVATION(self)
+    local8 = animation.IsWithinSegment(arg1, @E063F6A0, @CAD43ADB)
+    if local8:
+        if animation.IsWithinSegment(arg1, @E063F6A0, @15FA2C1B):
+            self.Properties.FallAdjustAcceleration = self.Properties.FallAdjustAcceleration + 0.6
+        else:
+            self.Properties.FallAdjustAcceleration = self.Properties.FallAdjustAcceleration + 1.2
+        self.Properties.FallAdjustAcceleration = self.Properties.FallAdjustAcceleration * arg2
+        self.Properties.FallAdjustAcceleration = math.Clamp(self.Properties.FallAdjustAcceleration, 0.0, 0.1)
+        arg5 = arg5 + math.Lerp(math.Scale01(self.OffsetElevation, 0.0, local7), self.Properties.FallAdjustAcceleration, 0.0)
+        self.Properties.IsDoingFallAdjust = true
+        self.Properties.PostFallAdjustAcceleration = 0.0
+    elif self.Properties.IsDoingFallAdjust:
+        self.Properties.FallAdjustAcceleration = self.Properties.FallAdjustAcceleration * 0.75
+        local9 = math.Max(self.Properties.PreFallElevation, self.InitialOffsetElevation)
+        local9 = math.Min(local9, self.OffsetElevation)
+        if local9 >= self.OffsetElevation or math.Abs(arg3.y) > 0.2:
+            self.Properties.IsDoingFallAdjust = false
+        else:
+            self.Properties.PostFallAdjustAcceleration = self.Properties.PostFallAdjustAcceleration + 1.5 * arg2
+            local10 = local9 - self.OffsetElevation
+            arg5 = arg5 + local10 * 0.1 * self.Properties.PostFallAdjustAcceleration
+    else:
+        self.Properties.FallAdjustAcceleration = 0.0
+        self.Properties.PreFallElevation = self.OffsetElevation
+    return [arg4, arg5]
+
+def Init(self):
+    self.Properties.SmoothFOV = 50.0
+    ResetState(self)
+    lib_camera.ResetDamping(self)
+
+def PropertyWithDefault(self, arg1):
+    if self == none:
+        return arg1
+    return self
+
+def TransitionResetState(self, arg1):
+    ResetState(self)
+    if PropertyWithDefault(self.Properties.auto_align_vista_target, false):
+        lib_camera.VistaCameraReset(self, false, arg1)
+        lib_camera.UpdateVistaCam(self, arg1, 0.0, false, 0.0)
+
+def EnterUnalignedTransition(self, arg1):
+    TransitionResetState(self, arg1)
+    lib_camera.ResetDamping(self)
+
+def HandleSqueeze(self, arg1, arg2, arg3, arg4):
+    if character.IsStateBitSet(arg1, 46.0):
+        arg3 = 0.0
+        arg4 = 0.0
+        if self.Properties.has_exit_squeeze:
+            self.Properties.has_exit_squeeze = false
+        if not self.Properties.has_entered_squeeze:
+            local5 = animation.GetSegmentInfo(arg1, @E063F6A0, @14F5328C)
+            if none != local5:
+                local6 = math.Clamp01(local5.LocalTime)
+                if local6 >= 1.0:
+                    self.Properties.has_entered_squeeze = true
+                    game.PostEventNone("cam.activate.wasteland.exploration.narrow_squeeze")
+    elif self.Properties.has_entered_squeeze:
+        if not self.Properties.has_exit_squeeze:
+            self.Properties.has_exit_squeeze = true
+            self.Properties.squeeze_exit_position = character.GetWorldMatrix(arg1).r3
+        arg3 = 0.0
+        arg4 = 0.0
+        self.Properties.has_entered_squeeze = false
+        camera.SetOffsetDistance(self, self.InitialOffsetDistance)
+        game.PostEventNone("cam.deactivate.wasteland.exploration.narrow_squeeze")
+    return [arg3, arg4]
+
+def FilterHit(self):
+    local1 = self.GameObject
+    if not local1:
+        return self
+    if not character.IsCharacter(local1):
+        return self
+    return none
+
+def GET_MAX_ELEVATION(self):
+    return math.DegToRad(PropertyWithDefault(self.Properties.max_elevation, 75.0))
+
+def GetWeightedPos(self, arg1, arg2, arg3):
+    local4 = math.Pow(2.0, arg2 - 1.0)
+    local5 = math.Pow(2.0, arg2) - 1.0
+    local6 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    if self.Properties.FirstUpdateSinceEnter:
+        self.Properties.LastFrameWeightedPos = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local8 = 0.0
+    local9 = 1.0
+    local7 = len(arg1)
+    while local7 > local8:
+        if local8 != arg3 and arg1[local8][0.0] != none:
+            local10 = character.GetWorldMatrix(arg1[local8][0.0]).r3
+            local6 = vector.Add(local6, vector.Scale(local10, local4 / local5))
+            local4 = local4 / 2.0
+        local8 = local9 + local8
+    if self.Properties.LastFrameWeightedPos != none:
+        local11 = vector.Distance(self.Properties.LastFrameWeightedPos, local6)
+        if 1.5 > local11:
+            local6 = self.Properties.LastFrameWeightedPos
+    return local6
+
+def GET_MIN_ELEVATION(self):
+    return math.DegToRad(PropertyWithDefault(self.Properties.min_elevation, -30.0))
+
+def ChangeDistanceToTryToFramePos(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = self.Properties
+    if not local6.camera_distance_speed:
+        local6.camera_distance_speed = 0.0
+    if not local6.added_distance_to_camera:
+        local6.added_distance_to_camera = 0.0
+    local7 = camera.GetInitialOffsetDistance(self)
+    local8 = arg3 - (arg3 - local6.added_distance_to_camera)
+    local9 = arg3 * 0.1
+    local10 = camera.GetCameraTransform()
+    local11 = vector.Distance(local10.r3, self.CameraBaseTransform.r3)
+    if local7 > local11:
+        ResetCameraDistance(self)
+        return
+    if camera.IsPointVisible(arg1):
+        if local6.camera_distance_was_increasing or local9 > local8:
+            DecreaseCameraDistSpeed(local6, arg2, 0.0, arg4)
+            if 0.0 >= local6.camera_distance_speed:
+                local6.camera_distance_was_increasing = false
+        else:
+            IncreaseCameraDistSpeed(local6, arg2, arg5, arg4)
+        local6.added_distance_to_camera = local6.added_distance_to_camera - local6.camera_distance_speed
+        if 0.0 > self.Properties.added_distance_to_camera:
+            self.Properties.added_distance_to_camera = 0.0
+    else:
+        if not local6.camera_distance_was_increasing or local8 > arg3 - local9:
+            DecreaseCameraDistSpeed(local6, arg2, 0.0, arg4)
+            if 0.0 >= local6.camera_distance_speed:
+                local6.camera_distance_was_increasing = true
+        else:
+            IncreaseCameraDistSpeed(local6, arg2, arg5, arg4)
+        local6.added_distance_to_camera = local6.added_distance_to_camera + local6.camera_distance_speed
+        if self.Properties.added_distance_to_camera > arg3:
+            self.Properties.added_distance_to_camera = arg3
+    camera.SetOffsetDistance(self, local7 + self.Properties.added_distance_to_camera)
+
+def ResetCamera(self, arg1, arg2, arg3):
+    if input.GetButtonInput(@50A0107B) > 0.0 and (not self.Properties.is_holding_camera_reset):
+        if self.Properties.ResetCamBuffer > 0.05:
+            if self.Properties.in_camera_reset == false:
+                self.Properties.PreResetAzimuth = self.OffsetAzimuth
+                self.Properties.PreResetElevation = self.OffsetElevation
+            self.Properties.in_camera_reset = true
+            self.Properties.is_holding_camera_reset = true
+        self.Properties.ResetCamBuffer = self.Properties.ResetCamBuffer + arg1
+    elif self.Properties.in_camera_reset:
+        self.Properties.ResetCamBuffer = self.Properties.ResetCamBuffer + arg1
+        if self.Properties.ResetCamBuffer > 0.35:
+            self.Properties.in_camera_reset = false
+    else:
+        self.Properties.in_camera_reset = false
+        self.Properties.ResetCamBuffer = 0.0
+    if input.GetButtonInput(@50A0107B) == 0.0:
+        self.Properties.is_holding_camera_reset = false
+    if self.Properties.in_camera_reset:
+        local4 = self.Properties.PreResetAzimuth
+        local5 = self.InitialOffsetAzimuth
+        local6 = self.Properties.PreResetElevation
+        local7 = self.InitialOffsetElevation
+        local8 = math.Abs(lib_camera.NormalizeAngleDifference(local4, local5)) + math.Abs(lib_camera.NormalizeAngleDifference(local6, local7))
+        local9 = math.Scale01(local8, 2.4, 0.1)
+        local10 = math.BezierCurve(local4, math.Lerp(local9, local4, local5), local5, local5, math.Scale01(self.Properties.ResetCamBuffer, 0.05, 0.35))
+        local11 = math.BezierCurve(local6, math.Lerp(local9, local6, local7), local7, local7, math.Scale01(self.Properties.ResetCamBuffer, 0.05, 0.35))
+        arg2 = lib_camera.NormalizeAngleDifference(self.OffsetAzimuth, local10)
+        arg3 = lib_camera.NormalizeAngleDifference(self.OffsetElevation, local11)
+        self.Properties.PrevDeltaAzimuth = arg2
+        self.Properties.PrevDeltaElevation = arg3
+    return [arg2, arg3]
+
+def ClampDelta(self, arg1):
+    if self == 0.0:
+        return 0.0
+    if 0.0 > self:
+        arg1 = math.Max(arg1, self)
+    else:
+        arg1 = math.Min(arg1, self)
+    return arg1
+
+def DecreaseCameraDistSpeed(self, arg1, arg2, arg3):
+    if self.camera_distance_speed > arg2:
+        self.camera_distance_speed = math.SpeedLerp(self.camera_distance_speed, arg2, arg3, arg1)
+    else:
+        self.camera_distance_speed = arg2
+
+def ResetState(self):
+    self.Properties.TimeSinceAngInput = 0.0
+    self.Properties.TimeSpentMoving = 0.0
+    self.Properties.AutoAligningAttacker = false
+    self.Properties.ResetCamBuffer = 0.0
+    self.Properties.AlignAttackerAzimuthVel = 0.0
+    self.Properties.AlignAttackerElevationVel = 0.0
+    self.Properties.BB_input_set = false
+    self.Properties.AccelerationProgress = 0.0
+    self.Properties.PreResetAzimuth = 0.0
+    self.Properties.PreResetElevation = 0.0
+    self.Properties.IsDoingFallAdjust = false
+    self.Properties.PostFallAdjustAcceleration = 0.0
+    self.Properties.FallAdjustAcceleration = 0.0
+    self.Properties.PreFallElevation = 0.0
+    self.Properties.LastFrameWeightedPos = vector.Set(0.0, 0.0, 0.0, 0.0)
+    self.Properties.is_holding_camera_reset = false
+    self.Properties.added_distance_to_camera = 0.0
+    self.Properties.camera_distance_speed = 0.0
+    self.Properties.camera_distance_was_increasing = false
+    self.Properties.camera_align_pos_is_invalid = false
+    self.Properties.has_entered_squeeze = false
+    self.Properties.has_exit_squeeze = true
+    self.Properties.squeeze_exit_position = vector.Set(0.0, 0.0, 0.0, 0.0)
+    if input.GetButtonInput(@50A0107B):
+        self.Properties.in_camera_reset = true
+    else:
+        self.Properties.in_camera_reset = false
+
+def ResetCameraDistance(self):
+    self.Properties.camera_distance_speed = 0.0
+    self.Properties.added_distance_to_camera = 0.0
+    self.Properties.camera_distance_was_increasing = false
+
+def Update(self, arg1):
+    local2 = PropertyWithDefault(self.Properties.angular_damping, 0.0)
+    local3 = PropertyWithDefault(self.Properties.min_direct_speed, 0.025)
+    local4 = PropertyWithDefault(self.Properties.max_direct_speed, 2.0)
+    local5 = PropertyWithDefault(self.Properties.min_top_speed, 0.1)
+    local6 = PropertyWithDefault(self.Properties.max_top_speed, 5.0)
+    local7 = PropertyWithDefault(self.Properties.max_top_speed_mouse, 5.0)
+    local8 = PropertyWithDefault(self.Properties.auto_align_timer, 1.7)
+    local9 = PropertyWithDefault(self.Properties.auto_align_blend_speed, 1.3)
+    local10 = PropertyWithDefault(self.Properties.auto_align_acceleration_time, 4.0)
+    local11 = PropertyWithDefault(self.Properties.auto_align_vista_target, false)
+    local12 = PropertyWithDefault(self.Properties.auto_align_attackers, false)
+    local13 = PropertyWithDefault(self.Properties.auto_align_attackers_strategy, 1.0)
+    local14 = PropertyWithDefault(self.Properties.auto_align_attackers_movement_threshold, 1.8)
+    local15 = math.DegToRad(PropertyWithDefault(self.Properties.auto_align_attackers_deacc, 90.0))
+    local16 = math.DegToRad(PropertyWithDefault(self.Properties.auto_align_attackers_acc, 90.0))
+    local17 = PropertyWithDefault(self.Properties.auto_align_attackers_timer, 2.0)
+    local18 = 0.0
+    local19 = 1.0
+    local20 = 2.0
+    local21 = math.DegToRad(110.0)
+    local22 = GET_MIN_ELEVATION(self)
+    local23 = GET_MAX_ELEVATION(self)
+    local24 = self.Dt
+    local25 = game.GetUpdateSpeed()
+    if local25 > 0.0:
+        local24 = self.Dt / local25
+    local26 = 1000000.0
+    if local24 > 0.0:
+        local26 = 1.0 / local24
+    local27 = character.GetPlayer()
+    if animation.IsWithinSegment(local27, @E063F6A0, @3B1B7E2B):
+        return
+    local28 = input.GetLookInput()
+    input.DebugInputHistory(local28, local28)
+    if self.EnterTransitionBlendOption == lib_camera.BLEND_OPTION_DESTINATION_ACTIVE():
+        local28 = vector.Scale(local28, self.RotationWeight)
+    local29 = self.RotationWeight != 1.0 or self.TranslationWeight != 1.0
+    if local12:
+        local29 = false
+    self.Properties.TimeSinceAngInput = self.Properties.TimeSinceAngInput + local24
+    self.Properties.TimeSpentMoving = self.Properties.TimeSpentMoving + local24
+    local30 = vector.Sub(self.CameraBaseTransform.r3, self.PreviousBaseTransform.r3)
+    local30 = vector.Scale(local30, local26)
+    local30.y = 0.0
+    local31 = vector.Length(local30)
+    local32 = vector.Dot(self.CameraBaseTransform.r2, self.PreviousBaseTransform.r0) * local26
+    local33 = math.Abs(local28.x) + math.Abs(local28.y)
+    local34 = local31 >= 1.0 or local32 > 7.0
+    local35 = local31 >= local14 or local32 > 7.0
+    if local33 > 0.0:
+        self.Properties.TimeSinceAngInput = 0.0
+        self.Properties.AlignAttackerAzimuthVel = 0.0
+        self.Properties.AlignAttackerElevationVel = 0.0
+        self.Properties.AccelerationProgress = math.Clamp(self.Properties.AccelerationProgress + local24 * 1.25, 0.2, 1.0)
+    else:
+        self.Properties.AccelerationProgress = 0.0
+    if local11:
+        if lib_camera.UpdateVistaCam(self, arg1, 0.0, false, local24):
+            return
+    if not local34:
+        self.Properties.TimeSpentMoving = 0.0
+    local36 = self.Properties.TimeSinceAngInput
+    local37 = self.Properties.TimeSpentMoving
+    local38 = input.GetSensitivity()
+    if input.IsUsingGamePad():
+        local39 = local6
+        local40 = local6 * 0.8
+        local41 = -local28.x * local38.x * local24 * local39 * self.Properties.AccelerationProgress
+        local42 = -local28.y * local38.y * local24 * local40 * self.Properties.AccelerationProgress
+    else:
+        local39 = local7
+        local40 = local7 * 0.8
+        local41 = -local28.x * local38.x * local24 * local39
+        local42 = -local28.y * local38.y * local24 * local40
+    HandleFalling(self, local27, local24, local28, local41, local42)
+    if input.IsUsingGamePad():
+        if local2 != 0.0:
+            local43 = lib_camera.GetDeltaAzElDamped(self, local41, local42, local2, local24)
+            local41 = local43[0.0]
+            local42 = local43[1.0]
+    local41 = local41 + self.Properties.AlignAttackerAzimuthVel * local24
+    local42 = local42 + self.Properties.AlignAttackerElevationVel * local24
+    local44 = game.GetRegisteredAttackers()
+    if local12 and len(local44) > 0.0 and (not self.Properties.in_camera_reset):
+        game.SetBlackboardValueToObject(local27, @F23F197E, 0.0)
+        local44 = ScoreAndSortAttackersForCameraAlignment(local44)
+        if game.GetBlackboardValueFromObject(local27, @F23F197E) == 2.0:
+            local16 = math.DegToRad(360.0)
+            local17 = 0.3
+        elif game.GetBlackboardValueFromObject(local27, @F23F197E) == 1.0:
+            local16 = math.DegToRad(120.0)
+            local17 = 0.3
+        if not self.Properties.AutoAligningAttacker:
+            self.Properties.TimeSinceAngInput = local17
+            local36 = local17
+        self.Properties.AutoAligningAttacker = true
+        local45 = false
+        if (not character.IsStateBitSet(local27, 44.0)) and (not local29) and local36 >= local17 and (game.GetBlackboardValueFromObject(local27, @F23F197E) > 0.0 or (local13 == local20 or local13 == local18 and local35 or local13 == local19 and (not local35))):
+            local45 = true
+        local46 = AutoALingCameraWithAttackers(self, local27, local24, arg1, local44, local41, local42, local15, local45)
+        local47 = local46[0.0]
+        if local47:
+            ChangeDistanceToTryToFramePos(self, local47, local24, 1.5, 0.1, 1.0)
+        if local45:
+            local41 = local46[1.0]
+            local42 = local46[2.0]
+            local15 = local46[3.0]
+    else:
+        if self.Properties.AutoAligningAttacker:
+            local36 = 0.0
+            self.Properties.TimeSinceAngInput = 0.0
+            local37 = 0.0
+            self.Properties.TimeSpentMoving = 0.0
+        self.Properties.AutoAligningAttacker = false
+        if false and (not self.Properties.in_camera_reset) and local36 >= local8 and local37 >= local8:
+            local48 = local9 * lib_camera.ScaleValue(local36, local8, local8 + local10, 0.0, 1.0)
+            local49 = self.InitialOffsetAzimuth
+            local50 = self.InitialOffsetElevation
+            local51 = lib_camera.NormalizeAngleDifference(self.OffsetAzimuth, local49)
+            local52 = lib_camera.NormalizeAngleDifference(self.OffsetElevation, local50)
+            local41 = ClampDelta(local51, local51 * local48 * local24 + math.Sign(local51) * blend_speed_constant * local24)
+            local42 = ClampDelta(local51, local52 * local48 * local24 + math.Sign(local52) * blend_speed_constant * local24)
+            if math.Abs(local51) > local21:
+                self.Properties.BB_input_set = false
+            if false and (not self.Properties.BB_input_set):
+                local53 = input.GetFilteredMoveInput()
+                local54 = lib_character.GetFilteredMoveInputWorldDir()
+                game.SetBlackboardValueToObject(local27, @43212CE7, local53)
+                game.SetBlackboardValueToObject(local27, @8E52D244, local54)
+                self.Properties.BB_input_set = true
+        else:
+            self.Properties.BB_input_set = false
+    self.Properties.AlignAttackerAzimuthVel = self.Properties.AlignAttackerAzimuthVel - ClampDelta(self.Properties.AlignAttackerAzimuthVel, math.Sign(self.Properties.AlignAttackerAzimuthVel) * local15 * local24)
+    self.Properties.AlignAttackerElevationVel = self.Properties.AlignAttackerElevationVel - ClampDelta(self.Properties.AlignAttackerElevationVel, math.Sign(self.Properties.AlignAttackerElevationVel) * local15 * local24)
+    local55 = HandleLadder(local27, local24, local41, local42)
+    local55 = HandleSqueeze(self, local27, local24, local55[0.0], local55[1.0])
+    local41 = local55[0.0]
+    local42 = local55[1.0]
+    local56 = self.OffsetElevation
+    local57 = local42 + local56
+    if local57 > local23:
+        local42 = local23 - local56
+    elif local22 > local57:
+        local42 = local22 - local56
+    local58 = playerstats.GetPlayerStats().HitCounter
+    if local58:
+        local58 = math.Clamp(local58, 1.0, 15.0)
+    else:
+        local58 = 1.0
+    local59 = arg1.FOV + (local58 - 1.0) * 1.5
+    self.Properties.SmoothFOV = self.Properties.SmoothFOV * 0.9 + local59 * 0.1
+    local55 = ResetCamera(self, local24, local41, local42)
+    local41 = local55[0.0]
+    local42 = local55[1.0]
+    local60 = camera.GetInitialOffsetDistance(self)
+    camera.SetOffsetDeltaOrbit(self, local41, local42)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    arg1.FOV = self.Properties.SmoothFOV
+    self.Properties.FirstUpdateSinceEnter = false

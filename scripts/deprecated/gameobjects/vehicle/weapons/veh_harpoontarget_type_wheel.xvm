@@ -1,0 +1,43 @@
+module veh_harpoontarget_type_wheel
+import @42D0E955
+import @358206F4
+import @45098D7D
+
+def ForceShootCam(self):
+    return false
+
+def ExitHooked(self):
+    lib_harpoontarget_type.ExitHookedVehicleTarget(self)
+
+def GetAutoTargetPrio(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.autoTargetPrio:
+        return local1.autoTargetPrio
+    return 0.0
+
+def EnterHooked(self):
+    local1 = scriptgo.GetProperties(self)
+    lib_harpoontarget_type.EnterHookedVehicleTarget(self)
+
+def Init(self):
+    pass
+
+def RenderDebug(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.weakspot
+    local4 = scriptgo.Call(local3, @82877941)
+    debug.Sphere(local4, 0.5, lib_color.RED(0.3))
+    local5 = scriptgo.Call(local3, @FB4DD739)
+    debug.Arrow(local4, vector.Add(local4, local5), 0.05, lib_color.BLUE(0.7))
+
+def GetAimDotLimit(self):
+    return -0.5
+
+def UpdateHooked(self, arg1):
+    local2 = lib_harpoontarget_type.CheckExitVehicleTarget(self)
+    local3 = lib_harpoontarget_type.DamageVehicleTarget(self, arg1)
+    if local3:
+        hydra.HydraSendVehicleEvent(8.0)
+    elif local2:
+        hydra.HydraSendVehicleEvent(7.0)
+    return local2

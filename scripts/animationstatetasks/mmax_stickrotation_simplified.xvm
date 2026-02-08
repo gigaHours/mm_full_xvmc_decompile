@@ -1,0 +1,82 @@
+module mmax_stickrotation_simplified
+import @BAFDB405
+
+def Enter(self, arg1):
+    local2 = math.DegToRad(arg1.Property1)
+    local3 = math.DegToRad(arg1.Property2)
+    local4 = vector.Scale(character.GetWorldMatrix(self).r2, -1.0)
+    local5 = character.GetWorldMatrix(self).r0
+    local6 = lib_character.GetFilteredMoveInputWorldDir()
+    local7 = vector.AngleBetween(local4, local6) - local2
+    local8 = vector.Dot(local6, local5)
+    if local8 > 0.0:
+        local7 = -local7
+    local7 = math.Clamp(local7, -local3, local3)
+    character.SetGlobalXvmFloat(self, 0.0, 0.0)
+    character.SetGlobalXvmFloat(self, 1.0, local7)
+    character.SetGlobalXvmFloat(self, 3.0, local4.x)
+    character.SetGlobalXvmFloat(self, 5.0, local4.z)
+
+def Update(self, arg1, arg2):
+    local3 = false
+    local4 = true
+    local5 = true
+    local6 = math.DegToRad(arg1.Property1)
+    local7 = math.DegToRad(arg1.Property2)
+    local8 = arg1.Property3
+    local9 = arg1.Property4
+    local10 = character.GetWorldMatrix(self)
+    local11 = lib_character.GetFilteredMoveInputMagnitude()
+    local12 = animation.GetSegmentInfo(self, @E063F6A0, @2E41084B)
+    local13 = character.GetGlobalXvmFloat(self, 0.0)
+    local14 = animation.GetTime(self)
+    local15 = local14 - local13
+    character.SetGlobalXvmFloat(self, 0.0, local14)
+    local16 = character.GetGlobalXvmFloat(self, 1.0)
+    if local11 > 0.25 and local12:
+        if 1.0 > local12.LocalTime:
+            local17 = vector.Set(character.GetGlobalXvmFloat(self, 3.0), 0.0, character.GetGlobalXvmFloat(self, 5.0), 0.0)
+            local18 = character.GetWorldMatrix(self).r0
+            local19 = lib_character.GetFilteredMoveInputWorldDir()
+            local20 = vector.AngleBetween(local17, local19) - local6
+            local21 = vector.Dot(local19, local18)
+            if local21 > 0.0:
+                local20 = -local20
+            local16 = math.Clamp(local20, -local7, local7)
+            character.SetGlobalXvmFloat(self, 1.0, local16)
+    local22 = animation.GetSegmentInfo(self, @E063F6A0, @C9E8C69A)
+    local23 = animation.GetSegmentInfo(self, @E063F6A0, @983E3EAF)
+    local24 = false
+    if local23:
+        if local23.Inside > 0.0:
+            if local11 > local9:
+                local25 = local23.LocalTime
+                local24 = true
+    if local22:
+        if local22.Inside > 0.0:
+            if local11 > local9:
+                local25 = 1.0
+                local24 = true
+    if local12:
+        if local12.Inside > 0.0:
+            if local4:
+                local26 = lib_character.GetSegmentLength(local12)
+                local27 = local15 / local26
+                local28 = local16 * local27
+                local29 = matrix.RotationMatrix(local28, 0.0, 0.0)
+                local30 = vector.Scale(local10.r2, -1.0)
+                local31 = matrix.MulVec(local29, local30)
+                character.RotateInstantly(self, local31)
+    if local24 and local5:
+        local32 = local8 * local25
+        local19 = lib_character.GetFilteredMoveInputWorldDir()
+        local33 = lib_character.CalcCharacterRot(self, arg2, local19, local32)
+        character.RotateInstantly(self, local33)
+    if local3:
+        lib_character.DrawCharacterDebug(self)
+        local34 = 1.5
+        local35 = 0.07
+        local36 = vector.Set(0.5, 0.5, 1.0, 0.55)
+        local37 = vector.Scale(local10.r2, -1.0 * local34)
+        local38 = vector.Add(local10.r3, vector.Set(0.0, 0.3, 0.0, 0.0))
+        debug.Arrow(local38, vector.Add(local38, local37), local35, local36)

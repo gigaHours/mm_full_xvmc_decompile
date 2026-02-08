@@ -1,0 +1,34 @@
+module flame_state_aim
+import @9B4F6985
+import @CDB16B8A
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.StartSlowMo(arg1, lib_flamethrower.SLOWMO_AIM())
+    lib_weapon.StartCam(arg1, lib_flamethrower.CAM_AIM())
+    game.QueueAct(local2.companion, "ACT_FLAME_AIM")
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.StopSlowMo(arg1, 0.0)
+    lib_weapon.StopCam(arg1, lib_flamethrower.CAM_AIM())
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_flamethrower.STATE_AIM_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    if local3.input_fire_held:
+        lib_weapon.ChangeState(local2, local3.state_shoot)
+    if (not local3.input_aim_held) and local3.state_time > 0.5:
+        lib_weapon.ChangeState(local2, local3.state_idle)
+
+def GetName(self):
+    return "AIM"

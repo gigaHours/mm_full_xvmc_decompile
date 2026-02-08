@@ -1,0 +1,107 @@
+module harp_state_aim
+import @9B4F6985
+import @3D3D0D9B
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    if local2.target:
+        local2.target_from_auto = local2.target
+    if local2.align_target == none:
+        local3 = lib_weapon.GetClosestVehicleBodyWeakspot()
+        if local3:
+            local4 = scriptgo.GetProperties(local3)
+            local2.align_target = local4.thunderstickTarget
+    lib_weapon.ShowCrosshair(arg1)
+    lib_weapon.StartCam(arg1, lib_harpoon.CAM_AIM())
+    game.QueueAct(local2.companion, "ACT_HARPOON_AIM")
+    lib_weapon.ForceOutlineUpdate(arg1, true)
+    local2.weapon_gui_counter = 0.0
+    if none != local2.projectile_robj:
+        rigidobject.Show(local2.projectile_robj)
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.StopSlowMo(arg1, 0.0)
+    if not lib_weapon.IsNextState(arg1, lib_harpoon.STATE_PRE_SHOOT_ID()):
+        lib_weapon.StopCam(arg1, lib_harpoon.CAM_AIM())
+        lib_weapon.ResetTarget(arg1)
+    game.SendEventNone("snd.cd.camera_generic_aim.off")
+    local2.target_from_auto = none
+    lib_weapon.ClearGuiTargets(arg1)
+    lib_weapon.HideCrosshair(arg1)
+    gui.PostEvent("gui_weapon_invalid_target")
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    local3 = local1.UI_targets_for_BB
+    if none != local3:
+        local2.veh_weapon_targets = local3
+    if local1.use_thunderstick_ammo:
+        local2.thunderstick_ammo = character.GetInventoryItemCount(character.GetPlayer(), "thunderstick_cap")
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    if none != local3.projectile_robj:
+        game.SetTransform(local3.projectile_robj, lib_harpoon.GetProjectileRenderTransformByGun(local2, arg1))
+    lib_weapon.DrawAvailableTargets(local2, local3.local_target_list, local3.target, false, arg1)
+    UpdateGuiBB(local2)
+    if local3.debug_enabled and local3.ray_pos != none:
+        debug.Sphere(local3.ray_pos, 0.1, lib_color.GREEN(0.7))
+
+def GetId(self):
+    return lib_harpoon.STATE_AIM_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = arg1 / game.GetUpdateSpeed()
+    if 10.0 > local3.weapon_gui_counter:
+        lib_weapon.ShowCrosshair(local2)
+        local3.weapon_gui_counter = local3.weapon_gui_counter + 1.0
+    if not local3.weapon_selected or not camera.ActiveCameraInAnyGroup("weapon_aim_group"):
+        lib_weapon.ChangeState(local2, local3.state_idle)
+        return
+    local5 = local3.local_target_list
+    local6 = lib_entity_proxy.GetGlobalHarpoonTargetList()
+    local7 = lib_harpoon.GetAimSourcePos(local2)
+    local8 = lib_harpoon.GetMaxRange(local2)
+    local9 = local8 * 0.8
+    lib_weapon.FilterGlobalTargets(local2, local5, local6, local7, lib_harpoon.GetAimRaycastPos(local2), local8, lib_harpoon.FilterTarget, false)
+    local10 = vector.Length(input.GetLookInput())
+    local11 = lib_weapon.FindBestScreenSpaceTarget(local2, local5, local7, lib_harpoon.FilterTargetUpgrades, local9, 0.22, 0.05, 0.4, [0.5625, 1.0], arg1)
+    if local11 != none or local10 > 0.0:
+        local3.align_target = local11
+    lib_weapon.SetAndHighlightTarget(local2, local11, true)
+    if local3.debug_enabled and local3.target != none:
+        local7 = lib_harpoon.GetAimSourcePos(local2)
+        local12 = game.GetTransform(local3.target).r3
+        local13 = scriptgo.Call(local3.target, @D281A61A)
+        local3.ray_pos = lib_weapon.RayCastPosition(local2, local13, local7, local12)
+    if local3.input_aim_held and (not local3.slowmo_enabled) and local3.state_time > 0.2:
+        lib_weapon.StartSlowMo(local2, lib_harpoon.SLOWMO_AIM())
+    local14 = local3.use_thunderstick_ammo or local3.target
+    if local14 and local3.input_fire_pressed:
+        if local3.use_thunderstick_ammo and (not lib_harpoon.HasThunderCaps(local2)):
+            lib_weapon.ChangeState(local2, local3.state_idle)
+        else:
+            lib_weapon.ChangeState(local2, local3.state_pre_shoot)
+        return
+    if not lib_harpoon.ChumCanAim(local2):
+        lib_weapon.ChangeState(local2, local3.state_idle)
+        return
+    if (not local3.input_aim_held) and local3.state_time > 0.5:
+        if local3.weapon_selected:
+            lib_weapon.ChangeState(local2, local3.state_auto)
+            return
+        lib_weapon.ChangeState(local2, local3.state_idle)
+        return
+    lib_weapon.CheckShowFireIcon(local2, true, local14)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "AIM"

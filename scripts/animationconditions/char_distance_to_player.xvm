@@ -1,0 +1,10 @@
+module char_distance_to_player
+
+def Evaluate(self, arg1):
+    local2 = character.GetPlayer()
+    if local2:
+        local3 = character.GetWorldMatrix(self)
+        local4 = character.GetWorldMatrix(local2)
+        if arg1.Property0 > vector.Distance(local3.r3, local4.r3):
+            return 1.0
+    return 0.0

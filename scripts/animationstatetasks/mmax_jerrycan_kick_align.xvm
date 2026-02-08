@@ -1,0 +1,18 @@
+module mmax_jerrycan_kick_align
+
+def Enter(self, arg1):
+    pass
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    if animation.IsWithinSegment(self, @E063F6A0, @4B4C80F8):
+        local3 = character.GetInteractionUserProxy(self)
+        local4 = interaction.GetCurrentContext(local3)
+        if local4:
+            local5 = game.GetParent(local4)
+            if local5:
+                local6 = game.GetTransform(self)
+                local7 = vector.Scale(local6.r2, -0.5)
+                physics.SetVelocity(local5, local7)

@@ -1,0 +1,36 @@
+module tests_raycaster
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+    scriptgo.SetRenderFunction(self, "Render")
+
+def Render(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.raycaster:
+        local3 = raycast.GetRay(local2.raycaster, 0.0)
+        if local3:
+            debug.DrawLine(local3.From, local3.To, vector.Set(1.0, 0.0, 0.0, 1.0))
+            local4 = local3.Hits
+            if local4:
+                local6 = 0.0
+                local7 = 1.0
+                local5 = len(local4)
+                while local5 > local6:
+                    local8 = local4[local6]
+                    local9 = local8.GameObject
+                    if local9:
+                        local10 = local8.Position
+                        debug.Sphere(local8.Position, 0.5, vector.Set(0.0, 1.0, 0.0, 0.3))
+                    else:
+                        local10 = vector.Lerp(local8.RayFraction, local3.From, local3.To)
+                        debug.Sphere(local10, 0.5, vector.Set(1.0, 1.0, 0.0, 0.3))
+                    debug.DrawLine(local10, vector.Add(local10, local8.Normal), vector.Set(0.0, 0.0, 1.0, 1.0))
+                    local6 = local7 + local6
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.raycaster:
+        local3 = game.GetTransform(self).r3
+        raycast.ClearRays(local2.raycaster)
+        raycast.AddRay(local2.raycaster, local3, vector.Add(local3, vector.Set(10.0, 0.0, 0.0, 0.0)))
+        raycast.CastRays(local2.raycaster)

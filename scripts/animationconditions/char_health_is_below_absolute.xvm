@@ -1,0 +1,6 @@
+module char_health_is_below_absolute
+
+def Evaluate(self, arg1):
+    if arg1.Property0 > character.GetAbsoluteHealth(self):
+        return 1.0
+    return 0.0

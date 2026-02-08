@@ -1,0 +1,12 @@
+module countdown_bb_value
+
+def Enter(self, arg1):
+    local2 = game.GameHashString(arg1.Key)
+    local3 = game.GetBlackboardValueFromObject(self, local2)
+    if not local3:
+        game.SetBlackboardValueToObject(self, local2, 0.0)
+
+def Update(self, arg1, arg2):
+    local3 = game.GameHashString(arg1.Key)
+    local4 = game.GetBlackboardValueFromObject(self, local3)
+    game.SetBlackboardValueToObject(self, local3, local4 - arg2)

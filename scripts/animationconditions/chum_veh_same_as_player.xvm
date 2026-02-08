@@ -1,0 +1,9 @@
+module chum_veh_same_as_player
+
+def Evaluate(self, arg1):
+    local2 = character.GetPlayer()
+    local3 = character.GetVehicle(local2)
+    local4 = character.GetVehicle(self)
+    if game.IsObjectEqualTo(local3, local4):
+        return 1.0
+    return 0.0

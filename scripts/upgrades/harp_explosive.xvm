@@ -1,0 +1,35 @@
+module harp_explosive
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate harpoon explosive level %f", [self])
+
+def GetReloadTime(self):
+    if 2.0 > self:
+        return 7.4
+    if 4.0 > self:
+        return 5.3
+    return 3.5
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate harpoon explosive %f", [self])
+    local2 = lib_entity_proxy.GetHarpoon(vehicle.GetSignatureVehicle())
+    local3 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    if local2:
+        scriptgo.Call1(local2, @C3D2BA8C, GetReloadTime(self))
+        scriptgo.Call1(local2, @F7B3D23A, GetExplosiveLevel(self))
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending Harpoon Explosive stats", [])
+    scriptgo.Call2(local3, @A166F6BB, self, arg1)
+
+def GetExplosiveLevel(self):
+    if 3.0 > self:
+        return 0.0
+    if 5.0 > self:
+        return 1.0
+    if 6.0 > self:
+        return 2.0
+    return 3.0

@@ -1,0 +1,8 @@
+module check_stealthkill_conditions
+
+def Evaluate(self, arg1):
+    if character.IsContextBitSet(self, 4.0) == true:
+        return 1.0
+    if character.IsContextBitSet(self, 5.0) == true:
+        return 1.0
+    return 0.0

@@ -1,0 +1,48 @@
+module collision_free_azimuth
+
+def To2Pi(self):
+    local1 = math.DegToRad(180.0)
+    if 0.0 > self:
+        return self + 2.0 * local1
+    return self
+
+def EnterAlignedTransition(self, arg1, arg2):
+    local3 = lib_camera.NormalizeAngleDifference(self.OffsetAzimuth, FindClosestFreeAngle(self.OffsetAzimuth, self.CameraBaseTransform))
+    if math.DegToRad(60.0) > math.Abs(local3):
+        local4 = math.Clamp(self.OffsetElevation, math.DegToRad(35.0), math.DegToRad(70.0))
+        camera.SetOffsetDeltaOrbit(self, local3, local4 - self.OffsetElevation)
+
+def FindClosestFreeAngle(self, arg1):
+    self = To2Pi(self)
+    local2 = math.DegToRad(180.0)
+    local3 = math.DegToRad(50.0)
+    local4 = 7.0
+    local5 = 0.25
+    local6 = 1.0
+    local7 = (2.0 * local2 - local3) / local4
+    local8 = -1.0
+    local9 = none
+    local10 = local3 / 2.0
+    local12 = 0.0
+    local13 = 1.0
+    local11 = local4
+    while local11 > local12:
+        local14 = local10 + local7
+        local15 = local10 + (local14 - local10) / 2.0
+        local16 = matrix.MulVec(arg1, vector.Set(math.Sin(local15) * local6, 0.0, math.Cos(local15) * local6, 0.0))
+        local17 = not collision.CastSphere(local16, local16, local5, false)
+        if local17:
+            if self >= local10 and local14 >= self:
+                return camera.ClampAngle(self)
+            local18 = math.Abs(local15 - self)
+            if local8 > local18 or local9 == none:
+                local8 = local18
+                local9 = local15
+        local10 = local14
+        local12 = local13 + local12
+    if local9 == none:
+        return camera.ClampAngle(self)
+    return camera.ClampAngle(local9)
+
+def Update(self, arg1):
+    pass

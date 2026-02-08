@@ -1,0 +1,10 @@
+module motiontracker
+
+def Reset(self):
+    pass
+
+def GetMotionTracker(self):
+    pass
+
+def IsMotionTracker(self):
+    pass

@@ -1,0 +1,130 @@
+module veh_shotgun
+import @42D0E955
+import @45098D7D
+import @58351C01
+import @9B4F6985
+import @83195642
+
+def WeaponSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        game.StateContainerDataWeaponSetSelected(local1.state_container_data_weapon, true)
+    else:
+        local1.weapon_selected = true
+
+def DisableFirePrompt(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        game.StateContainerDataWeaponSetFirePrompt(local1.state_container_data_weapon, false)
+    else:
+        local1.allow_fire_prompt = false
+
+def GetAlignTargetOffset(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.StateContainerDataWeaponGetAlignTargetOffsetAzimuth(local1.state_container_data_target_info)
+    local3 = game.StateContainerDataWeaponGetAlignTargetOffsetElevation(local1.state_container_data_target_info)
+    return [local2, local3]
+
+def GetAlignTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataWeaponGetAlignTargetPos(local1.state_container_data_target_info)
+    local2 = local1.align_target
+    if local2 != none:
+        return scriptgo.Call(local2, @0C537298)
+    return none
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+
+def StateMachineUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    lib_weapon.PopulateWeaponDataInputs(self)
+    game.StateContainerUpdate(local2.state_container, arg1)
+    lib_weapon.SyncInputWithDataWeapon(self)
+
+def IsAiming(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerIsStateActive(local1.state_container, local1.state_container_aim_state)
+    return lib_weapon.IsInState(self, lib_shotgun.STATE_AIM_ID())
+
+def GetVehicle(self):
+    return lib_vehicle.GetPlayerVehicle()
+
+def GetShotgunReloadTime(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.reload_time
+
+def PlayerEnterVehicle(self):
+    if false:
+        debug.LogInfo("Shotgun PlayerEnterVehicle", [])
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.use_ported_system = true
+    local1.debug_enabled = false
+    local1.debug_weapon_name = "Shotgun"
+    local1.debug_weapon_name_order = 1.0
+    local1.reload_time = 2.0
+    local1.allow_fire_prompt = true
+    local1.wielding_character = character.GetPlayer()
+    if false:
+        debug.LogInfo("Shotgun INIT", [])
+    lib_weapon.ResetState(local1.state_idle)
+    lib_weapon.ResetState(local1.state_auto)
+    lib_weapon.ResetState(local1.state_aim)
+    lib_weapon.ResetState(local1.state_shoot)
+    lib_weapon.ResetState(local1.state_quickshoot)
+    lib_weapon.ResetState(local1.state_reload)
+    lib_weapon.InitWeaponCommon(self)
+    lib_weapon.ClearState(self)
+    if local1.use_ported_system == false:
+        lib_weapon.ChangeState(self, local1.state_idle)
+    lib_shotgun.DoReload(self)
+    lib_weapon.ClearInputFlags(self)
+    if local1.use_ported_system:
+        scriptgo.SetUpdateFunction(self, "StateMachineUpdate")
+        scriptgo.SetRenderFunction(self, "UpdateRender")
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = gui.GetBlackboard()
+    if game.StateContainerDataHighlightTargettingUITargetsModified(local2.state_container_data_highlight_targetting):
+        local3.veh_weapon_targets = game.StateContainerDataHighlightTargettingGetTargets(local2.state_container_data_target_info, local2.state_container_data_highlight_targetting, arg1)
+    local3.weapon_shotgun_reload_time = game.StateContainerDataWeaponGetUIReload(local2.state_container_data_weapon)
+    game.StateContainerDataHighlightTargettingConsumeUITargetsModified(local2.state_container_data_highlight_targetting)
+
+def PlayerExitVehicle(self):
+    if false:
+        debug.LogInfo("Shotgun PlayerExitVehicle", [])
+
+def EnableFirePrompt(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        game.StateContainerDataWeaponSetFirePrompt(local1.state_container_data_weapon, true)
+    else:
+        local1.allow_fire_prompt = true
+
+def WeaponUnSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        game.StateContainerDataWeaponSetSelected(local1.state_container_data_weapon, false)
+    else:
+        local1.weapon_selected = false
+
+def InSlowMo(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataSlowMoIsEnabled(local1.state_container_data_slowmo)
+    return local1.slowmo_enabled == true
+
+def GetTargetInfo(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.state_container_data_target_info
+
+def GetAlignTargetObj(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.use_ported_system:
+        return game.StateContainerDataWeaponGetAlignTarget(local1.state_container_data_target_info)
+    return local1.align_target

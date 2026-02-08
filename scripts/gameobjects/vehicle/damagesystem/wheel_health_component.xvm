@@ -1,0 +1,143 @@
+module wheel_health_component
+import @42D0E955
+import @F76070AE
+import @45098D7D
+import @B1360AAD
+import @94061877
+import @58351C01
+
+def GetArmorSpeedThreshold(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @209F9B50)
+    return 0.0
+
+def GetMaxHealth(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @29041E45)
+    return 0.0
+
+def ApplyDamage(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.tireHealthComponent and IsTireDamage(arg2):
+        scriptgo.Call2(local3.tireHealthComponent, @2925E205, arg1, arg2)
+    elif local3.wheelHealthComponent:
+        scriptgo.Call2(local3.wheelHealthComponent, @2925E205, arg1, arg2)
+    if arg1 > 0.0:
+        scriptgo.PostEvent(self, @04376E03)
+
+def DestroyPlayerVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.weakspot
+    local3 = scriptgo.GetProperties(local2)
+    local4 = none
+    if local3 != none:
+        local4 = local3.car
+    else:
+        local4 = game.VehicleWeakspotGetVehicle(local2)
+    if vehicle.IsPlayerVehicle(local4):
+        ApplyDamage(self, 10000.0, lib_damage_types.DAMAGE_SIMPLE())
+
+def IsDead(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @4CFED023)
+    return false
+
+def ForceDestroy(self):
+    local1 = scriptgo.GetProperties(self)
+    ApplyDamagePct(self, 1.0, lib_damage_types.DAMAGE_SIMPLE())
+
+def InitFromWeakspot(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.weakspot = arg1
+    if local2.healthbarEnabled == none:
+        local2.healthbarEnabled = true
+    if local2.tireHealthComponent != none:
+        scriptgo.Call1(local2.tireHealthComponent, @6E3A45E2, arg1)
+    if local2.wheelHealthComponent != none:
+        scriptgo.Call1(local2.wheelHealthComponent, @6E3A45E2, arg1)
+    RepairPct(self, 1.0, 0.0)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.weakspot != none:
+        InitFromWeakspot(self, local1.weakspot)
+
+def IsTireDamage(self):
+    if self == lib_damage_types.DAMAGE_GRINDING() or self == lib_damage_types.DAMAGE_SHOTGUN() or self == lib_damage_types.DAMAGE_SNIPER():
+        return true
+    return false
+
+def HealVehicle(self):
+    RepairPct(self, 1.0, 0.5)
+
+def GetRecentDamagePct(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @9EE31321)
+    return 0.0
+
+def Add5Damage(self):
+    ApplyDamage(self, 5.0, lib_damage_types.DAMAGE_SIMPLE())
+
+def Add25Damage(self):
+    ApplyDamage(self, 25.0, lib_damage_types.DAMAGE_SIMPLE())
+
+def Kill(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.wheelHealthComponent:
+        return scriptgo.Call1(local2.wheelHealthComponent, @C6EE5209, arg1)
+
+def ApplyDamagePct(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.tireHealthComponent and IsTireDamage(arg2):
+        scriptgo.Call2(local3.tireHealthComponent, @CA4FD849, arg1, arg2)
+    elif local3.wheelHealthComponent:
+        scriptgo.Call2(local3.wheelHealthComponent, @CA4FD849, arg1, arg2)
+
+def Reset(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.tireHealthComponent:
+        scriptgo.Call(local1.tireHealthComponent, @D28B9C68)
+    if local1.wheelHealthComponent:
+        scriptgo.Call(local1.wheelHealthComponent, @D28B9C68)
+
+def Repair(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.tireHealthComponent:
+        scriptgo.Call2(local3.tireHealthComponent, @F0173259, arg1, arg2)
+    if local3.wheelHealthComponent:
+        scriptgo.Call2(local3.wheelHealthComponent, @F0173259, arg1, arg2)
+
+def RepairPct(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if local3.tireHealthComponent:
+        scriptgo.Call2(local3.tireHealthComponent, @F0A0E288, arg1, arg2)
+    if local3.wheelHealthComponent:
+        scriptgo.Call2(local3.wheelHealthComponent, @F0A0E288, arg1, arg2)
+
+def GetTensileStrength(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @F2FAEFD0)
+    return 0.0
+
+def GetArmorScale(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @F48A1A14)
+    return 1.0
+
+def GetHealthPct(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @F4E205B5)
+    return 0.0
+
+def IsRepairAllowed(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wheelHealthComponent:
+        return scriptgo.Call(local1.wheelHealthComponent, @FEEA6B03)
+    return false

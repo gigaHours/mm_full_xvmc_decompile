@@ -1,0 +1,98 @@
+module body_health_state
+import @B1360AAD
+import @45098D7D
+import @46F71871
+import @58351C01
+
+def DropAllArmor(self):
+    local1 = lib_entity_proxy.GetWeakspotList(self)
+    local2 = vehicle.GetProperties(self)
+    local2.isDeforming = true
+    local4 = 0.0
+    local5 = 1.0
+    local3 = golist.NbGameObjects(local1)
+    while local3 > local4:
+        local6 = golist.Get(local1, local4)
+        while none != local6:
+            if game.WeakspotIsArmoured(local6):
+                local7 = game.WeakspotGetHealthScript(local6)
+                if local7 != none:
+                    scriptgo.Call2(local7, @CA4FD849, 1.0, lib_damage_types.DAMAGE_SIMPLE())
+                local6 = game.WeakspotGetOptionalProtecting(local6)
+            else:
+                local6 = none
+        local4 = local5 + local4
+
+def UpdateHealth(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = lib_entity_proxy.GetBodyHealth(local3.car)
+    local5 = scriptgo.Call(local4, @F48A1A14)
+    if 1.0 > local5 and local5 > arg1:
+        DropAllArmor(local3.car)
+    if local3.effect_spawner_group != none:
+        if local3.health_pct_effect_triggers > arg1 and local3.previous_health >= local3.health_pct_effect_triggers:
+            scriptgo.Call(local3.effect_spawner_group, @C2E6C958)
+            if vehicle.IsSignatureVehicle(local3.car):
+                local6 = lib_vehicleupgrades.GetTopSpeedUpgradeLevel()
+                if local6 == 0.0:
+                    scriptgo.PostEvent(self, @268448EA)
+                if local6 == 1.0 or local6 == 3.0:
+                    scriptgo.PostEvent(self, @268448EA)
+                    scriptgo.PostEvent(self, @D73A102B)
+                if local6 == 2.0 or local6 == 5.0:
+                    scriptgo.PostEvent(self, @268448EA)
+                    scriptgo.PostEvent(self, @D73A102B)
+                    scriptgo.PostEvent(self, @9F927C57)
+                if local6 == 4.0:
+                    scriptgo.PostEvent(self, @268448EA)
+                    scriptgo.PostEvent(self, @D73A102B)
+                    scriptgo.PostEvent(self, @9F927C57)
+                    scriptgo.PostEvent(self, @F8C4ADCE)
+            else:
+                scriptgo.PostEvent(self, @268448EA)
+        elif arg1 >= local3.health_pct_effect_triggers and local3.health_pct_effect_triggers > local3.previous_health:
+            scriptgo.Call(local3.effect_spawner_group, @2EEAC2C5)
+            scriptgo.PostEvent(self, @DB01FA2C)
+        scriptgo.Call2(local3.effect_spawner_group, @7E4F8465, "Health", arg1 * 100.0)
+        local7 = 0.0
+        local8 = lib_vehicle.GetParentVehicle(self)
+        if local8:
+            vehicle.SetHealth(local8, arg1 * game.GetMaxHealth(local8))
+            game.SetBlackboardValueToObject(local8, @1EB9B773, arg1)
+            if vehicle.IsPlayerVehicle(local8):
+                local7 = 1.0
+        scriptgo.Call2(local3.effect_spawner_group, @7E4F8465, "IsPlayerVehicle", local7)
+    if local3.previous_health > 0.0 and 0.0 >= arg1:
+        scriptgo.PostEvent(self, @70AA8C31)
+    else:
+        if local3.healthtriggger_limit != none:
+            if local3.previous_health > local3.healthtriggger_limit and local3.healthtriggger_limit > arg1:
+                scriptgo.PostEvent(self, @3F8FFFC1)
+        if local3.low_health != none:
+            if local3.previous_health > local3.low_health and local3.low_health > arg1:
+                if not vehicle.IsPlayerVehicle(local3.car):
+                    scriptgo.PostEvent(self, @6DEC66CA)
+    if local3.flame_handler != none:
+        scriptgo.Call2(local3.flame_handler, @312F1209, local3.previous_health, arg1)
+    if local3.playerVehicleHealth != none:
+        effect.SpawnerSetParameter(local3.playerVehicleHealth, "Health", arg1 * 100.0)
+    if local3.zero_health_handler != none:
+        if arg2 == lib_damage_types.DAMAGE_REPAIR():
+            scriptgo.Call1(local3.zero_health_handler, @90A7074D, arg1)
+    local3.previous_health = arg1
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    UpdateHealth(self, 1.0, lib_damage_types.DAMAGE_REPAIR())
+    vehicle.EnableDriving(local1.car)
+    local2 = lib_entity_proxy.GetCollision(local1.car)
+    if local2:
+        scriptgo.Call2(local2, @F510FFF1, 0.0, 0.0)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.previous_health = 1.0
+
+def DropAllArmorOnCar(self):
+    local1 = scriptgo.GetProperties(self)
+    DropAllArmor(local1.car)

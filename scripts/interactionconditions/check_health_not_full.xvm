@@ -1,0 +1,12 @@
+module check_health_not_full
+
+def Evaluate(self, arg1):
+    local2 = interaction.GetCharacter(self)
+    local3 = character.GetUnitHealth(local2)
+    local4 = character.GetVehicle(local2)
+    if local4:
+        return 0.0
+    if 1.0 > local3:
+        return 1.0
+    interaction.SetNamedFailEntry(self, "entry.health_full")
+    return 0.0

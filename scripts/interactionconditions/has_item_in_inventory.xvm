@@ -1,0 +1,12 @@
+module has_item_in_inventory
+
+def Evaluate(self, arg1):
+    local2 = interaction.GetCharacter(self)
+    local3 = character.GetInventoryItem(local2, arg1.item_id)
+    if local3:
+        if arg1.invert_result != 0.0:
+            return 0.0
+        return 1.0
+    if arg1.invert_result != 0.0:
+        return 1.0
+    return 0.0

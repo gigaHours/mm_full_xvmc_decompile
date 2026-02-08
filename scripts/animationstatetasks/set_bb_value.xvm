@@ -1,0 +1,18 @@
+module set_bb_value
+import @BAFDB405
+
+def Enter(self, arg1):
+    game.SetBlackboardValueToObject(self, game.GameHashString(arg1.Key), arg1.Value)
+
+def Exit(self, arg1):
+    game.SetBlackboardValueToObject(self, game.GameHashString(arg1.Key), arg1.Value)
+
+def Update(self, arg1, arg2):
+    if arg1.Segment:
+        local3 = @E063F6A0
+        if arg1.LayerForSegment:
+            local3 = game.GameHashString(arg1.LayerForSegment)
+        if lib_character.SegmentNonExistentOrWithin(self, local3, game.GameHashFloat(arg1.Segment)):
+            game.SetBlackboardValueToObject(self, game.GameHashString(arg1.Key), arg1.Value)
+    else:
+        game.SetBlackboardValueToObject(self, game.GameHashString(arg1.Key), arg1.Value)

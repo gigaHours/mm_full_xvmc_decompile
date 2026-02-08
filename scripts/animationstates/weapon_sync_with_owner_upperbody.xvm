@@ -1,0 +1,11 @@
+module weapon_sync_with_owner_upperbody
+import @BAFDB405
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    pass
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = game.GetParent(self)
+    local6 = character.GetItemOwner(local5)
+    local7 = animation.GetTimeLayer(local6, @6217CCDD)
+    animation.GetSampler(arg4, 0.0).Time = local7

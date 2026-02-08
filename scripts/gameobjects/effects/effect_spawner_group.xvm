@@ -1,0 +1,34 @@
+module effect_spawner_group
+
+def Stop(self):
+    local2 = 0.0
+    local3 = 1.0
+    local1 = game.GetNbChilds(self)
+    while local1 > local2:
+        local4 = game.GetChildByIndex(self, local2)
+        if effect.IsEffectSpawner(local4):
+            effect.SpawnerStop(local4)
+        elif not effect.IsEffectSpawnerInstance(local4):
+            debug.LogError("effect_spawner_group.xpy", "child is not an effect spawner")
+        local2 = local3 + local2
+
+def UpdateParameter(self, arg1, arg2):
+    local4 = 0.0
+    local5 = 1.0
+    local3 = game.GetNbChilds(self)
+    while local3 > local4:
+        local6 = game.GetChildByIndex(self, local4)
+        effect.SpawnerSetParameter(local6, arg1, arg2)
+        local4 = local5 + local4
+
+def Play(self):
+    local2 = 0.0
+    local3 = 1.0
+    local1 = game.GetNbChilds(self)
+    while local1 > local2:
+        local4 = game.GetChildByIndex(self, local2)
+        if effect.IsEffectSpawner(local4):
+            effect.SpawnerPlay(local4)
+        elif not effect.IsEffectSpawnerInstance(local4):
+            debug.LogError("effect_spawner_group.xpy", "child is not an effect spawner")
+        local2 = local3 + local2

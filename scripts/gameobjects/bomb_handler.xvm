@@ -1,0 +1,53 @@
+module bomb_handler
+
+def Unload(self):
+    local1 = game.GetParent(self)
+    if local1:
+        vehicle.UnregisterWeapon(game.GetParent(self), self)
+    local2 = scriptgo.GetProperties(self)
+    if local2.player_activated:
+        game.SetDictionaryFloat(@378BEE96, 0.0)
+
+def UpdateArmed(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.detonation_timer = local2.detonation_timer - arg1
+    if arg1 >= local2.detonation_timer:
+        Detonate(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    vehicle.RegisterWeapon(game.GetParent(self), "bomb", self, "Activate", "Deactivate")
+    local1.bomb_loaded = true
+    local1.detonation_timer = none
+    local1.player_activated = false
+
+def Detonate(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.bomb_loaded:
+        scriptgo.PostEvent(self, @59899E42)
+        local1.bomb_loaded = false
+        local1.detonation_timer = none
+        scriptgo.SetUpdateFunction(self, "")
+
+def DriverSeatEnter(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.explosion != none and local1.detonation_timer == none:
+        local2 = vehicle.GetVehicleDriver(local1.car)
+        if local2 != none:
+            local3 = character.GetFaction(local2)
+            game.SetForcePulseFaction(local1.explosion, local3)
+            game.SetForcePulseFaction(local1.explosion2, local3)
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.GetVehicleDriver(local1.car) != none and (not vehicle.IsPlayerVehicle(local1.car)):
+        local1.detonation_timer = local1.time_activate_to_detonate
+        scriptgo.PostEvent(self, @014871F4)
+        scriptgo.SetUpdateFunction(self, "UpdateArmed")
+
+def PlayerActivate(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.player_activated = true
+    scriptgo.PostEvent(self, @014871F4)
+    game.SetForcePulseFaction(local1.explosion, 0.0)
+    game.SetForcePulseFaction(local1.explosion2, 0.0)

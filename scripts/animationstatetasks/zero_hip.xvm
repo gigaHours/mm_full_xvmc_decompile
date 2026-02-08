@@ -1,0 +1,16 @@
+module zero_hip
+
+def Update(self, arg1, arg2):
+    local3 = 1.0
+    local4 = matrix.IdentityMatrix()
+    local5 = 1.0
+    local6 = animation.GetSegmentInfo(self, @E063F6A0, @243861C6)
+    if local6:
+        local5 = local5 * math.Clamp01(local6.LocalTime)
+    local7 = animation.GetSegmentInfo(self, @E063F6A0, @544F31E3)
+    if local7:
+        local5 = local5 * (1.0 - math.Clamp01(local7.LocalTime))
+    if 1.0 > local5:
+        local8 = animation.GetPoseTransform(self, local3)
+        local4 = matrix.Slerp(local8, local4, local5)
+    animation.SetPoseTransform(self, local3, local4)

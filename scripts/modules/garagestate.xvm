@@ -1,0 +1,28 @@
+module garagestate
+
+def UnlockArchangels(self):
+    pass
+
+def UnlockGarage(self, arg1):
+    pass
+
+def RelockAttributeLevel(self, arg1, arg2):
+    pass
+
+def GetUpgradeLevel(self, arg1):
+    pass
+
+def UnhideAttributeLevel(self, arg1, arg2):
+    pass
+
+def LockArchangels(self):
+    pass
+
+def ReinstallUpgrade(self, arg1):
+    pass
+
+def DebugSetUpgrade(self, arg1, arg2):
+    pass
+
+def LockGarage(self, arg1, arg2):
+    pass

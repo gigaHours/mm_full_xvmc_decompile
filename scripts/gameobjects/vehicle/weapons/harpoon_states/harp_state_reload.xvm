@@ -1,0 +1,67 @@
+module harp_state_reload
+import @9B4F6985
+import @3D3D0D9B
+
+def Enter(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    scriptgo.GetProperties(self).weapon = arg1
+    local3 = scriptgo.GetProperties(arg1)
+    local4 = scriptgo.Call(arg1, @A30AD5B4)
+    local3.reload_time_start = local4
+    local3.reload_time_left = local3.reload_time_start
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    if not local2.input_aim_held:
+        lib_weapon.StopCam(arg1, lib_harpoon.CAM_AIM())
+    if none != local2.projectile_robj:
+        rigidobject.Hide(local2.projectile_robj)
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    if local1.fired_thunderstick:
+        local2.thunderstick_ammo = character.GetInventoryItemCount(character.GetPlayer(), "thunderstick_cap")
+    if none != local1.UI_reload_time_for_bb:
+        local2.veh_weapon_harpoon_reload_time = local1.UI_reload_time_for_bb
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    UpdateGuiBB(local2)
+    local3 = scriptgo.GetProperties(local2)
+    if none != local3.projectile_robj:
+        local4 = local3.companion
+        local5 = "AttachHandLeft"
+        local6 = lib_color.GREEN(0.4)
+        if animation.IsWithinSegment(local4, @E063F6A0, @144A8DD2):
+            local5 = "AttachHandRight"
+            local6 = lib_color.RED(0.4)
+            if none != local3.projectile_robj:
+                rigidobject.Show(local3.projectile_robj)
+        local7 = game.GetRenderTransform(local4, arg1)
+        local8 = animation.GetPoseTransformById(local4, "AttachHandRight")
+        local8 = matrix.Mul(local8, local7)
+        game.SetTransform(local3.projectile_robj, local8)
+        game.SetTransform(local3.projectile_robj, local8)
+
+def GetId(self):
+    return lib_harpoon.STATE_RELOAD_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.weapon
+    lib_weapon.UpdateCommonPre(local3, arg1)
+    local4 = scriptgo.GetProperties(local3)
+    lib_harpoon.UpdateAimCameraInput(local3, local4)
+    local5 = animation.GetStateBit(local4.companion, 5.0) == 1.0
+    if local5:
+        local4.reload_time_left = local4.reload_time_left - arg1
+        local4.UI_reload_time_for_bb = math.Clamp(local4.reload_time_left / local4.reload_time_start, 0.0, 1.0)
+    else:
+        lib_weapon.ChangeState(local3, local4.state_idle)
+    rope.Clear(local4.rope)
+    lib_weapon.UpdateCommonPost(local3, arg1)
+
+def GetName(self):
+    return "RELOAD"

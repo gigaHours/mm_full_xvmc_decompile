@@ -1,0 +1,12 @@
+module gameplay_damage_handler
+import @B1360AAD
+
+def OnDamageTaken(self, arg1, arg2, arg3, arg4):
+    local5 = scriptgo.GetProperties(self)
+    if arg3 == lib_damage_types.DAMAGE_COLLISION():
+        if not vehicle.IsPlayerVehicle(local5.car):
+            local6 = game.GetChildByScriptName(local5.car, "driver_hit_reaction.xpy")
+            if local6 == none:
+                debug.LogError("GameplayDamageHandler", "No driver_hit_reaction.xpy on vehicle that is getting collision.")
+            else:
+                scriptgo.Call(local6, @CAF4676C)

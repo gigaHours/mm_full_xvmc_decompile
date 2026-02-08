@@ -1,0 +1,76 @@
+module explosion_damage_handler
+import @B1360AAD
+import @B79BE9DF
+import @58351C01
+
+def HitByExplosion(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if arg2.Distance > arg2.Radius:
+        return
+    local4 = 0.0
+    if arg2.Radius > 0.2:
+        local4 = math.Scale01(arg2.Distance, 0.2, arg2.Radius)
+    local5 = math.Lerp(1.0 - local4, 0.15, 1.0)
+    local6 = vehicle.GetChassis(arg1)
+    local7 = vehicle.VectorToAbsSAE(vector.Set(arg2.Direction.x * arg2.Direction.x, arg2.Direction.y * arg2.Direction.y, arg2.Direction.z * arg2.Direction.z, 0.0))
+    if arg2.Faction == 0.0:
+        game.SetHitByPlayer(arg1)
+    local8 = vector.Dot(local6.DragCdA, local7)
+    local9 = arg2.PhysicsImpulse * local5 * local8 * 1.0
+    local3.last_impulse = local9
+    local3.last_hitposition = arg2.HitPosition
+    local3.last_hit_faction = arg2.Faction
+    local3.last_hit_explosion_type = arg2.ExplosionType
+    physics.ApplyImpulse(arg1, vector.Scale(arg2.Direction, local9), arg2.HitPosition)
+    local10 = arg2.ForcePower / 100.0
+    local11 = local9 * local10
+    local12 = arg2.ForcePower * local5 * 50.0
+    local13 = vehicle.IsInvulnerable(arg1)
+    local14 = vehicle.GetMass(arg1)
+    local15 = lib_entity_proxy.GetBodyHealth(arg1)
+    local16 = CalculateVsExplosionDamage(self, local15, local11, local14)
+    local17 = CalculateVsExplosionDamage(self, local15, local12, local14)
+    if false:
+        debug.LogInfo("EXPLOSION prevDamage: %f prevbodyDamage: %f baseDamage: %f bodyDamage: %f", [local11, local16, local12, local17])
+    if not local13:
+        scriptgo.Call2(local15, @2925E205, local17, lib_damage_types.DAMAGE_EXPLOSION())
+        if local17 > 10.0:
+            scriptgo.PostEvent(self, @93804B82)
+    if false:
+        debug.LogInfo("distScale: %f, dragArea: %f, impulse: %f", [local5, local8, local9])
+    local18 = lib_entity_proxy.GetWeakspotList(arg1)
+    local19 = matrix.Inverse(game.GetTransform(arg1))
+    local20 = matrix.MulVec(local19, arg2.HitPosition)
+    local22 = 0.0
+    local23 = 1.0
+    local21 = golist.NbGameObjects(local18)
+    while local21 > local22:
+        local24 = golist.Get(local18, local22)
+        if none != local24:
+            local25 = game.WeakspotGetHealthScript(local24)
+            if physics.WeakspotExplodesWith(local24, local20, arg2):
+                local26 = CalculateVsExplosionDamage(self, local25, local12, local14)
+                if not local13:
+                    scriptgo.Call2(local25, @2925E205, local26, lib_damage_types.DAMAGE_EXPLOSION())
+                if false:
+                    debug.LogInfo("EXPLOSION wsDamage: %f, distScale: %f, dragArea: %f, impulse: %f", [local26, local5, local8, local9])
+        local22 = local23 + local22
+    if false:
+        PrintExplosionHit(arg2)
+
+def PrintExplosionHit(self):
+    debug.LogInfo("- ExplosionHit -", [])
+    debug.LogInfo("SourcePosition: %v", [self.SourcePosition])
+    debug.LogInfo("HitPosition: %v", [self.HitPosition])
+    debug.LogInfo("Distance: %f", [self.Distance])
+    debug.LogInfo("Direction: %v", [self.Direction])
+    debug.LogInfo("Radius: %f", [self.Radius])
+    debug.LogInfo("ForcePower: %f", [self.ForcePower])
+    debug.LogInfo("PhysicsImpulse: %f", [self.PhysicsImpulse])
+    debug.LogInfo("Faction: %f", [self.Faction])
+
+def CalculateVsExplosionDamage(self, arg1, arg2, arg3):
+    local4 = scriptgo.Call(arg1, @F48A1A14)
+    local5 = 15.0
+    local6 = lib_damage.CalculateVehicleExplosionDamage(arg2, arg3, local5, local4, 40.0)
+    return local6

@@ -1,0 +1,102 @@
+module vehicle_nitro
+
+def EnterAlignedTransition(self, arg1, arg2):
+    UpdateSpeedAndAccelerationScale(self)
+    arg2.FOV = arg1.FOV
+    local3 = vehicle.GetGlobalProperties()
+    if local3.previous_cruise_offset == none:
+        local4 = character.GetPlayer()
+        local5 = character.GetVehicle(local4)
+        if local5 != none:
+            local3.previous_cruise_offset = camera.GetInitialOffsetDistance(self) + vehicle.GetCameraOffsetDistance(local5)
+        else:
+            local3.previous_cruise_offset = camera.GetInitialOffsetDistance(self)
+    camera.SetOffsetDistance(self, local3.previous_cruise_offset)
+
+def UpdateSpeedAndAccelerationScale(self):
+    local1 = character.GetPlayer()
+    local2 = character.GetVehicle(local1)
+    local3 = 10.0
+    local4 = self.Properties.max_speed
+    if local2:
+        local5 = self.Dt
+        local6 = vehicle.GetVelocity(local2)
+        local7 = vector.Length(local6)
+        local8 = (local7 - self.Properties.previous_speed) / local5
+        self.Properties.previous_speed = local7
+        local9 = math.Scale01(local7, local3, local4)
+
+def Init(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.filtered_acceleration = 0.0
+    self.Properties.previous_speed = 0.0
+    local1.previous_cruise_fov = 0.0
+    local1.nitro_fov = self.InitialFOV
+    local1.previous_cruise_offset = none
+
+def EnterUnalignedTransition(self, arg1):
+    UpdateSpeedAndAccelerationScale(self)
+    local2 = vehicle.GetGlobalProperties()
+    if local2.previous_cruise_offset == none:
+        local3 = character.GetPlayer()
+        local4 = character.GetVehicle(local3)
+        if local4 != none:
+            local2.previous_cruise_offset = camera.GetInitialOffsetDistance(self) + vehicle.GetCameraOffsetDistance(local4)
+        else:
+            local2.previous_cruise_offset = camera.GetInitialOffsetDistance(self)
+
+def Update(self, arg1):
+    local2 = vehicle.GetGlobalProperties()
+    local3 = self.InitialFOV
+    local4 = self.Properties.extended_fov
+    local5 = 10.0
+    local6 = self.Properties.max_speed
+    local7 = character.GetPlayer()
+    local8 = character.GetVehicle(local7)
+    local9 = local2.nitro_fov
+    if local8:
+        local10 = lib_entity_proxy.GetBoost(local8)
+        local11 = scriptgo.GetProperties(local10).external_cameraSignal
+        local12 = self.Dt
+        local13 = vehicle.GetLocalVelocity(local8)
+        local14 = 0.0 > local13.z
+        local15 = vector.Length(local13)
+        local16 = (local15 - self.Properties.previous_speed) / local12
+        self.Properties.previous_speed = local15
+        local17 = math.Scale01(local15, local5, local6)
+        local18 = 0.0
+        local19 = 0.0
+        local20 = 0.0
+        local21 = camera.GetInitialOffsetDistance(self) + vehicle.GetCameraOffsetDistance(local8)
+        local19 = 10.0 * local11
+        if local14 and local15 > 1.0:
+            if 0.0 > local16:
+                local22 = math.Scale01(local16, -20.0, 0.0) - 1.0
+            else:
+                local22 = math.Scale01(local16, 0.0, 15.0)
+            local2.filtered_acceleration = math.Lerp(0.025, local2.filtered_acceleration, local22)
+            local22 = local2.filtered_acceleration
+            local18 = math.Clamp01(0.8 * local17 + local22)
+            local23 = vehicle.GetChassis(local8)
+            local24 = local23.Drivetrain.CruiseRoughness
+            if local24 > 0.0:
+                local20 = math.Lerp(local24, 5.0, 10.0)
+                local21 = local21 + math.Lerp(local24, self.Properties.cruise_min_offset_distance, self.Properties.cruise_max_offset_distance)
+            local25 = local2.previous_cruise_fov
+            local26 = local20 - local25
+            if math.Abs(local26) / local12 > 10.0:
+                local26 = math.Sign(local26) * 10.0 * local12
+                local20 = local25 + local26
+            if local2.previous_cruise_offset != none:
+                local27 = local2.previous_cruise_offset
+                local28 = local21 - local27
+                if math.Abs(local28) / local12 > self.Properties.cruise_offset_maxspeed:
+                    local28 = math.Sign(local28) * self.Properties.cruise_offset_maxspeed * local12
+                    local21 = local27 + local28
+                local2.previous_cruise_offset = local21
+        local2.previous_cruise_fov = local20
+        local9 = math.Lerp(local18, local3, local4) + local19 + local20
+        camera.SetOffsetDistance(self, local21)
+        arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+        arg1.FOV = local9
+        local2.nitro_fov = local9

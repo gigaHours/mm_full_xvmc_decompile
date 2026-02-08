@@ -1,0 +1,9 @@
+module char_count_time_in_state
+
+def Enter(self, arg1):
+    game.SetBlackboardValueToObject(self, @7010EDE2, 0.0)
+
+def Update(self, arg1, arg2):
+    local3 = game.GetBlackboardValueFromObject(self, @7010EDE2)
+    local3 = local3 + arg2
+    game.SetBlackboardValueToObject(self, @7010EDE2, local3)

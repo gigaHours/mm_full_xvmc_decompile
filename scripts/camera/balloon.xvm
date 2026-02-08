@@ -1,0 +1,27 @@
+module balloon
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    lib_camera.AlignAzimuthElevationToSourceCameraClamped(self, arg1, arg2, math.DegToRad(-90.0), math.DegToRad(90.0), -math.DegToRad(180.0), math.DegToRad(180.0))
+    Update(self, arg2)
+
+def Init(self):
+    pass
+
+def ExitTransition(self, arg1):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    Update(self, arg1)
+
+def Update(self, arg1):
+    if self.Properties.lookat_obj == none:
+        local2 = vector.Set(0.0, 0.0, -1.0, 0.0)
+    else:
+        local2 = vector.Sub(game.GetTransform(self.Properties.lookat_obj).r3, self.CameraBaseTransform.r3)
+    local2 = vector.Normalize(local2)
+    local3 = 4.0
+    local4 = vector.Add(self.CameraBaseTransform.r3, vector.Scale(local2, -local3))
+    local5 = vector.Set(1.2, 1.2, 0.0, 0.0)
+    local4 = vector.Add(local4, local5)
+    arg1.CameraTransform = matrix.LookAtMatrix(local4, vector.Set(0.0, 1.0, 0.0, 0.0), game.GetTransform(self.Properties.lookat_obj).r3)

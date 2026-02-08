@@ -1,0 +1,13 @@
+module char_set_damage_source_as_link_target
+
+def Evaluate(self, arg1):
+    local2 = arg1.Property0
+    local3 = character.GetLatestSpellInfo(self)
+    if local3.IsCurrent > 0.0:
+        if local3:
+            local4 = local3.CollidedObject
+            if local4:
+                if character.IsCharacter(local4):
+                    animation.SetLinkTarget(self, local4)
+                    return 1.0
+    return local2

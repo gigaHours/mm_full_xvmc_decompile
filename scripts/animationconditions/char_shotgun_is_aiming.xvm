@@ -1,0 +1,10 @@
+module char_shotgun_is_aiming
+
+def Evaluate(self, arg1):
+    local2 = lib_entity_proxy.GetShotgun(self)
+    if local2:
+        if scriptgo.Call(local2, @432B309A):
+            return 1.0
+    if input.GetButtonInput(@7C64FD8A) > 0.0:
+        return 1.0
+    return 0.0

@@ -1,0 +1,88 @@
+module physics
+
+def GetAABBVsAABBSeparatingNormal(self, arg1):
+    pass
+
+def GetLatestFireHit(self):
+    pass
+
+def GetCollisionSystemGroup(self):
+    pass
+
+def SetWindVelocity(self):
+    pass
+
+def GetPointVelocity(self, arg1):
+    pass
+
+def GetAngularVelocity(self):
+    pass
+
+def SetCollisionSystemGroup(self, arg1):
+    pass
+
+def ApplyImpulseToBone(self, arg1, arg2, arg3):
+    pass
+
+def GetMass(self):
+    pass
+
+def WeakspotExplodesWith(self, arg1, arg2):
+    pass
+
+def IsDestructibleObject(self):
+    pass
+
+def SetRigidBodyPropertyCollisionStrength(self, arg1):
+    pass
+
+def WeakspotOnHitByBullet(self, arg1):
+    pass
+
+def IsPhysicsObject(self):
+    pass
+
+def GetPointVsAABBSeparatingNormal(self, arg1):
+    pass
+
+def SetAngularVelocity(self, arg1):
+    pass
+
+def SetVelocity(self, arg1):
+    pass
+
+def GetEnvironmentDamageFactor(self, arg1):
+    pass
+
+def HasNoDamageOnCollisionHint(self):
+    pass
+
+def TrajectoryWarningStart(self, arg1, arg2, arg3, arg4, arg5):
+    pass
+
+def SetWindEnabled(self):
+    pass
+
+def ApplyImpulse(self, arg1, arg2):
+    pass
+
+def GetGravity():
+    pass
+
+def ApplyAngularImpulse(self, arg1):
+    pass
+
+def GetRigidBodyPropertyCollisionStrength(self):
+    pass
+
+def GetLatestFireHitCount(self):
+    pass
+
+def EnableDestructibleObject(self):
+    pass
+
+def GenerateProjectileVelocity(self, arg1, arg2):
+    pass
+
+def IsBroken(self):
+    pass

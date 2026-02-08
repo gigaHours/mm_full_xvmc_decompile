@@ -1,0 +1,40 @@
+module allow_entry_from_ground
+
+def Evaluate(self, arg1):
+    local2 = false
+    local3 = 4.0
+    local4 = interaction.GetCharacter(self)
+    local5 = interaction.GetEntryNodeTransform(self, arg1.action_id)
+    if local4 and local5:
+        local6 = game.GetTransform(local4)
+        local7 = local6.r3
+        local8 = local5.r3
+        local9 = vector.Set(0.0, 1.0, 0.0, 0.0)
+        local10 = local5.r2
+        local11 = vector.Normalize(vector.Sub(local7, local8))
+        local11 = vector.Sub(local11, vector.Scale(local9, vector.Dot(local9, local11)))
+        local12 = math.RadToDeg(vector.AngleBetween(local11, local10))
+        local13 = math.RadToDeg(vector.AngleBetween(local6.r2, local10))
+        if local2:
+            lib_debugdraw.DrawDebugMatrix(local5)
+            debug.Arrow(local8, vector.Add(local8, local11), 0.05, lib_color.WHITE(1.0))
+            debug.DrawText3d(vector.Add(local7, vector.Set(0.0, 1.5, 0.0, 0.0)), "Pos Ang: %f, Face Ang: %f", [local12, local13], lib_color.ORANGE(1.0))
+        if animation.GetStateBit(local4, local3) == 1.0:
+            return 0.0
+        if local13 > 120.0:
+            if local2:
+                debug.Sphere(local8, 1.0, lib_color.ORANGE(0.3))
+            return 0.0
+        local14 = 150.0
+        if arg1.angle_allowed:
+            local14 = arg1.angle_allowed
+        if local12 > local14:
+            if local2:
+                debug.Sphere(local8, 1.0, lib_color.RED(0.3))
+            return 0.0
+        if local2:
+            debug.Sphere(local8, 0.6, lib_color.GREEN(0.3))
+        return 1.0
+    if local2:
+        debug.LogInfo("allow_entry_from_ground, NO NODE, wrong action id?", [])
+    return 0.0

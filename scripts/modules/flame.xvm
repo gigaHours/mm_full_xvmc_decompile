@@ -1,0 +1,13 @@
+module flame
+
+def GetSourceHeat(self):
+    pass
+
+def Deactivate(self):
+    pass
+
+def SetSourceHeat(self, arg1):
+    pass
+
+def Activate(self):
+    pass

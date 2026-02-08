@@ -1,0 +1,11 @@
+module is_sniper_position_available
+import @46F71871
+import @45098D7D
+
+def Evaluate(self, arg1):
+    local2 = interaction.GetCharacter(self)
+    if 0.0 >= lib_vehicleupgrades.GetSniperUpgradeLevel():
+        return 0.0
+    if lib_vehicle.SniperStateUnvailable(local2):
+        return 0.0
+    return 1.0

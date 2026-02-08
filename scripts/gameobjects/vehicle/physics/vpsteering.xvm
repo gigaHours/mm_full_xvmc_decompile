@@ -1,0 +1,211 @@
+module vpsteering
+import @58351C01
+
+def ShouldSteerMore(self, arg1):
+    local2 = vector.Length(self.LinearVelocity)
+    if 10.0 > local2:
+        return 1.0
+    local3 = self.Wheels
+    local4 = local3[0.0]
+    local5 = math.Cos(local4.SteeringAngle) * local4.LateralForce + math.Sin(local4.SteeringAngle) * local4.LongitudinalForce
+    local4 = local3[1.0]
+    local6 = math.Cos(local4.SteeringAngle) * local4.LateralForce + math.Sin(local4.SteeringAngle) * local4.LongitudinalForce
+    local4 = local3[2.0]
+    local7 = math.Cos(local4.SteeringAngle) * local4.LateralForce + math.Sin(local4.SteeringAngle) * local4.LongitudinalForce
+    local4 = local3[3.0]
+    local8 = math.Cos(local4.SteeringAngle) * local4.LateralForce + math.Sin(local4.SteeringAngle) * local4.LongitudinalForce
+    local9 = (local5 + local6) * self.FrontAxleToCoMDistance - (local7 + local8) * self.RearAxleToCoMDistance
+    local10 = local9 / self.Mass
+    if math.Abs(local10) > 10.0:
+        return -1.0
+    if local3[0.0].Load > local3[1.0].Load:
+        local11 = local3[0.0]
+    else:
+        local11 = local3[1.0]
+    if local11.LateralSlip * arg1 > 0.0:
+        local12 = math.Abs(local11.Ys)
+        local13 = local11.Tire
+        if local13 == none:
+            return 1.0
+        local14 = local13.YsM[0.0]
+        if local12 > local14 * 0.95:
+            return 0.0
+    return 1.0
+
+def UpdateSteering(self, arg1, arg2):
+    local3 = arg1.VehicleGameObject
+    local4 = arg1.Axles
+    local5 = len(local4)
+    local6 = none
+    local7 = none
+    local9 = 0.0
+    local10 = 1.0
+    local8 = local5
+    while local8 > local9:
+        local11 = local4[local9]
+        if local11.Steered:
+            if local6 != none:
+                debug.LogError("vehicle handling", "multiple steered axles are not supported atm")
+            local6 = local11.LeftWheel
+            local7 = local11.RightWheel
+        local9 = local10 + local9
+    local12 = 0.0
+    local13 = 0.0
+    local6.SteeringAngle = -local12 + local6.SteeringAngle
+    local7.SteeringAngle = local12 + local7.SteeringAngle
+    if not vehicle.IsAIVehicle(local3):
+        local14 = math.Abs(arg1.SteeringInput)
+        if 0.1 > local14:
+            local14 = 0.0
+        elif 0.8 > local14:
+            local14 = math.Lerp(math.Scale01(local14, 0.0, 0.8), 0.0, 0.2)
+        else:
+            local14 = math.Lerp(math.Scale01(local14, 0.8, 0.9), 0.2, 1.0)
+        local14 = math.Sign(arg1.SteeringInput) * local14
+    else:
+        local14 = arg1.SteeringInput
+    local15 = local14 * arg1.MaxSteeringAngle
+    local16 = local6
+    local17 = local7
+    if 0.0 > local7.SteeringAngle:
+        local16 = local7
+        local17 = local6
+    local18 = local16.SteeringAngle
+    local19 = local18
+    local20 = CalculateSelfAligning(arg1, local6) + CalculateSelfAligning(arg1, local7)
+    local21 = local15 - local18
+    if local21 * local20 >= 0.0:
+        local22 = false
+    else:
+        local22 = true
+    if not local22:
+        if (local21 - local20 * arg2) * local21 > 0.0:
+            local21 = local21 - local20 * arg2
+        else:
+            local21 = 0.0
+    local23 = ShouldSteerMore(arg1, local15)
+    if local23 == 0.0:
+        local21 = 0.0
+    elif local23 == -1.0:
+        local21 = 0.0 - local18
+    local24 = arg1.MaxSteeringAngleSpeed * arg2
+    local21 = math.Clamp(local21, -local24, local24)
+    if local22:
+        if (local21 - local20 * arg2) * local21 > 0.0:
+            local21 = local21 - local20 * arg2
+        else:
+            local21 = 0.0
+    local25 = -arg1.MaxSteeringAngle
+    local26 = arg1.MaxSteeringAngle
+    local27 = local16.LateralSlip
+    if local14 > 0.0 and local27 > 1.0:
+        local28 = ComputeOptimalSteeringAngle(local16, 1.0)
+        local26 = math.Clamp(local28, 0.0, local26)
+    if 0.0 > local14 and -1.0 > local27:
+        local28 = ComputeOptimalSteeringAngle(local16, -1.0)
+        local25 = math.Clamp(local28, local25, 0.0)
+    local18 = math.Clamp(local18 + local21, local25, local26)
+    if local18 == local25 or local18 == local26:
+        arg1.MasterSteeringSpeed = 0.0
+    local29 = arg1.MasterSteeringSpeed
+    arg1.MasterSteeringSpeed = (local18 - local19) / arg2
+    local30 = (arg1.MasterSteeringSpeed - local29) / arg2
+    local30 = math.Clamp(local30, -18.0, 18.0)
+    arg1.MasterSteeringSpeed = local30 * arg2 + local29
+    local18 = arg1.MasterSteeringSpeed * arg2 + local19
+    local31 = 0.5
+    local32 = math.Sign(local18) * math.ATan(arg1.Wheelbase / (arg1.Wheelbase / math.Tan(math.Abs(local18)) - arg1.Axles[0.0].TrackWidth))
+    local16.SteeringAngle = local18
+    local17.SteeringAngle = math.Lerp(local31, local18, local32)
+    local6.SteeringAngle = local12 + local6.SteeringAngle
+    local7.SteeringAngle = -local12 + local7.SteeringAngle
+    arg1.Wheels[2.0].SteeringAngle = local13
+    arg1.Wheels[3.0].SteeringAngle = -local13
+
+def EnableDebug(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.debugcurves = true
+    local2 = debug.GetCurve(0.0)
+    local2.Name = "wheel0.SteeringAngle"
+    local2.PosX = 0.05
+    local2.PosY = 0.5
+    local2.Visible = true
+    local2.AutoMin = false
+    local2.AutoMax = false
+    local2 = debug.GetCurve(1.0)
+    local2.Name = "wheel1.SteeringAngle"
+    local2.PosX = 0.5
+    local2.PosY = 0.5
+    local2.Visible = true
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(2.0)
+    local2.Name = "wheel0.SelfAlign"
+    local2.PosX = 0.05
+    local2.PosY = 0.95
+    local2.Visible = true
+    local2.AutoMin = true
+    local2.AutoMax = true
+    local2 = debug.GetCurve(3.0)
+    local2.Name = "wheel3.SelfAlign"
+    local2.PosX = 0.5
+    local2.PosY = 0.95
+    local2.Visible = true
+    local2.AutoMin = true
+    local2.AutoMax = true
+
+def ComputeOptimalSteeringAngle(self, arg1):
+    local2 = self.CenterVelocity.x
+    local3 = self.CenterVelocity.y
+    local4 = -local3 / math.Abs(local2)
+    local5 = math.Sqrt(local2 * local2 + local3 * local3)
+    local6 = arg1 * local4 / self.LateralSlip
+    if local6 == 0.0:
+        local7 = 0.0
+    else:
+        local7 = local5 * local5 / (1.0 / (local6 * local6) + 1.0)
+        if local7 > 0.0:
+            local7 = math.Sqrt(local7)
+    local8 = local5 * local5 - local7 * local7
+    if local8 > 0.0:
+        local8 = math.Sqrt(local8)
+    if 0.0 > local2:
+        local8 = -local8
+    if 0.0 > local3:
+        local7 = -local7
+    local9 = vector.AngleBetween(vector.Set(local3, 0.0, local2, 0.0), vector.Set(local7, 0.0, local8, 0.0))
+    local10 = 0.0
+    if self.LateralSlip - arg1 > 0.0:
+        local10 = self.SteeringAngle - local9
+    if 0.0 > self.LateralSlip - arg1:
+        local10 = self.SteeringAngle + local9
+    if false:
+        debug.PrintValue(self.LateralSlip, "wheel.LateralSlip", 0.0)
+        debug.PrintValue(local4, "ys", 1.0)
+        debug.PrintValue(local3, "vcy", 2.0)
+        debug.PrintValue(local2, "vcx", 3.0)
+        debug.PrintValue(arg1, "optimal_lateral_slip", 5.0)
+        debug.PrintValue(local6, "new_ys", 6.0)
+        debug.PrintValue(local7, "new_vcy", 7.0)
+        debug.PrintValue(local8, "new_vcx", 8.0)
+        debug.PrintValue(self.SteeringAngle, "wheel.SteeringAngle", 9.0)
+        debug.PrintValue(local10, "optimal_steering_angle", 10.0)
+    return local10
+
+def RenderDebugCurve(self, arg1, arg2, arg3, arg4):
+    if not vehicle.IsPlayerVehicle(self):
+        return
+    local5 = debug.GetCurve(arg1)
+    local5.Value = arg2
+    if arg3:
+        local5.MinValue = arg3
+    if arg4:
+        local5.MaxValue = arg4
+
+def CalculateSelfAligning(self, arg1):
+    if 1.0 > arg1.Load:
+        return 0.0
+    local2 = math.Clamp01(math.Abs(arg1.LateralSlip / self.SelfAligningSlipFactor))
+    local3 = local2 * (1.0 - local2) * 4.0
+    local3 = local3 * math.Sign(arg1.LateralSlip)
+    return local3 * self.SelfAligningStrength

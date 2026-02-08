@@ -1,0 +1,6 @@
+module remove_equipment
+
+def remove_equipment(self):
+    local1 = scriptgo.GetProperties(self)
+    __debugout(local1.equipment_name)
+    game.PostEvent("remove_equipment", local1.equipment_name)

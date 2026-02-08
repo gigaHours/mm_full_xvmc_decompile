@@ -1,0 +1,100 @@
+module npc_block_validation
+
+def GetChainReactBlockChance(self, arg1, arg2, arg3):
+    if arg1:
+        if self == 0.0:
+            return 0.0
+        if self == 1.0:
+            return 0.0
+        if self == 2.0:
+            return 0.0
+    if arg2:
+        if self == 0.0:
+            return 0.0
+        if self == 1.0:
+            return 0.0
+        if self == 2.0:
+            return 0.0
+    if arg3:
+        if self == 0.0:
+            return 0.1
+        if self == 1.0:
+            return 0.2
+        if self == 2.0:
+            return 0.3
+
+def GetComposedBlockChance(self, arg1, arg2, arg3):
+    if arg1:
+        if self == 0.0:
+            return 0.0
+        if self == 1.0:
+            return 0.0
+        if self == 2.0:
+            return 0.0
+    if arg2:
+        if self == 0.0:
+            return 0.0
+        if self == 1.0:
+            return 0.0
+        if self == 2.0:
+            return 0.0
+    if arg3:
+        if self == 0.0:
+            return 1.0
+        if self == 1.0:
+            return 1.0
+        if self == 2.0:
+            return 1.0
+
+def Evaluate(self, arg1):
+    if character.GetCharacterLevel(self) == 1.0:
+        local2 = true
+    else:
+        local2 = false
+    if character.GetCharacterLevel(self) == 2.0:
+        local3 = true
+    else:
+        local3 = false
+    if character.GetCharacterLevel(self) == 3.0:
+        local4 = true
+    else:
+        local4 = false
+    local5 = math.Rand()
+    local6 = playerstats.GetPlayerStats()
+    local7 = local6.RepetitionLevel
+    if arg1.Property0 == 0.0:
+        if character.IsStateBitSet(self, 6.0):
+            if GetChainReactBlockChance(local7, local2, local3, local4) > local5:
+                return 1.0
+            return 0.0
+        if GetComposedBlockChance(local7, local2, local3, local4) > local5:
+            return 1.0
+        return 0.0
+    if arg1.Property0 == 1.0:
+        if GetComposedEvadeChance(local7, local2, local3, local4) > local5:
+            return 1.0
+        return 0.0
+    return 0.0
+
+def GetComposedEvadeChance(self, arg1, arg2, arg3):
+    if arg1:
+        if self == 0.0:
+            return 0.0
+        if self == 1.0:
+            return 0.0
+        if self == 2.0:
+            return 0.0
+    if arg2:
+        if self == 0.0:
+            return 1.0
+        if self == 1.0:
+            return 1.0
+        if self == 2.0:
+            return 1.0
+    if arg3:
+        if self == 0.0:
+            return 0.0
+        if self == 1.0:
+            return 0.0
+        if self == 2.0:
+            return 0.0

@@ -1,0 +1,22 @@
+module vehicle_tackle
+
+def Enter(self, arg1):
+    if -0.99 > input.GetLeftStickInput().y:
+        game.QueueAct(self, "ACT_TACKLE_FORWARDS")
+    elif input.GetLeftStickInput().x > 0.75:
+        game.QueueAct(self, "ACT_TACKLE_LEFT")
+    elif -0.75 > input.GetLeftStickInput().x:
+        game.QueueAct(self, "ACT_TACKLE_RIGHT")
+    else:
+        game.QueueAct(self, "ACT_TACKLE_FORWARDS")
+
+def Exit(self, arg1):
+    __debugout("Exit")
+
+def UpdateRender(self, arg1, arg2):
+    __debugout("UpdateRender")
+    __debugout(arg2)
+
+def Update(self, arg1, arg2):
+    __debugout("Update")
+    __debugout(arg2)

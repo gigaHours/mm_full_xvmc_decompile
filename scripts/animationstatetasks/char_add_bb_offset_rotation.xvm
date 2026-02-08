@@ -1,0 +1,45 @@
+module char_add_bb_offset_rotation
+import @BAFDB405
+
+def Enter(self, arg1):
+    if arg1.AngleIsSourcePosition:
+        local2 = game.GetTransform(self).r3
+        local3 = game.GetBlackboardValueFromObject(self, game.GameHashString(arg1.BlackBoardVector))
+        if local3:
+            local4 = vector.Sub(local2, local3)
+    else:
+        local4 = game.GetBlackboardValueFromObject(self, game.GameHashString(arg1.BlackBoardVector))
+    arg1.do_rotation = false
+    if local4:
+        local4.y = 0.0
+        local4 = vector.Normalize(local4)
+        if arg1.InverseVector:
+            local4 = vector.Scale(local4, -1.0)
+        local5 = 0.0
+        if arg1.RotationOffset:
+            local5 = arg1.RotationOffset
+        local6 = matrix.RotationMatrix(local5, 0.0, 0.0)
+        local7 = game.GetTransform(self)
+        local8 = matrix.Mul(local7, local6)
+        local9 = vector.Scale(local8.r2, -1.0)
+        local10 = vector.AngleBetween(local4, local9)
+        if arg1.RandomAdjustment:
+            local10 = local10 + math.Rand() * arg1.RandomAdjustment * 2.0 - arg1.RandomAdjustment
+        if arg1.MaximumAdjustment:
+            local10 = math.Clamp(local10, 0.0, arg1.MaximumAdjustment)
+        local11 = math.Sign(vector.Dot(local8.r0, local4))
+        arg1.offset = local10 * local11
+        arg1.do_rotation = true
+
+def Update(self, arg1, arg2):
+    if arg1.do_rotation:
+        if animation.IsWithinSegment(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+            local3 = animation.GetSegmentInfo(self, @E063F6A0, game.GameHashFloat(arg1.Segment))
+            local4 = lib_character.GetSegmentLength(local3)
+            local5 = arg2 / local4
+            local6 = arg1.offset * local5
+            local7 = matrix.RotationMatrix(local6, 0.0, 0.0)
+            local8 = game.GetTransform(self)
+            local9 = vector.Scale(local8.r2, -1.0)
+            local10 = matrix.MulVec(local7, local9)
+            character.RotateInstantly(self, local10)

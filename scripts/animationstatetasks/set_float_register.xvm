@@ -1,0 +1,6 @@
+module set_float_register
+
+def Update(self, arg1, arg2):
+    local3 = arg1.Property0
+    local4 = arg1.Property1
+    character.SetFloatRegister(self, local3, local4)

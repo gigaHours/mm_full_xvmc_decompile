@@ -1,0 +1,20 @@
+module repair_speed
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate repair speed level %f", [self])
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate repair speed level %f", [self])
+    local2 = vehicle.GetSignatureVehicleCompanion()
+    if local2 != none:
+        local3 = lib_entity_proxy.GetChumGameplay(local2)
+        if local3:
+            scriptgo.Call1(local3, @F1CB1ABC, 1.0 / lib_vehicleupgrades.GetRepairTime(self))
+    local4 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending Repair Speed stats", [])
+    scriptgo.Call2(local4, @3433E531, self, arg1)

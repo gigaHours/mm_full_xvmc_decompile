@@ -1,0 +1,55 @@
+module mash_button_gameplay
+import @BAFDB405
+
+def Enter(self, arg1):
+    arg1.Progress = 0.0
+    arg1.Succeeded = false
+    arg1.TimePassed = 0.0
+    arg1.Started = false
+    local2 = gui.GetBlackboard()
+    local2.action_button_pulsating = true
+
+def Exit(self, arg1):
+    local2 = gui.GetBlackboard()
+    local2.action_button_pulsating = false
+    game.ClearBlackboardValueFromObject(self, "_0:&")
+    character.SetFloatRegister(self, 9.0, 0.0)
+    animation.SetStateBit(self, 18.0, 0.0)
+
+def Update(self, arg1, arg2):
+    arg1.TimePassed = arg1.TimePassed + arg2
+    gui.SetActiveButtonPrompt(arg1.ButtonPrompt)
+    gui.SetActiveButtonText("gui_button_prompt_mash_struggle")
+    local3 = true
+    if lib_character.SegmentNonExistentOrWithin(self, @E063F6A0, game.GameHashFloat(arg1.Segment)):
+        local3 = true
+        animation.SetStateBit(self, 18.0, 1.0)
+    if arg1.Succeeded == false:
+        local4 = math.Clamp01(arg1.Progress)
+        if local3:
+            if input.IsButtonClicked(game.GameHashString(arg1.InputButton)):
+                arg1.Started = true
+                local4 = local4 + arg1.GainPerPress
+                if arg1.MashPressedSound:
+                    game.PostEvent(arg1.MashPressedSound, "")
+            local5 = arg1.DecayPerSecond * arg2
+            arg1.Progress = local4 - local5
+            character.SetFloatRegister(self, 9.0, local4)
+            if local4 >= 1.0:
+                arg1.Succeeded = true
+                local4 = 1.0
+    else:
+        local4 = 1.0
+    if arg1.Started:
+        game.SetBlackboardValueToObject(self, "_0:&", local4)
+        if arg1.Succeeded:
+            character.SetFloatRegister(self, 9.0, 0.0)
+            animation.SetStateBit(self, 18.0, 0.0)
+            game.QueueAct(self, arg1.ActSuccess)
+        elif 0.0 >= local4 and 1.0 > local4:
+            game.QueueAct(self, arg1.ActFail)
+            character.SetFloatRegister(self, 9.0, 0.0)
+            animation.SetStateBit(self, 18.0, 0.0)
+    else:
+        animation.SetStateBit(self, 18.0, 1.0)
+        character.SetFloatRegister(self, 9.0, 0.01)

@@ -1,0 +1,15 @@
+module harpoon_shoot
+import @58351C01
+
+def EnterAlignedTransition(self, arg1, arg2):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    pass
+
+def Update(self, arg1):
+    local2 = lib_entity_proxy.GetHarpoon(vehicle.GetSignatureVehicle())
+    if local2:
+        arg1.CameraTransform = matrix.LookAtMatrix(scriptgo.Call(local2, @978D6F05), vector.Set(0.0, 1.0, 0.0, 0.0), scriptgo.Call(local2, @AB4D96B0))
+    else:
+        arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)

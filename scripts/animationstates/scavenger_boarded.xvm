@@ -1,0 +1,205 @@
+module scavenger_boarded
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = false
+    local5 = 0.0
+    local6 = 1.0
+    local7 = 2.0
+    local8 = 3.0
+    local9 = 4.0
+    local10 = 5.0
+    local11 = 7.0
+    local12 = 8.0
+    local13 = 9.0
+    local14 = 11.0
+    local15 = 12.0
+    local16 = 13.0
+    local17 = 14.0
+    local18 = 15.0
+    local19 = 16.0
+    local20 = vector.Set(0.0, -10.0, 0.0, 1.0)
+    local21 = -1.0
+    local22 = 0.5
+    local23 = 1.0
+    local24 = 0.12
+    local25 = 10.0
+    local26 = 0.2
+    if arg1.Property2 > 0.0:
+        local23 = arg1.Property2
+    local27 = false
+    if arg1.Property3 > 0.0:
+        local27 = true
+    local28 = vehicle.GetVehicleContext()
+    if local28:
+        local29 = vector.Set(character.GetGlobalXvmFloat(self, local5), character.GetGlobalXvmFloat(self, local6), character.GetGlobalXvmFloat(self, local7), 1.0)
+        local30 = vector.Set(character.GetGlobalXvmFloat(self, local8), character.GetGlobalXvmFloat(self, local9), character.GetGlobalXvmFloat(self, local10), 1.0)
+        local31 = vector.Dot(local28.At, local28.Acceleration)
+        local32 = vector.Dot(local28.Right, local28.Acceleration)
+        local33 = vector.Dot(local28.Up, local28.Acceleration)
+        local34 = vector.Set(local32, local33, local31, 1.0)
+        local35 = vector.Scale(local29, local21 / arg2 * (1.0 - math.Abs(local29.x) * (1.0 - math.Clamp(math.Abs(local30.x), 0.0, 1.0))))
+        local36 = vector.Set(vector.Dot(local28.Right, local20), vector.Dot(local28.Up, local20), vector.Dot(local28.At, local20), 1.0)
+        local37 = vector.Add(local34, vector.Add(local35, local36))
+        local38 = vector.Scale(local37, arg2 * local25)
+        local30 = vector.Add(vector.Scale(local30, 1.0 - local26), vector.Scale(local38, local26))
+        character.SetGlobalXvmFloat(self, local8, local30.x)
+        character.SetGlobalXvmFloat(self, local9, local30.y)
+        character.SetGlobalXvmFloat(self, local10, local30.z)
+        local29 = vector.Add(local29, vector.Scale(local30, arg2))
+        local39 = arg1.Property0
+        local40 = arg1.Property1
+        local29 = vector.Set(math.Clamp(local29.x, -local39, local39), math.Clamp(local29.y, 0.0, 1.0), math.Clamp(local29.z, -local39, local39), 1.0)
+        character.SetGlobalXvmFloat(self, local5, local29.x)
+        character.SetGlobalXvmFloat(self, local6, local29.y)
+        character.SetGlobalXvmFloat(self, local7, local29.z)
+        local41 = character.GetGlobalXvmFloat(self, local11)
+        local42 = character.GetGlobalXvmFloat(self, local12)
+        local43 = character.GetGlobalXvmFloat(self, local13)
+        local44 = character.GetWorldMatrix(self)
+        local45 = false
+        local46 = false
+        if local29.x == -local39:
+            local43 = local43 + arg2
+            if local43 > local24:
+                animation.SetStateBit(self, local14, 1.0)
+                local45 = true
+        elif local29.x == local39:
+            local43 = local43 + arg2
+            if local43 > local24:
+                animation.SetStateBit(self, local15, 1.0)
+                local46 = true
+        else:
+            local43 = 0.0
+        if local29.x > -0.5:
+            if 0.5 > local29.x:
+                local41 = local41 + arg2 * (0.3 - math.Abs(local29.x)) / 0.3
+            else:
+                local41 = 0.0
+        else:
+            local41 = 0.0
+        if local42 > local23:
+            animation.SetStateBit(self, local18, 1.0)
+        local42 = local42 + arg2
+        character.SetGlobalXvmFloat(self, local11, local41)
+        character.SetGlobalXvmFloat(self, local12, local42)
+        character.SetGlobalXvmFloat(self, local13, local43)
+        local47 = animation.GetSamplerCount(arg3)
+        local48 = false
+        local49 = 0.0
+        local50 = 0.0
+        if local27:
+            local51 = math.Clamp(local43 / local24, 0.0, 1.0)
+            local52 = 0.5
+            local53 = 0.75
+            local54 = 0.75
+            local55 = [animation.GetSampler(arg3, 0.0), animation.GetSampler(arg3, 1.0), animation.GetSampler(arg3, 2.0), animation.GetSampler(arg3, 3.0), animation.GetSampler(arg3, 4.0)]
+            local56 = [0.0, 0.0, 0.0, 0.0, 0.0]
+            local49 = math.Clamp(math.Abs(local29.x) / local39, 0.0, 1.0) * local53
+            local57 = math.Clamp(math.Abs(local29.z) / local40, -1.0, 1.0) * local54
+            if 0.0 > local29.z:
+                local57[local56] = 3.0
+                0.0[local56] = 4.0
+            else:
+                0.0[local56] = 3.0
+                local57[local56] = 4.0
+            if 0.0 > local29.x:
+                (1.0 - local57) * local49[local56] = 0.0
+                0.0[local56] = 2.0
+            else:
+                0.0[local56] = 0.0
+                (1.0 - local57) * local49[local56] = 2.0
+            (1.0 - local57) * (1.0 - local49)[local56] = 1.0
+            local58 = 0.0
+            while 5.0 > local58:
+                local55[local58].Weight = local56[local58]
+                local58 = local58 + 1.0
+            if local4:
+                local44 = character.GetWorldMatrix(self)
+                debug.Sphere(matrix.MulVec(local44, local29), 0.35, vector.Set(local41 * 2.0, 0.0, 0.0, 0.3))
+                if local29.x == -local39:
+                    debug.Sphere(matrix.MulVec(local44, local29), 0.5, vector.Set(1.0, 1.0, 0.0, 0.3))
+                if local29.x == local39:
+                    debug.Sphere(matrix.MulVec(local44, local29), 0.5, vector.Set(1.0, 1.0, 0.0, 0.3))
+                local59 = vector.Add(local44.r3, vector.Scale(local44.r0, -1.5))
+                local60 = vector.Add(local44.r3, vector.Scale(local44.r0, 1.5))
+                if local45:
+                    debug.Sphere(local59, 0.65, vector.Set(1.0, 0.0, 0.0, 0.3))
+                if local46:
+                    debug.Sphere(local60, 0.65, vector.Set(1.0, 0.0, 0.0, 0.3))
+                debug.PrintValue(local39, "boxsize", 16.0)
+                debug.PrintValue(local49, "pos_x_abs_scaled", 17.0)
+                debug.PrintValue(local50, "pos_y_scaled", 18.0)
+                debug.PrintValue(local29.x, "position.x", 20.0)
+                debug.PrintValue(local29.y, "position.y", 21.0)
+                debug.PrintValue(local29.z, "position.z", 22.0)
+                if false:
+                    if local27:
+                        debug.PrintValue(local53, "pos_x_scale", 24.0)
+                        debug.PrintValue(local56[0.0], "left", 26.0)
+                        debug.PrintValue(local56[1.0], "middle", 27.0)
+                        debug.PrintValue(local56[2.0], "right", 28.0)
+                        debug.PrintValue(local56[3.0], "fwd", 29.0)
+                        debug.PrintValue(local56[4.0], "bwd", 30.0)
+                    elif local47 == 6.0:
+                        debug.PrintValue(local56[0.0], "left", 26.0)
+                        debug.PrintValue(local56[1.0], "middle", 27.0)
+                        debug.PrintValue(local56[2.0], "right", 28.0)
+                        debug.PrintValue(local56[3.0], "left air", 29.0)
+                        debug.PrintValue(local56[4.0], "middle air", 30.0)
+                        debug.PrintValue(local56[5.0], "right air", 31.0)
+            return
+        if local47 == 6.0:
+            local55 = [animation.GetSampler(arg3, 0.0), animation.GetSampler(arg3, 1.0), animation.GetSampler(arg3, 2.0), animation.GetSampler(arg3, 3.0), animation.GetSampler(arg3, 4.0), animation.GetSampler(arg3, 5.0)]
+            local56 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            local49 = math.Clamp(math.Abs(local29.x) / local39, 0.0, 1.0) * 0.5
+            local50 = math.Clamp(local29.y / 0.4, 0.0, 1.0)
+            if 0.0 > local29.x:
+                (1.0 - local50) * local49[local56] = 0.0
+                0.0[local56] = 2.0
+            else:
+                0.0[local56] = 0.0
+                (1.0 - local50) * local49[local56] = 2.0
+            local50 * (1.0 - local49)[local56] = 4.0
+            if 0.0 > local29.x:
+                local50 * local49[local56] = 3.0
+                0.0[local56] = 5.0
+            else:
+                0.0[local56] = 3.0
+                local50 * local49[local56] = 5.0
+            (1.0 - local50) * (1.0 - local49)[local56] = 1.0
+            local58 = 0.0
+            while 6.0 > local58:
+                local55[local58].Weight = local56[local58]
+                local58 = local58 + 1.0
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = 0.0
+    local6 = 1.0
+    local7 = 2.0
+    local8 = 3.0
+    local9 = 4.0
+    local10 = 5.0
+    local11 = 7.0
+    local12 = 8.0
+    local13 = 9.0
+    local14 = 11.0
+    local15 = 12.0
+    local16 = 13.0
+    local17 = 14.0
+    local18 = 15.0
+    local19 = 16.0
+    character.SetGlobalXvmFloat(self, local5, 0.0)
+    character.SetGlobalXvmFloat(self, local6, 0.0)
+    character.SetGlobalXvmFloat(self, local7, 0.0)
+    character.SetGlobalXvmFloat(self, local8, 0.0)
+    character.SetGlobalXvmFloat(self, local9, 0.0)
+    character.SetGlobalXvmFloat(self, local10, 0.0)
+    character.SetGlobalXvmFloat(self, local11, 0.0)
+    character.SetGlobalXvmFloat(self, local12, 0.0)
+    character.SetGlobalXvmFloat(self, local13, 0.0)
+    animation.SetStateBit(self, local14, 0.0)
+    animation.SetStateBit(self, local15, 0.0)
+    animation.SetStateBit(self, local16, 0.0)
+    animation.SetStateBit(self, local17, 0.0)
+    animation.SetStateBit(self, local18, 0.0)
+    animation.SetStateBit(self, local19, 0.0)

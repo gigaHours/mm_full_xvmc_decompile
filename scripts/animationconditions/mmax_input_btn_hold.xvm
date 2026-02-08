@@ -1,0 +1,7 @@
+module mmax_input_btn_hold
+
+def Evaluate(self, arg1):
+    local2 = input.GetButtonInput(@A0427F74)
+    if local2 > 0.0:
+        return 1.0
+    return 0.0

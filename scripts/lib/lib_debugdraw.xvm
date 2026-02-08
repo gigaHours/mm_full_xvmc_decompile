@@ -1,0 +1,226 @@
+module lib_debugdraw
+
+def DrawBarDepth(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7):
+    if not arg7:
+        arg7 = DefaultZFunc
+    local8 = arg7(self.z)
+    if local8 > 0.0:
+        DrawBar(self, arg1 / local8, arg2 / local8, arg3, arg4, arg5, arg6)
+
+def DrawHealthBarDepth(self, arg1, arg2, arg3, arg4, arg5, arg6):
+    if not arg6:
+        arg6 = DefaultZFunc
+    local7 = arg6(self.z)
+    if local7 > 0.0:
+        DrawHealthBar(self, arg1 / local7, arg2 / local7, arg3, arg4, arg5)
+
+def DrawBarTitle(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8):
+    if not arg8:
+        arg8 = []
+    DrawText(self, arg7, arg8, arg1, arg3, arg5)
+    local9 = vector.Clone(self)
+    local9.y = local9.y + 0.025
+    DrawBar(local9, arg1, arg2, arg3, arg4, arg5, arg6)
+
+def GetHeatMapColor(self, arg1, arg2, arg3):
+    if arg1 > self:
+        return vector.Set(math.Scale01(self, 0.0, arg1), 0.0, 0.0, 1.0)
+    if arg2 > self:
+        return vector.Set(1.0, math.Scale01(self, arg1, arg2), 0.0, 1.0)
+    if arg3 > self:
+        return vector.Set(1.0, 1.0, math.Scale01(self, arg2, arg3), 1.0)
+    if self >= arg3:
+        return vector.Set(1.0, 1.0, 1.0, 1.0)
+
+def DrawDebugMatrix(self):
+    local1 = self.r3
+    local2 = 0.06
+    local3 = 1.2
+    local4 = vector.Set(1.0, 0.0, 0.0, 1.0)
+    local5 = vector.Set(0.0, 1.0, 0.0, 1.0)
+    local6 = vector.Set(0.0, 0.0, 1.0, 1.0)
+    debug.Arrow(local1, vector.Add(local1, vector.Scale(vector.Normalize(self.r0), local3)), local2, local4)
+    debug.Arrow(local1, vector.Add(local1, vector.Scale(vector.Normalize(self.r1), local3)), local2, local5)
+    debug.Arrow(local1, vector.Add(local1, vector.Scale(vector.Normalize(self.r2), local3)), local2, local6)
+
+def DrawCoordinateMarker(self, arg1, arg2, arg3, arg4):
+    local5 = arg4[0.0]
+    local6 = arg4[1.0]
+    local7 = vector.Set(self.x + local5.x * arg1 * 0.5 - arg3 * arg1 * 0.5, self.y + local5.y * arg2 * 0.5 - arg3 * arg2 * 0.5, 0.0, 0.0)
+    debug.DrawRect(local7, arg1 * arg3, arg2 * arg3, local6, true)
+
+def ALIGN_RIGHT():
+    return 2.0
+
+def DrawHealthBar(self, arg1, arg2, arg3, arg4, arg5):
+    local6 = arg3[0.0]
+    local7 = arg3[1.0]
+    local8 = arg3[2.0]
+    local9 = arg3[3.0]
+    local10 = arg5[0.0]
+    local11 = arg5[1.0]
+    local12 = false
+    if arg4 == ALIGN_LEFT_PAUSED() or arg4 == ALIGN_RIGHT_PAUSED() or arg4 == ALIGN_CENTER_PAUSED():
+        local12 = true
+    if 0.0 > self.z or game.IsGamePaused() and (not local12):
+        return
+    local13 = vector.Clone(self)
+    local14 = vector.Clone(self)
+    local15 = vector.Clone(self)
+    local16 = arg1 * math.Clamp(local10, 0.0, 1.0)
+    local17 = arg2
+    local15.x = local15.x + local16
+    local18 = arg1 * math.Clamp(local11, 0.0, 1.0)
+    if arg4 == ALIGN_CENTER() or arg4 == ALIGN_CENTER_PAUSED():
+        local14.x = local14.x - arg1 / 2.0
+        local13.x = local13.x - arg1 / 2.0
+        local15.x = local15.x - arg1 / 2.0
+    elif arg4 == ALIGN_RIGHT() or arg4 == ALIGN_RIGHT_PAUSED():
+        local14.x = local14.x - arg1
+        local13.x = local13.x - arg1 - (local16 - arg1)
+        local15.x = local15.x - arg1 - (local16 - (arg1 - local18))
+    if local7:
+        debug.DrawRect(local14, arg1, arg2, local7, true)
+    debug.DrawRect(local13, local16, local17, local6, true)
+    if local8:
+        debug.DrawRect(local15, local18, local17, local8, true)
+    if local9:
+        debug.DrawRect(local14, arg1, arg2, local9, false)
+
+def DrawBar(self, arg1, arg2, arg3, arg4, arg5, arg6):
+    local7 = false
+    if arg5 == ALIGN_LEFT_PAUSED() or arg5 == ALIGN_RIGHT_PAUSED() or arg5 == ALIGN_CENTER_PAUSED():
+        local7 = true
+    if 0.0 > self.z or game.IsGamePaused() and (not local7):
+        return
+    local8 = vector.Clone(self)
+    local9 = vector.Clone(self)
+    local10 = arg1 * math.Clamp(arg6, 0.0, 1.0)
+    local11 = arg2
+    if arg5 == ALIGN_CENTER() or arg5 == ALIGN_CENTER_PAUSED():
+        local9.x = local9.x - arg1 / 2.0
+        local8.x = local8.x - arg1 / 2.0
+    elif arg5 == ALIGN_RIGHT() or arg5 == ALIGN_RIGHT_PAUSED():
+        local9.x = local9.x - arg1
+        local8.x = local8.x - arg1 - (local10 - arg1)
+    if arg4:
+        debug.DrawRect(local9, arg1, arg2, arg4, true)
+    debug.DrawRect(local8, local10, local11, arg3, true)
+    if arg4:
+        debug.DrawRect(local9, arg1, arg2, vector.Set(0.0, 0.0, 0.0, 1.0), false)
+
+def DrawCoordinateSquare(self, arg1, arg2):
+    local3 = 9.0 / 16.0 * arg1
+    local4 = arg1
+    local5 = 0.2
+    local6 = lib_color.WHITE(1.0)
+    local7 = lib_color.RED(1.0)
+    local8 = vector.Set(self.x - local3 / 2.0, self.y - local4 / 2.0, 0.0, 0.0)
+    local9 = vector.Set(self.x - local3 / 2.0, self.y, 0.0, 0.0)
+    local10 = vector.Set(self.x + local3 / 2.0, self.y, 0.0, 0.0)
+    local11 = vector.Set(self.x, self.y - local4 / 2.0, 0.0, 0.0)
+    local12 = vector.Set(self.x, self.y + local4 / 2.0, 0.0, 0.0)
+    debug.DrawRect(local8, local3, local4, local6, false)
+    debug.DrawLine2d(local9, local10, local7)
+    debug.DrawLine2d(local11, local12, local7)
+    local14 = 0.0
+    local15 = 1.0
+    local13 = len(arg2)
+    while local13 > local14:
+        local16 = len(arg2) - 1.0 - local14
+        DrawCoordinateMarker(self, local3, local4, local5, arg2[local16])
+        local14 = local15 + local14
+
+def ALIGN_LEFT_PAUSED():
+    return 4.0
+
+def ALIGN_LEFT():
+    return 1.0
+
+def DrawTextDepth(self, arg1, arg2, arg3, arg4, arg5, arg6):
+    if game.IsGamePaused():
+        return
+    if not arg6:
+        arg6 = DefaultZFunc
+    local7 = arg6(self.z)
+    if local7 > 0.0:
+        local8 = vector.Clone(self)
+        if arg5 == ALIGN_CENTER():
+            local8.x = local8.x - arg3 / 2.0
+        elif arg5 == ALIGN_RIGHT():
+            local8.x = local8.x - arg3
+        debug.DrawTextScaled(local8, arg1, arg2, arg4, 1.0 / local7)
+
+def ALIGN_CENTER():
+    return 3.0
+
+def ArrowDir(self, arg1, arg2, arg3, arg4):
+    debug.Arrow(self, vector.Add(self, vector.Scale(arg1, arg3)), arg2, arg4)
+
+def DrawCircle2d(self, arg1, arg2, arg3):
+    local4 = 2.0 * math.Pi() / arg2
+    local5 = vector.Add(self, vector.Set(arg1 * 0.5625, 0.0, 0.0, 0.0))
+    local6 = 0.0
+    local8 = 0.0
+    local9 = 1.0
+    local7 = arg2
+    while local7 > local8:
+        local6 = local6 + local4
+        local10 = vector.Add(self, vector.Scale(vector.Set(math.Cos(local6) * 0.5625, math.Sin(local6) * 1.0, 0.0, 0.0), arg1))
+        debug.DrawLine2d(local5, local10, arg3)
+        local5 = local10
+        local8 = local9 + local8
+
+def GetGoScreenPos(self, arg1, arg2):
+    local3 = game.GetRenderTransform(self, arg2).r3
+    if arg1:
+        local3 = vector.Add(local3, arg1)
+    return debug.ProjectPosition(local3)
+
+def ALIGN_CENTER_PAUSED():
+    return 6.0
+
+def DrawText(self, arg1, arg2, arg3, arg4, arg5):
+    if game.IsGamePaused():
+        return
+    local6 = vector.Clone(self)
+    if arg5 == ALIGN_CENTER():
+        local6.x = local6.x - arg3 / 2.0
+    elif arg5 == ALIGN_RIGHT():
+        local6.x = local6.x - arg3
+    debug.DrawText(local6, arg1, arg2, arg4)
+
+def DrawVectorText(self, arg1, arg2):
+    local3 = 0.02
+    local4 = 0.01
+    debug.DrawText(self, "%s (%f)", [arg1, vector.Length(arg2)], lib_color.WHITE(1.0))
+    self.x = self.x + local4
+    self.y = self.y + local3
+    debug.DrawText(self, "x: %f", [arg2.x], lib_color.ORANGE(1.0))
+    self.y = self.y + local3
+    debug.DrawText(self, "y: %f", [arg2.y], lib_color.ORANGE(1.0))
+    self.y = self.y + local3
+    debug.DrawText(self, "z: %f", [arg2.z], lib_color.ORANGE(1.0))
+
+def ALIGN_RIGHT_PAUSED():
+    return 5.0
+
+def DefaultZFunc(self):
+    if 0.0 >= self or self > 50.0:
+        return -1.0
+    return math.Clamp(self / 20.0, 1.0, 100.0)
+
+def RenderPolyLine(self, arg1):
+    if 2.0 > len(self):
+        return
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(self) - 1.0
+    while local2 > local3:
+        local5 = self[local3]
+        local6 = self[local3 + 1.0]
+        debug.DrawLine(local5, local6, arg1)
+        local3 = local4 + local3
+    local5 = self[len(self) - 1.0]
+    local6 = self[0.0]
+    debug.DrawLine(local5, local6, arg1)

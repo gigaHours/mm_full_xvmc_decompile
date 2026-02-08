@@ -1,0 +1,15 @@
+module genr_additive_navigation
+import @BAFDB405
+import @E45D52B2
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetSampler(arg3, 0.0)
+    local4.Time = lib_animation.GetAnimationTimeNormalizedToFullBody(self)
+    if local4.Time >= local4.Length:
+        lib_animation.ResetAdditiveLoopCounter(self)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    lib_animation.SetContinuingLoopCount(self, arg4)
+
+def OnEnter(self, arg1):
+    lib_animation.ResetAdditiveLoopCounter(self)

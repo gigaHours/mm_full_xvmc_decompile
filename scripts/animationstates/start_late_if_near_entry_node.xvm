@@ -1,0 +1,28 @@
+module start_late_if_near_entry_node
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = character.GetInteractionUserProxy(self)
+    local6 = interaction.GetEntryNodeTransform(local5, arg1.Property0)
+    if local6 and local5:
+        local7 = game.GetTransform(self)
+        local8 = local7.r3
+        local9 = local6.r3
+        local8.y = 0.0
+        local9.y = 0.0
+        local10 = vector.Distance(local8, local9)
+        local11 = arg1.Property1
+        local12 = arg1.Property2
+        local13 = arg1.Property3
+        if local11 == local12:
+            debug.LogError("xvm potential division by infinity error", "Wrong parameters passed to start_late_if_near_entry_node.xpy (props.Property1 == props.Property2)")
+        if local10 > 0.0:
+            local14 = math.Scale01(local10, local11, local12)
+            local15 = local13 * (1.0 - local14)
+            local16 = animation.GetSamplerCount(arg4)
+            local18 = 0.0
+            local19 = 1.0
+            local17 = local16
+            while local17 > local18:
+                animation.GetSampler(arg4, local18).Time = local15
+                local18 = local19 + local18
+    debug.PrintValue(0.0, "Did not find", 4.0)

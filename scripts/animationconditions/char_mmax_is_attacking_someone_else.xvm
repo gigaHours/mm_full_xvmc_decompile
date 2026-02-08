@@ -1,0 +1,9 @@
+module char_mmax_is_attacking_someone_else
+
+def Evaluate(self, arg1):
+    local2 = character.GetPlayer()
+    if character.IsStateBitSet(local2, arg1.Property0):
+        if animation.GetLinkTarget(local2):
+            if not animation.GetLinkSource(self, 0.0):
+                return 1.0
+    return 0.0

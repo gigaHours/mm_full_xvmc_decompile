@@ -1,0 +1,26 @@
+module rotate_towards_source
+
+def DoRotation(self, arg1, arg2, arg3, arg4):
+    local5 = arg2.RotSpeed
+    local6 = character.GetWorldMatrix(self)
+    local7 = character.GetWorldMatrix(arg1)
+    if arg4:
+        local8 = vector.Sub(local7.r3, local6.r3)
+    else:
+        local8 = vector.Sub(local6.r3, local7.r3)
+    vector.Normalize(local8)
+    local9 = lib_character.CalcCharacterRot(self, arg3, local8, local5)
+    character.RotateInstantly(self, local9)
+
+def Update(self, arg1, arg2):
+    local4 = 0.0
+    local5 = 1.0
+    local3 = animation.GetLinkSourceCount(self)
+    while local3 > local4:
+        local6 = animation.GetLinkSource(self, local4)
+        if local6:
+            if animation.IsWithinSegment(local6, @E063F6A0, @D6BC3F26):
+                DoRotation(self, local6, arg1, arg2, true)
+            elif animation.IsWithinSegment(local6, @E063F6A0, "a..e"):
+                DoRotation(self, local6, arg1, arg2, false)
+        local4 = local5 + local4

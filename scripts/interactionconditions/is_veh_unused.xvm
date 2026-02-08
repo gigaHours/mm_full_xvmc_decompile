@@ -1,0 +1,15 @@
+module is_veh_unused
+import @80A1852C
+
+def Evaluate(self, arg1):
+    local2 = GetGraphUser(arg1.interaction_context, "graph")
+    if local2:
+        return 0.0
+    return 1.0
+
+def GetGraphUser(self, arg1):
+    local2 = interaction.GetInteractionGraph(self, arg1)
+    local3 = interaction.GetInteractionGraphUser(local2, 0.0)
+    if local3:
+        return interaction.GetCharacter(local3)
+    return none

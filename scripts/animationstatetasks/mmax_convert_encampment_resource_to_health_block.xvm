@@ -1,0 +1,18 @@
+module mmax_convert_encampment_resource_to_health_block
+import @BAFDB405
+
+def Enter(self, arg1):
+    local2 = arg1.Property0
+    local3 = arg1.Property1
+    local4 = arg1.Property2
+    local5 = arg1.Property3
+    local6 = 0.0
+    debug.LogInfo("[HealthConvert] : functionName[%s] resourceAmount[%f] healthBlockName[%s] healthBlockScalar[%f]", [arg1.Property0, arg1.Property1, arg1.Property2, arg1.Property3])
+    local7 = character.GetInteractionUserProxy(self)
+    local8 = interaction.InteractionComponentScriptCall1(local7, local2, local3)
+    local6 = local8 * local5
+    debug.LogInfo("[HealthConvert] : applyHealthAmount[%f]", [local6])
+    character.ApplyToHealthBlock(self, local4, local6)
+
+def Update(self, arg1, arg2):
+    pass

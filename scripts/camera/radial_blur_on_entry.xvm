@@ -1,0 +1,25 @@
+module radial_blur_on_entry
+
+def EnterAlignedTransition(self, arg1, arg2):
+    self.Properties.time_left = self.Properties.time_to_blend_out_radial_blur
+
+def EnterUnalignedTransition(self, arg1):
+    self.Properties.time_left = self.Properties.time_to_blend_out_radial_blur
+
+def Update(self, arg1):
+    if self.Properties.time_left > 0.0:
+        local2 = self.Properties.time_to_blend_out_radial_blur
+        if local2 == none:
+            local2 = 0.5
+        local3 = self.Properties.blur_offset
+        if local3 == none:
+            local3 = 0.5
+        local4 = self.Properties.blur_factor
+        if local4 == none:
+            local4 = 0.34
+        if local2 == 0.0:
+            debug.LogError("xvm potential division by infinity error", "radial_blur_on_entryx.xpy got a 0.0 time_to_blend_out_radial_blur")
+        local5 = math.Scale01(self.Properties.time_left, 0.0, local2)
+        arg1.RadialBlurFactor = local4 * local5
+        arg1.RadialBlurOffset = local3
+        self.Properties.time_left = self.Properties.time_left - self.Dt

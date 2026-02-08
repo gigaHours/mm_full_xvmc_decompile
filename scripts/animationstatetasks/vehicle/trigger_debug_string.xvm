@@ -1,0 +1,4 @@
+module trigger_debug_string
+
+def Update(self, arg1, arg2):
+    debug.PrintValue(0.0, "...................................................................     YOU LOST DRIVER CONTROL     .........................................................", 3.0)

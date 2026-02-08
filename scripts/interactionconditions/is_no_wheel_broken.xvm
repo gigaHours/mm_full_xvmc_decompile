@@ -1,0 +1,12 @@
+module is_no_wheel_broken
+
+def Evaluate(self, arg1):
+    local2 = vehicle.GetNumWheels(arg1.car)
+    local4 = 0.0
+    local5 = 1.0
+    local3 = local2
+    while local3 > local4:
+        if vehicle.IsWheelBroken(arg1.car, local4):
+            return 0.0
+        local4 = local5 + local4
+    return 1.0

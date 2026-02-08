@@ -1,0 +1,491 @@
+module player_weapon_handling
+import @42D0E955
+import @45098D7D
+import @58351C01
+
+def FirePressed(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_fire_pressed = true
+        if false:
+            debug.LogInfo("player_weapon_handling: FirePressed", [])
+
+def ShowShotgun(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.shotgun_active = true
+    if not SelectShotgun(self):
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: ShowShotgun ", [])
+
+def ShowHarpoon(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.harpoon_active = true
+    if not SelectHarpoon(self):
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: ShowHarpoon", [])
+
+def SelectSniper(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = lib_vehicle.GetPlayerVehicle()
+    UnSelectCurrentWeapon(self)
+    local1.selected_go = lib_entity_proxy.GetSniper(local2)
+    scriptgo.Call(local1.selected_go, @033D265B)
+    UiWeaponSelected(self, 2.0)
+    UiClearWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: SelectSniper", [])
+    return true
+
+def ChumDisabled(self):
+    local1 = scriptgo.GetProperties(self)
+    if false:
+        debug.LogInfo("Player_weapon_handling. ChumDisabled", [])
+
+def QuickFirePressed(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_quick_fire_pressed = true
+        if false:
+            debug.LogInfo("player_weapon_handling: QuickFirePressed", [])
+
+def ThrowHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_throw_held = true
+        if false:
+            debug.LogInfo("player_weapon_handling: ThrowHeld", [])
+
+def QuickFireReleased(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_quick_fire_released = true
+        if false:
+            debug.LogInfo("player_weapon_handling: QuickFireReleased", [])
+
+def SelectThunderstick(self):
+    local1 = scriptgo.GetProperties(self)
+    if IsSignatureVehicleAvailable() and lib_vehicleupgrades.GetExplosiveHarpoonUpgradeLevel() > 0.0 and local1.thunderstick_active:
+        local2 = lib_vehicle.GetPlayerVehicle()
+        if local2 != none:
+            if vehicle.IsSignatureVehicle(local2):
+                UnSelectCurrentWeapon(self)
+                local1.selected_go = lib_entity_proxy.GetHarpoon(local2)
+                scriptgo.Call1(local1.selected_go, @033D265B, "thunderstick")
+                UiWeaponSelected(self, 3.0)
+                if false:
+                    debug.LogInfo("player_weapon_handling: SelectThunderstick", [])
+            return true
+    return false
+
+def FireHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_fire_held = true
+        if false:
+            debug.LogInfo("player_weapon_handling: FireHeld", [])
+
+def UiClearWeaponList(self):
+    local1 = gui.GetBlackboard()
+    local1.veh_weapon_list = []
+    if false:
+        debug.LogInfo("UiClearWeaponList", [])
+
+def ToggleRight(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = 0.0
+    local3 = 0.0
+    local4 = len(local1.toggle_list) - 1.0
+    while (not DoToggle(self, 1.0)) and 4.0 >= local3:
+        if local4 > local2:
+            local2 = local2 + 1.0
+        else:
+            local2 = 0.0
+        local3 = local3 + 1.0
+
+def SwitchToLastSig(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = lib_vehicle.GetPlayerVehicle()
+    if none != local2:
+        if vehicle.IsSignatureVehicle(local2):
+            if false:
+                debug.LogInfo("Player_weapon_handling. SwitchToLastSig, using last_sig_veh_index: %f", [local1.last_sig_veh_index])
+            if local1.last_sig_veh_index != none:
+                SwitchToIndex(self, local1.last_sig_veh_index)
+        else:
+            SelectShotgun(self)
+            local1.toggle_index = 0.0
+
+def ShowThunderstick(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.thunderstick_active = true
+    if not SelectThunderstick(self):
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: ShowThunderstick", [])
+
+def AimPressed(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_aim_pressed = true
+        if false:
+            debug.LogInfo("player_weapon_handling: AimPressed", [])
+
+def QuickFireNotHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_quick_fire_held = false
+
+def AimHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_aim_held = true
+        if false:
+            debug.LogInfo("player_weapon_handling: AimHeld", [])
+
+def PlayerEnterVehicle(self):
+    if false:
+        debug.LogInfo("Player_weapon_handling. player_weapon_handling: PlayerEnterExitVehicle", [])
+    UpdateWeaponList(self)
+    SwitchToLastSig(self)
+
+def SelectShotgun(self):
+    local1 = scriptgo.GetProperties(self)
+    if visibleplayerupgrades.GetVisiblePlayerUpgradeLevel("shotgun", "shotgun") > 0.0 and local1.shotgun_active:
+        UnSelectCurrentWeapon(self)
+        local2 = character.GetPlayer()
+        local1.selected_go = lib_entity_proxy.GetShotgun(local2)
+        if false:
+            debug.LogInfo("props.player: %go, shotgun: %go", [local2, local1.selected_go])
+        scriptgo.Call(local1.selected_go, @033D265B)
+        UiWeaponSelected(self, 0.0)
+        if false:
+            debug.LogInfo("player_weapon_handling: SelectShotgun", [])
+        return true
+    return false
+
+def HideHarpoon(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.harpoon_active = false
+    local2 = gui.GetBlackboard()
+    if local2.veh_weapon_selected == 1.0:
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: HideHarpoon", [])
+
+def UpdateWeaponList(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.selectable_count
+    UiSetWeaponList(self)
+    if local1.selectable_count > 0.0:
+        local3 = gui.GetBlackboard()
+        if local3.veh_weapon_selected == 0.0:
+            if not SelectShotgun(self):
+                ToggleRight(self)
+        if local3.veh_weapon_selected == 1.0:
+            if not SelectHarpoon(self):
+                ToggleRight(self)
+        if local3.veh_weapon_selected == 3.0:
+            if not SelectThunderstick(self):
+                ToggleRight(self)
+        if local3.veh_weapon_selected == 4.0:
+            if not SelectSideBurner(self):
+                ToggleRight(self)
+        if local3.veh_weapon_selected == 5.0:
+            ToggleRight(self)
+    else:
+        UnSelectCurrentWeapon(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.shotgun_active = true
+    local1.harpoon_active = true
+    local1.thunderstick_active = true
+    local1.side_burner_active = true
+    local2 = character.GetPlayer()
+    local1.selected_go = lib_entity_proxy.GetShotgun(local2)
+    local3 = gui.GetBlackboard()
+    local3.veh_weapon_selected = 5.0
+    local4 = 0.0
+    local3.thunderstick_ammo = local4
+    local1.toggle_list = [SelectShotgun, SelectHarpoon, SelectThunderstick, SelectSideBurner]
+    local1.toggle_index = 0.0
+    local1.last_sig_veh_index = 0.0
+    local1.selectable_count = 0.0
+    UiSetWeaponList(self)
+
+def ThrowPressed(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_throw_pressed = true
+        if false:
+            debug.LogInfo("player_weapon_handling: ThrowPressed", [])
+
+def ThrowNotHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_throw_held = false
+
+def HideShotgun(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.shotgun_active = false
+    local2 = gui.GetBlackboard()
+    if local2.veh_weapon_selected == 0.0:
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: HideShotgun", [])
+
+def DoToggle(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = len(local2.toggle_list) - 1.0
+    if local2.toggle_index + arg1 > local3:
+        local2.toggle_index = 0.0
+    elif 0.0 > local2.toggle_index + arg1:
+        local2.toggle_index = local3
+    else:
+        local2.toggle_index = local2.toggle_index + arg1
+    if false:
+        debug.LogInfo("Do Toggle, index: %f", [local2.toggle_index])
+    return SwitchToIndex(self, local2.toggle_index)
+
+def UnSelectCurrentWeapon(self):
+    local1 = scriptgo.GetProperties(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: UnSelectCurrentWeapon, go: %go", [local1.selected_go])
+    if none != local1.selected_go:
+        scriptgo.Call(local1.selected_go, @E45446D8)
+    local2 = character.GetPlayer()
+    local1.selected_go = lib_entity_proxy.GetShotgun(local2)
+    local3 = gui.GetBlackboard()
+    local3.veh_weapon_selected = 5.0
+
+def ChumEnabled(self):
+    local1 = scriptgo.GetProperties(self)
+    if false:
+        debug.LogInfo("Player_weapon_handling. ChumEnabled", [])
+
+def HideSideBurner(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.side_burner_active = false
+    local2 = gui.GetBlackboard()
+    if local2.veh_weapon_selected == 4.0:
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: HideSideBurner", [])
+
+def FireReleased(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_fire_released = true
+        if false:
+            debug.LogInfo("player_weapon_handling: FireReleased", [])
+
+def ThrowReleased(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_throw_released = true
+        if false:
+            debug.LogInfo("player_weapon_handling: ThrowReleased", [])
+
+def SelectNone(self):
+    local1 = scriptgo.GetProperties(self)
+    UnSelectCurrentWeapon(self)
+    local1.selected_go = none
+    UiWeaponSelected(self, 5.0)
+    if false:
+        debug.LogInfo("player_weapon_handling: SelectNone", [])
+    return true
+
+def IsSignatureVehicleAvailable():
+    local0 = lib_vehicle.GetPlayerVehicle()
+    if local0 != none:
+        if vehicle.IsSignatureVehicle(local0):
+            return true
+    return false
+
+def UiSetWeaponList(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = list.MakeList(4.0, -1.0)
+    local3 = 0.0
+    if visibleplayerupgrades.GetVisiblePlayerUpgradeLevel("shotgun", "shotgun") > 0.0 and local1.shotgun_active:
+        0.0[local2] = local3
+        local3 = local3 + 1.0
+    if IsSignatureVehicleAvailable() and lib_vehicleupgrades.GetHarpoonUpgradeLevel() > 0.0 and local1.harpoon_active:
+        1.0[local2] = local3
+        local3 = local3 + 1.0
+    if IsSignatureVehicleAvailable() and lib_vehicleupgrades.GetExplosiveHarpoonUpgradeLevel() > 0.0 and local1.thunderstick_active:
+        3.0[local2] = local3
+        local3 = local3 + 1.0
+    if SideBurnerAvailable() and local1.side_burner_active:
+        4.0[local2] = local3
+        local3 = local3 + 1.0
+    local4 = list.MakeList(local3, -1.0)
+    local6 = 0.0
+    local7 = 1.0
+    local5 = local3
+    while local5 > local6:
+        local2[local6][local4] = local6
+        local6 = local7 + local6
+    if false:
+        debug.LogInfo("UiSetWeaponList, tempList: [%f, %f, %f,%f]", [local2[0.0], local2[1.0], local2[2.0], local2[3.0]])
+        local6 = 0.0
+        local9 = 1.0
+        local8 = len(local4)
+        while local8 > local6:
+            debug.LogInfo("finalList[%f]: %f", [local6, local4[local6]])
+            local6 = local9 + local6
+    local10 = gui.GetBlackboard()
+    local10.veh_weapon_list = local4
+    local1.selectable_count = local3
+    if false:
+        debug.LogInfo("UiSetWeaponList: count:%f", [local3])
+
+def ShowSideBurner(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.side_burner_active = true
+    if not SelectSideBurner(self):
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: ShowSideBurner", [])
+
+def AimNotHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_aim_held = false
+
+def PlayerExitVehicle(self):
+    local1 = scriptgo.GetProperties(self)
+    UiClearWeaponList(self)
+    UnSelectCurrentWeapon(self)
+    if false:
+        debug.LogInfo("Player_weapon_handling. PlayerExitVehicle, exit vehicle, select shotgun, props.last_sig_veh_index: %f", [local1.last_sig_veh_index])
+    SelectShotgun(self)
+    local1.toggle_index = 0.0
+
+def FireNotHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_fire_held = false
+
+def UiWeaponSelected(self, arg1):
+    local2 = gui.GetBlackboard()
+    local2.veh_weapon_selected = arg1
+    gui.PostEvent("gui_weapon_changed")
+    if false:
+        debug.LogInfo("UiWeaponSelected: UI_ID: %f", [arg1])
+
+def ToggleLeft(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = 0.0
+    local3 = 0.0
+    local4 = len(local1.toggle_list) - 1.0
+    while (not DoToggle(self, -1.0)) and 4.0 >= local3:
+        if local2 > 0.0:
+            local2 = local2 - 1.0
+        else:
+            local2 = local4
+        local3 = local3 + 1.0
+
+def AimReleased(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_aim_released = true
+        if false:
+            debug.LogInfo("player_weapon_handling: AimReleased", [])
+
+def SelectSideBurner(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.side_burner_active:
+        local2 = lib_vehicle.GetPlayerVehicle()
+        if local2 != none:
+            local3 = lib_entity_proxy.GetSiderBurner(local2)
+            if local3 != none:
+                if vehicle.IsSignatureVehicle(local2):
+                    if 0.0 >= lib_vehicleupgrades.GetSideBurnerLevel():
+                        return false
+                UnSelectCurrentWeapon(self)
+                local1.selected_go = local3
+                scriptgo.Call(local1.selected_go, @033D265B)
+                UiWeaponSelected(self, 4.0)
+                if false:
+                    debug.LogInfo("player_weapon_handling: SelectSideBurner", [])
+        return true
+    return false
+
+def HideThunderstick(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.thunderstick_active = false
+    local2 = gui.GetBlackboard()
+    if local2.veh_weapon_selected == 3.0:
+        ToggleRight(self)
+    UiSetWeaponList(self)
+    if false:
+        debug.LogInfo("player_weapon_handling: HideThunderstick", [])
+
+def QuickFireHeld(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.selected_go:
+        local2 = scriptgo.GetProperties(local1.selected_go)
+        local2.input_quick_fire_held = true
+        if false:
+            debug.LogInfo("player_weapon_handling: QuickFireHeld", [])
+
+def SelectHarpoon(self):
+    local1 = scriptgo.GetProperties(self)
+    if IsSignatureVehicleAvailable() and lib_vehicleupgrades.GetHarpoonUpgradeLevel() > 0.0 and local1.harpoon_active:
+        local2 = lib_vehicle.GetPlayerVehicle()
+        if local2 != none:
+            if vehicle.IsSignatureVehicle(local2):
+                UnSelectCurrentWeapon(self)
+                local1.selected_go = lib_entity_proxy.GetHarpoon(local2)
+                scriptgo.Call1(local1.selected_go, @033D265B, "")
+                UiWeaponSelected(self, 1.0)
+                if false:
+                    debug.LogInfo("player_weapon_handling: SelectHarpoon", [])
+            return true
+    return false
+
+def SwitchToIndex(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.toggle_list[arg1](self):
+        local2.toggle_index = arg1
+        local3 = lib_vehicle.GetPlayerVehicle()
+        if none != local3:
+            if vehicle.IsSignatureVehicle(local3):
+                local2.last_sig_veh_index = local2.toggle_index
+        return true
+    return false
+
+def SideBurnerAvailable():
+    local0 = lib_vehicle.GetPlayerVehicle()
+    if local0 != none:
+        local1 = lib_entity_proxy.GetSiderBurner(local0)
+        if local1 != none:
+            if vehicle.IsSignatureVehicle(local0):
+                if 0.0 >= lib_vehicleupgrades.GetSideBurnerLevel():
+                    return false
+            return true
+    return false

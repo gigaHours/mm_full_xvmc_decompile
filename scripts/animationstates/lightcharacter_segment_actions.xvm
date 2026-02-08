@@ -1,0 +1,11 @@
+module lightcharacter_segment_actions
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "UpdateSamplers")
+
+def UpdateSamplers(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = animation.GetSegmentInfo(local2.character, @E063F6A0, local2.segment_name)
+    if local3 != none:
+        if local3.Inside > 0.0:
+            scriptgo.PostEvent(self, @E34A20DC)

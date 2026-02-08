@@ -1,0 +1,75 @@
+module shot_state_auto
+import @9B4F6985
+import @83195642
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local2.have_shown_target_event = false
+    local2.quickfiring = false
+    lib_shotgun.HideMaxOutline(arg1)
+    local2.weapon_gui_counter = 0.0
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.ClearGuiTargets(arg1)
+    gui.PostEvent("gui_weapon_aim_mode_no_crosshair_off")
+    if (not lib_weapon.IsNextState(arg1, lib_shotgun.STATE_AIM_ID())) and (not lib_weapon.IsNextState(arg1, lib_shotgun.STATE_QUICKSHOOT_ID())):
+        lib_weapon.ResetTarget(arg1)
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    local3 = local1.UI_targets_for_BB
+    if none != local3:
+        local2.veh_weapon_targets = local3
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    UpdateGuiBB(local2)
+
+def GetId(self):
+    return lib_shotgun.STATE_AUTO_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = local3.local_target_list
+    if not lib_shotgun.MaxInCorrectAnimation(local2) or not lib_shotgun.CanAim(local2) or not local3.weapon_selected or not lib_shotgun.IsLoaded(local2):
+        lib_weapon.ChangeState(local2, local3.state_idle)
+        return
+    if 10.0 > local3.weapon_gui_counter:
+        gui.PostEvent("gui_weapon_aim_mode_no_crosshair_on")
+        local3.weapon_gui_counter = local3.weapon_gui_counter + 1.0
+    local5 = lib_weapon.IsInOgc(local2)
+    local6 = lib_entity_proxy.GetGlobalShotgunTargetList()
+    lib_weapon.FilterGlobalTargets(local2, local4, local6, lib_shotgun.GetAimSourcePos(local2), lib_shotgun.GetAimRaycastPos(local2), lib_shotgun.MAX_SHOT_RANGE(), lib_shotgun.FilterTarget, true)
+    if local5:
+        local7 = lib_shotgun.FindBestOGCAutoTarget(local2, local4, lib_shotgun.FilterTargetOnRange)
+    else:
+        local7 = lib_shotgun.FindBestVCAutoTarget(local2, local4, lib_shotgun.FilterTargetOnRange)
+        if local7 and local3.debug_enabled:
+            debug.Sphere(scriptgo.Call(local7, @0C537298), 0.3, lib_color.RED(0.5))
+    lib_weapon.SetAndHighlightTarget(local2, local7, false)
+    if lib_shotgun.IsLoaded(local2) and local3.target != none and (not local3.have_shown_target_event):
+        local3.have_shown_target_event = true
+        game.SendEvent("ply.vehicle_shotgun_target.enter", "")
+    local8 = false
+    if lib_shotgun.IsLoaded(local2):
+        local9 = local5 or local3.target != none
+        if local3.input_quick_fire_pressed and local9:
+            local3.align_target = local3.target
+            lib_weapon.ChangeState(local2, local3.state_quickshoot)
+    elif local3.input_quick_fire_pressed:
+        lib_weapon.ShowAmmoWarning(local2)
+    if local3.input_aim_held:
+        if lib_shotgun.IsLoaded(local2):
+            local3.align_target = local3.target
+            lib_weapon.ChangeState(local2, local3.state_aim)
+    lib_weapon.CheckShowFireIcon(local2, false, local8)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "AUTO"

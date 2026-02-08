@@ -1,0 +1,16 @@
+module ragdoll
+
+def ResetCurrentRagdoll(self):
+    pass
+
+def GetRagdollPositionForBone(self, arg1):
+    pass
+
+def GetRagdoll(self):
+    pass
+
+def SetCurrentRagdoll(self, arg1):
+    pass
+
+def SetBlendedRagdollParams(self, arg1, arg2, arg3):
+    pass

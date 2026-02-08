@@ -1,0 +1,8 @@
+module drivercontrol_below
+
+def Evaluate(self, arg1):
+    local2 = game.GetChild(self, "DriverControlScript")
+    if local2:
+        if arg1.Property0 > scriptgo.Call(local2, @818E43F3):
+            return 1.0
+    return 0.0

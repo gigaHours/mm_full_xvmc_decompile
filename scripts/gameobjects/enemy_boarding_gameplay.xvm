@@ -1,0 +1,317 @@
+module enemy_boarding_gameplay
+import @F76070AE
+import @87A2ECFD
+import @BAFDB405
+
+def ClearAttackLock(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetVehicle(local1.char)
+    if local2:
+        game.SetBlackboardValueToObject(local2, @A944703F, 0.0)
+        game.SetBlackboardValueToObject(local2, @B64303E4, 0.0)
+
+def ResetAcceleration(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.random_debug_offset = math.Rand()
+    local1.acc_filtered_last = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.acc_filtered = vector.Set(0.0, 0.0, 0.0, 0.0)
+
+def GetSwayingAnimationBlend(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.sway_blend
+
+def ResetSwaying(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.anim_sway_scale_x_flat = 0.0
+    local1.anim_sway_scale_z_flat = 0.0
+    local1.anim_sway_scale_x_blend = 0.0
+    local1.anim_sway_scale_z_blend = 0.0
+    local1.sway_w_idle = 1.0
+    local1.sway_w_left = 0.0
+    local1.sway_w_right = 0.0
+    local1.sway_w_fwd = 0.0
+    local1.sway_w_bwd = 0.0
+    local1.sway_w_up = 0.0
+    local1.sway_w_down = 0.0
+    local1.sway_blend = lib_character.GetEmptySwayingAnimationBlend(self)
+
+def UpdateSwaying(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.sway_blend = lib_character.CalcSwayingAnimationBlend(self, local2.acc_filtered)
+
+def RenderGripDamage(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = lib_debugdraw.GetGoScreenPos(local2.char, vector.Set(0.0, 1.3, 0.0, 0.0), arg1)
+    local4 = 0.03
+    local5 = 0.008
+    local6 = local2.grip_damage / 3.25
+    lib_debugdraw.DrawBarTitle(local3, local4, local5, lib_color.ORANGE(0.7), lib_color.WHITE(0.5), lib_debugdraw.ALIGN_CENTER(), local6, "Dam: %f", [local2.grip_damage])
+
+def ResetGripDamage(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.grip_damage = 0.0
+    local1.dynamic_difficulty = 0.8
+
+def RenderSwaying(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = lib_debugdraw.GetGoScreenPos(local2.char, vector.Set(0.0, 0.0, 0.0, 0.0), arg1)
+    local4 = lib_debugdraw.GetGoScreenPos(local2.char, vector.Set(0.0, 1.8 + local2.random_debug_offset, 0.0, 0.0), arg1)
+    local5 = vector.Set(local2.sway_blend[2.0] - local2.sway_blend[1.0], local2.sway_blend[4.0] - local2.sway_blend[3.0], 0.0, 0.0)
+    local6 = vector.Set(0.0, local2.sway_blend[5.0] - local2.sway_blend[4.0], 0.0, 0.0)
+    local7 = [[local5, lib_color.WHITE(1.0), lib_color.GREEN(1.0)]]
+    debug.DrawLine2d(local3, local4, lib_color.WHITE(1.0))
+    lib_debugdraw.DrawCoordinateSquare(local4, 0.05, local7)
+
+def GetRelativeGripHealth(self):
+    local1 = scriptgo.GetProperties(self)
+    return 1.0 - math.Clamp(local1.grip_damage / 3.25, 0.0, 1.0)
+
+def RenderAcceleration(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = lib_debugdraw.GetGoScreenPos(local2.char, vector.Set(0.0, 2.5, 0.0, 0.0), arg1)
+    local4 = vector.Clone(local3)
+    lib_debugdraw.DrawVectorText(local4, "VEL:", local2.vel_curr)
+
+def ACC_LIMITS_CORNER():
+    return vector.Set(5.0, 7.0, 7.5, 0.0)
+
+def ACC_LIMITS_ROOF():
+    return vector.Set(7.5 * 0.9, 7.0, 5.0 * 0.9, 0.0)
+
+def UpdateAttackTimer(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.acc_filtered
+    local4 = GetPositionSB(self)
+    local5 = character.GetPlayer()
+    local6 = character.GetVehicle(local5)
+    local7 = local2.char
+    local8 = character.GetVehicle(local7)
+    local9 = game.GetTransform(local7).r3
+    local10 = 0.0
+    if animation.IsWithinSegment(local7, @E063F6A0, @8A5DE581) and CheckAttackLock(self):
+        ClearAttackLock(self)
+    if animation.IsWithinSegment(local7, @E063F6A0, @47CB2806):
+        if not local2.hitreact_triggered:
+            game.QueueAct(character.GetPlayer(), "ACT_HIT_BY_SPEAR")
+            local8 = character.GetVehicle(local7)
+            local11 = game.GetChildByScriptName(local8, "driver_hit_reaction.xpy")
+            if local11 == none:
+                debug.LogError("damage system", "No driver_hit_reaction.xpy on vehicle that is being boarded.")
+            else:
+                scriptgo.Call(local11, @72868845)
+            local2.hitreact_triggered = true
+    elif 0.9 > vector.Length(local3):
+        game.QueueAct(local7, "ACT_RECOVER_FROM_SWAY")
+        if local6 and local8 and game.IsObjectEqualTo(local8, local6):
+            if animation.IsWithinSegment(local5, @E063F6A0, @64DAF857):
+                local2.attack_timer = local2.attack_timer - arg1
+                if 0.0 >= local2.attack_timer and CheckAttackLock(self):
+                    local12 = character.GetWieldedObject(local7)
+                    if local12:
+                        if game.GetItemAnimationModifier(local12) == @D2A5068F:
+                            local12 = none
+                    if not local12 or local4 == 22.0:
+                        SetAttackLock(self)
+                    game.QueueAct(local7, "ACT_ATTACK")
+                    if not animation.GetStateBit(local2.char, 3.0):
+                        local13 = playerstats.GetPlayerStats()
+                        local13.difficultyScalingBoarding = math.Max(local13.difficultyScalingBoarding - 1.0 / 5.0, 0.0)
+                        local2.dynamic_difficulty = local13.difficultyScalingBoarding
+                    ResetAttackTimer(self)
+        else:
+            ResetAttackTimer(self)
+    else:
+        game.QueueAct(local7, "ACT_LOOSE_GRIP")
+        if CheckAttackLock(self):
+            ClearAttackLock(self)
+
+def getGripDamageScale(self):
+    local1 = vector.Set(1.0, 0.18, 1.0, 0.0)
+    local2 = vector.Set(0.8, 0.15, 0.7, 0.0)
+    return vector.Lerp(self, local1, local2)
+
+def GetAccLimitsForPosition(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetPositionSB(self)
+    if local2 == 23.0:
+        return ACC_LIMITS_CORNER()
+    if local2 == 24.0:
+        return ACC_LIMITS_CORNER()
+    return ACC_LIMITS_ROOF()
+
+def SetAttackLock(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetVehicle(local1.char)
+    local3 = GetPositionSB(self)
+    if local2 and local3:
+        game.SetBlackboardValueToObject(local2, @A944703F, local3)
+        game.SetBlackboardValueToObject(local2, @B64303E4, game.GetRealTime())
+
+def UpdateRender(self, arg1):
+    RenderGripDamage(self, arg1)
+    RenderAttackTimer(self, arg1)
+    RenderSwaying(self, arg1)
+    RenderAcceleration(self, arg1)
+
+def PlaySwayReactionAnim(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = none
+    local5 = 0.95
+    local6 = local3.sway_blend
+    local7 = false
+    local8 = false
+    local9 = false
+    local10 = false
+    local11 = 11.0
+    if vector.Length(arg2) > local11:
+        local10 = true
+        local12 = GetPositionSB(self)
+        local7 = local12 == 23.0
+        local8 = local12 == 24.0
+        local9 = local12 == 22.0
+    local13 = false
+    local15 = 1.0
+    local16 = 1.0
+    local14 = 5.0
+    while local14 > local15:
+        if local6[local15] > local5:
+            local17 = arg1.x
+            local18 = arg1.z
+            if math.Abs(local17) >= math.Abs(local18):
+                if 0.0 > local17:
+                    local4 = "ACT_FALL_OFF_RIGHT"
+                else:
+                    local4 = "ACT_FALL_OFF_LEFT"
+            elif 0.0 > local18:
+                local4 = "ACT_FALL_OFF_BWD"
+                if local10:
+                    if local7:
+                        local4 = "ACT_FALL_OFF_RIGHT"
+                    elif local8:
+                        local4 = "ACT_FALL_OFF_LEFT"
+            else:
+                local4 = "ACT_FALL_OFF_FWD"
+        else:
+            local15 = local16 + local15
+        if none != local4:
+            local19 = playerstats.GetPlayerStats()
+            local19.difficultyScalingBoarding = math.Max(local19.difficultyScalingBoarding + 1.0 / 1.2, 1.0)
+            game.QueueAct(local3.char, local4)
+        return
+
+def SetDebugOutputState(self):
+    local1 = vehicle.GetGlobalProperties()
+    local2 = scriptgo.GetProperties(self)
+    if local2.doing_debug_output != local1.BoardingSwayDebugEnabled:
+        if local1.BoardingSwayDebugEnabled:
+            scriptgo.SetRenderFunction(self, "UpdateRender")
+        else:
+            scriptgo.SetRenderFunction(self, "")
+        local2.doing_debug_output = local1.BoardingSwayDebugEnabled
+
+def PreInit(self):
+    ResetAcceleration(self)
+    ResetAttackTimer(self)
+    ResetSwaying(self)
+    ResetGripDamage(self)
+    ClearAttackLock(self)
+    ResetDebugStuff(self)
+
+def ResetAttackTimer(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.attack_timer = 0.15 + math.Rand() * 0.5
+    local1.attack_timer_max = local1.attack_timer
+    local1.hitreact_triggered = false
+
+def UpdateAcceleration(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = GetAccLimitsForPosition(self)
+    local4 = 1.0 - GetRelativeGripHealth(self)
+    local5 = 0.6 * (0.2 + 0.8 * local4)
+    local2.acc_filtered_last = vector.Clone(local2.acc_filtered)
+    local2.acc_filtered = lib_character.GetFilteredLSAccelerationOnVehicle(local2, arg1, local2.char, 2.72, local3, 1.5, local5, false, true)
+
+def CheckAttackLock(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = character.GetVehicle(local1.char)
+    local3 = GetPositionSB(self)
+    local4 = 0.0
+    if local2 and local3:
+        local5 = game.GetBlackboardValueFromObject(local2, @A944703F)
+        if not local5:
+            local5 = 0.0
+        local6 = 1.0 > local5 or local5 == local3
+        return local6
+
+def ResetDebugStuff(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.doing_debug_output = false
+
+def RenderAttackTimer(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.char
+    local4 = lib_debugdraw.GetGoScreenPos(local3, vector.Set(0.0, 3.0, 0.0, 0.0), arg1)
+    local5 = game.GetTransform(local3).r3
+    local6 = vector.Length(local2.acc_filtered)
+    debug.DrawText(local4, "acc_len: %f", [local6], lib_color.GREEN(0.7))
+    local7 = playerstats.GetPlayerStats()
+    local8 = lib_debugdraw.GetGoScreenPos(local3, vector.Set(0.0, 3.2, 0.0, 0.0), arg1)
+    local9 = lib_debugdraw.GetGoScreenPos(local3, vector.Set(0.0, 3.4, 0.0, 0.0), arg1)
+    debug.DrawText(local8, "dd(global): %f", [local7.difficultyScalingBoarding], lib_color.ORANGE(0.7))
+    debug.DrawText(local9, "dd(local): %f", [local2.dynamic_difficulty], lib_color.ORANGE(0.7))
+    local10 = character.GetVehicle(local3)
+    if local10:
+        if CheckAttackLock(self):
+            debug.Sphere(local5, 0.6, lib_color.DARK_GREEN(0.6))
+        else:
+            debug.Sphere(local5, 0.6, lib_color.ORANGE(0.6))
+
+def UpdateGripDamage(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = 0.0
+    local4 = 1.0
+    local5 = vehicle.GetGlobalProperties()
+    if animation.IsWithinSegment(local2.char, @E063F6A0, @E21B41D3):
+        local6 = local2.dynamic_difficulty
+        local7 = getGripDamageScale(local6)
+        local8 = vector.Sub(local2.acc_filtered_last, local2.acc_filtered)
+        local8 = vector.Set(local8.x * local7.x, local8.y * local7.y, local8.z * local7.z, 0.0)
+        local8 = vector.Length(local8)
+        local9 = math.Lerp(local6, 0.025, 0.085)
+        local3 = math.Max(local8 * local5.boardershakeoff_upgrade_scale - local9, 0.0)
+    local10 = 0.05
+    local11 = true
+    if local3 > 0.0:
+        local10 = 0.0
+        local3 = local3
+    local12 = local2.grip_damage
+    local2.grip_damage = math.Clamp(local2.grip_damage + local3 - local10 * arg1, 0.0, 3.25)
+    local13 = local2.grip_damage / 3.25 > 0.85
+    if local13:
+        if local5.BoardingShakeOffEnabled:
+            local14 = character.GetVehicle(local2.char)
+            if local14 != none and 0.85 > local12 / 3.25:
+                vehiclemanager.SendShakeOffBoarderEvent(local14, local2.char)
+            PlaySwayReactionAnim(self, local2.acc_filtered, local2.vel_curr)
+
+def StartUpdate(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+
+def GetPositionSB(self):
+    local1 = scriptgo.GetProperties(self)
+    if 1.0 == animation.GetStateBit(local1.char, 23.0):
+        return 23.0
+    if 1.0 == animation.GetStateBit(local1.char, 24.0):
+        return 24.0
+    if 1.0 == animation.GetStateBit(local1.char, 22.0):
+        return 22.0
+
+def Update(self, arg1):
+    UpdateAcceleration(self, arg1)
+    UpdateSwaying(self, arg1)
+    UpdateGripDamage(self, arg1)
+    UpdateAttackTimer(self, arg1)
+    SetDebugOutputState(self)
+
+def StopUpdate(self):
+    scriptgo.SetUpdateFunction(self, "")

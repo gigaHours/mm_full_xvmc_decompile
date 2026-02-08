@@ -1,0 +1,6 @@
+module char_random_playback_speed
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    animation.GetSampler(arg4, 0.0).Speed = math.Scale(math.Rand(), 0.0, 1.0, arg1.Property0, arg1.Property1)
+    if arg1.Property2:
+        animation.GetSampler(arg4, 0.0).Time = animation.GetSampler(arg4, 0.0).Length * math.Rand()

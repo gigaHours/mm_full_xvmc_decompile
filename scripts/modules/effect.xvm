@@ -1,0 +1,52 @@
+module effect
+
+def StopPointEmitter(self):
+    pass
+
+def SpawnerStop(self):
+    pass
+
+def EffectPlayInteraction(self, arg1, arg2):
+    pass
+
+def SpawnerInstanceStop(self):
+    pass
+
+def SpawnerInitTransform(self, arg1):
+    pass
+
+def SpawnerSetWorldTransform(self, arg1):
+    pass
+
+def SpawnerIsPlaying(self):
+    pass
+
+def SpawnerGetWorldTranslation(self):
+    pass
+
+def SpawnerPlay(self):
+    pass
+
+def IsEffectSpawner(self):
+    pass
+
+def SpawnerRestart(self, arg1):
+    pass
+
+def SpawnerSetParameter(self, arg1, arg2):
+    pass
+
+def SpawnerSetVelocity(self, arg1):
+    pass
+
+def EffectPlayAttached(self, arg1, arg2):
+    pass
+
+def PlayPointEmitter(self):
+    pass
+
+def IsEffectSpawnerInstance(self):
+    pass
+
+def SpawnerSetAttachObject(self, arg1):
+    pass

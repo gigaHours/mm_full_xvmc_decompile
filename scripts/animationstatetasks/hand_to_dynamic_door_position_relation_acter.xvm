@@ -1,0 +1,33 @@
+module hand_to_dynamic_door_position_relation_acter
+
+def Enter(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    local3 = character.GetVehicle(self)
+    if local3 and animation.IsWithinSegment(self, @E063F6A0, @04A60286):
+        local4 = vehicle.GetHingedPart(local3, "vpart_door_r")
+        local5 = animation.GetPoseJointIndex(local3, "jnt_vpart_door_r")
+        local6 = animation.GetPoseJointIndex(self, "RightHandMiddle1")
+        if local4 and local5 and local6:
+            local7 = local4.HingeAngle
+            local8 = animation.GetPoseTransform(self, local6)
+            local9 = character.GetWorldMatrix(self)
+            local10 = character.GetWorldMatrix(local3)
+            local11 = matrix.Inverse(local10)
+            local12 = matrix.Mul(local8, local9)
+            local13 = matrix.Mul(local12, local11).r3
+            local14 = matrix.Mul(local9, local11).r3
+            local15 = local14.x + 0.32
+            local16 = animation.GetPoseTransform(local3, local5).r3
+            local16.x = local15
+            local17 = vector.Sub(local13, local16)
+            if local17.z > 0.0:
+                local18 = math.ATan(local17.x / local17.z) + 0.02
+                if false:
+                    debug.LogInfo("door.INFO_INFO_INFO: angle:%f, hingle_angle:%f", [local18, local7])
+                    debug.Sphere(local12.r3, 0.08, lib_color.ORANGE(0.2))
+                if local18 > local7:
+                    game.QueueAct(self, "ACT_DOOR_REACH_DETECTED")
+                    if false:
+                        debug.Sphere(local12.r3, 0.18, lib_color.GREEN(1.2))

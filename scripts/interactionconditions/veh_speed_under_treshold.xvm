@@ -1,0 +1,7 @@
+module veh_speed_under_treshold
+
+def Evaluate(self, arg1):
+    local2 = vehicle.GetVelocity(arg1.car)
+    if vector.Length(local2) > arg1.maximum_speed:
+        return 0.0
+    return 1.0

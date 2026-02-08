@@ -1,0 +1,10 @@
+module char_set_jesus_mode
+
+def Enter(self, arg1):
+    character.SetJesusMode(self, arg1.Property0)
+
+def Exit(self, arg1):
+    character.SetJesusMode(self, arg1.Property0)
+
+def Update(self, arg1, arg2):
+    pass

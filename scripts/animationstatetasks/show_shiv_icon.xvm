@@ -1,0 +1,10 @@
+module show_shiv_icon
+
+def Enter(self, arg1):
+    arg1.Knives = character.GetInventoryItemCount(self, "generic_shiv")
+
+def Update(self, arg1, arg2):
+    local3 = character.GetInteractionUserProxy(self)
+    if arg1.Knives > 0.0:
+        if animation.IsWithinSegment(self, @E063F6A0, @01373AA4):
+            interaction.SetNamedFailEntry(local3, "shiv.move.available")

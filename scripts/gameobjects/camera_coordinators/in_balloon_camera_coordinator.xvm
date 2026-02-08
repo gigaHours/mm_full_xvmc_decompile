@@ -1,0 +1,16 @@
+module in_balloon_camera_coordinator
+import @78DDD3EE
+
+def Init(self):
+    pass
+
+def ShowRegionInfo(self):
+    local1 = lib_camera.STATUSCAM_GUI_MODE_REGION()
+    lib_camera.SetStatusCamGUIMode(local1)
+    game.PostEvent("gui_event", "cam.activate.regionvista")
+
+def Update(self, arg1):
+    pass
+
+def HideRegionInfo(self):
+    game.PostEvent("gui_event", "cam.deactivate.regionvista")

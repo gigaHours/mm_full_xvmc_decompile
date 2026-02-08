@@ -1,0 +1,24 @@
+module send_act_in_segment
+
+def Enter(self, arg1):
+    arg1.act_expired = 0.0
+    arg1.before_segment = 2.0
+
+def Update(self, arg1, arg2):
+    if arg1.act_expired == 0.0:
+        local3 = animation.GetSegmentInfo(self, game.GameHashFloat(arg1.Layer), game.GameHashFloat(arg1.Segment))
+        if local3:
+            if animation.IsWithinSegment(self, game.GameHashFloat(arg1.Layer), game.GameHashFloat(arg1.Segment)):
+                game.DoAct(self, arg1.Act)
+                arg1.act_expired = arg1.Expire
+                arg1.before_segment = 0.0
+            elif arg1.before_segment == 2.0:
+                if 0.0 >= local3.LocalTime:
+                    arg1.before_segment = 1.0
+                else:
+                    arg1.before_segment = 0.0
+            elif arg1.before_segment == 1.0:
+                if local3.LocalTime > 0.0:
+                    arg1.before_segment = 0.0
+                    game.DoAct(self, arg1.Act)
+                    arg1.act_expired = arg1.Expire

@@ -1,0 +1,7 @@
+module char_make_mmax_loose_target
+
+def Enter(self, arg1):
+    animation.ClearLinkTarget(character.GetPlayer())
+
+def Exit(self, arg1):
+    animation.ClearLinkTarget(character.GetPlayer())

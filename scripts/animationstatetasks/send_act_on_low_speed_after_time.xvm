@@ -1,0 +1,13 @@
+module send_act_on_low_speed_after_time
+
+def Enter(self, arg1):
+    arg1.time_still = 0.0
+
+def Update(self, arg1, arg2):
+    local3 = vector.Length(character.GetMeasuredWorldVelocity(self))
+    if arg1.Speed > local3:
+        arg1.time_still = arg1.time_still + arg2
+    else:
+        arg1.time_still = 0.0
+    if arg1.time_still > arg1.Timer:
+        game.QueueAct(self, arg1.Act)

@@ -1,0 +1,23 @@
+module wheel_armor
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate wheel armor level %f", [self])
+
+def GetGrindingDamageScale(self):
+    return lib_vehicleupgrades.LinearProgression(self, 3.0, 0.0, 1.0)
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate wheel armor level %f", [self])
+    local2 = lib_entity_proxy.GetCollision(vehicle.GetSignatureVehicle())
+    local3 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    if local2:
+        scriptgo.Call1(local2, @E679D8AC, GetGrindingDamageScale(self))
+    else:
+        debug.LogError("upgrade system", "CollisionDamageHandler missing from the entity.")
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending sniper stats", [])
+    scriptgo.Call2(local3, @E9753A1B, self, arg1)

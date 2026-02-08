@@ -1,0 +1,18 @@
+module slowmotion
+
+def ChangeToNewSpeed(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = 0.001
+    if local2 > local1.new_speed:
+        local1.id = game.EaseInCustomUpdateSpeed(local1.transition_in_speed, local2)
+    else:
+        local1.id = game.EaseInCustomUpdateSpeed(local1.transition_in_speed, local1.new_speed)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.id = 0.0
+
+def RevertToOldSpeed(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.id != 0.0:
+        game.EaseOutCustomUpdateSpeed(local1.transition_out_speed, local1.id)

@@ -1,0 +1,63 @@
+module playanim_aligndirector_scaletranslation_fadeoutinputs
+
+def IsInHitreact(self):
+    if animation.IsInAnimationState(self, @E063F6A0, @4A232E04) == 1.0:
+        return 1.0
+    if animation.IsInAnimationState(self, @E063F6A0, @98A65A8E) == 1.0:
+        return 1.0
+    if animation.IsInAnimationState(self, @E063F6A0, @D020A114) == 1.0:
+        return 1.0
+    return 0.0
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetPoseTransform(self, 0.0)
+    local5 = animation.GetSampler(arg3, 0.0)
+    local6 = 1.0 - local5.Time / local5.Length
+    if vehicle.IsPlayerVehicle(self):
+        local7 = vehicle.GetProperties(self)
+        local8 = input.GetLeftStickInput()
+        local9 = vehicle.GetVehicleContext()
+        local10 = vector.Dot(local9.At, local9.Velocity)
+        local11 = vector.Length(local9.Velocity)
+        local12 = local8.x * 0.005
+        local13 = -local12 * 20.0 * math.Clamp(math.Abs(local10) / 30.0, 0.1, 1.0)
+        local7.input_translation = local7.input_translation + local13
+        local7.input_rotation = local7.input_rotation + local12
+        local14 = 1.0
+        if 1.0 > local7.velocity_scale:
+            local14 = local7.velocity_scale
+        local15 = math.Clamp(math.Abs(local10) / 30.0, 0.4, 1.0)
+        local4.r3 = vector.Set(local4.r3.x * local15 * local14, local4.r3.y * local14, local4.r3.z * local14, 1.0)
+        local4.r3 = vector.Set(local4.r3.x + local7.input_translation, local4.r3.y, local4.r3.z, 1.0)
+        local16 = matrix.RotationMatrix(local7.input_rotation, 0.0, 0.0)
+        local17 = local4.r3
+        local4 = matrix.Mul(local16, local4)
+        local4.r3 = local17
+    else:
+        local4.r3 = vector.Set(local4.r3.x * arg1.Property1, local4.r3.y * arg1.Property2, local4.r3.z * arg1.Property3, 1.0)
+    vehicle.SetAnimCmdFrame(self, local4)
+    if vehicle.IsPlayerVehicle(self):
+        local18 = vector.Set(1.0, local6 * local6 * local6, 1.0, 0.0)
+        local19 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    else:
+        local18 = vector.Set(1.0, local6 * local6 * local6, 1.0, 0.0)
+        local19 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    vehicle.SetAnimCmdWeights(self, local18, local19)
+    if vehicle.IsPlayerVehicle(self):
+        if local5.Time / local5.Length == 1.0:
+            local7.input_translation = 0.0
+            local7.input_rotation = 0.0
+
+def OnEnter(self, arg1):
+    local2 = vehicle.GetProperties(self)
+    local2.input_translation = 0.0
+    local2.input_rotation = 0.0
+    local2.velocity_scale = 1.0
+    if vehicle.IsPlayerVehicle(self) and IsInHitreact(self):
+        local3 = vehicle.GetVehicleContext()
+        local4 = vector.Length(local3.Velocity)
+        if 20.0 > local4:
+            local5 = math.Clamp(math.Abs(local4) / 20.0, 0.05, 1.0)
+            local2.velocity_scale = local5 * local5
+    vehicle.StartAnimCmd(self)
+    vehicle.SetAnimCmdSnapToGround(self, 0.5)

@@ -1,0 +1,14 @@
+module send_act_to_context_parent
+
+def Enter(self, arg1):
+    local2 = character.GetInteractionUserProxy(self)
+    local3 = interaction.GetCurrentContextParent(local2)
+    if local3:
+        game.QueueAct(local3, arg1.EnterAct)
+
+def Exit(self, arg1):
+    if arg1.ExitAct:
+        local2 = character.GetInteractionUserProxy(self)
+        local3 = interaction.GetCurrentContextParent(local2)
+        if local3:
+            game.QueueAct(local3, arg1.ExitAct)

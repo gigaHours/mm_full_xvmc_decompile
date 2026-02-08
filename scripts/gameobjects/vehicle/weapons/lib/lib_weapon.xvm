@@ -1,0 +1,931 @@
+module lib_weapon
+import @42D0E955
+import @F76070AE
+import @58351C01
+
+def StateCheckUnSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    if not local1.weapon_selected:
+        lib_weapon.ChangeState(self, wProps.state_idle)
+
+def DebugDrawButtonText(self, arg1, arg2):
+    local3 = vector.Set(1.0, 1.0, 1.0, 1.0)
+    local4 = vector.Set(0.83, 0.3, 0.0, 0.0)
+    local5 = 0.004
+    debug.DrawText(local4, arg1, [], local3)
+    local4.y = local4.y + 0.021
+    local4.x = local4.x - 0.007
+    debug.DrawRect(local4, arg2, local5, lib_color.YELLOW(1.0), true)
+
+def StopCurrentCam(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.current_cam_stop_event:
+        SendCameraEvent(self, local1.current_cam_stop_event)
+        local1.current_cam_stop_event = none
+
+def UpdateRenderCommon(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.target
+    local2.fire_icon_pos_2d = none
+    local2.fire_icon_scale = 1.0
+    if none != local2.fire_icon_obj and none != local3:
+        local4 = scriptgo.GetProperties(local3)
+        local4.ext_dis_scale = 1.0
+        local5 = vector.Add(game.GetRenderTransform(local2.fire_icon_obj, arg1).r3, vector.Set(0.0, local2.fire_icon_offset_y, 0.0, 0.0))
+        local2.fire_icon_pos_2d = camera.ProjectPosition(local5)
+        local6 = scriptgo.Call(self, @51E06512)
+        if none != local6:
+            local7 = game.GetTransform(local6).r3
+            local8 = vector.Distance(local5, local7)
+            local2.fire_icon_scale = math.Max(1.0 - local8 / 20.0, 0.35)
+    if local2.debug_enabled:
+        PrintStateTime(self)
+
+def DrawTargetMarker(self, arg1, arg2):
+    local3 = arg1[0.0]
+    local4 = arg1[1.0]
+    local5 = 0.1
+    local6 = 0.15
+    local7 = local3 * 0.1
+    local8 = local4 * 0.1
+    local9 = vector.Set(self.x - local7 / 2.0, self.y - local8 / 2.0, 0.0, 0.0)
+    local10 = local3 * local5
+    local11 = local4 * local5
+    local12 = local3 * local6
+    local13 = local4 * local6
+    local14 = vector.Set(self.x - local7 - local12, self.y - local11 / 2.0, 0.0, 0.0)
+    local15 = vector.Set(self.x - local10 / 2.0, self.y - local8 - local13, 0.0, 0.0)
+    local16 = vector.Set(self.x + local7, self.y - local11 / 2.0, 0.0, 0.0)
+    local17 = vector.Set(self.x - local10 / 2.0, self.y + local8, 0.0, 0.0)
+    debug.DrawRect(local14, local12, local11, arg2, true)
+    debug.DrawRect(local15, local10, local13, arg2, true)
+    debug.DrawRect(local16, local12, local11, arg2, true)
+    debug.DrawRect(local17, local10, local13, arg2, true)
+    local18 = vector.Set(self.x - local3 / 2.0, self.y - local4 / 2.0, 0.0, 0.0)
+
+def SnapTargetOnInput(self, arg1, arg2, arg3, arg4):
+    local5 = scriptgo.GetProperties(self)
+    local6 = math.DegToRad(75.0)
+    local7 = math.DegToRad(50.0)
+    local8 = 0.39
+    local9 = 0.5
+    local10 = 0.55
+    local11 = 0.3
+    local12 = input.GetLookInput()
+    local12.x = local12.x * -1.0
+    local13 = vector.Length(local12)
+    if local13 > 0.0:
+        local12 = vector.Normalize(vector.Set(local12.x * -1.0, local12.y * -1.0, 0.0, 0.0))
+    else:
+        local5.toggle_next_target_timer = 0.0
+        local5.pull_loose_from_target_timer = local11
+    local14 = golist.NbGameObjects(arg1)
+    local15 = none
+    local16 = 0.0
+    local17 = arg4 / game.GetUpdateSpeed()
+    local5.toggle_next_target_timer = math.Max(local5.toggle_next_target_timer - local17, 0.0)
+    if local5.target != none:
+        local18 = scriptgo.GetProperties(local5.target)
+        if not golist.HasObject(arg1, local5.target):
+            ResetTarget(self)
+    local20 = 0.0
+    local21 = 1.0
+    local19 = local14
+    while local19 > local20:
+        local22 = golist.Get(arg1, local20)
+        if none != local22:
+            local23 = scriptgo.GetProperties(local22)
+            if local23.is_reachable:
+                if not game.IsObjectEqualTo(local22, local5.target):
+                    if arg2(self, local22):
+                        if (not local5.toggle_next_target_timer > 0.0) and (none == local5.target or local13 > 0.0):
+                            local23 = scriptgo.GetProperties(local22)
+                            local24 = scriptgo.Call(local22, @0C537298)
+                            local25 = camera.ProjectPosition(local24)
+                            local25.z = 0.0
+                            local26 = vector.Set(0.5, 0.5, 0.0, 0.0)
+                            if none != local5.target:
+                                local27 = scriptgo.Call(local5.target, @0C537298)
+                                local26 = camera.ProjectPosition(local27)
+                                local26.z = 0.0
+                            local28 = vector.Sub(local25, local26)
+                            local29 = vector.Normalize(local28)
+                            local30 = vector.Length(local28)
+                            local31 = vector.AngleBetween(local29, local12)
+                            local32 = lib_color.RED(1.0)
+                            local33 = 0.0
+                            if local6 > local31:
+                                local34 = 1.0 - math.Scale01(local30, 0.0, local9)
+                                local35 = (1.0 - math.Scale01(local31, 0.0, local7)) * local8
+                                local33 = local34 + local35
+                                if not local15 or local33 > local16:
+                                    local15 = local22
+                                    local16 = local33
+                                    local32 = lib_color.GREEN(1.0)
+                            if local5.debug_enabled:
+                                debug.DrawLine2d(local26, vector.Add(local26, vector.Scale(local29, local30)), lib_color.WHITE(1.0))
+                                debug.DrawText(local25, "W: %f", [local33], lib_color.YELLOW(1.0))
+                                debug.DrawLine2d(local26, vector.Add(local26, vector.Scale(local12, 0.3)), local32)
+        local20 = local21 + local20
+    if none != local15:
+        local5.toggle_next_target_timer = local10
+        local5.pull_loose_from_target_timer = local11
+        return local15
+    if local13 > 0.0:
+        local5.pull_loose_from_target_timer = math.Max(local5.pull_loose_from_target_timer - local17, 0.0)
+        if not local5.pull_loose_from_target_timer > 0.0:
+            return none
+    return local5.target
+
+def IsInOgc(self):
+    local1 = scriptgo.Call(self, @51E06512)
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.wielding_character
+    if none == local1:
+        if not character.IsInSequence(local3):
+            local4 = character.GetInteractionUserProxy(local3)
+            if local4 != none:
+                local5 = interaction.GetCurrentContext(local4)
+                if local5 == none:
+                    return true
+            else:
+                return true
+    return false
+
+def RayCastPosition(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.raycaster
+    raycast.ClearRays(local5)
+    local6 = scriptgo.Call(self, @51E06512)
+    local7 = vector.Normalize(vector.Sub(arg3, arg2))
+    local8 = raycast.AddRay(local5, arg2, arg3)
+    raycast.CastRays(local5)
+    if local8:
+        local9 = local8.Hits
+        if local9:
+            local11 = 0.0
+            local12 = 1.0
+            local10 = len(local9)
+            while local10 > local11:
+                local13 = local9[local11]
+                local14 = game.IsObjectEqualTo(arg1, local13.GameObject)
+                local15 = game.IsObjectEqualTo(local4.wielding_character, local13.GameObject)
+                local16 = game.IsObjectEqualTo(local6, local13.GameObject)
+                if local14 or not arg1:
+                    if (not local15) and (not local16):
+                        return vector.Add(local13.Position, vector.Scale(local7, -0.2))
+                local11 = local12 + local11
+    return arg3
+
+def ClearInputFlags(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.input_aim_held = false
+    local1.input_aim_pressed = false
+    local1.input_aim_released = false
+    local1.input_fire_held = false
+    local1.input_fire_pressed = false
+    local1.input_fire_released = false
+    local1.input_quick_fire_held = false
+    local1.input_quick_fire_pressed = false
+    local1.input_quick_fire_released = false
+    local1.input_throw_held = false
+    local1.input_throw_pressed = false
+    local1.input_throw_released = false
+    local1.input_boarder_landed = false
+    local1.input_force_disconnect = false
+
+def AIM_STATUS_OUT_OF_RANGE():
+    return 0.0
+
+def GetSlowMOEnabled(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.slowmo_enabled
+
+def ForceOutlineUpdate(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if none != local2.target:
+        scriptgo.Call(local2.target, @63B8C080)
+        scriptgo.Call1(local2.target, @C748D51A, arg1)
+        local2.hasOutline = true
+
+def DrawRectCentered(self, arg1, arg2, arg3, arg4):
+    local5 = vector.Set(self.x - arg1 / 2.0, self.y - arg2 / 2.0, 0.0, 0.0)
+    debug.DrawRect(local5, arg1, arg2, arg3, arg4)
+
+def AIM_STATUS_CROSSHAIR():
+    return 7.0
+
+def DrawAutotargetMarker(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = lib_color.WHITE(1.0)
+    local5 = vector.Set(0.5, 0.5, 0.0, 0.0)
+    local3.crosshair_auto_target_position = local5
+    if none == local3.crosshair_auto_current_position:
+        local3.crosshair_auto_current_position = local5
+    local6 = arg1[0.0]
+    local7 = arg1[1.0]
+    if local3.target:
+        local8 = scriptgo.GetProperties(local3.target)
+        local9 = scriptgo.Call1(local3.target, @BAD3ED99, arg2)
+        local10 = camera.ProjectPosition(local9)
+        local10.z = 0.0
+        local3.crosshair_auto_target_position = local10
+    else:
+        local3.crosshair_auto_current_position = local5
+    local11 = 0.5
+    local3.crosshair_auto_current_position = vector.Lerp(local11, local3.crosshair_auto_current_position, local3.crosshair_auto_target_position)
+    DrawRectCentered(local3.crosshair_auto_current_position, local6, local7, local4, true)
+
+def StopSlowMo(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if none != local2.slowmo_id:
+        if 0.0 >= arg1:
+            DoStopSlowMo(self)
+        else:
+            local2.slowmo_stop_delay = arg1
+
+def CheckShowFireIcon(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = "gui_weapon_valid_quickfire_target"
+    "\n    if wProps.targets_close_but_not_valid:\n    "
+    if arg1:
+        local4 = "gui_weapon_valid_target"
+    if arg2 and (not local3.fire_icon_visible) and local3.allow_fire_prompt:
+        gui.PostEvent(local4)
+        local3.fire_icon_visible = true
+        if local3.debug_enabled:
+            debug.LogInfo("SHOW GUI TARGET PROMPT, event: %s, in_aim: %b", [local4, arg1])
+    elif (not arg2) and local3.fire_icon_visible:
+        HideFireIcon(self)
+        local3.fire_icon_visible = false
+
+def FilterGlobalTargets(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7):
+    local8 = scriptgo.GetProperties(self)
+    local9 = local8.raycaster
+    golist.Clear(arg1)
+    raycast.ClearRays(local9)
+    local10 = scriptgo.Call(self, @51E06512)
+    local11 = false
+    local12 = false
+    local14 = 0.0
+    local15 = 1.0
+    local13 = golist.NbGameObjects(arg2)
+    while local13 > local14:
+        local16 = golist.Get(arg2, local14)
+        if local16 != none:
+            local17 = scriptgo.GetProperties(local16)
+            local17.ray = none
+            local17.aim_status = AIM_STATUS_EMPTY()
+            local18 = scriptgo.Call(local16, @D281A61A)
+            if none == local10 or not game.IsObjectEqualTo(local10, local18):
+                local19 = scriptgo.Call(local16, @0C537298)
+                local20 = vector.Distance(local19, arg3)
+                if arg5 > local20:
+                    if camera.IsPointVisible(local19) or arg7:
+                        local21 = true
+                        if none != arg6:
+                            local21 = arg6(self, local16)
+                        if local21:
+                            golist.Add(arg1, local16)
+                            local11 = true
+                            local17.ray = raycast.AddRay(local9, arg4, local19)
+                        else:
+                            local12 = true
+        local14 = local15 + local14
+    if local12 and (not local11):
+        local8.targets_close_but_not_valid = true
+    else:
+        local8.targets_close_but_not_valid = false
+    raycast.CastRays(local9)
+    local14 = 0.0
+    local23 = 1.0
+    local22 = golist.NbGameObjects(arg1)
+    while local22 > local14:
+        local16 = golist.Get(arg1, local14)
+        if local16 != none:
+            local17 = scriptgo.GetProperties(local16)
+            local24 = true
+            local17.aim_status = AIM_STATUS_AVAILABLE()
+            local17.is_reachable = true
+            local25 = local17.ray
+            if local25:
+                local26 = local25.Hits
+                if local26:
+                    local18 = scriptgo.Call(local16, @D281A61A)
+                    local28 = 0.0
+                    local29 = 1.0
+                    local27 = len(local26)
+                    while local27 > local28:
+                        local30 = local26[local28]
+                        if none == local30.GameObject:
+                            local24 = false
+                            if local8.debug_enabled:
+                                debug.Sphere(local30.Position, 0.13, lib_color.WHITE(1.0))
+                        else:
+                            local31 = local30.GameObject
+                            local32 = character.IsCharacter(local31)
+                            if not local32:
+                                local33 = game.IsObjectEqualTo(local10, local31)
+                                local34 = game.IsObjectEqualTo(local18, local31)
+                                local35 = true
+                                if not local33:
+                                    if vehicle.IsVehicle(local31):
+                                        local36 = scriptgo.Call(local16, @6914B0B0)
+                                        if not local36:
+                                            local37 = vehicle.GetPartByShapeKey(local18, local30.ShapeKey)
+                                            if local37:
+                                                local38 = local37.LinkedGameObject
+                                                if local38:
+                                                    local39 = scriptgo.Call(local38, @2E94EB3A)
+                                                    if local39:
+                                                        local38 = local39
+                                                    local40 = game.GetParent(local16)
+                                                    local35 = game.IsObjectEqualTo(local40, local38)
+                                                    if not local35:
+                                                        local19 = scriptgo.Call(local16, @0C537298)
+                                                        local20 = vector.Distance(local19, local30.Position)
+                                                        if 0.75 > local20:
+                                                            local35 = true
+                                                    if (not local35) and local8.debug_enabled:
+                                                        local41 = lib_color.WHITE(1.0)
+                                                        local42 = debug.ProjectPosition(local30.Position)
+                                                        debug.Sphere(local30.Position, 0.1, local41)
+                                                elif local8.debug_enabled:
+                                                    local41 = lib_color.WHITE(1.0)
+                                                    local42 = debug.ProjectPosition(local30.Position)
+                                                    debug.DrawText(local42, "No weakspot linked.", [], local41)
+                                                    debug.Sphere(local30.Position, 0.1, local41)
+                                local43 = game.IsObjectEqualTo(local8.wielding_character, local31)
+                                local44 = game.IsObjectEqualTo(character.GetPlayer(), local31)
+                                if (not local33) and (not local34) and (not local43) and (not local44):
+                                    local45 = scriptgo.Call(local16, @070B540E)
+                                    if local45 > 0.0:
+                                        local46 = vector.Distance(local30.Position, scriptgo.Call(local16, @0C537298))
+                                        local24 = local45 > local46
+                                    else:
+                                        local24 = false
+                                    if local8.debug_enabled:
+                                        local41 = lib_color.ORANGE(0.3)
+                                        local42 = debug.ProjectPosition(local30.Position)
+                                        if vehicle.IsVehicle(local30.GameObject):
+                                            if local35:
+                                                debug.DrawText(local42, "Is Correct Vehicle Part", [], local41)
+                                            else:
+                                                debug.DrawText(local42, "Is Vehicle", [], local41)
+                                        if character.IsCharacter(local30.GameObject):
+                                            debug.DrawText(local42, "Is Character", [], local41)
+                                        debug.Sphere(local30.Position, 0.1, local41)
+                                if (not local33) and local34 and (not local35):
+                                    local24 = false
+                                    if local8.debug_enabled:
+                                        local41 = lib_color.ORANGE(0.3)
+                                        local42 = debug.ProjectPosition(local30.Position)
+                        if not local24:
+                            pass
+                        else:
+                            local28 = local29 + local28
+                        if not local24:
+                            local17.aim_status = AIM_STATUS_EMPTY()
+                            local17.is_reachable = false
+                        if local8.debug_enabled and local25:
+                            if not local24:
+                                debug.DrawLine(local17.ray.From, local17.ray.To, lib_color.RED(1.0))
+                            elif local8.debug_enabled:
+                                debug.DrawLine(local17.ray.From, local17.ray.To, lib_color.GREEN(1.0))
+                        local14 = local23 + local14
+            else:
+                local24 = false
+
+def IsNextState(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return arg1 == local2.next_state_id
+
+def StartSlowMo(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if not local2.slowmo_enabled:
+        local2.slowmo_id = game.EaseInCustomUpdateSpeed(arg1[0.0], arg1[1.0])
+    local2.current_slowmo_blend_out = arg1[2.0]
+    if local2.debug_enabled:
+        debug.LogInfo("WEAPON COMMON. StartSlowMo: blend_in: %f, target: %f", [arg1[0.0], arg1[1.0]])
+    local2.slowmo_enabled = true
+    local2.slowmo_stop_delay = none
+    soundscripting.SetRouterVariableInteger("camera_conditions", "set_variable_value", "camera_slowmo_weapon", 1.0, 0.0, 0.0)
+
+def SetAndHighlightTarget(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if arg2:
+        if not game.IsObjectEqualTo(arg1, local3.target) or not local3.hasOutline:
+            if none != local3.target and local3.hasOutline:
+                scriptgo.Call(local3.target, @63B8C080)
+                local3.hasOutline = false
+            if none != arg1:
+                local4 = vector.Set(0.5, 0.5, 0.0, 0.0)
+                local5 = scriptgo.Call(arg1, @0C537298)
+                local6 = camera.ProjectPosition(local5)
+                if local6.z > 0.0:
+                    local6.z = 0.0
+                    local7 = vector.Distance(local6, local4)
+                    if 0.03 > local7:
+                        scriptgo.Call1(arg1, @C748D51A, arg2)
+                        local3.hasOutline = true
+                    else:
+                        scriptgo.Call(arg1, @63B8C080)
+                        local3.hasOutline = false
+    elif local3.hasOutline and none != local3.target:
+        scriptgo.Call(local3.target, @63B8C080)
+    local3.target = arg1
+
+def PrintStateTime(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = string.Format("WEAPON: %s STATE: %s, TIME: %f", [local1.debug_weapon_name, local1.current_state_name, local1.state_time])
+    local3 = vector.Set(0.05, 0.05 + 0.02 * local1.debug_weapon_name_order, 0.0, 0.0)
+    debug.DrawText(local3, local2, [], lib_color.WHITE(1.0))
+
+def AIM_STATUS_OUT_OF_UPGRADE():
+    return 0.0
+
+def PlayerCloseToEnemyVehicle():
+    local0 = game.GetTransform(character.GetPlayer()).r3
+    local1 = vehiclemanager.GetAllVehicles()
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(local1)
+    while local2 > local3:
+        local5 = local1[local3]
+        local6 = game.GetTransform(local5).r3
+        local7 = vector.Distance(local6, local0)
+        if 50.0 > local7:
+            local8 = vehicle.GetVehicleDriver(local5)
+            if local8:
+                local9 = character.GetFaction(local8)
+                if local9 != 0.0:
+                    return true
+        local3 = local4 + local3
+    return false
+
+def SendCameraEvent(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.debug_enabled:
+        debug.LogInfo("WEAPON COMMON. SendCameraEvent: %s", [arg1])
+    game.SendEvent(arg1, "")
+
+def SyncInputWithDataWeapon(self):
+    local1 = scriptgo.GetProperties(self)
+    ClearInputFlags(self)
+
+def AIM_STATUS_SELECTED():
+    return 3.0
+
+def ChangeState(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.GetProperties(arg1)
+    local2.next_state_name = scriptgo.Call(arg1, @FB27B3D8)
+    local2.next_state_id = scriptgo.Call(arg1, @A9EE8F63)
+    local4 = "UNKNOWN"
+    if none != local2.current_state:
+        scriptgo.SetUpdateFunction(local2.current_state, "")
+        scriptgo.SetRenderFunction(local2.current_state, "")
+        local4 = scriptgo.Call(local2.current_state, @FB27B3D8)
+        scriptgo.Call1(local2.current_state, @815E4DE9, self)
+    local2.current_state_name = local2.next_state_name
+    local2.current_state_id = local2.next_state_id
+    if local2.debug_enabled:
+        debug.LogInfo("%s, change state from %s to: %s", [local2.debug_weapon_name, local4, local2.current_state_name])
+    scriptgo.Call1(arg1, @19B0835F, self)
+    scriptgo.SetUpdateFunction(arg1, "Update")
+    scriptgo.SetRenderFunction(arg1, "UpdateRender")
+    scriptgo.SetPostSimFunction(arg1, "UpdatePost")
+    local2.state_time = 0.0
+    local2.current_state = arg1
+    CommonChangeState(self, arg1)
+
+def DoStopSlowMo(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = 0.0
+    if local1.current_slowmo_blend_out:
+        local2 = local1.current_slowmo_blend_out
+    game.EaseOutCustomUpdateSpeed(local2, local1.slowmo_id)
+    if local1.debug_enabled:
+        debug.LogInfo("WEAPON COMMON. StopSlowMo: id: %f", [local1.slowmo_id])
+    local1.slowmo_enabled = false
+    local1.slowmo_id = none
+    soundscripting.SetRouterVariableInteger("camera_conditions", "set_variable_value", "camera_slowmo_weapon", 0.0, 0.0, 0.0)
+
+def UpdateSlowMo(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.slowmo_enabled:
+        if none != local2.slowmo_stop_delay:
+            local3 = arg1 / game.GetUpdateSpeed()
+            local2.slowmo_stop_delay = math.Max(local2.slowmo_stop_delay - local3, 0.0)
+            if local2.debug_enabled:
+                debug.LogInfo("WEAPON COMMON. slowmo_stop_delay: %f, real_time: %f", [local2.slowmo_stop_delay, local3])
+            if 0.0 >= local2.slowmo_stop_delay:
+                local2.slowmo_stop_delay = none
+                if local2.debug_enabled:
+                    debug.LogInfo("WEAPON COMMON. UpdateSlowMo: blend_out: %f", [local2.current_slowmo_blend_out])
+                DoStopSlowMo(self)
+
+def UpdateCommonPre(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = arg1 / game.GetUpdateSpeed()
+    local2.state_time = local2.state_time + local3
+    local2.targets_close_but_not_valid = false
+    UpdateSlowMo(self, arg1)
+
+def StartCam(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.current_cam_stop_event = arg1[1.0]
+    SendCameraEvent(self, arg1[0.0])
+
+def ClearState(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.current_state = none
+    local1.current_state_name = ""
+    local1.current_state_id = none
+    local1.current_state_enter = none
+    local1.current_state_update = none
+    local1.current_state_update_render = none
+    local1.current_state_exit = none
+    local1.state_time = 0.0
+
+def HideFireIcon(self):
+    local1 = scriptgo.GetProperties(self)
+    gui.PostEvent("gui_weapon_invalid_quickfire_target")
+    gui.PostEvent("gui_weapon_invalid_target")
+    local1.fire_icon_visible = false
+    local1.weapon_gui_counter = 0.0
+    if local1.debug_enabled:
+        debug.LogInfo("HIDE GUI TARGET PROMPT", [])
+
+def SaveGuiTargets(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.UI_targets
+    local3 = GetEmptyGuiTarget()
+    local4 = local1.UI_target_index
+    while 20.0 > local4:
+        local3[local2] = local4
+        local4 = local4 + 1.0
+    local1.UI_targets = local2
+    local1.UI_target_index = local4
+    if local1.debug_enabled:
+        local6 = 0.0
+        local7 = 1.0
+        local5 = len(local2)
+        while local5 > local6:
+            local8 = local2[local6]
+            local9 = 0.007
+            local10 = lib_color.RED(1.0)
+            if AIM_STATUS_AVAILABLE() == local8[2.0]:
+                local10 = lib_color.WHITE(1.0)
+            elif AIM_STATUS_SELECTED() == local8[2.0]:
+                local10 = lib_color.GREEN(1.0)
+            DrawRectCentered(local8[0.0], local9 * 0.5625, local9 * 1.0, local10, true)
+            local6 = local7 + local6
+    local1.UI_targets_for_BB = none
+    if len(local2) > 0.0:
+        local1.UI_targets_for_BB = local2
+
+def GetTargetVehicle(self, arg1):
+    if arg1:
+        if vehicle.IsVehicle(arg1):
+            return arg1
+        if character.IsCharacter(arg1):
+            return character.GetVehicle(arg1)
+    return none
+
+def UpdateCommonPost(self, arg1):
+    ClearInputFlags(self)
+
+def GetClosestVehicleBodyWeakspot():
+    local0 = GetClosestVehicle()
+    if local0 != none:
+        local1 = lib_entity_proxy.GetBodyWeakspot(local0)
+        return local1
+    return none
+
+def ResetTarget(self):
+    local1 = scriptgo.GetProperties(self)
+    if none != local1.target:
+        scriptgo.Call(local1.target, @63B8C080)
+        local1.target = none
+        local1.align_target = none
+        HideFireIcon(self)
+
+def PopulateWeaponDataInputs(self):
+    local1 = scriptgo.GetProperties(self)
+    game.StateContainerDataWeaponSetAimInputs(local1.state_container_data_weapon, local1.input_aim_held, local1.input_aim_pressed, local1.input_aim_released)
+    game.StateContainerDataWeaponSetFireInputs(local1.state_container_data_weapon, local1.input_fire_held, local1.input_fire_pressed, local1.input_fire_released)
+    game.StateContainerDataWeaponSetQuickFireInputs(local1.state_container_data_weapon, local1.input_quick_fire_held, local1.input_quick_fire_pressed, local1.input_quick_fire_released)
+    game.StateContainerDataWeaponSetThrowInputs(local1.state_container_data_weapon, local1.input_throw_held, local1.input_throw_pressed, local1.input_throw_released)
+    game.StateContainerDataWeaponSetMiscInputs(local1.state_container_data_weapon, local1.input_boarder_landed, local1.input_force_disconnect)
+
+def AIM_STATUS_EMPTY():
+    return 4.0
+
+def DrawCrosshair(self, arg1, arg2):
+    local3 = arg1[0.0]
+    local4 = arg1[1.0]
+    local5 = vector.Set(0.5 - local3, 0.5, 0.0, 0.0)
+    local6 = vector.Set(0.5, 0.5 - local4, 0.0, 0.0)
+    local7 = vector.Set(0.5 + local3, 0.5, 0.0, 0.0)
+    local8 = vector.Set(0.5, 0.5 + local4, 0.0, 0.0)
+    debug.DrawLine2d(local5, local6, arg2)
+    debug.DrawLine2d(local6, local7, arg2)
+    debug.DrawLine2d(local7, local8, arg2)
+    debug.DrawLine2d(local8, local5, arg2)
+
+def DebugDrawAvailableTargets(self, arg1, arg2, arg3, arg4, arg5, arg6):
+    local7 = lib_color.GREEN(0.7)
+    local8 = lib_color.RED(0.45)
+    local9 = lib_color.WHITE(0.7)
+    local11 = 0.0
+    local12 = 1.0
+    local10 = golist.NbGameObjects(arg2)
+    while local10 > local11:
+        local13 = golist.Get(arg2, local11)
+        if local13:
+            local14 = scriptgo.GetProperties(local13)
+            if not local14.target_size_curr:
+                local14.target_size_curr = arg4
+            local14.target_marker_size_goal = arg4
+            local15 = scriptgo.Call1(local13, @BAD3ED99, arg6)
+            local16 = camera.ProjectPosition(local15)
+            local17 = local7
+            if game.IsObjectEqualTo(local13, arg3):
+                local14.target_size_goal = arg5
+            else:
+                local14.target_size_goal = arg4
+                if AIM_STATUS_OUT_OF_RANGE() == local14.aim_status:
+                    local17 = local9
+                if AIM_STATUS_OUT_OF_UPGRADE() == local14.aim_status:
+                    local17 = local8
+            local14.target_size_curr = math.Lerp(0.3, local14.target_size_curr, local14.target_size_goal)
+            local18 = 1.0
+            if local14.ext_dis_scale:
+                local18 = local14.ext_dis_scale
+            local19 = local14.target_size_curr * local18
+            DrawTargetMarker(local16, [local19 * arg1[0.0], local19 * arg1[1.0]], local17)
+        local11 = local12 + local11
+
+def HideCrosshair(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.crosshair_enabled:
+        gui.PostEvent("gui_weapon_aim_mode_no_crosshair_off")
+        local1.crosshair_enabled = false
+
+def ShowCrosshair(self):
+    local1 = scriptgo.GetProperties(self)
+    gui.PostEvent("gui_weapon_aim_mode_no_crosshair_on")
+    local1.crosshair_enabled = true
+
+def DrawSimpleReticule(self):
+    local1 = 0.003
+    local2 = 1.0
+    DrawRectCentered(vector.Set(0.5, 0.5, 0.0, 0.0), local1 * 0.5625, local1 * 1.0, lib_color.WHITE(local2), true)
+
+def IsInSniper(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = local1.wielding_character
+    local3 = 19.0
+    return animation.GetStateBit(local2, local3) == 1.0
+
+def CheckPlayerInDriverSeat(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if none != arg1:
+        local3 = vehicle.GetVehicleDriver(arg1)
+        if none != local3:
+            return animation.GetStateBit(local3, 10.0) == 1.0
+    return false
+
+def AIM_STATUS_AVAILABLE():
+    return 5.0
+
+def DrawAvailableTargets(self, arg1, arg2, arg3, arg4):
+    local5 = scriptgo.GetProperties(self)
+    local5.UI_target_index = 0.0
+    if none != local5.fire_icon_pos_2d:
+        AddGuiTarget(self, local5.fire_icon_pos_2d, 2.7 * local5.fire_icon_scale, AIM_STATUS_FIRE_ICON())
+    if not arg3:
+        AddGuiTarget(self, vector.Set(0.5, 0.5, 0.0, 0.0), 1.0, AIM_STATUS_CROSSHAIR())
+    local6 = vector.Set(0.5, 0.5, 0.0, 0.0)
+    local8 = 0.0
+    local9 = 1.0
+    local7 = golist.NbGameObjects(arg1)
+    while local7 > local8:
+        local10 = golist.Get(arg1, local8)
+        if local10:
+            local11 = scriptgo.GetProperties(local10)
+            local12 = scriptgo.Call1(local10, @BAD3ED99, arg4)
+            local13 = camera.ProjectPosition(local12)
+            if local13.z >= 0.0:
+                local13.z = 0.0
+                local14 = local11.aim_status
+                local15 = true
+                if local14 == AIM_STATUS_AVAILABLE() and (not arg3):
+                    local16 = vector.Distance(local6, local13)
+                    if local16 > 0.3:
+                        local15 = false
+                if not game.IsObjectEqualTo(local10, arg2):
+                    local15 = not arg3
+                else:
+                    local15 = not local5.hasOutline or arg3
+                if local15:
+                    if game.IsObjectEqualTo(local10, arg2) and (not arg3):
+                        local17 = scriptgo.Call(local10, @D281A61A)
+                        if none == GetTargetVehicle(self, local17) and (not character.IsCharacter(local17)):
+                            local14 = AIM_STATUS_AVAILABLE()
+                        else:
+                            local14 = AIM_STATUS_OUT_OF_RANGE()
+                    local18 = 1.0
+                    if local11.ext_dis_scale:
+                        local18 = local11.ext_dis_scale
+                    if local14 > 0.0:
+                        if not arg3 or arg3 and AIM_STATUS_AVAILABLE() == local14:
+                            AddGuiTarget(self, local13, local18, local14)
+        local8 = local9 + local8
+    SaveGuiTargets(self)
+
+def InitWeaponCommon(self):
+    local1 = scriptgo.GetProperties(self)
+    ClearGuiTargets(self)
+    local1.toggle_next_target_timer = 0.0
+    local1.pull_loose_from_target_timer = 0.0
+    local1.screenspace_target = none
+    local1.screenspace_off_target_time = 0.0
+    local1.screenspace_on_target_time = 0.0
+
+def FIRE_ON_RELEASE():
+    return false
+
+def ShowAmmoWarning(self):
+    local1 = scriptgo.GetProperties(self)
+    gui.PostEvent("gui_weapon_out_of_ammo")
+    if local1.debug_enabled:
+        debug.LogInfo("NO AMMO", [])
+
+def CommonChangeState(self, arg1):
+    HideFireIcon(self)
+
+def StopCam(self, arg1):
+    SendCameraEvent(self, arg1[1.0])
+
+def AIM_STATUS_FIRE_ICON():
+    return 6.0
+
+def CheckTargetingDelay(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = true
+    if none != local3.targeting_delay:
+        if local3.targeting_delay > 0.0:
+            local5 = arg1 / game.GetUpdateSpeed()
+            local3.targeting_delay = local3.targeting_delay - local5
+            local4 = false
+    if local4:
+        local3.targeting_delay = arg2
+        return true
+    return false
+
+def ResetState(self):
+    scriptgo.SetUpdateFunction(self, "")
+    scriptgo.SetRenderFunction(self, "")
+
+def ClearGuiTargets(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = GetEmptyGuiTarget()
+    local1.UI_targets = [local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2, local2]
+    local1.UI_target_index = 0.0
+    SaveGuiTargets(self)
+
+def GetCameraPos(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = camera.GetCameraTransform()
+    return local2.r3
+
+def NO_DRIVER_PRIORITY_REDUCTION():
+    return 15.0
+
+def AddGuiTarget(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    if 20.0 > local4.UI_target_index:
+        local5 = local4.UI_targets
+        [arg1, arg2, arg3][local5] = local4.UI_target_index
+        local4.UI_targets = local5
+        local4.UI_target_index = local4.UI_target_index + 1.0
+
+def FindBestScreenSpaceTarget(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9):
+    local10 = game.GetUpdateSpeed()
+    local11 = arg9 / local10
+    local12 = scriptgo.GetProperties(self)
+    local13 = golist.NbGameObjects(arg1)
+    local14 = none
+    local15 = none
+    local16 = none
+    local17 = 100.0
+    local18 = 100.0
+    local19 = 0.0
+    local20 = false
+    local21 = input.GetLookInput()
+    local21.x = local21.x * -1.0
+    local22 = vector.Normalize(local21)
+    local23 = vector.Length(local21)
+    local25 = 0.0
+    local26 = 1.0
+    local24 = local13
+    while local24 > local25:
+        local27 = golist.Get(arg1, local25)
+        if local27:
+            local28 = scriptgo.GetProperties(local27)
+            if local28.is_reachable:
+                if arg3(self, local27):
+                    local29 = false
+                    local30 = false
+                    if game.IsObjectEqualTo(local12.target, local27):
+                        local29 = true
+                        local20 = true
+                    if local12.previous_target != none:
+                        if game.IsObjectEqualTo(local12.previous_target, local27):
+                            local30 = true
+                    local31 = scriptgo.Call(local27, @0C537298)
+                    local32 = camera.ProjectPosition(local31)
+                    local32.z = 0.0
+                    local33 = vector.Set(0.5, 0.5, 0.0, 0.0)
+                    local34 = math.Max(vector.Distance(local31, arg2), 0.0)
+                    local35 = 5.0
+                    local36 = 1.0
+                    local37 = math.Clamp(1.0 - math.Scale01(math.Max(local34 - local35, 0.0), 0.0, arg4), arg5, local36)
+                    local38 = vector.Sub(local33, local32)
+                    local38 = vector.Set(local38.x / arg8[0.0], local38.y / arg8[1.0], 0.0, 0.0)
+                    local39 = vector.Normalize(local38)
+                    local40 = vector.Length(local38)
+                    local41 = vector.Dot(local39, local22)
+                    local42 = lib_color.CYAN(1.0)
+                    if local41 > 0.0:
+                        if local30 and local40 > 0.004:
+                            local12.previous_target = none
+                            local30 = false
+                    if not local29:
+                        local43 = math.Scale(math.Clamp01(local41), 0.0, 1.0, arg6, arg7)
+                    else:
+                        local18 = local40
+                        local43 = arg6
+                    local43 = local43 * local37
+                    if local43 > local40 and (not local30):
+                        local42 = lib_color.ORANGE(1.0)
+                        if local23 > 0.0 and local41 > local19:
+                            local14 = local27
+                            local19 = local41
+                        if local17 > local40:
+                            local15 = local27
+                            local17 = local40
+                    if local12.debug_enabled:
+                        if local30:
+                            local42 = lib_color.BLUE(1.0)
+                        if local29:
+                            local42 = lib_color.WHITE(1.0)
+                        lib_debugdraw.DrawCircle2d(local32, local43, 32.0, local42)
+                        debug.DrawText(vector.Add(local32, vector.Set(0.0, 0.03, 0.0, 0.0)), "dis_ws: %f, dis_ws_scale: %f auto_size: %f", [local34, local37, local43], local42)
+        local25 = local26 + local25
+    if 0.45 >= local23:
+        if local20:
+            if local12.debug_enabled:
+                debug.LogInfo("selected_still_valid input: %f", [local23])
+            if arg6 >= local18:
+                local12.previous_target = local12.target
+            return local12.target
+        if local15:
+            if local12.debug_enabled:
+                debug.LogInfo("Targeting distance target.", [])
+            return local15
+    return none
+
+def StateCheckSelected(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.weapon_selected:
+        lib_weapon.ChangeState(self, wProps.state_auto)
+
+def IsInState(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return arg1 == local2.current_state_id
+
+def GetEmptyGuiTarget():
+    return [vector.Set(0.0, 0.0, 0.0, 0.0), 0.0, AIM_STATUS_EMPTY()]
+
+def GetClosestVehicle():
+    local0 = game.GetTransform(character.GetPlayer()).r3
+    local1 = none
+    local2 = 120.0
+    local3 = vehicle.GetSignatureVehicle()
+    local4 = vehiclemanager.GetAllVehicles()
+    local6 = 0.0
+    local7 = 1.0
+    local5 = len(local4)
+    while local5 > local6:
+        local8 = local4[local6]
+        if (not vehicle.IsPlayerVehicle(local8)) and (not game.IsObjectEqualTo(local8, local3)):
+            local9 = game.GetTransform(local8).r3
+            local10 = vector.Distance(local9, local0)
+            if local2 > local10:
+                local2 = local10
+                local1 = local8
+        local6 = local7 + local6
+    return local1

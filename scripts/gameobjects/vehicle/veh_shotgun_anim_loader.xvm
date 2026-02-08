@@ -1,0 +1,102 @@
+module veh_shotgun_anim_loader
+import @42D0E955
+import @45098D7D
+import @58351C01
+
+def LoadVehicleAnimSet(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.anims_done_loading = false
+    if false:
+        debug.LogInfo("LoadVehicleAnimSet", [])
+    local2 = character.GetVehicle(character.GetPlayer())
+    local3 = 1.0
+    if none != local2:
+        if false:
+            debug.LogInfo("veh_shotgun_anim_loader, HAS car!", [])
+        local4 = vehicle.GetSpawnVehicleIdentifier(local2)
+        if none != local4:
+            if false:
+                debug.LogInfo("GetSpawnVehicleIdentifier: %s", [local4])
+        else:
+            if false:
+                debug.LogInfo("No SpawnVehicleIdentifier", [])
+            local4 = vehicle.GetGameObjectVehicleIdentifier(local2)
+            if none != local4:
+                if false:
+                    debug.LogInfo("GetGameObjectVehicleIdentifier: %s", [local4])
+            elif false:
+                debug.LogInfo("No GameObjectVehicleIdentifier", [])
+        if none != local4:
+            local5 = GetModelsToSetList()
+            local3 = -1.0
+            local7 = 0.0
+            local8 = 1.0
+            local6 = len(local5)
+            while local6 > local7:
+                local2 = local5[local7]
+                if local4 == local2[0.0]:
+                    local3 = local2[1.0]
+                else:
+                    local7 = local8 + local7
+                if false:
+                    debug.LogInfo("Using modelName: %s, got set: %f", [local4, local3])
+                if local1.current_set != local3:
+                    UnloadCurrentSet(self)
+                    local9 = "veh.shotgun.anims.load.set01"
+                    local10 = @AA19E064
+                    if 2.0 == local3:
+                        local9 = "veh.shotgun.anims.load.set02"
+                        local10 = @2F1C43E6
+                    elif 3.0 == local3:
+                        local9 = "veh.shotgun.anims.load.set03"
+                        local10 = @F54DED44
+                    elif 4.0 == local3:
+                        local9 = "veh.shotgun.anims.load.set04"
+                        local10 = @FE366423
+                    local1.current_set = local3
+                    local1.current_mod = local10
+                    game.SendEvent(local9, "")
+                    if false:
+                        debug.LogInfo("LoadVehicleAnimSet, event: %s", [local9])
+                elif false:
+                    debug.LogInfo("Same Set loaded already, current_set: %f", [local1.current_set])
+                return
+    elif false:
+        debug.LogInfo("veh_shotgun_anim_loader, has no car!", [])
+
+def GetCurrentSet(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.current_set
+
+def ExtPlayerEnterDriverSeat(self):
+    if false:
+        debug.LogInfo("ExtPlayerEnterDriverSeat", [])
+    LoadVehicleAnimSet(self)
+
+def UnloadCurrentSet(self):
+    if false:
+        debug.LogInfo("UnloadCurrentSet", [])
+    game.SendEvent("veh.shotgun.anims.unload", "")
+
+def CanUseShotgunAnims(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.anims_done_loading
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.anims_done_loading = true
+    local1.current_set = none
+    local1.current_mod = none
+
+def ExtAnimsAreLoaded(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.anims_done_loading = true
+    if false:
+        debug.LogInfo("ExtAnimsAreLoaded", [])
+
+def GetModelsToSetList():
+    return [["buzzards001heavy", 2.0], ["buzzards001light", 1.0], ["buzzards001medium", 3.0], ["buzzards002heavy", 3.0], ["buzzards002light", 2.0], ["buzzards002medium", 2.0], ["buzzardswarchief", 3.0], ["e001", 1.0], ["e002", 2.0], ["gastown001heavy", 1.0], ["gastown001light", 4.0], ["gastown001medium", 1.0], ["gastown002heavy", 1.0], ["gastown002light", 1.0], ["gastown002medium", 1.0], ["highvalue01", 3.0], ["highvalue02", 3.0], ["highvalue03", 2.0], ["interceptor_after", 1.0], ["interceptor001", 1.0], ["roadkill001heavy", 1.0], ["roadkill001light", 1.0], ["roadkill001medium", 4.0], ["roadkill002heavy", 1.0], ["roadkill002light", 4.0], ["roadkill002medium", 1.0], ["roadkillwarchief", 1.0], ["s000", 1.0], ["s002", 1.0], ["s003", 1.0], ["s004", 2.0], ["s005", 1.0], ["s006", 1.0], ["scrotus001heavy", 1.0], ["scrotus001heavyconvoy", 1.0], ["scrotus001light", 4.0], ["scrotus001medium", 1.0], ["scrotus002heavy", 1.0], ["scrotus002heavyconvoy", 1.0], ["scrotus002light", 1.0], ["scrotus002medium", 1.0], ["scrotuswarchief", 1.0]]
+
+def GetCurrentMod(self):
+    local1 = scriptgo.GetProperties(self)
+    return local1.current_mod

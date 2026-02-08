@@ -1,0 +1,5 @@
+module turn_valve_always_fail
+
+def Evaluate(self, arg1):
+    interaction.SetNamedFailEntry(self, "entry.turn_valve_always_fail")
+    return 0.0

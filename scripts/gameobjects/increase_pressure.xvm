@@ -1,0 +1,36 @@
+module increase_pressure
+
+def Unload(self):
+    DisablePressureMode(self)
+
+def UpdateDecay(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    ai.IncreaseAiEntityBlackboardCounter(character.GetPlayer(), "pressure", -local2.added_pressure)
+    local2.added_pressure = local2.added_pressure - local2.pressure_to_add / local2.decay_seconds_to_zero * arg1
+    if 0.0 >= local2.added_pressure:
+        local2.added_pressure = 0.0
+        DisablePressureMode(self)
+    ai.IncreaseAiEntityBlackboardCounter(character.GetPlayer(), "pressure", local2.added_pressure)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    ResetState(self)
+
+def EnablePressureMode(self):
+    local1 = scriptgo.GetProperties(self)
+    ResetState(self)
+    ai.IncreaseAiEntityBlackboardCounter(character.GetPlayer(), "pressure", local1.pressure_to_add)
+    local1.added_pressure = local1.pressure_to_add
+
+def DisablePressureMode(self):
+    scriptgo.SetUpdateFunction(self, "")
+    ResetState(self)
+
+def ResetState(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.added_pressure:
+        ai.IncreaseAiEntityBlackboardCounter(character.GetPlayer(), "pressure", -local1.added_pressure)
+    local1.added_pressure = 0.0
+
+def EnablePressureDecayMode(self):
+    scriptgo.SetUpdateFunction(self, "UpdateDecay")

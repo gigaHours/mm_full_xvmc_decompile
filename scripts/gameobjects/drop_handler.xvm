@@ -1,0 +1,139 @@
+module drop_handler
+
+def Restocking(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.restock_event_delay > 0.0:
+        local2.restock_event_delay = local2.restock_event_delay - arg1
+        if 0.0 >= local2.restock_event_delay:
+            scriptgo.PostEvent(self, @CC9B0E2C)
+            local2.restock_event_delay = 0.0
+    local2.restock_delay = local2.restock_delay - arg1
+    if 0.0 >= local2.restock_delay:
+        if game.DoAct(local2.deployer, local2.restock_act):
+            local3 = game.CloneFactoryCreateInstanceWithParent(local2.clone_factory, local2.clone_property_name_hash, local2.clone_at_object)
+            if local3 != none:
+                local4 = game.GetChild(local3, "pulse")
+                if local4 != none:
+                    local5 = vehicle.GetVehicleDriver(game.GetParent(self))
+                    if local5 != none:
+                        local6 = character.GetFaction(local5)
+                        game.SetForcePulseFaction(local4, local6)
+                physics.EnableDestructibleObject(local3)
+                game.WreckingBallDisarm(local3)
+                scriptgo.SetPostSimFunction(self, "OpportuneDeploy")
+
+def Unload(self):
+    local1 = game.GetParent(self)
+    if local1:
+        vehicle.UnregisterWeapon(game.GetParent(self), self)
+
+def RepositionCooldownEnable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.reposition_on_cooldown = 1.0
+
+def RepositionCooldownDisable(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.reposition_on_cooldown = 0.0
+
+def Deactivate(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.finish_bursts == 0.0:
+        if 0.0 >= local1.restock_delay and local1.bursts_overriden == 1.0:
+            local1.finish_bursts = 1.0
+            local1.num_remaining_bursts_in_attack = 0.0
+        else:
+            local1.num_remaining_in_burst = 0.0
+        local1.wants_to_deploy = 0.0
+        local1.bursts_overriden = 0.0
+
+def ActivateOverride(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wants_to_deploy == 0.0 and local1.finish_bursts == 0.0 and 0.0 >= local1.restock_delay:
+        scriptgo.PostEvent(self, @D365D273)
+        local1.wants_to_deploy = 1.0
+        local1.finish_bursts = 0.0
+        local1.num_remaining_in_burst = local1.burst_num_drops
+        local1.num_remaining_bursts_in_attack = 1.0
+        local1.bursts_overriden = 1.0
+
+def AttackCooldown(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.attack_cooldown_timer = local2.attack_cooldown_timer - arg1
+    if 0.0 >= local2.attack_cooldown_timer:
+        local2.num_remaining_bursts_in_attack = GenerateAttackNumBursts(local2)
+        local3 = game.GetParent(self)
+        if (not vehicle.IsPlayerVehicle(local3)) and local2.use_car_combat_map == 1.0 and local2.reposition_on_cooldown == 1.0:
+            vehicle.SetCarCombatPointPreferenceModifier(game.GetParent(self), local2.attack_point_hash, 1.0)
+        if local2.always_deploying == 1.0:
+            local2.wants_to_deploy = 1.0
+            local2.num_remaining_in_burst = local2.burst_num_drops
+        scriptgo.SetPostSimFunction(self, "Restocking")
+
+def GenerateAttackCooldownTime(self):
+    local1 = self.attack_cooldown_time_max - self.attack_cooldown_time_min
+    return self.attack_cooldown_time_min + math.Rand() * local1
+
+def GenerateAttackNumBursts(self):
+    local1 = self.attack_num_bursts_max - self.attack_num_bursts_min
+    return self.attack_num_bursts_min + math.Rand() * local1
+
+def ProcessBurstPatterns(self, arg1, arg2):
+    if arg1.num_remaining_in_burst > 0.0 and (arg1.wants_to_deploy == 1.0 or arg1.finish_bursts == 1.0):
+        scriptgo.PostEvent(self, @5C56A68A)
+        if game.DoAct(arg1.deployer, arg1.deploy_act):
+            arg1.num_remaining_in_burst = arg1.num_remaining_in_burst - 1.0
+            if arg1.num_remaining_in_burst > 0.0:
+                arg1.restock_delay = arg1.burst_interval
+                scriptgo.SetPostSimFunction(self, "Restocking")
+            elif arg1.num_remaining_bursts_in_attack > 0.0:
+                arg1.restock_delay = arg1.burst_cooldown
+                arg1.num_remaining_in_burst = arg1.burst_num_drops
+                arg1.num_remaining_bursts_in_attack = arg1.num_remaining_bursts_in_attack - 1.0
+                if arg1.bursts_overriden == 1.0:
+                    arg1.num_remaining_bursts_in_attack = 1.0
+                arg1.restock_event_delay = 0.1
+                scriptgo.SetPostSimFunction(self, "Restocking")
+            elif arg1.finish_bursts == 1.0:
+                arg1.finish_bursts = 0.0
+                arg1.restock_delay = arg1.burst_cooldown
+                arg1.restock_event_delay = 0.1
+                scriptgo.SetPostSimFunction(self, "Restocking")
+            else:
+                local3 = game.GetParent(self)
+                if (not vehicle.IsPlayerVehicle(local3)) and arg1.use_car_combat_map == 1.0 and arg1.reposition_on_cooldown == 1.0:
+                    vehicle.SetCarCombatPointPreferenceModifier(game.GetParent(self), arg1.attack_point_hash, arg1.attack_point_cooldown_penalty)
+                arg1.restock_delay = 0.0
+                arg1.attack_cooldown_timer = GenerateAttackCooldownTime(arg1)
+                scriptgo.SetPostSimFunction(self, "AttackCooldown")
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    vehicle.RegisterWeapon(game.GetParent(self), "drop_kicker", self, "Activate", "Deactivate")
+    local1.clone_property_name_hash = game.GameHashString(local1.clone_property_name)
+    local1.wants_to_deploy = local1.always_deploying
+    local1.restock_delay = 0.0
+    local1.restock_event_delay = 0.0
+    local1.num_remaining_in_burst = local1.burst_num_drops
+    local1.num_remaining_bursts_in_attack = GenerateAttackNumBursts(local1)
+    local1.attack_cooldown_timer = 0.0
+    local1.finish_bursts = 0.0
+    local1.bursts_overriden = 0.0
+    local1.attack_point_hash = game.GameHashString(local1.attack_point_name)
+    scriptgo.SetPostSimFunction(self, "Restocking")
+
+def Activate(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.wants_to_deploy == 0.0:
+        scriptgo.PostEvent(self, @D365D273)
+        local1.wants_to_deploy = 1.0
+        local1.finish_bursts = 0.0
+        local1.num_remaining_in_burst = local1.burst_num_drops
+
+def OpportuneDeploy(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.speed_threshold > 0.0:
+        local3 = vehicle.GetLocalVelocity(local2.deployer)
+        local4 = -local3.z
+        if local2.speed_threshold > local4:
+            return
+    ProcessBurstPatterns(self, local2, arg1)

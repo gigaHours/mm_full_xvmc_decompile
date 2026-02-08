@@ -1,0 +1,7 @@
+module playermodule
+
+def IsInJesusMode():
+    pass
+
+def IsInGodMode():
+    pass

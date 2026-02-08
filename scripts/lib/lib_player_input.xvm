@@ -1,0 +1,86 @@
+module lib_player_input
+
+def FuryInput():
+    if input.GetButtonInput(@D364E8FC) > 0.0:
+        return true
+    return false
+
+def CheckWeaponSelection(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if input.IsButtonClicked(@1626F38B):
+        scriptgo.Call(local2.weapon_handling, @D7501961)
+    if input.IsButtonClicked(@9B566932):
+        scriptgo.Call(local2.weapon_handling, @464710BE)
+    if input.IsButtonClicked(@C3DE4159):
+        scriptgo.Call(local2.weapon_handling, @6625EB29)
+    if input.IsButtonClicked(@64BD972C):
+        scriptgo.Call(local2.weapon_handling, @F506457C)
+    if input.IsButtonClicked(@403C82AC):
+        scriptgo.Call(local2.weapon_handling, @40136E58)
+    if input.IsButtonClicked(@6AC494AC):
+        scriptgo.Call(local2.weapon_handling, @EAC7F3DC)
+
+def CheckWeaponInput(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if input.IsUsingGamePad():
+        if input.GetButtonInput(@7C64FD8A) > 0.0:
+            scriptgo.Call(local3.weapon_handling, @61189C2E)
+        else:
+            scriptgo.Call(local3.weapon_handling, @B06CEF46)
+    elif input.GetButtonInput(@7C64FD8A) > 0.0 and input.GetButtonHoldTime(@7C64FD8A) > 0.13:
+        scriptgo.Call(local3.weapon_handling, @61189C2E)
+    else:
+        scriptgo.Call(local3.weapon_handling, @B06CEF46)
+    if input.IsButtonClicked(@7C64FD8A):
+        scriptgo.Call(local3.weapon_handling, @566C45CE)
+    if input.IsButtonReleased(@7C64FD8A):
+        scriptgo.Call(local3.weapon_handling, @E6E8D5E5)
+    local4 = 0.0
+    local5 = false
+    local6 = false
+    local7 = 0.0
+    local8 = false
+    local9 = false
+    if character.GetFloatRegister(character.GetPlayer(), 28.0) == 0.0:
+        if arg1:
+            local4 = input.GetButtonInput(@EB5B7F42)
+            local5 = input.IsButtonClicked(@EB5B7F42)
+            local6 = input.IsButtonReleased(@EB5B7F42)
+            local7 = input.GetButtonInput(@7C6A74CB)
+            local8 = input.IsButtonClicked(@7C6A74CB)
+            local9 = input.IsButtonReleased(@7C6A74CB)
+        else:
+            local4 = input.GetButtonInput(@DBAF259F)
+            local5 = input.GetButtonInput(@DBAF259F) > 0.5
+            local6 = input.IsButtonReleased(@DBAF259F)
+            local7 = input.GetButtonInput(@F63A5CA1)
+            local8 = input.IsButtonClickedBuffered(@F63A5CA1, 0.3)
+            local9 = input.GetButtonInput(@F63A5CA1)
+    if local4 > 0.0:
+        scriptgo.Call(local3.weapon_handling, @43774782)
+    else:
+        scriptgo.Call(local3.weapon_handling, @CB09A5F1)
+    if local5:
+        scriptgo.Call(local3.weapon_handling, @0DFCA641)
+    if local6:
+        scriptgo.Call(local3.weapon_handling, @A0519207)
+    if local7 > 0.0:
+        scriptgo.Call(local3.weapon_handling, @F23D843C)
+    else:
+        scriptgo.Call(local3.weapon_handling, @59844446)
+    if local8:
+        scriptgo.Call(local3.weapon_handling, @2E768A37)
+    if local9:
+        scriptgo.Call(local3.weapon_handling, @3F002F25)
+    if not arg1:
+        if input.GetButtonInput(@AD1009FA) > 0.0:
+            scriptgo.Call(local3.weapon_handling, @3DF1658C)
+        else:
+            scriptgo.Call(local3.weapon_handling, @7D15C43C)
+        if input.IsButtonClicked(@AD1009FA):
+            scriptgo.Call(local3.weapon_handling, @784B53A4)
+        if input.IsButtonReleased(@AD1009FA):
+            scriptgo.Call(local3.weapon_handling, @A0FA5CD5)
+
+def SPRINT_TRIGGER_LIMIT():
+    return 0.2

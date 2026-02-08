@@ -1,0 +1,15 @@
+module ch_sendevent_to_vehicle
+
+def Enter(self, arg1):
+    local2 = character.GetVehicle(self)
+    if none != local2:
+        game.DoAct(local2, arg1.Act)
+
+def Update(self, arg1, arg2):
+    if none != arg1.actExpired:
+        return
+    if animation.IsWithinSegment(self, game.GameHashFloat(arg1.Layer), game.GameHashFloat(arg1.Segment)):
+        local3 = character.GetVehicle(self)
+        if none != local3:
+            game.DoAct(local3, arg1.Act)
+            arg1.actExpired = 1.0

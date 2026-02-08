@@ -1,0 +1,19 @@
+module veh_hitreact
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = 45.0
+    local5 = 0.75
+    local6 = vector.Length(vehicle.GetVelocity(self))
+    local7 = math.Clamp(local6 / local4, 0.0, 1.0)
+    local8 = local5 * 0.5 + local5 * 0.5 * local7
+    local9 = animation.GetPoseTransform(self, 0.0)
+    local9.r3 = vector.Set(local8 * arg1.Property0, 0.0, local8 * arg1.Property1, 0.0)
+    vehicle.SetAnimCmdFrame(self, local9)
+    local10 = vector.Set(0.2, 0.0, 0.2, 0.0)
+    local11 = vector.Set(0.0, 0.0, 0.0, 0.0)
+    vehicle.SetAnimCmdWeights(self, local10, local11)
+
+def OnEnter(self, arg1):
+    vehicle.StartAnimCmd(self)
+    vehicle.SetAnimCmdInAirMotion(self, false)
+    vehicle.SetAnimCmdSnapToGround(self, 0.05)

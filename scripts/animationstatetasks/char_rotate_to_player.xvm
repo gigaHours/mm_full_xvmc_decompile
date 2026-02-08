@@ -1,0 +1,16 @@
+module char_rotate_to_player
+
+def Enter(self, arg1):
+    Rotate(self)
+
+def Rotate(self):
+    local1 = character.GetPlayer()
+    if local1:
+        local2 = character.GetWorldMatrix(self)
+        local3 = character.GetWorldMatrix(local1)
+        local4 = vector.Sub(local3.r3, local2.r3)
+        local4.y = 0.0
+        character.RotateInstantly(self, local4)
+
+def Update(self, arg1, arg2):
+    Rotate(self)

@@ -1,0 +1,72 @@
+module mmax_gameplay
+import @58351C01
+import @BAFDB405
+import @45098D7D
+
+def ResetAcceleration(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.jerk = none
+    local1.acc_last = none
+
+def Unload(self):
+    scriptgo.SetUpdateFunction(self, "")
+
+def UpdateInVehicle(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.mmax
+    if local3:
+        local4 = character.GetVehicle(local3)
+        if not local4:
+            scriptgo.SetUpdateFunction(self, "UpdateOnGround")
+            return
+        UpdateAcceleration(self, arg1)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.jerk = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.jerk_max_x = 0.0
+    local1.jerk_max_z = 0.0
+    scriptgo.SetUpdateFunction(self, "UpdateOnGround")
+
+def UpdateOnGround(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.mmax:
+        local3 = character.GetVehicle(local2.mmax)
+        if local3:
+            scriptgo.SetUpdateFunction(self, "UpdateInVehicle")
+
+def UpdateAcceleration(self, arg1):
+    local2 = lib_camera.GetInVehicleCameraCoordinator()
+    local3 = scriptgo.GetProperties(local2)
+    if local3.use_first_person:
+        return
+    local4 = scriptgo.GetProperties(self)
+    local5 = 2.0
+    local6 = vector.Set(9.5, 7.2, 8.0, 0.0)
+    local7 = 6.5
+    local8 = 0.7
+    local4.acc = lib_character.GetFilteredLSAccelerationOnVehicle(local4, arg1, local4.mmax, local5, local6, local7, local8, true, false)
+    if local4.acc_last != none:
+        local4.jerk = vector.Scale(vector.Sub(local4.acc, local4.acc_last), 100.0)
+    local4.acc_last = local4.acc
+    local9 = none
+    if none != local4.jerk:
+        if -50.0 > local4.jerk.z:
+            local9 = "ACT_HIT_COLL_BACK"
+        elif local4.jerk.z > 65.0:
+            local9 = "ACT_HIT_COLL_FRONT"
+        elif -100.0 > local4.jerk.x:
+            local9 = "ACT_HIT_COLL_RIGHT"
+        elif local4.jerk.x > 100.0:
+            local9 = "ACT_HIT_COLL_LEFT"
+        if vector.Length(local4.jerk) > 200.0:
+            pass
+    if none != local9:
+        local4.jerk_last_x = local4.jerk.x
+        local4.jerk_last_z = local4.jerk.z
+        game.QueueAct(local4.mmax, local9)
+    if false:
+        debug.LogInfo("hit_react: %s, x: %f, z: %f", [local9, local4.jerk.x, local4.jerk.z])
+        local10 = lib_debugdraw.GetGoScreenPos(local4.mmax, vector.Set(-0.15, 2.2, 0.0, 0.0), arg1)
+        if local4.jerk_last_x and local4.jerk_last_z:
+            debug.DrawText(local10, "vector.Length(props.jerk): %f, JERK LAST X: %f Z: %f", [vector.Length(local4.jerk), local4.jerk_last_x, local4.jerk_last_z], lib_color.RED(1.0))

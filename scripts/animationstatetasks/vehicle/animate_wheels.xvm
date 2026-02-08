@@ -1,0 +1,10 @@
+module animate_wheels
+
+def Enter(self, arg1):
+    vehicle.SetAnimatedWheels(self, 1.0)
+
+def Exit(self, arg1):
+    vehicle.SetAnimatedWheels(self, 0.0)
+
+def Update(self, arg1, arg2):
+    pass

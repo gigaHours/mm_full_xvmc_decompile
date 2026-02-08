@@ -1,0 +1,55 @@
+module ld_speed_limit
+
+def StartLimiting(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetGlobalProperties()
+    local3 = character.GetPlayer()
+    if local3:
+        local4 = character.GetVehicle(local3)
+        if local4:
+            local5 = vehicle.GetLocalVelocity(local4)
+            local6 = vector.Length(local5)
+            local1.current_speed_limit = local6
+    local1.goal_limit = local1.speed_limit
+    if local1.blend_in_time > 0.0:
+        local1.remaning_time = local1.blend_in_time
+        local1.blend_factor = (local6 - local1.speed_limit) / local1.blend_in_time
+    else:
+        local1.blend_factor = 0.0
+    if local1.speed_limit > 0.0:
+        scriptgo.SetUpdateFunction(self, "UpdateFade")
+    else:
+        debug.LogError("ld_speed_limit", "bad vehicle speed limit %f -- must be > 0")
+
+def Unload(self):
+    local1 = vehicle.GetGlobalProperties()
+    local1.ldSpeedLimit = 0.0
+    debug.LogInfo("ld_speed_limit: unloaded, limiting reset", [])
+
+def StopLimiting(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetGlobalProperties()
+    if local1.blend_out_time > 0.0:
+        local1.remaning_time = local1.blend_out_time
+        local1.current_speed_limit = local1.speed_limit
+        local1.blend_factor = (local1.speed_limit - 50.0) / local1.blend_out_time
+        local1.goal_limit = 0.0
+        scriptgo.SetUpdateFunction(self, "UpdateFade")
+    else:
+        local1.blend_factor = 0.0
+        local2.ldSpeedLimit = 0.0
+
+def UpdateFade(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetGlobalProperties()
+    if local2.blend_factor != 0.0:
+        local2.remaning_time = local2.remaning_time - arg1
+        if 0.0 > local2.remaning_time:
+            local3.ldSpeedLimit = local2.goal_limit
+            scriptgo.SetUpdateFunction(self, "")
+        else:
+            local2.current_speed_limit = local2.current_speed_limit - local2.blend_factor * arg1
+            local3.ldSpeedLimit = local2.current_speed_limit
+    else:
+        local3.ldSpeedLimit = local2.goal_limit
+        scriptgo.SetUpdateFunction(self, "")

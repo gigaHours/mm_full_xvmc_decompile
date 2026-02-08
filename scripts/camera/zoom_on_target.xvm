@@ -1,0 +1,21 @@
+module zoom_on_target
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    Update(self, arg2)
+
+def Init(self):
+    pass
+
+def ExitTransition(self, arg1):
+    pass
+
+def EnterUnalignedTransition(self, arg1):
+    Update(self, arg1)
+
+def Update(self, arg1):
+    if self.Properties.zoom_target == none:
+        return
+    local2 = vector.Normalize(vector.Sub(arg1.CameraTransform.r3, game.GetTransform(self.Properties.zoom_target).r3))
+    local3 = vector.Dot(arg1.CameraTransform.r2, local2)
+    arg1.FOV = math.Lerp(math.Max(local3 - self.Properties.dot_cut, 0.0) / (1.0 - self.Properties.dot_cut), self.InitialFOV, self.Properties.min_fov)

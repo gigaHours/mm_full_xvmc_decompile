@@ -1,0 +1,13 @@
+module playanimonly
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetPoseTransform(self, 0.0)
+    vehicle.SetAnimCmdFrame(self, local4)
+    local5 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    local6 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    vehicle.SetAnimCmdWeights(self, local5, local6)
+
+def OnEnter(self, arg1):
+    vehicle.StartAnimCmd(self)
+    vehicle.SetAnimCmdInAirMotion(self, true)
+    vehicle.SetAnimCmdSnapToGround(self, 0.5)

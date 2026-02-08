@@ -1,0 +1,70 @@
+module jerrycan_blendstate
+
+def GetAnimLen():
+    return 12.0 / 30.0
+
+def GetAnimStartOffset():
+    return 1.0 / 30.0
+
+def GetTargetTimeForPendelAnim(self):
+    local1 = game.GetTransform(self)
+    local2 = matrix.Mul(animation.GetPoseTransformById(self, "RightArm"), local1)
+    local3 = local1.r2
+    local4 = local1.r0
+    local5 = local2.r1
+    local6 = vector.Dot(local5, local4)
+    local5 = vector.Sub(local5, vector.Scale(local4, local6))
+    local5 = matrix.MulVec(matrix.RotationAxisMatrix(local4, math.DegToRad(-12.0)), local5)
+    local7 = vector.Set(0.0, -1.0, 0.0, 0.0)
+    local8 = vector.Dot(local5, local3)
+    local9 = math.RadToDeg(vector.AngleBetween(local7, local5))
+    local10 = 0.0
+    local11 = 45.9
+    local12 = 26.0
+    local13 = GetAnimLen() / 2.0
+    if local8 > 0.0:
+        local10 = -1.0 * math.Min(local13 / local11 * local9, local13)
+    else:
+        local10 = math.Min(local13 / local12 * local9, local13)
+    local14 = GetAnimMid() + local10
+    if false:
+        local15 = 2.0
+        debug.Arrow(local2.r3, vector.Add(local2.r3, vector.Scale(local5, local15)), 0.05, lib_color.LIGHT_BLUE(0.5))
+        debug.Arrow(local2.r3, vector.Add(local2.r3, vector.Scale(local7, local15)), 0.05, lib_color.ORANGE(0.5))
+        debug.DrawText3d(vector.Add(local1.r3, vector.Set(0.0, 2.2, 0.0, 0.0)), "ang: %f, dot_back: %f, time_target: %f", [local9, local8, local14], lib_color.ORANGE(1.0))
+    return local14
+
+def GetAnimMid():
+    return GetAnimLen() / 2.0 + GetAnimStartOffset()
+
+def GlobalXvmIndex():
+    return 1.0
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = 0.3
+    local5 = GetTargetTimeForPendelAnim(self)
+    if animation.GetSamplerCount(arg3) > 1.0:
+        local6 = animation.GetSampler(arg3, 0.0)
+        local7 = animation.GetSampler(arg3, 1.0)
+        local8 = animation.GetSampler(arg3, 2.0)
+        local6.Weight = 0.7
+        local7.Weight = 1.0
+        local8.Weight = 1.0
+        local6.Time = 0.0
+        local7.Time = 1.0 / 30.0
+        local9 = local8.Time
+        local9 = math.Lerp(local4, local9, local5)
+        local8.Time = local9
+    else:
+        local10 = animation.GetSampler(arg3, 0.0)
+        local10.Weight = 1.0
+        local11 = local10.Time
+        local11 = math.Lerp(local4, local11, local5)
+        local10.Time = local11
+        local10.Time = GetAnimMid()
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    pass
+
+def OnEnter(self, arg1):
+    pass

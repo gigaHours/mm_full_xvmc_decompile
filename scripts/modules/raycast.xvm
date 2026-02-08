@@ -1,0 +1,19 @@
+module raycast
+
+def CastRays(self):
+    pass
+
+def ClearRays(self):
+    pass
+
+def CastBulletRay(self, arg1, arg2):
+    pass
+
+def AddRay(self, arg1, arg2):
+    pass
+
+def IsRayCaster(self):
+    pass
+
+def GetRay(self, arg1):
+    pass

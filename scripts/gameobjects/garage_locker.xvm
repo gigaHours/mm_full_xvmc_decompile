@@ -1,0 +1,14 @@
+module garage_locker
+
+def unlock(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("garage.state")
+    garagestate.UnlockGarage(local2, local1.type)
+
+def lock(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = game.GetGameObjectByAlias("garage.state")
+    if local1.reason_string_id == none:
+        garagestate.LockGarage(local2, local1.type, gui.MakeLocalizationHashFromTag(""))
+    else:
+        garagestate.LockGarage(local2, local1.type, gui.MakeLocalizationHashFromTag(local1.reason_string_id))

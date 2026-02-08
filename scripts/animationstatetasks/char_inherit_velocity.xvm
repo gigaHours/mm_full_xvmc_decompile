@@ -1,0 +1,15 @@
+module char_inherit_velocity
+import @BAFDB405
+
+def Enter(self, arg1):
+    InheritVelocity(self, arg1)
+
+def Exit(self, arg1):
+    InheritVelocity(self, arg1)
+
+def InheritVelocity(self, arg1):
+    local2 = character.GetMeasuredWorldVelocity(self)
+    physics.SetVelocity(self, local2)
+
+def Update(self, arg1, arg2):
+    InheritVelocity(self, arg1)

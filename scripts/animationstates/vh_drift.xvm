@@ -1,0 +1,8 @@
+module vh_drift
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = 50.0
+    local5 = 1.0
+
+def OnEnter(self, arg1):
+    vehicle.StartAnimCmd(self)

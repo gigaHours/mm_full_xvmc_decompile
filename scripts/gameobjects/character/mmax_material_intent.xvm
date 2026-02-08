@@ -1,0 +1,25 @@
+module mmax_material_intent
+
+def Init(self):
+    scriptgo.SetUpdateFunction(self, "Update")
+    local1 = scriptgo.GetProperties(self)
+    local1.material = -1.0
+    local1.cooldown = 0.0
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = character.GetPlayer()
+    local4 = character.GetVehicle(local3)
+    if local4:
+        local5 = vehicle.GetMaterialFromGroundBelow(local4)
+        if local2.material != local5:
+            local2.material = local5
+            local2.cooldown = 1.0
+        if local2.cooldown >= 1.0:
+            local2.cooldown = local2.cooldown + arg1
+        if local2.material == 0.0 and local2.cooldown >= 3.0:
+            character.BroadcastDialogueIntent(@A86EF83D)
+            local2.cooldown = 0.0
+        if (local2.material == 6.0 or local2.material == 7.0) and local2.cooldown >= 3.0:
+            character.BroadcastDialogueIntent(@45DFC12E)
+            local2.cooldown = 0.0

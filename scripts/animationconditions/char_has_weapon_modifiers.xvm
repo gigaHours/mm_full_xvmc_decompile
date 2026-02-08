@@ -1,0 +1,7 @@
+module char_has_weapon_modifiers
+
+def Evaluate(self, arg1):
+    local2 = character.GetPlayer()
+    if character.IsModifierSet(local2, @B81DC6D8):
+        return 1.0
+    return 0.0

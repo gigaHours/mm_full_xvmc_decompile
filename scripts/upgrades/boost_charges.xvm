@@ -1,0 +1,39 @@
+module boost_charges
+import @46F71871
+import @58351C01
+
+def GetUpgradeBoostPower(self):
+    return lib_vehicleupgrades.LinearProgression(self, 3.0, 40000.0, 60000.0)
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate boost level %f", [self])
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate boost level %f", [self])
+    if self == 0.0:
+        game.PostEventNone("signature.vehicle.boost.disable")
+    else:
+        game.PostEventNone("signature.vehicle.boost.enable")
+    local2 = lib_entity_proxy.GetBoost(vehicle.GetSignatureVehicle())
+    if local2:
+        scriptgo.Call1(local2, @DE217782, GetMaximumCharges(self))
+        scriptgo.Call1(local2, @D94D0A80, GetUpgradeBoostPower(self))
+        scriptgo.Call1(local2, @1DFAB31F, self)
+    game.PostEventNone("boost.loaded")
+    local3 = gui.GetBlackboard()
+    local3.player_vehicle_boost_charges = GetMaximumCharges(self)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending boost stats", [])
+    local4 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    scriptgo.Call2(local4, @802D7B9E, self, arg1)
+
+def GetMaximumCharges(self):
+    if self == 0.0:
+        return 0.0
+    if self == 1.0:
+        return 2.0
+    if self == 2.0:
+        return 3.0
+    return 4.0

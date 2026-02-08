@@ -1,0 +1,28 @@
+module char_handle_top_dog_weaknessses
+
+def Update(self, arg1, arg2):
+    local3 = character.GetPlayer()
+    local4 = playerstats.GetPlayerStats()
+    local5 = false
+    local6 = false
+    if local4 and local4.inFuryMode == 1.0:
+        local5 = true
+    if character.HasCategoryItem(local3, "Club"):
+        local6 = true
+    if local5 or local6:
+        if character.HasBuff(self, "defense_against_melee"):
+            character.RemoveBuff(self, "defense_against_melee")
+    elif 0.05 >= character.GetFloatRegister(self, 21.0) and (not character.HasBuff(self, "defense_against_melee")):
+        character.AddBuff(self, "defense_against_melee")
+    if game.IsTaged(self, "gutnoose"):
+        if local5:
+            if not character.HasBuff(self, "topdog_weak_against_fury"):
+                character.AddBuff(self, "topdog_weak_against_fury")
+        elif character.HasBuff(self, "topdog_weak_against_fury"):
+            character.RemoveBuff(self, "topdog_weak_against_fury")
+    elif game.IsTaged(self, "rimjobbie"):
+        if local6:
+            if not character.HasBuff(self, "topdog_weak_against_melee_weapons"):
+                character.AddBuff(self, "topdog_weak_against_melee_weapons")
+        elif character.HasBuff(self, "topdog_weak_against_melee_weapons"):
+            character.RemoveBuff(self, "topdog_weak_against_melee_weapons")

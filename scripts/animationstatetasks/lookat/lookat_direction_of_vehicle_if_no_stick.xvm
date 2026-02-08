@@ -1,0 +1,14 @@
+module lookat_direction_of_vehicle_if_no_stick
+import @05896E5A
+
+def Update(self, arg1, arg2):
+    if 0.1 > vector.Length(input.GetLookInput()):
+        local3 = character.GetVehicle(self)
+        local4 = game.GetTransform(local3)
+        local5 = matrix.MulVec(local4, vector.Set(0.0, 2.0, -2.0, 0.0))
+        local6 = game.GetTransform(self)
+        local7 = matrix.Inverse(local6)
+        local8 = matrix.MulVec(local7, local5)
+        character.SetLookAtTarget(self, local8)
+        if lib_lookat.LookAtIsAccepted(self):
+            local9 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)

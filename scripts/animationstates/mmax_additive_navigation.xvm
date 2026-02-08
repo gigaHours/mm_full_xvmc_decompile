@@ -1,0 +1,44 @@
+module mmax_additive_navigation
+import @BAFDB405
+import @E45D52B2
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetSampler(arg3, 0.0)
+    if arg1.Property0 == 1.0:
+        local4.Time = lib_animation.GetAnimationTimeNormalizedToFullBody(self)
+    else:
+        local5 = false
+        if animation.IsWithinSegment(self, @E063F6A0, @1068C991):
+            local5 = true
+        if not local5 == true:
+            local6 = math.Abs(character.GetGlobalXvmFloat(self, 8.0))
+            local7 = math.Abs(character.GetGlobalXvmFloat(self, 9.0))
+            local8 = 1.0 - math.Scale01(local6, 0.05, 0.7)
+            local9 = 1.0 - math.Scale01(local7, 0.1, 0.5)
+            local4.Weight = local8 * local9
+        if local5 == true or animation.IsWithinSegment(self, @E063F6A0, @8DB6B1A6):
+            local4.Time = lib_animation.GetAnimationTimeNormalizedToFullBody(self)
+        if animation.GetSamplerCount(arg3) > 1.0:
+            animation.GetSampler(arg3, 1.0).Time = animation.GetSampler(arg3, 1.0).Length
+            animation.GetSampler(arg3, 1.0).Speed = 0.0
+            animation.GetSampler(arg3, 2.0).Time = animation.GetSampler(arg3, 2.0).Length
+            animation.GetSampler(arg3, 2.0).Speed = 0.0
+            local10 = lib_character.GetFilteredMoveInputWorldDir()
+            if vector.Length(local10) > 0.0:
+                local10 = vector.Normalize(local10)
+            local11 = character.GetGlobalXvmFloat(self, 8.0)
+            local12 = vector.Set(3.7, 4.7, 2.5, 5.2)
+            local11 = lib_character.CalculateBanking(self, local12, arg2, local10, local11)
+            if 0.0 > local11:
+                animation.GetSampler(arg3, 1.0).Weight = -local11
+                animation.GetSampler(arg3, 2.0).Weight = 0.0
+            else:
+                animation.GetSampler(arg3, 1.0).Weight = 0.0
+                animation.GetSampler(arg3, 2.0).Weight = local11
+            character.SetGlobalXvmFloat(self, 8.0, local11)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    lib_animation.SetContinuingLoopCount(self, arg4)
+
+def OnEnter(self, arg1):
+    lib_animation.ResetAdditiveLoopCounter(self)

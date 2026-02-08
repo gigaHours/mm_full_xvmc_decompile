@@ -1,0 +1,11 @@
+module has_fuel_condition
+
+def Evaluate(self, arg1):
+    local2 = 1.0
+    local3 = interaction.GetEntryContextParent(self, local2)
+    if local3:
+        local4 = character.GetItemObjectFloat(local3, "has_fuel")
+        if local4:
+            if local4 > 0.0:
+                return arg1.has_fuel_compare
+    return 1.0 - arg1.has_fuel_compare

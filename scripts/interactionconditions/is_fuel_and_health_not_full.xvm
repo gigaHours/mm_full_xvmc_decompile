@@ -1,0 +1,28 @@
+module is_fuel_and_health_not_full
+import @80A1852C
+
+def Evaluate(self, arg1):
+    if not vehicle.IsVehicle(arg1.car):
+        return 0.0
+    local2 = game.GetEconomyResourceScrapAmount()
+    local3 = character.GetPlayer()
+    if lib_gameplay.IsGameStateCombat(local3):
+        return 0.0
+    if arg1.fuel:
+        if vehicle.GetFuelAmount(arg1.car) > arg1.fuel_required:
+            return 0.0
+    if arg1.health:
+        if (not arg1.allow_repair_if_dead) and (not vehicle.IsDrivingEnabled(arg1.car)):
+            return 0.0
+        local4 = vehicle.GetNumberOfVehicleParts(arg1.car)
+        local6 = 0.0
+        local7 = 1.0
+        local5 = local4
+        while local5 > local6:
+            local8 = vehicle.GetVehiclePartByIndex(arg1.car, local6)
+            if local8.IsDisconnected or local8.Damaged:
+                return 1.0
+            local6 = local7 + local6
+        if vehicle.GetHealth(arg1.car) > arg1.health_required:
+            return 0.0
+    return 1.0

@@ -1,0 +1,28 @@
+module blend_two_on_input_held
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = input.GetButtonInput(@AD1009FA)
+    if local4 == 0.0:
+        character.SetFloatRegister(self, 15.0, 0.0)
+    local5 = animation.GetSamplerCount(arg3)
+    if local5 != 2.0:
+        return
+    local6 = 99999.0
+    if arg1.Property0 > 0.0:
+        local6 = 1.0 / arg1.Property0
+    local7 = 99999.0
+    if arg1.Property1 > 0.0:
+        local7 = 1.0 / arg1.Property1
+    if character.GetFloatRegister(self, 15.0) > 0.0 and arg1.Property0 >= animation.GetSampler(arg3, 0.0).Time:
+        local8 = math.BezierCurve(0.0, 0.0, 1.0, 1.0, math.Max(0.0, animation.GetSampler(arg3, 0.0).Weight - local6 * arg2))
+        animation.GetSampler(arg3, 0.0).Weight = local8
+        local9 = math.BezierCurve(0.0, 0.0, 1.0, 1.0, math.Min(1.0, animation.GetSampler(arg3, 1.0).Weight + local6 * arg2))
+        animation.GetSampler(arg3, 1.0).Weight = local9
+    else:
+        local8 = math.BezierCurve(0.0, 0.0, 1.0, 1.0, math.Min(1.0, animation.GetSampler(arg3, 0.0).Weight + local7 * arg2))
+        animation.GetSampler(arg3, 0.0).Weight = local8
+        local9 = math.BezierCurve(0.0, 0.0, 1.0, 1.0, math.Max(0.0, animation.GetSampler(arg3, 1.0).Weight - local7 * arg2))
+        animation.GetSampler(arg3, 1.0).Weight = local9
+
+def OnEnter(self, arg1):
+    character.SetFloatRegister(self, 15.0, 1.0)

@@ -1,0 +1,16 @@
+module relicsystem
+
+def GetNumFoundRelics(self):
+    pass
+
+def InstallHoodOrnament(self, arg1):
+    pass
+
+def PickupHoodOrnament(self):
+    pass
+
+def HasRelic(self):
+    pass
+
+def PickupPictureRelic(self):
+    pass

@@ -1,0 +1,578 @@
+module vpdrivetrain
+
+def PlanGearShift(self, arg1, arg2):
+    local3 = arg1.VehicleGameObject
+    if vehicle.GetWheelContactRatio(local3) == 0.0:
+        return 0.0
+    local4 = arg1.Throttle
+    local5 = arg1.Brake
+    local6 = arg1.Drivetrain
+    local7 = local6.Gear
+    local8 = local6.GearIndex
+    if local7 == 0.0:
+        if 0.05 > local4 and local5 > 0.05:
+            return -1.0
+        if local4 > local5:
+            return 1.0
+    local9 = -vehicle.GetLocalVelocity(local3).z
+    if local7 == -1.0 and local5 >= local4:
+        if local9 > -1.0:
+            if local5 > 0.05 and 0.05 > local4:
+                return 2.0
+            return 1.0
+    if local7 == 1.0 and local5 >= local4:
+        if 1.0 > local9:
+            if local5 > 0.05 and 0.05 > local4:
+                return -2.0
+            return -1.0
+    if local7 > 1.0 and local6.NbGears - 2.0 >= local8:
+        local10 = PlanDownshift(arg1, local7, local4)
+        if 0.0 > local10:
+            return local10
+    if local7 > 0.0 and local6.NbGears - 2.0 > local8:
+        local11 = vehicle.GetVelocity(local3)
+        local12 = vector.Length(local11)
+        local13 = math.Scale01(local4, 0.1, 0.9)
+        local14 = local6.AutoUpshiftCoeff
+        local15 = 0.0
+        if local6.TimeSinceFullThrottle > 1.0:
+            local15 = CalculateUpshiftPoint(local13, local7, local14, local6)
+        else:
+            local15 = CalculateUpshiftPoint(1.0, local7, local14, local6)
+        local15 = local15 * CalculateShiftingCorrectionFactor(arg1, self.WheelRadiusTunedTo)
+        if local12 >= local15 and (local6.TimeSinceDshift > 2.0 or local4 > 0.95) and (not local5 > 0.1):
+            return 1.0
+    local6.TimeSinceDshift = local6.TimeSinceDshift + arg2
+    if 0.95 > local4:
+        local6.TimeSinceFullThrottle = local6.TimeSinceFullThrottle + arg2
+    else:
+        local6.TimeSinceFullThrottle = 0.0
+    return 0.0
+
+def Shifter_Disconnect(self):
+    local1 = self.Drivetrain
+    local2 = local1.ScriptVariables
+    local3 = local1.ShiftStageTime
+    if false:
+        if vehicle.IsPlayerVehicle(self.VehicleGameObject):
+            debug.LogInfo("Shifter.Disconnect called", [])
+            debug.LogInfo("current gear: %f, target gear: %f", [self.Drivetrain.Gear, local1.TgtGear])
+            debug.LogInfo("clutch: %f", [local1.Clutch])
+    local2.clutchOp = Clutch_Disconnecting
+    if not 1.0 >= local1.TgtGear and 1.0 >= local1.SrcGear:
+        self.Throttle = local1.Clutch * self.Throttle
+    if local1.Clutch == 0.0:
+        local1.Gear = local1.TgtGear
+        local2.shiftOp = Shifter_Shift
+        return
+    local2.shiftOp = Shifter_Disconnect
+
+def PlanDownshift(self, arg1, arg2):
+    local3 = self.Drivetrain
+    local4 = local3.ScriptProperties
+    local5 = self.Wheels
+    local6 = vector.Length(self.LinearVelocity)
+    local7 = 0.0
+    while true:
+        local8 = math.Scale01(arg2, 0.1, 0.9)
+        local9 = local3.AutoUpshiftCoeff
+        local10 = local3.AutoDownshiftCoeff
+        local11 = 0.0
+        if arg1 > 2.0:
+            local11 = CalculateUpshiftPoint(local8, arg1 - 2.0, local9, local3)
+        local12 = CalculateUpshiftPoint(local8, arg1 - 1.0, local9, local3)
+        local13 = math.Lerp(local10, local11, local12)
+        local13 = local13 * CalculateShiftingCorrectionFactor(self, local4.WheelRadiusTunedTo)
+        if local13 >= local6:
+            local7 = local7 - 1.0
+            arg1 = arg1 - 1.0
+            if 1.0 >= arg1:
+                return local7
+        else:
+            return local7
+
+def GenerateEngineTorque(self, arg1, arg2):
+    local3 = arg1.Drivetrain
+    local4 = local3.ScriptVariables
+    local5 = local3.ScriptProperties
+    if not local4.p1:
+        GenerateEnginePolynomial(arg1)
+    local6 = arg2 / local5.PeakPowerRpm
+    local7 = local4.p1 + local4.p2 * local6 - local4.p3 * local6 * local6
+    return local7
+
+def CalculateShiftingCorrectionFactor(self, arg1):
+    local2 = self.Wheels
+    local3 = 0.0
+    local4 = 0.0
+    local6 = 0.0
+    local7 = 1.0
+    local5 = len(local2)
+    while local5 > local6:
+        local8 = local2[local6]
+        if local8.Driven:
+            local4 = local4 + 1.0
+            if not local8.Disconnected:
+                local3 = local3 + local8.Radius
+        local6 = local7 + local6
+    local3 = local3 / local4
+    if 1E-06 > math.Abs(local3 - arg1):
+        return 1.0
+    return local3 / arg1 * 0.9
+
+def Shifter_Connect(self):
+    local1 = self.Drivetrain
+    local2 = local1.ScriptVariables
+    local3 = local1.ShiftStageTime
+    if local1.TgtGear > local1.SrcGear:
+        if self.Brake > self.Throttle and self.Brake > 0.05 or self.Handbrake > 0.05:
+            local2.shiftOp = none
+            return
+    if false:
+        if vehicle.IsPlayerVehicle(self.VehicleGameObject):
+            debug.LogInfo("Shifter.Connect called", [])
+            debug.LogInfo("current gear: %f, target gear: %f", [local1.Gear, local1.TgtGear])
+            debug.LogInfo("clutch: %f", [local1.Clutch])
+    local2.clutchOp = Clutch_Connecting
+    if not 1.0 >= local1.TgtGear and 1.0 >= local1.SrcGear:
+        self.Throttle = math.Min(self.Throttle, local1.Clutch * 2.0 * self.Throttle)
+    if local1.Clutch == 1.0:
+        if local1.FinalizeOp:
+            local1.TimeSinceDshift = 0.0
+        local2.shiftOp = none
+        return
+    local2.shiftOp = Shifter_Connect
+
+def GenerateEnginePolynomial(self):
+    local1 = self.Drivetrain
+    local2 = local1.ScriptVariables
+    local3 = local1.ScriptProperties
+    local4 = local3.PeakTorque * vehicle.GetEngineTorqueScale(self.VehicleGameObject)
+    local5 = local3.PeakTorqueRpm / local3.PeakPowerRpm
+    local6 = 1.0 / (3.0 - 4.0 * local5 + local5 * local5)
+    local7 = 2.0 * local5 * local6
+    local8 = (3.0 - 4.0 * local5) * local6
+    local2.p3 = local6 * local4
+    local2.p2 = local7 * local4
+    local2.p1 = local8 * local4
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    if false:
+        local2 = debug.GetCurve(0.0)
+        local2.Name = "frontRW"
+        local2.PosX = 0.5
+        local2.PosY = 0.5
+        local2.Visible = true
+        local2.AutoMin = false
+        local2.AutoMax = false
+        local2 = debug.GetCurve(1.0)
+        local2.Name = "rearRW"
+        local2.PosX = 0.5
+        local2.PosY = 0.5
+        local2.Visible = true
+        local2.AutoMin = false
+        local2.AutoMax = false
+    local1.wheelradiuscheck = true
+    local1.clutchOp = Clutch_Disconnecting
+    local1.shiftOp = none
+    local1.p1 = none
+    local1.revLimiterState = [1.0, 0.0]
+    local1.tcsTurnTime = 0.0
+
+def Clutch_Disconnecting(self, arg1, arg2):
+    return math.Clamp01(self - arg2 / arg1.Drivetrain.ClutchDisengageTime)
+
+def UpdateEngine(self, arg1, arg2):
+    local3 = arg1.VehicleGameObject
+    local4 = arg1.Wheels
+    local5 = len(local4)
+    local6 = arg1.NbDrivenWheels
+    local7 = arg1.Drivetrain
+    local8 = local7.EngineRpms
+    local9 = local8[0.0]
+    local10 = local8[len(local8) - 1.0]
+    local11 = local7.EngineRpm
+    local12 = 0.0
+    local13 = 0.0
+    local14 = 0.0
+    if local6 > 0.0:
+        local16 = 0.0
+        local17 = 1.0
+        local15 = local5
+        while local15 > local16:
+            local18 = local4[local16]
+            if local18.Driven and (not local18.Disconnected):
+                local12 = local12 + local18.AngularSpeed
+                local13 = local13 + local18.Radius
+            local16 = local17 + local16
+        local12 = local12 / local6
+        local13 = local13 / local6
+        local14 = local12 * 9.549296 * local7.GearRatio
+    local19 = GenerateEngineTorque(self, arg1, local11)
+    if 0.0 >= vehicle.GetFuelAmount(arg1.VehicleGameObject):
+        local20 = vector.Length(arg1.LinearVelocity)
+        local21 = math.Scale01(local20, 2.0, 15.0)
+        if local21 == 0.0:
+            pass
+        elif 0.5 > math.Rand():
+            arg1.Throttle = 0.0
+        else:
+            arg1.Throttle = arg1.Throttle * math.Lerp(local21, 1.0, 0.2)
+    local22 = math.Clamp01(local11 / local10) * local7.MaxResistanceTorque * vehicle.GetEngineResistanceScale(local3)
+    local23 = local7.ScriptVariables
+    local24 = UpdateRevLimiter(self, arg1, local23.revLimiterState, local11, arg2)
+    local7.RevLimiterOn = 1.0 > local24[0.0]
+    local23.revLimiterState = local24
+    local25 = local24[0.0] * arg1.Throttle * (local19 + local22)
+    local26 = local22
+    assert local26 >= 0.0
+    if local7.GearRatio == 0.0:
+        local11 = local11 + (local25 - local26) / local7.EngineInertia * arg2 * 9.549296
+        local11 = math.Max(local11, local9)
+        local7.EngineNetTorque = 0.0
+        local7.EngineRpm = local11
+        local7.NormalizedRPM = math.Scale01(local7.EngineRpm, local9, local10)
+        return
+    local27 = 0.0
+    local4 = arg1.Wheels
+    local16 = 0.0
+    local29 = 1.0
+    local28 = local5
+    while local28 > local16:
+        local18 = local4[local16]
+        if local18.Driven:
+            local27 = local27 + local18.Inertia
+        local16 = local29 + local16
+    local30 = local27 / local7.GearRatio / local7.GearRatio
+    local31 = local25 - local26
+    local32 = local14 - local11
+    local33 = local32 / 9.549296 / arg2
+    local34 = local33 * (local30 + local7.EngineInertia)
+    if local7.Gear == 1.0:
+        local35 = local7.ClutchMaxTorque * local7.Clutch * 1.0
+    else:
+        local35 = local7.ClutchMaxTorque * local7.Clutch * vehicle.GetEngineTorqueScale(local3)
+    if math.Abs(local31 - local34) > local35:
+        if local11 > local14:
+            local36 = local35
+        else:
+            local36 = -local35
+        local11 = local11 + (local25 - local26 - local36) / local7.EngineInertia * arg2 * 9.549296
+    else:
+        local36 = local31 * local7.Clutch
+        local11 = local14
+    local11 = math.Max(local11, local9)
+    local7.EngineNetTorque = local36
+    local7.EngineRpm = local11
+    local7.NormalizedRPM = math.Scale01(local7.EngineRpm, local9, local10)
+
+def UpdateDifferential(self, arg1, arg2):
+    local3 = arg1.Drivetrain
+    local4 = local3.ScriptProperties
+    local5 = local3.EngineNetTorque
+    local6 = arg1.Axles
+    local7 = len(local6)
+    local9 = 0.0
+    local10 = 1.0
+    local8 = local7
+    while local8 > local9:
+        local11 = local6[local9]
+        local11.DifferentialTorque = 0.0
+        if local11.Driven:
+            local12 = local11.LeftWheel
+            local13 = local11.RightWheel
+            if (not local12.Disconnected) and (not local13.Disconnected):
+                local14 = local4.DifferentialPreload
+                local15 = local3.FinalDriveRatio
+                if local5 > 0.0:
+                    local16 = local5 * math.Abs(local3.GearRatio) / local15
+                    local17 = local4.DifferentialPowerRampCoeff
+                else:
+                    local16 = -local5 * math.Abs(local3.GearRatio) / local15
+                    local17 = local4.DifferentialCoastRampCoeff
+                local18 = local17 * local16 + local14
+                local19 = local12.AngularSpeed - local13.AngularSpeed
+                local20 = math.Abs(local19)
+                local21 = local20 * (local12.ReflectedInertia + local12.Inertia) / arg2
+                if local20 > 0.0:
+                    local22 = local18 * local15
+                    local23 = math.Max(local22, local21)
+                    local24 = local4.DifferentialStartFadeDiffSpeed
+                    local25 = local4.DifferentialMaxFadeDiffSpeed
+                    local26 = local4.DifferentialPreFadeStiffness
+                    local27 = math.Max(math.Clamp(local20, 0.0, local24) * local26, math.Scale01(local20, local24, local25) * local22)
+                    local11.DifferentialTorque = -math.Sign(local19) * math.Clamp(local27, 0.0, local23)
+        local9 = local10 + local9
+
+def Clutch_Connecting(self, arg1, arg2):
+    return math.Clamp01(self + arg2 / arg1.Drivetrain.ClutchEngageTime)
+
+def UpdateTransmission(self, arg1, arg2):
+    UpdateClutchState(arg1, arg2)
+    UpdateShiftStage(arg1, arg2)
+    local3 = arg1.Drivetrain
+    local4 = local3.ScriptVariables
+    local5 = local3.ScriptProperties
+    if local4.shiftOp == none:
+        if not (local3.BlockShift or arg1.Handbrake > 0.05):
+            local3.ShiftRequest = PlanGearShift(local5, arg1, arg2)
+        else:
+            local3.ShiftRequest = 0.0
+    local6 = -vehicle.GetLocalVelocity(arg1.VehicleGameObject).z
+    if arg1.Brake > arg1.Throttle and local3.PreviousGear == local3.Gear:
+        if 2.0 > local6 and local3.Gear > 0.0:
+            local3.Gear = -1.0
+            local3.Clutch = 0.0
+            local4.shiftOp = none
+            local3.ShiftRequest = 0.0
+            local4.clutchOp = Clutch_Connecting
+        elif local6 > -12.0 and 0.0 > local3.Gear:
+            local3.Gear = 1.0
+            local3.Clutch = 0.0
+            local4.shiftOp = none
+            local3.ShiftRequest = 0.0
+            local4.clutchOp = Clutch_Connecting
+    if vehicle.IsPlayerVehicle(arg1.VehicleGameObject):
+        if arg1.Axles[1.0].LeftWheel.IsOnRoad or arg1.Axles[1.0].RightWheel.IsOnRoad:
+            local7 = true
+        else:
+            local7 = false
+        if local7 and arg1.Throttle > 0.95 and local3.GearIndex == local3.NbGears - 2.0 and local6 > arg1.AeroSpeedCap:
+            local3.CruiseShiftTime = local3.CruiseShiftTime + arg2
+            if local3.CruiseShiftTime > 2.0:
+                local3.Gear = local3.NbGears - local3.NeutralGearIndex - 1.0
+                local3.Clutch = 0.0
+                local4.shiftOp = none
+                local3.ShiftRequest = 0.0
+                local4.clutchOp = Clutch_Connecting
+                local3.CruiseSpeedTime = 0.0
+                local3.CruiseShiftTime = 0.0
+                local3.PreCruiseSpeedCap = arg1.AeroSpeedCap
+        if local3.GearIndex == local3.NbGears - 1.0 and local3.CruiseSpeedTime >= 0.0:
+            if local7:
+                if arg1.Throttle > 0.95:
+                    if local6 > arg1.AeroSpeedCap:
+                        local3.CruiseSpeedTime = math.Clamp(local3.CruiseSpeedTime + arg2, 0.0, 30.0)
+                else:
+                    local3.CruiseSpeedTime = math.Clamp(local3.CruiseSpeedTime - arg2, 0.0, 30.0)
+            else:
+                local3.CruiseSpeedTime = math.Clamp(local3.CruiseSpeedTime - 10.0 * arg2, 0.0, 30.0)
+            local8 = local3.CruiseSpeedTime / 30.0
+            arg1.AeroSpeedCap = math.Lerp(local8, local3.PreCruiseSpeedCap, 42.5)
+            local9 = math.Min(local8, math.Scale01(local6, local3.PreCruiseSpeedCap, 42.5))
+            local3.CruiseRoughness = math.Pow(local9, 0.4)
+            local10 = math.Exp(-arg2 / 0.5)
+            local3.SmoothedCruiseRoughness = local10 * local3.SmoothedCruiseRoughness + (1.0 - local10) * local3.CruiseRoughness
+        if local3.CruiseSpeedTime >= 0.0:
+            if local3.PreCruiseSpeedCap > local6:
+                arg1.AeroSpeedCap = local3.PreCruiseSpeedCap
+                local3.CruiseSpeedTime = -1.0
+                local3.CruiseRoughness = 0.0
+                local3.Gear = local3.NbGears - local3.NeutralGearIndex - 2.0
+                local3.Clutch = 0.0
+                local4.shiftOp = none
+                local3.ShiftRequest = 0.0
+                local4.clutchOp = Clutch_Connecting
+        if 0.0 > local3.CruiseSpeedTime and local3.SmoothedCruiseRoughness > 0.01:
+            local10 = math.Exp(-arg2 / 0.5)
+            local3.SmoothedCruiseRoughness = local10 * local3.SmoothedCruiseRoughness + (1.0 - local10) * local3.CruiseRoughness
+            if 0.01 > local3.SmoothedCruiseRoughness:
+                local3.SmoothedCruiseRoughness = 0.0
+    if local4.wheelradiuscheck:
+        local11 = arg1.VehicleGameObject
+        local12 = arg1.Wheels
+        local13 = len(local12)
+        local15 = 0.0
+        local16 = 1.0
+        local14 = local13
+        while local14 > local15:
+            if local12[local15].Driven:
+                if math.Abs(local12[local15].Radius - local5.WheelRadiusTunedTo) > 1E-06 and vehicle.IsPlayerVehicle(local11):
+                    debug.LogError("handling system", "Tuned wheel radius does not match the actual wheel radius.")
+                    debug.LogInfo("Driven radius: %f", [local12[local15].Radius * 1000.0])
+            local15 = local16 + local15
+        local4.wheelradiuscheck = false
+
+def UpdateTCS(self, arg1, arg2):
+    local3 = arg1.VehicleGameObject
+    local4 = arg1.Drivetrain.ScriptProperties
+    local5 = arg1.Drivetrain
+    if vehicle.GetWheelContactRatio(local3) == 0.0:
+        local5.TCSFactor = 1.0
+        return
+    local6 = arg1.LinearVelocity
+    local7 = vector.Length(local6)
+    local8 = vector.Dot(vector.Normalize(local6), vector.Set(1.0, 0.0, 0.0, 0.0))
+    local9 = arg1.Axles
+    local10 = local9[1.0]
+    if local10.LeftWheel.Load > local10.RightWheel.Load:
+        local11 = local10.LeftWheel
+    else:
+        local11 = local10.RightWheel
+    local12 = local11.LateralSlip * local11.LateralSlip + local11.LongitudinalSlip * local11.LongitudinalSlip
+    if local12 > 0.0:
+        local12 = math.Sqrt(local12)
+    if 12.0 > local7 and vehicle.IsPlayerVehicle(local3) and local5.DriftStateTimer >= 0.0:
+        local5.DriftStateTimer = 1.0
+    if local5.DriftStateTimer >= 0.0:
+        if local8 > 0.997 and (local5.DriftStateTimer == 0.0 or vehicle.IsAIVehicle(local3)):
+            local5.DriftStateTimer = -1.0
+    if arg1.Handbrake:
+        local5.DriftStateTimer = 1.0
+    if local5.DriftStateTimer >= 0.0:
+        local13 = local9[0.0]
+        if local13.LeftWheel.Load > local13.RightWheel.Load:
+            local14 = local13.LeftWheel
+        else:
+            local14 = local13.RightWheel
+        local15 = math.Scale01(math.Abs(local14.LateralSlip), 1.0, 1.5)
+    else:
+        local15 = math.Scale01(local12, local4.TcsStartSlip, local4.TcsMaxSlip)
+    if local5.DriftStateTimer >= 0.0:
+        local5.DriftStateTimer = math.Max(local5.DriftStateTimer - arg2, 0.0)
+    local5.TCSFactor = 1.0 - local15 * math.Scale01(local7, 6.0, 12.0)
+
+def UpdateRevLimiter(self, arg1, arg2, arg3, arg4):
+    local5 = arg1.Drivetrain
+    local6 = local5.ScriptVariables
+    local7 = local5.ScriptProperties
+    local8 = local5.EngineRpms
+    local9 = local8[len(local8) - 1.0]
+    local10 = arg2[0.0]
+    local11 = arg2[1.0]
+    local11 = arg3
+    if local11 > local9 + local5.RevLimiterRpmBand:
+        local10 = 0.0
+    elif arg3 > local9 and local10 == 0.0:
+        local10 = 0.0
+    else:
+        local10 = 1.0
+    if local5.Gear == 1.0:
+        local10 = 1.0
+    local10[arg2] = 0.0
+    local11[arg2] = 1.0
+    return arg2
+
+def Shifter_Shift(self):
+    local1 = self.Drivetrain
+    local2 = local1.ScriptVariables
+    local3 = local1.ShiftStageTime
+    if false:
+        if vehicle.IsPlayerVehicle(self.VehicleGameObject):
+            debug.LogInfo("Shifter.Shift called", [])
+            debug.LogInfo("current gear: %f, target gear: %f", [local1.Gear, local1.TgtGear])
+    local2.clutchOp = Clutch_ForcingZero
+    if not 1.0 >= local1.TgtGear and 1.0 >= local1.SrcGear:
+        self.Throttle = 0.0
+    if local3 > local1.ShiftTime:
+        if 0.0 > local1.ShiftRequest:
+            if local1.Gear > 1.0:
+                local1.Gear = local1.Gear + PlanDownshift(self, local1.Gear, self.Throttle)
+        local2.shiftOp = Shifter_Connect
+        return
+    local2.shiftOp = Shifter_Shift
+
+def UpdateClutchState(self, arg1):
+    local2 = self.Drivetrain
+    local3 = self.VehicleGameObject
+    local4 = local2.ScriptVariables
+    local5 = local2.Gear
+    if local5 == 0.0 and local4.shiftOp == none:
+        local4.clutchOp = Clutch_ForcingZero
+        if vehicle.IsPlayerVehicle(local3):
+            local2.DriftStateTimer = 1.0
+    local6 = -vehicle.GetLocalVelocity(local3).z
+    local7 = local5 != 0.0 and (self.Brake > 0.05 or self.Handbrake > 0.05)
+    if local7:
+        local8 = Clutch_Disconnecting
+    else:
+        local8 = local4.clutchOp
+    local9 = local8(local2.Clutch, self, arg1)
+    local2.Clutch = local9
+
+def UpdateAutoBrake(self, arg1, arg2):
+    local3 = arg1.Drivetrain
+    local3.AutoBrake = 0.0
+    if arg1.Throttle == 0.0 and arg1.Brake == 0.0:
+        local4 = vector.Length(arg1.LinearVelocity)
+        if 1.0 > local4:
+            local3.AutoBrake = 1.0 - local4
+
+def UpdateWheelTorques(self, arg1, arg2):
+    local3 = arg1.Wheels
+    local4 = len(local3)
+    local5 = arg1.NbDrivenWheels
+    local6 = arg1.Drivetrain
+    local8 = 0.0
+    local9 = 1.0
+    local7 = local4
+    while local7 > local8:
+        local10 = local3[local8]
+        if local10.Driven and (not local10.Disconnected):
+            if local6.EngineNetTorque > 0.0:
+                local10.AcceleratingTorque = math.Lerp(local6.TCSFactor, 0.0, local6.EngineNetTorque / local5 * local6.GearRatio)
+                local10.ResistiveTorque = 0.0
+            else:
+                local10.AcceleratingTorque = 0.0
+                local10.ResistiveTorque = math.Abs(local6.EngineNetTorque / local5 * local6.GearRatio)
+                assert local10.ResistiveTorque >= 0.0
+        else:
+            local10.AcceleratingTorque = 0.0
+            local10.ResistiveTorque = 0.0
+        local8 = local9 + local8
+
+def UpdateReflectedInertias(self, arg1, arg2):
+    local3 = arg1.Wheels
+    local4 = len(local3)
+    local5 = arg1.Drivetrain
+    local7 = 0.0
+    local8 = 1.0
+    local6 = local4
+    while local6 > local7:
+        local9 = local3[local7]
+        if local9.Driven:
+            local9.ReflectedInertia = 1.0 * local5.EngineInertia * local5.GearRatio * local5.GearRatio
+        else:
+            local9.ReflectedInertia = 0.0
+        local7 = local8 + local7
+
+def CalculateUpshiftPoint(self, arg1, arg2, arg3):
+    local4 = arg3.AutoUpshifts
+    local5 = 0.0
+    if arg1 > 1.0:
+        local5 = local4[arg1 - 2.0]
+    local6 = local4[arg1 - 1.0]
+    local7 = local6
+    local8 = math.Lerp(arg2, local5, local6)
+    local9 = math.Lerp(self, local8, local7)
+    return local9
+
+def Clutch_ForcingZero(self, arg1, arg2):
+    return 0.0
+
+def UpdateShiftStage(self, arg1):
+    local2 = self.Drivetrain
+    local3 = local2.ScriptVariables
+    local4 = local2.Gear
+    local5 = local2.ShiftRequest
+    if local3.shiftOp == none:
+        if local5 == 0.0:
+            return
+        if local5 > 0.0:
+            local2.TgtGear = local4 + local5
+            local2.SrcGear = local4
+            local2.ShiftTime = local2.UpshiftTime
+            local2.FinalizeOp = false
+        else:
+            local2.TgtGear = local4 + local5
+            local2.SrcGear = local4
+            local2.ShiftTime = local2.DownshiftTime
+            local2.FinalizeOp = true
+        local3.shiftOp = Shifter_Disconnect
+    local2.ShiftStageTime = local2.ShiftStageTime + arg1
+    local6 = local3.shiftOp
+    if local6 != none:
+        local6(self)
+    if local3.shiftOp != local6 or local6 == none:
+        local2.ShiftStageTime = 0.0

@@ -1,0 +1,106 @@
+module math
+
+def Sqrt(self):
+    pass
+
+def Ceil(self):
+    pass
+
+def Cos(self):
+    pass
+
+def Sin(self):
+    pass
+
+def Mod(self, arg1):
+    pass
+
+def Pi():
+    pass
+
+def ATan2(self, arg1):
+    pass
+
+def SpeedLerp(self, arg1, arg2, arg3):
+    pass
+
+def Pow(self, arg1):
+    pass
+
+def BezierCurveDerivative(self, arg1, arg2, arg3, arg4):
+    pass
+
+def ACos(self):
+    pass
+
+def Scale01(self, arg1, arg2):
+    pass
+
+def ASin(self):
+    pass
+
+def FloatToInt(self):
+    pass
+
+def Sign(self):
+    pass
+
+def DegToRad(self):
+    pass
+
+def Log10(self):
+    pass
+
+def Scale(self, arg1, arg2, arg3, arg4):
+    pass
+
+def BezierCurve(self, arg1, arg2, arg3, arg4):
+    pass
+
+def RadToDeg(self):
+    pass
+
+def Clamp01(self):
+    pass
+
+def Clamp(self, arg1, arg2):
+    pass
+
+def Lerp(self, arg1, arg2):
+    pass
+
+def Log(self):
+    pass
+
+def Abs(self):
+    pass
+
+def AnglesFromPoints(self, arg1, arg2):
+    pass
+
+def ATan(self):
+    pass
+
+def Exp(self):
+    pass
+
+def PerlinNoise1D(self, arg1, arg2, arg3):
+    pass
+
+def Tan(self):
+    pass
+
+def Rand():
+    pass
+
+def Floor(self):
+    pass
+
+def Max(self, arg1):
+    pass
+
+def Min(self, arg1):
+    pass
+
+def IntToFloat(self):
+    pass

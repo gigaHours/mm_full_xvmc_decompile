@@ -1,0 +1,43 @@
+module harp_state_idle
+import @9B4F6985
+import @3D3D0D9B
+import @46F71871
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    lib_weapon.ResetTarget(arg1)
+    lib_harpoon.DisableConstraint(arg1)
+    game.QueueAct(local2.companion, "ACT_HARPOON_IDLE")
+    if none != local2.projectile_robj:
+        rigidobject.Hide(local2.projectile_robj)
+
+def Exit(self, arg1):
+    pass
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+
+def GetId(self):
+    return lib_harpoon.STATE_IDLE_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    if lib_vehicleupgrades.GetHarpoonUpgradeLevel() > 0.0:
+        local4 = true
+        if local3.use_thunderstick_ammo:
+            local4 = lib_harpoon.HasThunderCaps(local2)
+        if local4 and lib_harpoon.ChumCanAim(local2) and local3.weapon_selected and lib_weapon.CheckPlayerInDriverSeat(local2, local3.car):
+            lib_weapon.ChangeState(local2, local3.state_auto)
+        if local3.reload_time_left > 0.0:
+            lib_weapon.ChangeState(local2, local3.state_reload)
+        if (local3.input_fire_pressed or local3.input_quick_fire_pressed or local3.input_aim_pressed) and (not local4):
+            lib_weapon.ShowAmmoWarning(local2)
+    rope.Clear(local3.rope)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "IDLE"

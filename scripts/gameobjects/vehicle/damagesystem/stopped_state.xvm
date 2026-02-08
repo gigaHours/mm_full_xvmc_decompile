@@ -1,0 +1,88 @@
+module stopped_state
+import @42D0E955
+import @F76070AE
+import @B1360AAD
+import @DE140614
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    game.SetDictionaryFloat(@378BEE96, 0.0)
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    local5 = local4.car
+    local6 = 20.0
+    if local4.inRepair:
+        debug.LogInfo("already in repair. percentageDamageTaken: %f", [arg3])
+        return
+    lib_vehicle.SendVehicleDefeatedEvent(local5, arg2)
+    lib_takedown.PerformStandardTakedowns(local5, arg1, arg2)
+    scriptgo.PostEvent(self, @8CA3E048)
+    Enter_Repair(self)
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.inRepair = false
+    local2 = gui.GetBlackboard()
+    local2.car_in_repair_state = false
+    if local1.car:
+        vehicle.EnableDriving(local1.car)
+
+def STOPPED_HEALTH_LIMIT():
+    return 0.5
+
+def RepairHealth(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.inRepair and arg1 > STOPPED_HEALTH_LIMIT():
+        Exit_Repair(self)
+
+def DrawRepairTimers(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = scriptgo.Call(local2.healthComponent, @F4E205B5)
+    local3 = math.Clamp(local3 / STOPPED_HEALTH_LIMIT(), 0.0, 1.0)
+    local4 = game.GetRenderTransform(local2.car, arg1)
+    local5 = vector.Add(vector.Scale(local4.r2, -1.7), vector.Set(0.0, 2.8, 0.0, 0.0))
+    local6 = lib_debugdraw.GetGoScreenPos(local2.car, local5, arg1)
+    local7 = 0.048
+    local8 = 0.013
+    lib_debugdraw.DrawBarTitle(local6, local7, local8, lib_color.WHITE(1.0), lib_color.ORANGE(0.8), lib_debugdraw.ALIGN_CENTER(), local3, "ENGINE START", none)
+
+def PlayRepairSound(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1:
+        vehicle.SendVehicleSoundEvent(local2.car, @133A1ABD)
+    else:
+        vehicle.SendVehicleSoundEvent(local2.car, @77E4FEDA)
+
+def Enter_Repair(self):
+    local1 = scriptgo.GetProperties(self)
+    PlayRepairSound(self, true)
+    vehicle.DisableDriving(local1.car)
+    vehicle.SendVehicleSoundEvent(local1.car, @9826E33C)
+    if vehicle.IsPlayerVehicle(local1.car):
+        game.QueueAct(character.GetPlayer(), "ACT_VEHICLE_IN_STOPPED_STATE")
+    local1.inRepair = true
+    local2 = gui.GetBlackboard()
+    local2.car_in_repair_state = true
+
+def Render(self, arg1):
+    DrawRepairTimers(self, arg1)
+
+def Exit_Repair(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetHingedPart(local1.car, "vpart_door_r")
+    if local2 != none:
+        local2.State = local2.STATE_LOCKED
+    local2 = vehicle.GetHingedPart(local1.car, "vpart_door_l")
+    if local2 != none:
+        local2.State = local2.STATE_LOCKED
+    PlayRepairSound(self, false)
+    game.SendEvent("dia.chumbucket_car_ready_call", "")
+    scriptgo.SendEvent(self, @813A6B1A)
+    scriptgo.Call(lib_entity_proxy.GetPlayerInput(local1.car), @E1A56BBA)
+    vehicle.EnableDriving(local1.car)
+    local3 = gui.GetBlackboard()
+    local3.car_in_repair_state = false
+    local1.inRepair = false
+    debug.LogInfo("REPAIR DONE", [])
+    scriptgo.SetRenderFunction(self, "")

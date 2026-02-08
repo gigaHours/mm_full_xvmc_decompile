@@ -1,0 +1,277 @@
+module veh_stats
+import @46F71871
+import @42D0E955
+import @F76070AE
+
+def OnUpgradesFinishedLoading(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.awaitingUpdate == true:
+        local2 = false
+        PerformUpdateAgregates(self, local2)
+        local1.awaitingUpdate = false
+
+def PerformUpdateAgregates(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.stats
+    local4 = GetStatValue(local3, 0.0)
+    local5 = GetStatValue(local3, 1.0)
+    local6 = GetStatValue(local3, 2.0)
+    local7 = GetStatValue(local3, 3.0)
+    local8 = GetStatValue(local3, 4.0)
+    local9 = GetStatValue(local3, 5.0)
+    local10 = GetStatValue(local3, 6.0)
+    local11 = GetStatValue(local3, 7.0)
+    local12 = GetStatValue(local3, 9.0)
+    local13 = GetStatValue(local3, 8.0)
+    local14 = GetStatValue(local3, 10.0)
+    local15 = GetStatValue(local3, 11.0)
+    local16 = GetStatValue(local3, 12.0)
+    local17 = GetStatValue(local3, 13.0)
+    local18 = vehicle.GetSignatureVehicle()
+    if local18 == none:
+        return
+    local19 = vehiclemanager.Estimate("RammingVehicle", local18)
+    if false:
+        debug.LogInfo("damage done to a std vehicle from a 50 km/h initial speed full boost ram: %f", [local19])
+    local20 = math.Clamp01((local19 - 38.1) / (97.2 - 38.1))
+    local21 = vehiclemanager.Estimate("GettingRammed", local18)
+    if false:
+        debug.LogInfo("damage from a 100 km/h ram by a 2000 kg vehicle: %f %%", [local21 * 100.0])
+    local22 = 1.0 / local21
+    if false:
+        debug.LogInfo("damage from a 100 km/h ram by a 2000 kg vehicle kills you in %f hits.", [local22])
+    local23 = math.Clamp01((local22 - 2.54) / (6.67 - 2.54))
+    local24 = math.Clamp01(Average([local12, local13, local15, local17]))
+    if false:
+        debug.LogInfo("weapons harpoon: %f thunderstick: %f sniper: %f, sideburner: %f, average: %f", [local12, local13, local15, local17, local24])
+    local25 = 0.0
+    local26 = vehiclemanager.Estimate("TopSpeed", local18)
+    local27 = vehicle.GetChassis(local18)
+    local28 = local27.Drivetrain.ScriptVariables
+    if local28.maxTopSpeed:
+        if false:
+            debug.LogInfo("top speed: %f m/s, max top speed: %f m/s", [local26, local28.maxTopSpeed])
+        local25 = (local26 - 26.67) / (local28.maxTopSpeed - 26.67)
+    if false:
+        debug.LogInfo("top speed: %f", [local25])
+    local25 = math.Clamp(local25, -1.0, 1.0)
+    local29 = 0.0
+    local30 = vehiclemanager.Estimate("Acceleration", local18)
+    if 9.2 > local30:
+        local29 = math.Scale(local30, 4.66, 9.2, 1.0, 0.0)
+    else:
+        local29 = math.Scale(local30, 9.2, 17.8, 0.0, -1.0)
+    if false:
+        debug.LogInfo("0-100 km/h time: %f s, acceleration score: %f", [local30, local29])
+    local29 = math.Clamp(local29, -1.0, 1.0)
+    local31 = vehiclemanager.Estimate("Front Natural Frequency", local18)
+    local32 = vehiclemanager.Estimate("Rear Natural Frequency", local18)
+    local33 = vehiclemanager.Estimate("Front ARBed Frequency", local18)
+    local34 = vehiclemanager.Estimate("Rear ARBed Frequency", local18)
+    local35 = vehiclemanager.Estimate("Front Ride Height", local18)
+    local36 = vehiclemanager.Estimate("Rear Ride Height", local18)
+    if false:
+        debug.LogInfo("Front nat freq: %f, ARBed: %f, Ride height: %f cm", [local31, local33, local35 * 100.0])
+        debug.LogInfo("Rear nat freq: %f, ARBed: %f, Ride height: %f cm", [local32, local34, local36 * 100.0])
+    local37 = vehiclemanager.Estimate("Front Compression Damping", local18)
+    local38 = vehiclemanager.Estimate("Front Relaxation Damping", local18)
+    local39 = vehiclemanager.Estimate("Rear Compression Damping", local18)
+    local40 = vehiclemanager.Estimate("Rear Relaxation Damping", local18)
+    if false:
+        debug.LogInfo("front c: %f, r: %f; rear c: %f, r: %f", [local37, local38, local39, local40])
+    local41 = [0.0, 0.05, 0.1, 0.2, 0.35, 1E+08]
+    local42 = [0.0, 0.0, 0.25, 0.75, 1.0, 1.0]
+    local43 = math.Min(local35, local36)
+    local45 = 0.0
+    local46 = 1.0
+    local44 = len(local41)
+    while local44 > local45:
+        if local41[local45] > local43 and local45 > 0.0:
+            local43 = math.Lerp(math.Scale01(local43, local41[local45 - 1.0], local41[local45]), local42[local45 - 1.0], local42[local45])
+        else:
+            local45 = local46 + local45
+        if false:
+            debug.LogInfo("Ride Height rating: %f", [local43])
+        local47 = 0.0
+        "\n    if simulatedAccelerationTime != 0:    \n        avgAcceleration = (100.0 / 3.6) / simulatedAccelerationTime\n        if DEBUG:\n            debug.LogInfo(\"avg acceleration: %f\", [avgAccelera"
+        local47 = math.Clamp(0.5 * (local10 + local11) - 0.5 * ((2.0 * local4 + local5) / 3.0) - 0.5 * local8, -0.5, 0.5)
+        local47 = math.Scale(local47, -0.5, 0.5, -1.0, 1.0)
+        vehicle.SetStat(@0BBCBB37, local20, arg1)
+        vehicle.SetStat(@358D358A, local23, arg1)
+        vehicle.SetStat(@9E433D2D, local24, arg1)
+        vehicle.SetStat(@555B281B, local25, arg1)
+        vehicle.SetStat(@A377C501, local29, arg1)
+        vehicle.SetStat(@29169278, local47, arg1)
+        vehicle.SetStat(@76A3F018, local9, arg1)
+        vehicle.SetStat(@9C8288E6, local16, arg1)
+        vehicle.SetStat(@8920F5F7, local14, arg1)
+        vehicle.SetStat(@7C73FFB9, local6, arg1)
+        if false:
+            debug.LogInfo("attack_stat: %f", [local20])
+            debug.LogInfo("defense_stat: %f", [local23])
+            debug.LogInfo("weapons_stat: %f", [local24])
+            debug.LogInfo("top_speed_stat: %f", [local25])
+            debug.LogInfo("acceleration_stat: %f", [local29])
+            debug.LogInfo("handling_stat: %f", [local47])
+            debug.LogInfo("boost: %f", [local9])
+            debug.LogInfo("wheel_armour: %f", [local16])
+            debug.LogInfo("repair_speed: %f", [local14])
+            debug.LogInfo("boarding_defence: %f", [local6])
+        return
+
+def UpdateAgregates(self, arg1):
+    if arg1:
+        PerformUpdateAgregates(self, arg1)
+    else:
+        local2 = scriptgo.GetProperties(self)
+        local2.awaitingUpdate = true
+
+def OnRepairSpeedEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 10.0, arg1 / 2.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Repair Speed", [])
+    UpdateAgregates(self, arg2)
+
+def OnRammingEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 1.0, arg1 / 5.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Ramming", [])
+    UpdateAgregates(self, arg2)
+
+def OnArmorEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 0.0, arg1 / 5.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Armor", [])
+    UpdateAgregates(self, arg2)
+
+def External_GetStatValue(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return GetStatValue(local2.stats, arg1) * 5.0
+
+def Init(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.stats = [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0], [3.0, 0.0], [4.0, 0.0], [5.0, 0.0], [6.0, 0.0], [7.0, 0.0], [8.0, 0.0], [9.0, 0.0], [10.0, 0.0], [11.0, 0.0], [12.0, 0.0], [13.0, 0.0]]
+
+def OnTopSpeedEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 3.0, arg1 / 5.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Top Speed", [])
+    UpdateAgregates(self, arg2)
+
+def OnGripEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 6.0, arg1 / 5.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Grip", [])
+    UpdateAgregates(self, arg2)
+
+def OnHarpoonEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 9.0, arg1 / 6.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Harpoon", [])
+    UpdateAgregates(self, arg2)
+
+def OnBoostEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 5.0, arg1 / 3.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Boost", [])
+    UpdateAgregates(self, arg2)
+
+def GetStatValue(self, arg1):
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(self)
+    while local2 > local3:
+        if self[local3][0.0] == arg1:
+            return self[local3][1.0]
+        local3 = local4 + local3
+    return 0.0
+
+def OnHarpExplosiveEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 8.0, arg1 / 6.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Explosive Harpoon", [])
+    UpdateAgregates(self, arg2)
+
+def Average(self):
+    local1 = 0.0
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(self)
+    while local2 > local3:
+        local1 = local1 + self[local3]
+        local3 = local4 + local3
+    return local1 / len(self)
+
+def OnAccelerationEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 4.0, arg1 / 11.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Acceleration", [])
+    UpdateAgregates(self, arg2)
+
+def OnSideBurnerEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 13.0, arg1 / 3.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Side Burner", [])
+    UpdateAgregates(self, arg2)
+
+def OnBoardingDefenceEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 2.0, arg1 / 3.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Boarding Defence", [])
+    UpdateAgregates(self, arg2)
+
+def OnSuspensionEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 7.0, arg1 / 5.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Suspension", [])
+    UpdateAgregates(self, arg2)
+
+def OnWheelArmourEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 12.0, arg1 / 3.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Wheel Armour", [])
+    UpdateAgregates(self, arg2)
+
+def OnSniperEnhancementLevel(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local3.stats = SetStatValue(local3.stats, 11.0, arg1 / 5.0)
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("Set Stats: Sniper", [])
+    UpdateAgregates(self, arg2)
+
+def Max(self):
+    local1 = none
+    local3 = 0.0
+    local4 = 1.0
+    local2 = len(self)
+    while local2 > local3:
+        if not local1:
+            local1 = self[local3]
+        elif self[local3] > local1:
+            local1 = self[local3]
+        local3 = local4 + local3
+    return local1
+
+def SetStatValue(self, arg1, arg2):
+    local4 = 0.0
+    local5 = 1.0
+    local3 = len(self)
+    while local3 > local4:
+        if self[local4][0.0] == arg1:
+            arg2[self[local4]] = 1.0
+        else:
+            local4 = local5 + local4
+        return self

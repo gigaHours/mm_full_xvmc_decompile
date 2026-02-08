@@ -1,0 +1,19 @@
+module send_two_events
+
+def EnterAlignedTransition(self, arg1, arg2):
+    Init(self)
+
+def Init(self):
+    self.Properties.first_event_sent = false
+    self.Properties.second_event_sent = false
+
+def EnterUnalignedTransition(self, arg1):
+    Init(self)
+
+def Update(self, arg1):
+    if self.Properties.first_event_sent == false:
+        game.PostEventNone(self.Properties.event_frame_1)
+        self.Properties.first_event_sent = true
+    elif self.Properties.second_event_sent == false:
+        game.PostEventNone(self.Properties.event_frame_2)
+        self.Properties.second_event_sent = true

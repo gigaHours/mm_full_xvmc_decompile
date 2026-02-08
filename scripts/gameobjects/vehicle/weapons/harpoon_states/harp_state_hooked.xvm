@@ -1,0 +1,81 @@
+module harp_state_hooked
+import @9B4F6985
+import @3D3D0D9B
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local3 = scriptgo.GetProperties(self)
+    local3.triggered_tether_cam = false
+    if lib_weapon.CheckPlayerInDriverSeat(arg1, local2.car):
+        if local3.hook_attach_effect != none:
+            effect.EffectPlayAttached(local2.car, game.GetTransform(local2.car), local3.hook_attach_effect)
+    vehicle.SendVehicleSoundEvent(local2.car, @BBB3BC46)
+    if none != local2.projectile_robj:
+        rigidobject.Show(local2.projectile_robj)
+    lib_harpoon.ShowAnchorPoint(arg1)
+    soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", "plr_harpoon_connected", 1.0, 0.0, 0.0)
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    game.SendEvent("vehicle.harpoon.anchorpoint.hide", "")
+    game.SendEvent("vehicle.harpoon.lever.hide", "")
+    ai.ClearAiEntityBlackboard(local2.car, "HarpoonVictim")
+    if not lib_weapon.IsNextState(arg1, lib_harpoon.STATE_HOOKED_NO_DRIVER_ID()):
+        local3 = scriptgo.GetProperties(self)
+        if local3.hook_detach_effect != none:
+            effect.EffectPlayAttached(local2.car, game.GetTransform(local2.car), local3.hook_detach_effect)
+        if none != local2.projectile_robj:
+            rigidobject.Hide(local2.projectile_robj)
+    lib_harpoon.HideAnchorPoint(arg1)
+    soundscripting.SetRouterVariableInteger("gameworld_conditions", "set_variable_value", "plr_harpoon_connected", 0.0, 0.0, 0.0)
+    lib_weapon.StopCam(arg1, lib_harpoon.CAM_TETH())
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    lib_harpoon.UpdateRenderHooked(local2, arg1)
+
+def GetId(self):
+    return lib_harpoon.STATE_HOOKED_ID()
+
+def DisconnectHooked(self, arg1):
+    lib_harpoon.DisableConstraint(self)
+    lib_weapon.ChangeState(self, arg1.state_rollback)
+    if none != arg1.target:
+        scriptgo.Call(arg1.target, @335BDBC0)
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = local2.weapon
+    lib_weapon.UpdateCommonPre(local3, arg1)
+    local4 = scriptgo.GetProperties(local3)
+    lib_harpoon.UpdateHooked(local3, arg1)
+    if not lib_weapon.CheckPlayerInDriverSeat(local3, local4.car):
+        lib_weapon.ChangeState(local3, local4.state_hooked_no_driver)
+        return
+    if local4.state_time >= 0.0 and (not local2.triggered_tether_cam):
+        local2.triggered_tether_cam = true
+        lib_weapon.StopCam(local3, lib_harpoon.CAM_AIM())
+        lib_weapon.StartCam(local3, lib_harpoon.CAM_TETH())
+    if local2.triggered_tether_cam:
+        lib_harpoon.UpdateAimCameraInput(local3, local4)
+    if none != local4.target:
+        lib_harpoon.UpdateConstraintLength(local3)
+        local5 = scriptgo.GetProperties(local4.target)
+        if local4.input_fire_pressed:
+            lib_harpoon.TriggerHarpoonDisconnectReaction(local3, lib_harpoon.GetTargetPos(local3), lib_harpoon.GetAttachPos(local3))
+            DisconnectHooked(local3, local4)
+            return
+        if local5.harpoon_gun_must_detach or local4.input_force_disconnect or local4.input_boarder_landed:
+            debug.LogInfo("must detach: %b input_force_disconnect: %b boarder_landed: %b", [local5.harpoon_gun_must_detach, local4.input_force_disconnect, local4.input_boarder_landed])
+            DisconnectHooked(local3, local4)
+            return
+    else:
+        lib_harpoon.DisableConstraint(local3)
+        lib_weapon.ChangeState(local3, local4.state_rollback)
+        return
+    lib_weapon.UpdateCommonPost(local3, arg1)
+
+def GetName(self):
+    return "HOOKED"

@@ -1,0 +1,4 @@
+module set_modifier_on_layer
+
+def Enter(self, arg1):
+    animation.SetModifier(self, game.GameHashFloat(arg1.Layer), game.GameHashFloat(arg1.Modifier), true)

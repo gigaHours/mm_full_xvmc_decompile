@@ -1,0 +1,22 @@
+module attach_rope_to_car
+
+def Enter(self, arg1):
+    local2 = character.GetPlayer()
+    if not local2:
+        return
+    local3 = character.GetVehicle(local2)
+    if not local3:
+        return
+    local4 = game.GetChild(local3, "ApaTowMan")
+    if not local4:
+        return
+    scriptgo.Call1(local4, @2A984B20, self)
+
+def Exit(self, arg1):
+    __debugout("Exit")
+
+def UpdateRender(self, arg1, arg2):
+    __debugout("UpdateRender")
+
+def Update(self, arg1, arg2):
+    __debugout("Update")

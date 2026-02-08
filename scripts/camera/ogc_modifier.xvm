@@ -1,0 +1,392 @@
+module ogc_modifier
+import @78DDD3EE
+
+def DrawDebugDisplay(self):
+    local1 = self.Properties
+    local2 = vector.Set(0.2, 0.2, 0.0, 0.0)
+    if local1.CurrentMoveTimer > 0.0 and local1.CurrentMoveClass != -1.0:
+        if local1.CurrentMoveClass == 0.0:
+            debug.DrawText(local2, "current move:  LIGHT--- : %f", [local1.CurrentMoveTimer], lib_color.WHITE(1.0))
+        elif local1.CurrentMoveClass == 1.0:
+            debug.DrawText(local2, "current move:  MEDIUM-- : %f", [local1.CurrentMoveTimer], lib_color.WHITE(1.0))
+        elif local1.CurrentMoveClass == 2.0:
+            debug.DrawText(local2, "current move:  HEAVY--- : %f", [local1.CurrentMoveTimer], lib_color.WHITE(1.0))
+        elif local1.CurrentMoveClass == 3.0:
+            debug.DrawText(local2, "current move:  DRAMATIC : %f", [local1.CurrentMoveTimer], lib_color.WHITE(1.0))
+    else:
+        debug.DrawText(local2, "current move:  -------- : %f", [local1.CurrentMoveTimer], lib_color.WHITE(1.0))
+    local3 = 0.2
+    local4 = game.GetTransform(character.GetPlayer()).r3
+    if local1.HasValidTargetAzimuth:
+        debug.Arrow(local4, local1.DebugTargetPos, local3, lib_color.GREEN(1.0))
+    else:
+        debug.Arrow(local4, local1.DebugTargetPos, local3, lib_color.RED(1.0))
+
+def OnRightStarter(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On right starter", [])
+    local1 = self.Properties
+    local1.ChainStarterSide = 1.0
+
+def EnterAlignedTransition(self, arg1, arg2):
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    self.Properties.TimeSinceRightStickInput = 999.0
+    ResetProperties(self)
+
+def UpdateDistance(self, arg1):
+    local2 = self.Properties
+    if local2.CurrentMoveTimer > 0.0 and local2.CurrentMoveClass == 3.0:
+        local3 = 0.3
+        local4 = 2.0
+        local5 = math.Lerp(local3, local2.LastDistance, local4)
+        local2.BlendingFromDramatic = true
+    elif local2.ShouldSnapDistance:
+        local5 = local2.SnapDistance
+        local2.BlendingFromDramatic = false
+        local2.ShouldSnapDistance = false
+    else:
+        local6 = 1.0
+        local7 = 10.0
+        if local2.BlendingFromDramatic:
+            pass
+        local8 = __stack_underflow
+        local5 = math.SpeedLerp(local2.LastDistance, camera.GetInitialOffsetDistance(self), local8, arg1)
+    camera.SetOffsetDistance(self, local5)
+    local2.LastDistance = local5
+
+def ClearChainEffects(self):
+    self.Properties.RollTarget = self.Properties.InitialOffsetRoll
+
+def UpdateAzimuth(self, arg1):
+    if 0.0 >= arg1:
+        return 0.0
+    local2 = self.Properties
+    local3 = 3.0
+    if local3 > local2.TimeSinceRightStickInput:
+        local2.HasValidTargetAzimuth = false
+        local2.AzimuthBlendSpeed = 0.0
+        return 0.0
+    local4 = animation.GetLinkTarget(character.GetPlayer())
+    if local4 and local2.CurrentMoveTimer > 0.0:
+        local5 = game.GetTransform(local4).r3
+        local6 = game.GetTransform(character.GetPlayer()).r3
+        local7 = vector.Sub(local5, local6)
+        local7.y = 0.0
+        vector.Normalize(local7)
+        if false:
+            local2.DebugTargetPos = local5
+        local8 = game.GetTransform(character.GetPlayer()).r0
+        local9 = math.Pi() / 2.0 + math.ATan2(local8.x, local8.z)
+        local2.TargetAzimuth = math.ATan2(local7.x, local7.z) - local9
+        local2.HasValidTargetAzimuth = true
+    else:
+        local2.AzimuthTargetBlendSpeed = 0.0
+    if local2.AzimuthTargetBlendSpeed != local2.AzimuthBlendSpeed:
+        local10 = 0.5
+        local11 = 0.5
+        if local2.AzimuthTargetBlendSpeed > local2.AzimuthBlendSpeed:
+            pass
+        local12 = __stack_underflow
+        local2.AzimuthBlendSpeed = math.SpeedLerp(local2.AzimuthBlendSpeed, local2.AzimuthTargetBlendSpeed, local12, arg1)
+    if 0.0 >= local2.AzimuthBlendSpeed:
+        local2.HasValidTargetAzimuth = false
+        return 0.0
+    if local2.HasValidTargetAzimuth:
+        local13 = local2.TargetAzimuth - self.OffsetAzimuth
+        while local13 > math.Pi():
+            local13 = local13 - math.Pi() * 2.0
+        while -math.Pi() > local13:
+            local13 = local13 + math.Pi() * 2.0
+        local14 = 0.6
+        if local14 > math.Abs(local13):
+            local2.AzimuthBlendSpeed = math.Lerp(math.Abs(local13) / local14, 0.0, local2.AzimuthBlendSpeed)
+        local15 = local13 * local2.AzimuthBlendSpeed
+        local16 = local2.MaxAzimuthRotationSpeed * arg1
+        if math.Abs(local15) > local16:
+            return math.Sign(local15) * local16
+        return local15
+    return 0.0
+
+def OnStartHeavy(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On Start Heavy", [])
+    local1 = self.Properties
+    local1.CurrentMoveClass = 2.0
+    local1.CurrentMoveTimer = 2.0
+    local1.AzimuthTargetBlendSpeed = 0.1
+    local1.MaxAzimuthRotationSpeed = 0.5
+
+def UpdateBlurs(self, arg1, arg2):
+    if 0.0 >= arg2:
+        return 0.0
+    local3 = self.Properties
+    local4 = 0.0
+    if local3.CurrentMoveTimer > 0.0 and local3.CurrentMoveClass == 3.0:
+        local5 = 0.5
+        local6 = 0.2
+        local4 = math.Lerp(local6, local3.LastDofBlurFactor, local5)
+    else:
+        local7 = 0.5
+        local4 = math.Lerp(local7, local3.LastDofBlurFactor, 0.0)
+    if local4 > 0.0:
+        local8 = 2.0
+        local9 = 1.5
+        arg1.FocalDistanceNear = local3.LastDistance - local8
+        arg1.DOFTransitionNear = local3.LastDistance - local9
+        arg1.DOFTransitionFar = local3.LastDistance + local9
+        arg1.FocalDistanceFar = local3.LastDistance + local8
+        arg1.MaxDOFNear = local4
+        arg1.MaxDOFFar = local4
+    else:
+        arg1.MaxDOFNear = 0.0
+        arg1.MaxDOFFar = 0.0
+    local3.LastDofBlurFactor = local4
+    if local3.ShouldSnapRadialBlur:
+        local10 = local3.SnapRadialBlurFactor
+        local11 = local3.SnapRadialBlurOffset
+        local3.ShouldSnapRadialBlur = false
+    else:
+        local12 = 0.025
+        local13 = 0.2
+        local10 = math.SpeedLerp(local3.LastRadialBlurFactor, 0.0, local12, arg2)
+        local11 = math.SpeedLerp(local3.LastRadialBlurOffset, 2.0, local13, arg2)
+    camera.SetRadialBlurParams(self, local10, local11, 0.0, 0.0)
+    local3.LastRadialBlurFactor = local10
+    local3.LastRadialBlurOffset = local11
+
+def OnChain4(self):
+    OnChainHit(self, 4.0)
+
+def TriggerCameraShake(self):
+    if false:
+        debug.LogInfo("OGC_CAM: Triggering Shake: $%s", [self])
+    game.PostEventNone(self)
+
+def Init(self):
+    self.Properties.TimeSinceRightStickInput = 0.0
+    ResetProperties(self)
+
+def OnChain3(self):
+    OnChainHit(self, 3.0)
+
+def OnCriticalHit(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On Critical Hit.  Move Class:  #%f", [self.Properties.CurrentMoveClass])
+    TriggerCameraShake("ply.camera.shake.critical")
+
+def OnLeftStarter(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On left starter", [])
+    local1 = self.Properties
+    local1.ChainStarterSide = 0.0
+
+def OnChainHit(self, arg1):
+    local2 = self.Properties
+    if false:
+        debug.LogInfo("OGC_CAM: OnChain #%f", [arg1])
+    if arg1 == 1.0:
+        local2.SnapDistance = local2.DistanceChain1
+        if local2.ChainStarterSide == 0.0:
+            pass
+        local2.SnapRoll = __stack_underflow
+        local2.SnapRadialBlurFactor = 0.01
+        local2.SnapRadialBlurOffset = 1.2
+    elif arg1 == 2.0:
+        local2.SnapDistance = local2.DistanceChain2
+        if local2.ChainStarterSide == 0.0:
+            pass
+        local2.SnapRoll = __stack_underflow
+        local2.SnapRadialBlurFactor = 0.02
+        local2.SnapRadialBlurOffset = 1.1
+    elif arg1 == 3.0:
+        local2.SnapDistance = local2.DistanceChain3
+        if local2.ChainStarterSide == 0.0:
+            pass
+        local2.SnapRoll = __stack_underflow
+        local2.SnapRadialBlurFactor = 0.03
+        local2.SnapRadialBlurOffset = 1.0
+    elif arg1 == 4.0:
+        local2.SnapDistance = local2.DistanceChain4
+        if local2.ChainStarterSide == 0.0:
+            pass
+        local2.SnapRoll = __stack_underflow
+        local2.SnapRadialBlurFactor = 0.05
+        local2.SnapRadialBlurOffset = 0.9
+    elif arg1 == 5.0:
+        local2.SnapDistance = local2.DistanceChain5
+        if local2.ChainStarterSide == 0.0:
+            pass
+        local2.SnapRoll = __stack_underflow
+        local2.SnapRadialBlurFactor = 0.06
+        local2.SnapRadialBlurOffset = 0.8
+    local2.ShouldSnapDistance = true
+    local2.ShouldSnapRoll = true
+    local2.ShouldSnapRadialBlur = true
+    TriggerCameraShakeByClass(self)
+
+def OnEndMove(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On End Move.  Move Class:  #%f", [self.Properties.CurrentMoveClass])
+    local1 = self.Properties
+    local1.CurrentMoveTimer = 0.0
+    local1.CurrentMoveClass = -1.0
+
+def OnChain2(self):
+    OnChainHit(self, 2.0)
+
+def UpdateInternals(self, arg1):
+    local2 = self.Properties
+    local3 = input.GetLookInput()
+    if math.Abs(local3.x) + math.Abs(local3.y) > 0.0:
+        local2.TimeSinceRightStickInput = 0.0
+    else:
+        local2.TimeSinceRightStickInput = local2.TimeSinceRightStickInput + arg1
+    local2.CurrentMoveTimer = local2.CurrentMoveTimer - arg1
+
+def EnterUnalignedTransition(self, arg1):
+    self.Properties.TimeSinceRightStickInput = 999.0
+    ResetProperties(self)
+
+def OnStartMedium(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On Start Medium", [])
+    local1 = self.Properties
+    local1.CurrentMoveClass = 1.0
+    local1.CurrentMoveTimer = 1.5
+    local1.AzimuthTargetBlendSpeed = 0.08
+    local1.MaxAzimuthRotationSpeed = 0.35
+
+def TriggerCameraShakeByClass(self):
+    local1 = self.Properties
+    if local1.CurrentMoveClass == 0.0:
+        TriggerCameraShake("ply.camera.shake.light")
+    elif local1.CurrentMoveClass == 1.0:
+        TriggerCameraShake("ply.camera.shake.medium")
+    elif local1.CurrentMoveClass == 2.0:
+        TriggerCameraShake("ply.camera.shake.heavy")
+    elif local1.CurrentMoveClass == 3.0:
+        TriggerCameraShake("ply.camera.shake.heavy")
+
+def OnStartLight(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On Start Light", [])
+    local1 = self.Properties
+    local1.CurrentMoveClass = 0.0
+    local1.CurrentMoveTimer = 0.5
+    local1.AzimuthTargetBlendSpeed = 0.03
+    local1.MaxAzimuthRotationSpeed = 0.2
+
+def OnGenericHeavyHit(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On Generic Heavy Hit.  Move Class:  #%f", [self.Properties.CurrentMoveClass])
+    TriggerCameraShakeByClass(self)
+    ClearChainEffects(self)
+
+def OnStartDramatic(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On Start Dramatic", [])
+    local1 = self.Properties
+    local1.CurrentMoveClass = 3.0
+    local1.CurrentMoveTimer = 4.0
+    local1.AzimuthTargetBlendSpeed = 0.1
+    local1.MaxAzimuthRotationSpeed = 0.5
+    ClearChainEffects(self)
+
+def UpdateRoll(self, arg1):
+    if 0.0 >= arg1:
+        return
+    local2 = self.Properties
+    if local2.ShouldSnapRoll:
+        local3 = local2.SnapRoll
+        local2.ShouldSnapRoll = false
+    else:
+        local4 = 0.05
+        local3 = math.SpeedLerp(local2.LastRoll, self.InitialOffsetRoll, local4, arg1)
+    camera.SetOffsetDeltaYawPitchRoll(self, 0.0, 0.0, local3 - self.OffsetRoll)
+    local2.LastRoll = local3
+
+def UpdateElevation(self, arg1):
+    if 0.0 >= arg1:
+        return 0.0
+    local2 = self.Properties
+    local3 = 3.0
+    if local3 > local2.TimeSinceRightStickInput:
+        local2.ElevationBlendSpeed = 0.0
+        return 0.0
+    if local2.CurrentMoveTimer > 0.0 and local2.CurrentMoveClass == 3.0:
+        local4 = 0.1
+        local5 = 0.8
+        local6 = self.OffsetElevation
+        return math.Lerp(local5, local6, local4) - local6
+    if local2.CurrentMoveTimer > 0.0:
+        local7 = 1.0
+        local8 = 2.0
+        local2.ElevationBlendSpeed = math.SpeedLerp(local2.ElevationBlendSpeed, local7, local8, arg1)
+    elif input.GetRawMoveInputVelocity().x != 0.0 or input.GetRawMoveInputVelocity().y != 0.0:
+        local9 = 0.3
+        local10 = 1.0
+        local2.ElevationBlendSpeed = math.SpeedLerp(local2.ElevationBlendSpeed, local9, local10, arg1)
+    else:
+        local11 = 4.0
+        local2.ElevationBlendSpeed = math.SpeedLerp(local2.ElevationBlendSpeed, 0.0, local11, arg1)
+    local12 = self.InitialOffsetElevation
+    local6 = self.OffsetElevation
+    local13 = local12 - local6
+    local14 = 0.2
+    if local14 > math.Abs(local13):
+        local2.ElevationBlendSpeed = math.Lerp(1.0 - math.Abs(local13) / local14, local2.ElevationBlendSpeed, 0.0)
+    local15 = math.Sign(local13) * local2.ElevationBlendSpeed * arg1
+    if math.Abs(local15) > math.Abs(local13):
+        return local13
+    return local15
+
+def OnGenericLightHit(self):
+    if false:
+        debug.LogInfo("OGC_CAM: On Generic Light Hit.  Move Class:  #%f", [self.Properties.CurrentMoveClass])
+    TriggerCameraShakeByClass(self)
+
+def ResetProperties(self):
+    local1 = self.Properties
+    local1.SnapDistance = 0.0
+    local1.ShouldSnapDistance = false
+    local1.BlendingFromDramatic = false
+    local1.LastDistance = camera.GetInitialOffsetDistance(self)
+    local1.SnapRoll = 0.0
+    local1.ShouldSnapRoll = false
+    local1.LastRoll = self.InitialOffsetRoll
+    local1.HasValidTargetAzimuth = false
+    local1.TargetAzimuth = 0.0
+    local1.AzimuthBlendSpeed = 0.0
+    local1.AzimuthTargetBlendSpeed = 0.0
+    local1.MaxAzimuthRotationSpeed = 0.0
+    local1.SnapRadialBlurFactor = 0.0
+    local1.SnapRadialBlurOffset = 0.0
+    local1.ShouldSnapRadialBlur = false
+    local1.LastRadialBlurFactor = 0.0
+    local1.LastRadialBlurOffset = 0.0
+    local1.LastDofBlurFactor = 0.0
+    local1.ElevationBlendSpeed = 0.0
+    local1.DebugTargetPos = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.CurrentMoveTimer = 0.0
+    local1.CurrentMoveClass = -1.0
+    local1.ChainStarterSide = 0.0
+
+def OnChain5(self):
+    OnChainHit(self, 5.0)
+
+def OnChain1(self):
+    OnChainHit(self, 1.0)
+
+def Update(self, arg1):
+    local2 = self.Dt
+    UpdateInternals(self, local2)
+    UpdateDistance(self, local2)
+    local3 = UpdateAzimuth(self, local2)
+    local4 = UpdateElevation(self, local2)
+    if local3 != 0.0 or local4 != 0.0:
+        camera.SetOffsetDeltaOrbit(self, local3, local4)
+    UpdateRoll(self, local2)
+    UpdateBlurs(self, arg1, local2)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    if false:
+        DrawDebugDisplay(self)

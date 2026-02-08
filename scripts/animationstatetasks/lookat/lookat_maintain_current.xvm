@@ -1,0 +1,6 @@
+module lookat_maintain_current
+import @05896E5A
+
+def Update(self, arg1, arg2):
+    if lib_lookat.LookAtIsAccepted(self):
+        local3 = lib_lookat.ActivateLookAtIfWithinValidAngle(self)

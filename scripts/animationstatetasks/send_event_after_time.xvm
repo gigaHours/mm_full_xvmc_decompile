@@ -1,0 +1,19 @@
+module send_event_after_time
+
+def Enter(self, arg1):
+    arg1.time_since_init = 0.0
+    arg1.act_expired = 0.0
+    arg1.event_1_fired = 0.0
+    arg1.event_2_fired = 0.0
+
+def Update(self, arg1, arg2):
+    if not arg1.act_expired:
+        arg1.time_since_init = arg1.time_since_init + arg2
+        if arg1.time_since_init > arg1.Time1 and arg1.event_1_fired == 0.0:
+            game.SendEventNone(arg1.Event1)
+            arg1.event_1_fired = 1.0
+        if arg1.time_since_init > arg1.Time2 and arg1.event_2_fired == 0.0:
+            game.SendEventNone(arg1.Event2)
+            arg1.event_1_fired = 2.0
+        if arg1.event_1_fired and arg1.event_2_fired:
+            arg1.act_expired = 1.0

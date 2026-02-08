@@ -1,0 +1,72 @@
+module lib_animation
+
+def ResetAdditiveLoopCounter(self):
+    game.SetBlackboardValueToObject(self, @1BB518B4, 0.0)
+
+def DebugPrintLoopCounter(self):
+    local1 = game.GetBlackboardValueFromObject(self, @1BB518B4)
+    local2 = game.GetTransform(self)
+    local3 = local2.r3
+    debug.DrawText3d(local3, "Loops: %f", [local1], vector.Set(1.0, 1.0, 1.0, 1.0))
+
+def SetContinuingLoopCount(self, arg1):
+    local2 = lib_animation.GetAdditiveNormalizationSegment(self)
+    local3 = 0.0
+    if local2:
+        local3 = math.Floor(animation.GetSampler(arg1, 0.0).Time / lib_character.GetSegmentLength(local2))
+    game.SetBlackboardValueToObject(self, @1BB518B4, local3)
+
+def GetAnimationTimeNormalizedToFullBody(self):
+    local1 = lib_animation.GetAdditiveNormalizationSegment(self)
+    if local1:
+        local2 = animation.GetLength(self)
+        local3 = animation.GetTime(self)
+        local4 = lib_character.GetSegmentLength(local1)
+        local5 = local3 / local2
+        local3 = local5 * local4
+        local2 = local4
+        local6 = game.GetBlackboardValueFromObject(self, @1BB518B4) * local2
+        return local6 + local3
+
+def SetAdditiveLoopTimer(self):
+    game.SetBlackboardValueToObject(self, @3D20F307, animation.GetTime(self))
+
+def setSamplerTimesIfDoingNavigationReentering(self, arg1, arg2, arg3):
+    local4 = game.GetBlackboardValueFromObject(self, @6172F52A)
+    if local4 > -0.1:
+        local5 = animation.GetSampler(arg1, 0.0).Time
+        local6 = animation.GetSampler(arg2, 0.0)
+        local7 = (local4 + arg3) * local6.Length + local5
+        if local7 > local6.Length:
+            local7 = local7 - local6.Length
+        local8 = local7 / local6.Length
+        if false:
+            debug.LogInfo("mmax_navigation.xpy ====== desired time: %f", [local6.Length * local8])
+        local9 = animation.GetSamplerCount(arg2)
+        local11 = 0.0
+        local12 = 1.0
+        local10 = local9
+        while local10 > local11:
+            local13 = animation.GetSampler(arg2, local11)
+            local13.Time = local13.Length * local8
+            local11 = local12 + local11
+        game.SetBlackboardValueToObject(self, @6172F52A, -1.0)
+
+def GetAdditiveNormalizationSegment(self):
+    local1 = animation.GetSegmentInfo(self, @3DCDF149, @4725DF52)
+    return local1
+
+def resetNavigationReenteringIfNotInSegment(self):
+    if not animation.IsWithinSegmentSync(self, @E063F6A0, @802391BA):
+        if false:
+            debug.LogInfo("mmax_navigation.xpy OnEnter ====== RESETTED reenter_time_expectation", [])
+        game.SetBlackboardValueToObject(self, @6172F52A, -1.0)
+
+def IncreaseAdditiveLoopCounter(self):
+    local1 = animation.GetTime(self)
+    local2 = game.GetBlackboardValueFromObject(self, @3D20F307)
+    local3 = local1 - local2
+    if 0.0 > local3:
+        local4 = game.GetBlackboardValueFromObject(self, @1BB518B4)
+        game.SetBlackboardValueToObject(self, @1BB518B4, local4 + 1.0)
+    game.SetBlackboardValueToObject(self, @3D20F307, local1)

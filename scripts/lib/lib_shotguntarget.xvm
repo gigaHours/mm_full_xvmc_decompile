@@ -1,0 +1,23 @@
+module lib_shotguntarget
+
+def Disable(self):
+    local1 = lib_entity_proxy.GetGlobalShotgunTargetList()
+    if none != local1:
+        golist.Rem(local1, self)
+        if false:
+            debug.LogInfo("ShotgunTarget Removed from target list", [])
+    else:
+        debug.LogInfo("ShotgunTarget Disable, NO global target list!", [])
+
+def Enable(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = lib_entity_proxy.GetGlobalShotgunTargetList()
+    if none != local2:
+        if golist.HasObject(local2, self):
+            debug.LogInfo("ShotgunTarget Already in target list! Aborting", [])
+            return
+        golist.Add(local2, self)
+        if false:
+            debug.LogInfo("ShotgunTarget Added as target", [])
+    else:
+        debug.LogInfo("ShotgunTarget Enable, no global target list!", [])

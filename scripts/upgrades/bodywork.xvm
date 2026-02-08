@@ -1,0 +1,18 @@
+module bodywork
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate bodywork level %f", [self])
+    lib_vehicleupgrades.ChangeFireResistance(-GetFireResistance(self))
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate bodywork level %f", [self])
+    lib_vehicleupgrades.ChangeFireResistance(GetFireResistance(self))
+
+def GetFireResistance(self):
+    if self == 3.0:
+        return 0.5
+    return 0.0

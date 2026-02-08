@@ -1,0 +1,9 @@
+module vh_detect_drift_state
+
+def Update(self, arg1, arg2):
+    if not vehicle.IsPlayerVehicle(self):
+        return
+    local3 = 0.2
+    local4 = vehicle.GetLocalVelocity(self)
+    if math.Abs(local4.x) > math.Abs(local3 * local4.z):
+        game.QueueAct(self, "ACT_DRIFT")

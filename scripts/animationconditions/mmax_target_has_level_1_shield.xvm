@@ -1,0 +1,13 @@
+module mmax_target_has_level_1_shield
+
+def Evaluate(self, arg1):
+    local2 = animation.GetLinkTarget(self)
+    if local2:
+        if character.IsContextBitSet(local2, 9.0):
+            local3 = character.GetFirstItemObjectFromCategoryId(local2, "Shield")
+            if local3:
+                local4 = character.GetItemObjectFloat(local3, "shield_level")
+                if local4 != none:
+                    if 1.0 >= local4:
+                        return 1.0
+    return 0.0

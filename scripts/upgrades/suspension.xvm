@@ -1,0 +1,32 @@
+module suspension
+import @46F71871
+import @58351C01
+
+def DeactivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Deactivate suspension level %f", [self])
+    lib_vehicleupgrades.ChangeSuspension(-GetSuspensionMaxLengthModifier(self), 1.0 / GetStiffnessFactor(self))
+
+def GetStiffnessFactor(self):
+    return lib_vehicleupgrades.LinearProgression(self, 5.0, 1.0, math.Sqrt(1.86))
+
+def GetUnderbodySpeedThreshold(self):
+    return lib_vehicleupgrades.LinearProgression(self, 5.0, 10.0, 40.0)
+
+def ActivateEnhacementLevel(self, arg1):
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo(">> Activate suspension level %f", [self])
+    lib_vehicleupgrades.ChangeSuspension(GetSuspensionMaxLengthModifier(self), GetStiffnessFactor(self))
+    local2 = lib_entity_proxy.GetVehicleStats(vehicle.GetSignatureVehicle())
+    local3 = lib_entity_proxy.GetCollision(vehicle.GetSignatureVehicle())
+    if local3:
+        scriptgo.Call2(local3, @86C4B9D8, GetMinHealthPctAfterUnderbodyHit(self), GetUnderbodySpeedThreshold(self))
+    if lib_vehicleupgrades.DEBUG_ENABLED():
+        debug.LogInfo("sending suspension stats", [])
+    scriptgo.Call2(local2, @E86AD314, self, arg1)
+
+def GetMinHealthPctAfterUnderbodyHit(self):
+    return lib_vehicleupgrades.LinearProgression(self, 5.0, 0.25, 0.75)
+
+def GetSuspensionMaxLengthModifier(self):
+    return lib_vehicleupgrades.LinearProgression(self, 5.0, 0.0, 0.1)

@@ -1,0 +1,35 @@
+module fuel_tank_dead_state
+import @45098D7D
+
+def Die(self, arg1, arg2, arg3):
+    local4 = scriptgo.GetProperties(self)
+    if not local4.isDead:
+        local4.isDead = true
+        local5 = scriptgo.GetProperties(game.GetParent(self))
+        local6 = local5.weakspot
+        local7 = game.WeakspotGetNormal(local6)
+        local8 = game.WeakspotGetPosition(local6)
+        local9 = game.VehicleWeakspotGetVehicle(local6)
+        lib_vehicle.SendVehicleWeakspotDestroyedEvent(local9, 3.0, arg2)
+        game.WeakspotDeregister(local6)
+        if local4.explosion_fx != none:
+            local10 = matrix.Matrix(local7, vector.Set(0.0, 1.0, 0.0, 0.0), local8)
+            effect.SpawnerSetWorldTransform(local4.explosion_fx, local10)
+            effect.SpawnerRestart(local4.explosion_fx, true)
+        if local4.damage_to_health_component != none:
+            scriptgo.Call2(local4.damage_to_health_component, @CA4FD849, local4.damage_to_health_component_percent_value, arg2)
+        scriptgo.PostEvent(self, @FA153114)
+
+def UpdateHealth(self, arg1, arg2):
+    if arg2 == lib_damage_types.DAMAGE_REPAIR():
+        local3 = scriptgo.GetProperties(self)
+        if arg1 > 0.9 and local3.isDead:
+            local3.isDead = false
+            local4 = scriptgo.GetProperties(game.GetParent(self))
+            local5 = local4.weakspot
+            game.WeakspotRegister(local5)
+            scriptgo.PostEvent(self, @F0133070)
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.isDead = false

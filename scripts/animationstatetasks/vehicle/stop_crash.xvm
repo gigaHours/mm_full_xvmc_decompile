@@ -1,0 +1,12 @@
+module stop_crash
+
+def Enter(self, arg1):
+    local2 = game.GetChild(self, "effect.crash")
+    if local2:
+        effect.SpawnerStop(local2)
+
+def Exit(self, arg1):
+    pass
+
+def Update(self, arg1, arg2):
+    pass

@@ -1,0 +1,92 @@
+module attach_to_xcc_target
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    self.Properties.freeze_starting_position = false
+    self.Properties.selected_position = vector.Set(-5.0, 2.0, -self.Properties.distance_parameter, 0.0)
+    if self.Properties.attaching_preset == 0.0:
+        local3 = [vector.Set(-2.5, 2.0, -self.Properties.distance_parameter, 0.0), vector.Set(2.5, 2.0, -self.Properties.distance_parameter, 0.0)]
+        local4 = 0.0
+    elif self.Properties.attaching_preset == 1.0 or self.Properties.attaching_preset == 3.0:
+        local3 = [vector.Set(self.Properties.distance_parameter, self.Properties.distance_parameter_2, self.Properties.distance_parameter, 0.0), vector.Set(self.Properties.distance_parameter, self.Properties.distance_parameter_2, -self.Properties.distance_parameter, 0.0), vector.Set(-self.Properties.distance_parameter, self.Properties.distance_parameter_2, self.Properties.distance_parameter, 0.0), vector.Set(-self.Properties.distance_parameter, self.Properties.distance_parameter_2, -self.Properties.distance_parameter, 0.0)]
+        if self.Properties.attaching_preset == 1.0:
+            local4 = 1.0
+        else:
+            local4 = 0.0
+    elif self.Properties.attaching_preset == 2.0:
+        local5 = lib_camera.GetXccTargetTransform(self.Properties.type_of_target, self.Properties.coordinator)
+        local6 = matrix.LookAtMatrix(arg1.CameraTransform.r3, vector.Set(0.0, 1.0, 0.0, 0.0), local5.r3)
+        local7 = vector.Distance(arg1.CameraTransform.r3, local5.r3)
+        local8 = [vector.Set(self.Properties.distance_parameter, self.Properties.distance_parameter_2, local7 * -self.Properties.distance_fraction_parameter, 0.0), vector.Set(-self.Properties.distance_parameter, self.Properties.distance_parameter_2, local7 * -self.Properties.distance_fraction_parameter, 0.0)]
+        local3 = [matrix.DirectionWorldToLocal(local5, vector.Sub(local5.r3, vector.Add(arg1.CameraTransform.r3, matrix.DirectionLocalToWorld(local6, local8[0.0])))), matrix.DirectionWorldToLocal(local5, vector.Sub(local5.r3, vector.Add(arg1.CameraTransform.r3, matrix.DirectionLocalToWorld(local6, local8[1.0]))))]
+        local4 = 0.0
+    local9 = lib_camera.GetXccTargetTransform(self.Properties.type_of_target, self.Properties.coordinator)
+    local10 = vector.Add(local9.r3, vector.Set(0.0, 1.0, 0.0, 0.0))
+    local11 = [none, none, none, none]
+    local12 = [none, none, none, none]
+    local14 = 0.0
+    local15 = 1.0
+    local13 = len(local3)
+    while local13 > local14:
+        local16 = matrix.MulVec(local9, local3[local14])
+        local16[local11] = local14
+        vector.Dot(arg1.CameraTransform.r2, vector.Normalize(vector.Sub(local16, local10)))[local12] = local14
+        local14 = local15 + local14
+    local17 = none
+    local19 = 0.0
+    local20 = 1.0
+    local18 = len(local3)
+    while local18 > local19:
+        local21 = 0.0
+        local14 = 1.0
+        local23 = 1.0
+        local22 = len(local12)
+        while local22 > local14:
+            if local12[local14] == none:
+                pass
+            elif local12[local21] == none:
+                local21 = local14
+            elif local12[local14] > local12[local21]:
+                local21 = local14
+            local14 = local23 + local14
+        if local4 > 0.0:
+            local4 = local4 - 1.0
+        else:
+            if ValidateCamera(arg1.CameraTransform.r3, local11[local21], local10, self.Properties.target_radius):
+                local17 = local3[local21]
+            else:
+                none[local12] = local21
+                local19 = local20 + local19
+            if local17 != none:
+                self.Properties.selected_position = local17
+                local24 = matrix.MulVec(local9, local17)
+                self.Properties.frozen_position = matrix.LookAtMatrix(local24, vector.Set(0.0, 1.0, 0.0, 0.0), vector.Add(local9.r3, vector.Set(0.0, 1.0, 0.0, 0.0)))
+            else:
+                self.Properties.freeze_starting_position = true
+                self.Properties.frozen_position = matrix.LookAtMatrix(arg1.CameraTransform.r3, vector.Set(0.0, 1.0, 0.0, 0.0), local10)
+            Update(self, arg2)
+            return
+
+def ValidateCamera(self, arg1, arg2, arg3):
+    local4 = 0.2
+    arg3 = arg3 + local4
+    local5 = vector.Add(arg2, vector.Scale(vector.Normalize(vector.Sub(arg1, arg2)), arg3))
+    return (not collision.CastSphere(self, arg1, 0.05, false)) and (not collision.CastSphere(local5, arg1, local4, false))
+
+def EnterUnalignedTransition(self, arg1):
+    self.Properties.freeze_starting_position = false
+    self.Properties.selected_position = vector.Set(-5.0, 2.0, -self.Properties.distance_parameter, 0.0)
+    Update(self, arg1)
+
+def Update(self, arg1):
+    local2 = lib_camera.GetXccTargetTransform(self.Properties.type_of_target, self.Properties.coordinator)
+    if local2 != none and self.Properties.freeze_starting_position == false:
+        local3 = matrix.MulVec(local2, self.Properties.selected_position)
+        arg1.CameraTransform = matrix.LookAtMatrix(local3, vector.Set(0.0, 1.0, 0.0, 0.0), vector.Add(local2.r3, vector.Set(0.0, 1.0, 0.0, 0.0)))
+        if self.Properties.attach_style == 1.0 or self.Properties.attach_style == 2.0 and math.Rand() > 0.5:
+            self.Properties.freeze_starting_position = true
+            self.Properties.frozen_position = matrix.CopyMatrix(arg1.CameraTransform)
+    elif self.Properties.freeze_starting_position == true:
+        arg1.CameraTransform = self.Properties.frozen_position
+    else:
+        debug.LogError("attach_to_xcc_target", "No target position found, camera modifier did not produce transform")

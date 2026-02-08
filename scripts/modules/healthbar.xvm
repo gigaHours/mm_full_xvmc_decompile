@@ -1,0 +1,7 @@
+module healthbar
+
+def UpdateArmour(self, arg1, arg2):
+    pass
+
+def SetArmourWeighting(self, arg1):
+    pass

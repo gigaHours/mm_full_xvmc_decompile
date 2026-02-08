@@ -1,0 +1,9 @@
+module thunderstab_trampoline
+
+def Execute(self, arg1, arg2):
+    local3 = interaction.GetCharacter(self)
+    local4 = animation.IsWithinSegment(local3, @E063F6A0, @43ABF37B)
+    if local4:
+        local5 = arg2.scriptGameObject
+        local6 = arg2.functionName
+        scriptgo.Call1(local5, local6, local3)

@@ -1,0 +1,225 @@
+module damage_tracker
+import @45098D7D
+import @B1360AAD
+import @42D0E955
+import @F76070AE
+
+def EnableAutoRegen(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.autoRegen = true
+
+def OnDamageTaken(self, arg1, arg2, arg3):
+    if arg1 > 0.0:
+        local4 = scriptgo.GetProperties(self)
+        SendOnPlayerDamageDialogueIntents(self, local4.owner_car, arg2)
+        if ValidateDamageEffect(self, arg1, arg2):
+            local4.timeSinceLastDamage = 0.0
+            local5 = local4.healthPct
+            HandleDamageData(self, arg1, arg2, arg3, local5)
+            if arg2 == lib_damage_types.DAMAGE_COLLISION():
+                local6 = lib_entity_proxy.GetCollision(local4.owner_car)
+                if local6:
+                    local7 = scriptgo.GetProperties(local6)
+                    if local7.damagingCollision_collisionHit:
+                        if local7.trigger_ram_cam:
+                            local8 = lib_camera.GetInVehicleCameraCoordinator()
+                            scriptgo.Call1(local8, ":%Kv", local4.owner_car)
+                            local7.trigger_ram_cam = false
+                        local4.lastdamage = local7.latest_damageThreshold
+                        local4.lastdamagePct = scriptgo.Call1(arg3, @4158F26C, local7.latest_damageThreshold) * 100.0
+                        local9 = local7.damagingCollision_collisionHit.GameObject
+                        HandleCollisionEffectData(self, local7.damagingCollision_collisionHit)
+                        HandleCollisionEffect(self, local7.damagingCollision_collisionHit, local4.owner_car)
+                        if vehicle.IsPlayerVehicle(local4.owner_car):
+                            hydra.HydraSendVehicleEvent(2.0)
+                        elif local9 != none:
+                            if vehicle.IsPlayerVehicle(local9):
+                                hydra.HydraSendVehicleEvent(1.0)
+            scriptgo.SendEvent(self, @8ADABCDF)
+
+def DisableAutoRegen(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.autoRegen = false
+
+def SetGraphVariables(self, arg1):
+    local2 = graphscript.GetVariables(self)
+    local2.damage = arg1.lastdamage
+    local2.damageType = arg1.lastdamageType
+    local2.damagePct = arg1.lastdamagePct
+    local2.healthPct = arg1.healthPct
+    local2.vehicle = arg1.damaged_car
+    local2.speed = arg1.speed
+    local2.player_damage = arg1.player_damage
+    local2.previousHealthPct = arg1.previousHealthPct
+    if arg1.lastdamageType == lib_damage_types.DAMAGE_COLLISION():
+        local2.colliding_car_speed = arg1.colliding_car_speed
+        local2.velocity = arg1.incoming_velocity
+        local2.colliding_car = arg1.colliding_car
+        local3 = game.GetTransform(arg1.owner_car)
+        local2.position = matrix.PositionLocalToWorld(local3, arg1.position)
+        local2.normal = arg1.normal
+        local2.impulse = arg1.impulse
+        local2.material = arg1.material
+
+def CheckDamage(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    SetGraphVariables(self, local2)
+    graphscript.FireGraphOutput(arg1, "OnDamageTaken")
+    if local2.play_collision_impact_effect:
+        local2.play_collision_impact_effect = false
+        graphscript.FireGraphOutput(arg1, "PlayCollisionEffect")
+    ClearDamageEffectParameters(self)
+
+def HandleDamageData(self, arg1, arg2, arg3, arg4):
+    local5 = scriptgo.GetProperties(self)
+    local5.lastdamage = arg1
+    local5.lastdamageType = arg2
+    local5.damaged = true
+    scriptgo.SetUpdateFunction(self, "Update")
+    local5.lastdamagePct = scriptgo.Call1(arg3, @4158F26C, arg1) * 100.0
+    local5.healthPct = scriptgo.Call(arg3, @F4E205B5) * 100.0
+    local5.previousHealthPct = arg4
+    local6 = vehicle.GetLocalVelocity(local5.damaged_car)
+    local5.speed = math.Abs(local6.z)
+    local5.impulse = 0.0
+    local5.material = 0.0
+    local5.position = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local5.normal = vector.Set(0.0, 0.0, 0.0, 0.0)
+
+def SendOnPlayerDamageDialogueIntents(self, arg1, arg2):
+    if vehicle.IsPlayerVehicle(arg1):
+        if arg2 == lib_damage_types.DAMAGE_COLLISION():
+            game.PostEvent("trigger_dialogue_intent", "diaint_player_damaged_by_collision")
+        elif arg2 == lib_damage_types.DAMAGE_HEAT():
+            game.PostEvent("trigger_dialogue_intent", "diaint_player_damaged_by_fire")
+        elif arg2 == lib_damage_types.DAMAGE_EXPLOSION():
+            game.PostEvent("trigger_dialogue_intent", "diaint_player_damaged_by_explosion")
+        elif arg2 == lib_damage_types.DAMAGE_GRINDING():
+            game.PostEvent("trigger_dialogue_intent", "diaint_player_damaged_by_grinding")
+
+def HandleCollisionEffect(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = game.GetChild(arg2, "script.damagesystem.CollisionDamageHandler")
+    if local4:
+        local5 = scriptgo.GetProperties(local4)
+        local3.player_damage = local5.player_damage
+        if vehicle.IsPlayerVehicle(local3.owner_car) and (not vehicle.IsPlayerVehicle(local3.damaged_car)) and local3.play_collision_impact_effect:
+            if local3.lastdamage > local3.player_damage * 2.0:
+                local3.damaged_car = local3.owner_car
+        else:
+            local3.damaged_car = arg2
+        local3.lastdamaged_car = local3.damaged_car
+        local3.play_collision_impact_effect = local5.play_collision_effect
+    else:
+        debug.LogInfo("No collisionhandler found!", [])
+    local6 = vehicle.GetGlobalProperties()
+    if local6.print_dmgtracker_debug:
+        local7 = GetDebugText(local3)
+        debug.LogInfo("%s", [local7])
+        local3.debugTimer = 0.0
+        scriptgo.SetRenderFunction(self, "UpdateRender")
+
+def ClearDamageEffectParameters(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.damaged_car = local1.owner_car
+    local1.trigger_ram_cam = false
+    local1.damaged = false
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.GetGlobalProperties()
+    if local3.print_dmgtracker_debug and 5.0 > local2.debugTimer:
+        DebugLastDamage(self, arg1)
+    else:
+        scriptgo.SetRenderFunction(self, "")
+
+def GetDebugText(self):
+    if self.lastdamaged_car != none:
+        local1 = vehicle.IsPlayerVehicle(self.lastdamaged_car)
+    else:
+        local1 = false
+    return string.Format("Collision Damage: %f\n Impulse: %f\n Damage done by player: %f\n Damage from Material: %f\n Remaining health: %f%\n Previous Health: %f\nColliding Car Speed: %f \nIsPlayerDamaged: %b", [self.lastdamage, self.impulse, self.player_damage, self.material, self.healthPct, self.previousHealthPct, self.colliding_car_speed, local1])
+
+def HandleCollisionEffectData(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if arg1:
+        local2.impulse = arg1.Impulse
+        local2.normal = vector.Scale(arg1.Normal, -1.0)
+        local2.position = arg1.SelfLocalPosition
+        local2.material = arg1.OtherMaterial
+        local2.incoming_velocity = vector.Add(arg1.OtherPointVelocity, arg1.SelfPointVelocity)
+        local2.colliding_car_speed = vector.Length(local2.incoming_velocity)
+        local3 = arg1.GameObject
+        if local3:
+            if vehicle.IsVehicle(local3):
+                local2.colliding_car = local3
+
+def PreInit(self):
+    local1 = scriptgo.GetProperties(self)
+    local1.timeSinceLastDamage = 0.0
+    local1.debugTimer = 5.0 + 1.0
+    local1.owner_car = lib_vehicle.GetParentVehicle(self)
+    local1.damaged_car = local1.owner_car
+    local1.lastdamaged_car = local1.damaged_car
+    local1.autoRegen = false
+    local1.lastdamage = 0.0
+    local1.lastdamageType = 0.0
+    local1.damagePct = 0.0
+    local1.healthPct = 100.0
+    local1.impulse = 0.0
+    local1.speed = 0.0
+    local1.material = 0.0
+    local1.previousHealthPct = 100.0
+    local1.position = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.normal = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.incoming_velocity = vector.Set(0.0, 0.0, 0.0, 0.0)
+    local1.colliding_car_speed = 0.0
+    local1.colliding_car = none
+    local1.play_collision_impact_effect = false
+    local1.trigger_ram_cam = false
+    local1.player_damage = 0.0
+    local1.damaged = false
+
+def DebugLastDamage(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if local2.lastdamageType == lib_damage_types.DAMAGE_COLLISION():
+        local3 = lib_debugdraw.GetGoScreenPos(local2.owner_car, vector.Set(0.0, 3.0, 0.0, 0.0), arg1)
+        local4 = GetDebugText(local2)
+        debug.DrawText(local3, local4, [], lib_color.WHITE(1.0))
+
+def PlayerDamageAutoRegen(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    return lib_vehicle.RepairVehicleAndWeakspots(local2.owner_car, 0.004, arg1, 0.5, false)
+
+def ValidateDamageEffect(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    if 0.0 >= arg1:
+        return false
+    if not local3.damaged:
+        return true
+    if arg2 == lib_damage_types.DAMAGE_COLLISION():
+        if local3.play_collision_impact_effect:
+            if arg1 > local3.player_damage * 2.0:
+                return true
+        else:
+            return true
+    elif arg1 > local3.lastdamage:
+        return true
+    return false
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local3 = vehicle.IsPlayerVehicle(local2.owner_car)
+    local4 = local3
+    local2.timeSinceLastDamage = local2.timeSinceLastDamage + arg1
+    if local2.timeSinceLastDamage > 15.0:
+        if local3 and local2.autoRegen and (not vehicle.IsInvulnerable(local2.owner_car)):
+            local5 = PlayerDamageAutoRegen(self, arg1)
+            if not local5:
+                local4 = false
+        else:
+            local4 = false
+    if 5.0 > local2.debugTimer:
+        local2.debugTimer = local2.debugTimer + arg1
+    elif not local4:
+        scriptgo.SetUpdateFunction(self, "")

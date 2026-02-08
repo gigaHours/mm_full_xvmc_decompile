@@ -1,0 +1,7 @@
+module is_last_enemy
+
+def Evaluate(self, arg1):
+    local2 = playerstats.GetPlayerStats()
+    if local2.inCombatCount == 1.0:
+        return 1.0
+    return 0.0

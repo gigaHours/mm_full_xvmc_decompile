@@ -1,0 +1,111 @@
+module veh_effect_exhaust
+
+def buildList(self, arg1, arg2):
+    local3 = scriptgo.GetProperties(self)
+    local4 = []
+    if arg2 == 0.0:
+        if arg1 == 0.0:
+            local4 = [local3.effect_exhaust]
+        elif arg1 == 1.0 or arg1 == 3.0:
+            local4 = [local3.effect_exhaust, local3.effect_exhaust2]
+        elif arg1 == 2.0 or arg1 == 5.0:
+            local4 = [local3.effect_exhaust, local3.effect_exhaust2, local3.effect_exhaust3, local3.effect_exhaust4]
+        elif arg1 == 4.0:
+            local4 = [local3.effect_exhaust, local3.effect_exhaust2, local3.effect_exhaust3, local3.effect_exhaust4, local3.effect_exhaust5, local3.effect_exhaust6]
+    return local4
+
+def OnStartExhaust(self):
+    local1 = scriptgo.GetProperties(self)
+    if vehicle.IsEngineRunning(local1.car):
+        if vehicle.IsSignatureVehicle(local1.car):
+            local2 = local1.exhaust_vfx_lst
+            local4 = 0.0
+            local5 = 1.0
+            local3 = len(local2)
+            while local3 > local4:
+                effect.SpawnerPlay(local1.exhaust_vfx_lst[local4])
+                effect.SpawnerSetParameter(local1.exhaust_vfx_lst[local4], "EngineLoad", vehicle.GetEngineLoad(local1.car))
+                local4 = local5 + local4
+            if local1.effect_engine_start and vehicle.IsPlayerVehicle(local1.car):
+                effect.SpawnerPlay(local1.effect_engine_start)
+            scriptgo.SetUpdateFunction(self, "UpdatePlaying")
+            return
+        if local1.effect_exhaust:
+            effect.SpawnerPlay(local1.effect_exhaust)
+            effect.SpawnerSetParameter(local1.effect_exhaust, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+        if local1.effect_exhaust2:
+            effect.SpawnerPlay(local1.effect_exhaust2)
+            effect.SpawnerSetParameter(local1.effect_exhaust2, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+        if game.IsNextgen():
+            if local1.effect_exhaust3:
+                effect.SpawnerPlay(local1.effect_exhaust3)
+                effect.SpawnerSetParameter(local1.effect_exhaust3, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+            if local1.effect_exhaust4:
+                effect.SpawnerPlay(local1.effect_exhaust4)
+                effect.SpawnerSetParameter(local1.effect_exhaust4, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+            if local1.effect_exhaust5:
+                effect.SpawnerPlay(local1.effect_exhaust5)
+                effect.SpawnerSetParameter(local1.effect_exhaust5, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+            if local1.effect_exhaust6:
+                effect.SpawnerPlay(local1.effect_exhaust6)
+                effect.SpawnerSetParameter(local1.effect_exhaust6, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+            if local1.effect_exhaust7:
+                effect.SpawnerPlay(local1.effect_exhaust7)
+                effect.SpawnerSetParameter(local1.effect_exhaust7, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+            if local1.effect_exhaust8:
+                effect.SpawnerPlay(local1.effect_exhaust8)
+                effect.SpawnerSetParameter(local1.effect_exhaust8, "EngineLoad", vehicle.GetEngineLoad(local1.car))
+
+def Init(self):
+    SetUpgLevel(self, 0.0)
+
+def StopExhaust(self):
+    local1 = scriptgo.GetProperties(self)
+    if local1.effect_exhaust:
+        effect.SpawnerStop(local1.effect_exhaust)
+    if local1.effect_exhaust2:
+        effect.SpawnerStop(local1.effect_exhaust2)
+    if game.IsNextgen():
+        if local1.effect_exhaust3:
+            effect.SpawnerStop(local1.effect_exhaust3)
+        if local1.effect_exhaust4:
+            effect.SpawnerStop(local1.effect_exhaust4)
+        if local1.effect_exhaust5:
+            effect.SpawnerStop(local1.effect_exhaust5)
+        if local1.effect_exhaust6:
+            effect.SpawnerStop(local1.effect_exhaust6)
+        if local1.effect_exhaust7:
+            effect.SpawnerStop(local1.effect_exhaust7)
+        if local1.effect_exhaust8:
+            effect.SpawnerStop(local1.effect_exhaust8)
+    scriptgo.SetUpdateFunction(self, "")
+
+def UpdatePlaying(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    if vehicle.IsEngineRunning(local2.car):
+        effect.SpawnerSetParameter(local2.effect_exhaust, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+        if local2.effect_exhaust2:
+            effect.SpawnerSetParameter(local2.effect_exhaust2, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+        if game.IsNextgen() or vehicle.IsSignatureVehicle(local2.car):
+            if local2.effect_exhaust3:
+                effect.SpawnerSetParameter(local2.effect_exhaust3, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+            if local2.effect_exhaust4:
+                effect.SpawnerSetParameter(local2.effect_exhaust4, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+            if local2.effect_exhaust5:
+                effect.SpawnerSetParameter(local2.effect_exhaust5, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+            if local2.effect_exhaust6:
+                effect.SpawnerSetParameter(local2.effect_exhaust6, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+            if local2.effect_exhaust7:
+                effect.SpawnerSetParameter(local2.effect_exhaust7, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+            if local2.effect_exhaust8:
+                effect.SpawnerSetParameter(local2.effect_exhaust8, "EngineLoad", vehicle.GetEngineLoad(local2.car))
+    else:
+        StopExhaust(self)
+
+def SetUpgLevel(self, arg1):
+    local2 = scriptgo.GetProperties(self)
+    local2.topspeed_level = arg1
+    StopExhaust(self)
+    if vehicle.IsSignatureVehicle(local2.car):
+        local2.exhaust_vfx_lst = buildList(self, arg1, 0.0)
+    OnStartExhaust(self)

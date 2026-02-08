@@ -1,0 +1,13 @@
+module trigger_debug_text
+
+def Update(self, arg1, arg2):
+    if animation.IsWithinSegment(self, @E063F6A0, "EW1_"):
+        local3 = game.GetTransform(self)
+        local4 = local3.r3
+        local4.y = local4.y + 2.0
+        debug.Sphere(local4, 1.0, vector.Set(0.0, 0.0, 1.0, 0.3))
+    if animation.IsWithinSegment(self, @E063F6A0, @C2A9C5C7):
+        local3 = game.GetTransform(self)
+        local4 = local3.r3
+        local4.y = local4.y + 2.0
+        debug.Sphere(local4, 0.7, vector.Set(0.5, 0.0, 0.5, 0.3))

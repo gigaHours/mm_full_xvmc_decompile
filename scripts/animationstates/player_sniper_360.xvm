@@ -1,0 +1,63 @@
+module player_sniper_360
+
+def FlattenNorm(self):
+    local1 = vector.Set(self.x, 0.0, self.z, 0.0)
+    return vector.Normalize(local1)
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetLength(self)
+    if animation.GetSamplerCount(arg3) > 1.0:
+        local5 = animation.GetSampler(arg3, 1.0)
+        local6 = 26.0
+        if 1.0 == animation.GetStateBit(self, local6):
+            local5.Weight = 1.0
+        else:
+            local7 = character.GetVehicle(self)
+            local8 = vector.Length(vector.Add(vehicle.GetVelocity(local7), vehicle.GetAngularVelocity(local7)))
+            local9 = math.Scale01(local8, 0.2, 8.0)
+            local5.Speed = math.Lerp(local9, 1.0, 2.5)
+            local5.Weight = 1.0
+            if local5.Time >= local4:
+                local5.Time = 0.0
+    local10 = character.GetWorldMatrix(self)
+    local11 = FlattenNorm(local10.r2)
+    local12 = FlattenNorm(local10.r0)
+    local13 = camera.GetCameraTransform()
+    local14 = FlattenNorm(local13.r2)
+    local15 = animation.GetSampler(arg3, 0.0)
+    local16 = vector.AngleBetween(local11, local14)
+    if 0.0 > vector.Dot(local12, local14):
+        local16 = 2.0 * 3.14 - local16
+    local17 = local15.Time
+    local18 = local16 * 180.0 / 3.14 / 30.0
+    if local17 >= local18 + local4 / 2.0:
+        local18 = local18 + local4
+    if local18 - local4 / 2.0 >= local17:
+        local18 = local18 - local4
+    if local17 >= local4:
+        local17 = 0.0
+        local18 = local18 - local4
+    elif 0.0 >= local17:
+        local17 = local4
+        local18 = local18 + local4
+    if local18 > local17:
+        game.SendAnimationEvents(self, local17, local18)
+    else:
+        game.SendAnimationEvents(self, local18, local17)
+    local15.Time = math.SpeedLerp(local17, local18, 5.0, arg2)
+
+def SamplersChanged(self, arg1, arg2, arg3, arg4):
+    local5 = animation.GetSamplerCount(arg4)
+    if local5 > 0.0:
+        local6 = animation.GetSampler(arg4, 0.0)
+        local6.Speed = 0.0
+        local7 = character.GetWorldMatrix(self)
+        local8 = FlattenNorm(local7.r2)
+        local9 = FlattenNorm(local7.r0)
+        local10 = animation.GetPoseTransformById(self, "Head")
+        local11 = FlattenNorm(local10.r2)
+        local11 = matrix.Rotate(local7, local11)
+        local12 = vector.AngleBetween(local8, local11)
+        if 0.0 > vector.Dot(local9, local11):
+            local12 = 2.0 * 3.14 - local12
+        local6.Time = local12 * 180.0 / 3.14 / 30.0

@@ -1,0 +1,70 @@
+module shot_state_reload
+import @9B4F6985
+import @83195642
+
+def Enter(self, arg1):
+    scriptgo.GetProperties(self).weapon = arg1
+    local2 = scriptgo.GetProperties(arg1)
+    local3 = scriptgo.Call(arg1, @60B2A994)
+    local2.reload_time_start = local3
+    local2.reload_time_left = local2.reload_time_start
+    lib_shotgun.StopAimCameras(arg1)
+    local4 = local2.wielding_character
+    if lib_weapon.IsInOgc(arg1):
+        game.QueueAct(local4, "ACT_UPB_SHOTGUN_RELOAD_START")
+    else:
+        game.QueueAct(local4, "ACT_SHOTGUN_RELOAD")
+
+def Exit(self, arg1):
+    local2 = scriptgo.GetProperties(arg1)
+    if local2.input_aim_held:
+        if lib_weapon.IsInOgc(arg1):
+            local2.show_crosshair = true
+            lib_weapon.StartCam(arg1, lib_shotgun.CAM_OGC_AIM())
+        else:
+            lib_weapon.StartCam(arg1, lib_shotgun.CAM_VEHICLE_AIM())
+
+def UpdateGuiBB(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = gui.GetBlackboard()
+    if none != local1.UI_reload_time_for_bb:
+        local2.weapon_shotgun_reload_time = local1.UI_reload_time_for_bb
+
+def UpdateRender(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateRenderCommon(local2, arg1)
+    UpdateGuiBB(local2)
+
+def GetId(self):
+    return lib_shotgun.STATE_RELOAD_ID()
+
+def Update(self, arg1):
+    local2 = scriptgo.GetProperties(self).weapon
+    lib_weapon.UpdateCommonPre(local2, arg1)
+    local3 = scriptgo.GetProperties(local2)
+    local4 = local3.wielding_character
+    local5 = false
+    if lib_weapon.IsInOgc(local2):
+        local6 = animation.GetSegmentInfo(local4, @6217CCDD, @6AD788CE)
+        if local6:
+            local3.reload_time_left = math.Clamp01(1.0 - local6.LocalTime)
+            local3.UI_reload_time_for_bb = local3.reload_time_left
+        else:
+            local3.reload_time_left = 1.0
+            local3.UI_reload_time_for_bb = 0.0
+            local5 = true
+    else:
+        local3.reload_time_left = local3.reload_time_left - arg1
+        local3.UI_reload_time_for_bb = math.Clamp(local3.reload_time_left / local3.reload_time_start, 0.0, 1.0)
+    if 0.0 >= local3.reload_time_left:
+        lib_shotgun.DoReload(local2)
+    if 0.0 >= local3.reload_time_left or local5:
+        if local3.input_aim_held and lib_shotgun.IsLoaded(local2):
+            lib_weapon.ChangeState(local2, local3.state_aim)
+        else:
+            lib_weapon.ChangeState(local2, local3.state_idle)
+        UpdateGuiBB(local2)
+    lib_weapon.UpdateCommonPost(local2, arg1)
+
+def GetName(self):
+    return "RELOAD"

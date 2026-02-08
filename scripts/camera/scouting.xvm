@@ -1,0 +1,87 @@
+module scouting
+
+def EnterAlignedTransition(self, arg1, arg2):
+    local3 = math.DegToRad(self.Properties.pitch_limit_min)
+    local4 = math.DegToRad(self.Properties.pitch_limit_max)
+    lib_camera.AlignElevationToSourceCameraClamped(self, arg1, arg2, local3, local4)
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    lib_camera.ResetDamping(self)
+    self.Properties.time_passed = 0.0
+    arg2.VignetteIndex = 1.0
+
+def OnActivate(self):
+    pass
+
+def OnDeactivate(self):
+    pass
+
+def Init(self):
+    lib_camera.ResetDamping(self)
+    self.Properties.AccelerationProgress = 0.0
+
+def EnterUnalignedTransition(self, arg1):
+    lib_camera.ResetDamping(self)
+    self.Properties.time_passed = 0.0
+    arg1.VignetteIndex = 1.0
+
+def Update(self, arg1):
+    local2 = self.Properties.yaw_dead_zone
+    local3 = self.Properties.pitch_dead_zone
+    local4 = self.Properties.min_direct_speed
+    local5 = self.Properties.max_direct_speed
+    local6 = self.Properties.min_top_speed
+    local7 = self.Properties.max_top_speed
+    local8 = self.Properties.max_top_speed_mouse
+    local9 = 1.7
+    local10 = 0.0
+    local11 = 5.7
+    local7 = 0.57
+    local12 = math.DegToRad(self.Properties.pitch_limit_min)
+    local13 = math.DegToRad(self.Properties.pitch_limit_max)
+    local14 = self.Dt
+    if self.Properties.time_passed == none:
+        self.Properties.time_passed = 0.0
+    self.Properties.time_passed = self.Properties.time_passed + local14
+    local15 = input.GetLookInput()
+    local16 = vector.Length(local15)
+    local17 = input.GetSensitivity()
+    local18 = local9
+    local19 = local10
+    local20 = local7
+    local21 = local7 * 0.8
+    if local16 > 0.0:
+        self.Properties.AccelerationProgress = math.Clamp(self.Properties.AccelerationProgress + local14 * local18, local19, local16)
+    else:
+        self.Properties.AccelerationProgress = 0.0
+    if input.IsUsingGamePad():
+        local22 = -input.UnitCircleNormalize(local15.x * local17.x * local14 * local20 * self.Properties.AccelerationProgress)
+        local23 = -input.UnitCircleNormalize(local15.y * local17.y * local14 * local21 * self.Properties.AccelerationProgress)
+    else:
+        local20 = local8
+        local21 = local8 * 0.8
+        local22 = -input.UnitCircleNormalize(local15.x * local17.x * local14 * local20)
+        local23 = -input.UnitCircleNormalize(local15.y * local17.y * local14 * local21)
+    if input.IsUsingGamePad() and local11 != 0.0:
+        local24 = lib_camera.GetDeltaAzElDamped(self, local22, local23, local11, local14)
+        local22 = local24[0.0]
+        local23 = local24[1.0]
+    local25 = self.OffsetElevation
+    local26 = local23 + local25
+    if local26 > local13:
+        local23 = local13 - local25
+    elif local12 > local26:
+        local23 = local12 - local25
+    camera.SetOffsetDeltaAzimuthElevationDistance(self, local22, local23, 0.0)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    local27 = math.DegToRad(self.Properties.breathing_amplitude) * math.Sin(2.0 * math.Pi() * self.Properties.time_passed * self.Properties.breathing_frequency)
+    local28 = matrix.RotationAxisMatrix(vector.Set(1.0, 0.0, 0.0, 0.0), local27)
+    arg1.CameraTransform = matrix.Mul(local28, arg1.CameraTransform)
+    arg1.FocalDistanceNear = 30.0
+    arg1.FocalDistanceFar = 800.0
+    arg1.DOFTransitionNear = 100.0
+    arg1.DOFTransitionFar = 200.0
+    arg1.MaxDOFNear = 1.0
+    arg1.MaxDOFFar = 0.4
+    arg1.RadialBlurFactor = 0.08
+    arg1.RadialBlurOffset = 0.8
+    arg1.VignetteIndex = 1.0

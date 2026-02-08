@@ -1,0 +1,15 @@
+module char_target_do_break_within_do_break_segment
+
+def Evaluate(self, arg1):
+    local2 = false
+    if arg1.Property0 > 0.0:
+        local2 = character.GetPlayer()
+    else:
+        local2 = animation.GetLinkTarget(self)
+    if local2:
+        if animation.IsWithinSegment(self, @E063F6A0, @F6759677):
+            if arg1.Property1 > 0.0:
+                game.DoAct(local2, "ACT_BREAK_HEAVY")
+            else:
+                game.DoAct(local2, "ACT_BREAK")
+    return 1.0

@@ -1,0 +1,67 @@
+module looting
+import @78DDD3EE
+
+def EnterAlignedTransition(self, arg1, arg2):
+    local3 = GET_MIN_ELEVATION(self)
+    local4 = GET_MAX_ELEVATION(self)
+    lib_camera.AlignAzimuthToSourceCamera(self, arg1, arg2)
+    if lib_camera.ALIGN_CURR_SRC_AZIM_INIT_DST_ELEV() == self.EnterTransitionAlignmentType:
+        camera.SetOffsetDeltaOrbit(self, 0.0, self.InitialOffsetElevation - self.OffsetElevation)
+    else:
+        lib_camera.AlignElevationToSourceCameraClamped(self, arg1, arg2, local3, local4)
+    TransitionResetState(self, arg2)
+    lib_camera.ResetDamping(self)
+
+def Init(self):
+    self.Properties.SmoothFOV = 50.0
+    ResetState(self)
+    lib_camera.ResetDamping(self)
+
+def PropertyWithDefault(self, arg1):
+    if self == none:
+        return arg1
+    return self
+
+def TransitionResetState(self, arg1):
+    ResetState(self)
+    if PropertyWithDefault(self.Properties.auto_align_vista_target, false):
+        lib_camera.VistaCameraReset(self, false, arg1)
+        lib_camera.UpdateVistaCam(self, arg1, 0.0, false, 0.0)
+
+def EnterUnalignedTransition(self, arg1):
+    TransitionResetState(self, arg1)
+    lib_camera.ResetDamping(self)
+
+def GET_MAX_ELEVATION(self):
+    return math.DegToRad(PropertyWithDefault(self.Properties.max_elevation, 75.0))
+
+def GET_MIN_ELEVATION(self):
+    return math.DegToRad(PropertyWithDefault(self.Properties.min_elevation, -30.0))
+
+def ClampDelta(self, arg1):
+    if self == 0.0:
+        return 0.0
+    if 0.0 > self:
+        arg1 = math.Max(arg1, self)
+    else:
+        arg1 = math.Min(arg1, self)
+    return arg1
+
+def ResetState(self):
+    self.Properties.FirstUpdateSinceEnter = true
+
+def Update(self, arg1):
+    local2 = self.Dt
+    local3 = game.GetUpdateSpeed()
+    if local3 > 0.0:
+        local2 = self.Dt / local3
+    local4 = 1000000.0
+    if local2 > 0.0:
+        local4 = 1.0 / local2
+    local5 = character.GetPlayer()
+    local6 = 0.0
+    local7 = 0.0
+    camera.SetOffsetDeltaOrbit(self, local6, local7)
+    arg1.CameraTransform = matrix.Mul(self.CameraOffsetTransform, self.CameraBaseTransform)
+    arg1.FOV = self.Properties.SmoothFOV
+    self.Properties.FirstUpdateSinceEnter = false

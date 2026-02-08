@@ -1,0 +1,21 @@
+module give_item_to_chum
+
+def Unload(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetSignatureVehicleCompanion()
+    local3 = local1.item_obj
+    if local2 and local3:
+        character.RemoveObject(local2, local3)
+
+def GiveItem(self):
+    local1 = scriptgo.GetProperties(self)
+    local2 = vehicle.GetSignatureVehicleCompanion()
+    local3 = local1.item_obj
+    if local2 and local3:
+        character.GiveObject(local2, local3)
+
+def NewCompanion(self):
+    GiveItem(self)
+
+def PreInit(self):
+    GiveItem(self)

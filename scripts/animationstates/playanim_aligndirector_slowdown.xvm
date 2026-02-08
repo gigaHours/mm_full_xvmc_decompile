@@ -1,0 +1,15 @@
+module playanim_aligndirector_slowdown
+
+def UpdateSamplers(self, arg1, arg2, arg3):
+    local4 = animation.GetSampler(arg3, 0.0)
+    local5 = animation.GetPoseTransform(self, 0.0)
+    vehicle.SetAnimCmdFrame(self, local5)
+    local6 = vector.Set(1.0, 0.0, 1.0, 0.0)
+    local7 = vector.Set(1.0, 1.0, 1.0, 0.0)
+    vehicle.SetAnimCmdWeights(self, local6, local7)
+    local8 = 1.0 - local4.Time / local4.Length
+    vehicle.SetAnimCmdAdditiveVelocity(self, vector.Scale(vehicle.GetAnimCmdAdditiveVelocity(self), math.Sqrt(math.Sqrt(local8))))
+
+def OnEnter(self, arg1):
+    vehicle.StartAnimCmd(self)
+    vehicle.SetAnimCmdSnapToGround(self, 0.5)

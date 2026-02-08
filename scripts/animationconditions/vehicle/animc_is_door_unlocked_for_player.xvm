@@ -1,0 +1,15 @@
+module animc_is_door_unlocked_for_player
+
+def Evaluate(self, arg1):
+    local2 = character.GetPlayer()
+    local3 = game.IsObjectEqualTo(self, local2)
+    local4 = character.GetVehicle(self)
+    if local4 != none and local3:
+        local5 = game.GetChild(local4, "script.player.input")
+        local6 = false
+        if local5 != none:
+            local6 = scriptgo.Call(local5, @FFA4D605)
+        if (not vehicle.IsLockedForPlayer(local4)) and (not local6):
+            return 1.0
+        return 0.0
+    return 1.0

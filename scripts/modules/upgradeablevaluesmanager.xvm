@@ -1,0 +1,7 @@
+module upgradeablevaluesmanager
+
+def GetUpgradeableValue(self):
+    pass
+
+def HasUpgradeableValue(self):
+    pass
