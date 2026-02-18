@@ -55,13 +55,13 @@ def UpdateNoiseBox(self, arg1, arg2):
     local6 = 3.0
     while local6 > local7:
         if not arg2:
-            0.0[local5] = local7
+            local5[local7] = 0.0
         else:
-            local4[local7] + arg1[local4] = local7
+            local4[local7] = local4[local7] + arg1
             if local4[local7] > self.Properties.noise_period[local7]:
-                local4[local7] - self.Properties.noise_period[local7] + math.Rand() * self.Properties.noise_period[local7] * 0.5[local4] = local7
-                (math.Rand() - 0.5) * self.Properties.noise_amplitude[local7][local5] = local7
-        math.Lerp(arg1 * self.Properties.noise_sharpness[local7], local3[local7], local5[local7])[local3] = local7
+                local4[local7] = local4[local7] - self.Properties.noise_period[local7] + math.Rand() * self.Properties.noise_period[local7] * 0.5
+                local5[local7] = (math.Rand() - 0.5) * self.Properties.noise_amplitude[local7]
+        local3[local7] = math.Lerp(arg1 * self.Properties.noise_sharpness[local7], local3[local7], local5[local7])
         local7 = local8 + local7
     self.Properties.noise_state = local3
     self.Properties.noise_t = local4

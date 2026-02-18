@@ -97,18 +97,18 @@ def UpdateSamplers(self, arg1, arg2, arg3):
             local49 = math.Clamp(math.Abs(local29.x) / local39, 0.0, 1.0) * local53
             local57 = math.Clamp(math.Abs(local29.z) / local40, -1.0, 1.0) * local54
             if 0.0 > local29.z:
-                local57[local56] = 3.0
-                0.0[local56] = 4.0
+                local56[3.0] = local57
+                local56[4.0] = 0.0
             else:
-                0.0[local56] = 3.0
-                local57[local56] = 4.0
+                local56[3.0] = 0.0
+                local56[4.0] = local57
             if 0.0 > local29.x:
-                (1.0 - local57) * local49[local56] = 0.0
-                0.0[local56] = 2.0
+                local56[0.0] = (1.0 - local57) * local49
+                local56[2.0] = 0.0
             else:
-                0.0[local56] = 0.0
-                (1.0 - local57) * local49[local56] = 2.0
-            (1.0 - local57) * (1.0 - local49)[local56] = 1.0
+                local56[0.0] = 0.0
+                local56[2.0] = (1.0 - local57) * local49
+            local56[1.0] = (1.0 - local57) * (1.0 - local49)
             local58 = 0.0
             while 5.0 > local58:
                 local55[local58].Weight = local56[local58]
@@ -154,19 +154,19 @@ def UpdateSamplers(self, arg1, arg2, arg3):
             local49 = math.Clamp(math.Abs(local29.x) / local39, 0.0, 1.0) * 0.5
             local50 = math.Clamp(local29.y / 0.4, 0.0, 1.0)
             if 0.0 > local29.x:
-                (1.0 - local50) * local49[local56] = 0.0
-                0.0[local56] = 2.0
+                local56[0.0] = (1.0 - local50) * local49
+                local56[2.0] = 0.0
             else:
-                0.0[local56] = 0.0
-                (1.0 - local50) * local49[local56] = 2.0
-            local50 * (1.0 - local49)[local56] = 4.0
+                local56[0.0] = 0.0
+                local56[2.0] = (1.0 - local50) * local49
+            local56[4.0] = local50 * (1.0 - local49)
             if 0.0 > local29.x:
-                local50 * local49[local56] = 3.0
-                0.0[local56] = 5.0
+                local56[3.0] = local50 * local49
+                local56[5.0] = 0.0
             else:
-                0.0[local56] = 3.0
-                local50 * local49[local56] = 5.0
-            (1.0 - local50) * (1.0 - local49)[local56] = 1.0
+                local56[3.0] = 0.0
+                local56[5.0] = local50 * local49
+            local56[1.0] = (1.0 - local50) * (1.0 - local49)
             local58 = 0.0
             while 6.0 > local58:
                 local55[local58].Weight = local56[local58]

@@ -237,8 +237,8 @@ def RecomputeGearbox():
         local20 = local19
         while local20 > local21:
             local23 = 1.0 / math.Lerp((local21 + 1.0) / local19, local18, local15)
-            local6[local21] * local5[local7 + local21 + 1.0] / local23[local6] = local21
-            local23[local5] = local7 + local21 + 1.0
+            local6[local21] = local6[local21] * local5[local7 + local21 + 1.0] / local23
+            local5[local7 + local21 + 1.0] = local23
             local21 = local22 + local21
         local2.GearRatios = local5
         local2.AutoUpshifts = local6

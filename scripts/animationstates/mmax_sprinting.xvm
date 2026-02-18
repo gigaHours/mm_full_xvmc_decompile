@@ -36,19 +36,19 @@ def UpdateSamplers(self, arg1, arg2, arg3):
     character.SetGlobalXvmFloat(self, 8.0, local17)
     local19 = [0.0, 0.0, 0.0, 0.0, 0.0]
     if 0.0 > local8:
-        0.0[local19] = 3.0
-        -local8[local19] = 4.0
+        local19[3.0] = 0.0
+        local19[4.0] = -local8
     else:
-        local8[local19] = 3.0
-        0.0[local19] = 4.0
+        local19[3.0] = local8
+        local19[4.0] = 0.0
     local20 = 1.0 - math.Abs(local8)
     if 0.0 > local17:
-        -local17 * local20[local19] = 1.0
-        0.0[local19] = 2.0
+        local19[1.0] = -local17 * local20
+        local19[2.0] = 0.0
     else:
-        0.0[local19] = 1.0
-        local17 * local20[local19] = 2.0
-    1.0 - local19[1.0] - local19[2.0] - local19[3.0] - local19[4.0][local19] = 0.0
+        local19[1.0] = 0.0
+        local19[2.0] = local17 * local20
+    local19[0.0] = 1.0 - local19[1.0] - local19[2.0] - local19[3.0] - local19[4.0]
     character.SetGlobalXvmFloat(self, 18.0, 1.0)
     local21 = game.GetBlackboardValueFromObject(self, @DD3C0820)
     if not local21:

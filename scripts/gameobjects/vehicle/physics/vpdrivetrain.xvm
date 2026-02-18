@@ -450,8 +450,8 @@ def UpdateRevLimiter(self, arg1, arg2, arg3, arg4):
         local10 = 1.0
     if local5.Gear == 1.0:
         local10 = 1.0
-    local10[arg2] = 0.0
-    local11[arg2] = 1.0
+    arg2[0.0] = local10
+    arg2[1.0] = local11
     return arg2
 
 def Shifter_Shift(self):

@@ -8,7 +8,7 @@ def ScoreAttackers(self, arg1, arg2, arg3):
     local9 = 1.0
     local7 = local6
     while local7 > local8:
-        1.0 + 100.0 * (GetMaxValue(100.0 - ogccoord.GetDistanceToTarget(self, arg2[local8], local4), 0.0) + GetMaxValue(12.0 - ogccoord.GetTimeSincePickup(self, arg2[local8]), 0.0) + GetMinValue(ogccoord.GetTimeInsideCamera(self, arg2[local8]), 15.0) * (ogccoord.GetPositionOnScreenScore(self, arg2[local8]) / 3.0))[arg3] = local8
+        arg3[local8] = 1.0 + 100.0 * (GetMaxValue(100.0 - ogccoord.GetDistanceToTarget(self, arg2[local8], local4), 0.0) + GetMaxValue(12.0 - ogccoord.GetTimeSincePickup(self, arg2[local8]), 0.0) + GetMinValue(ogccoord.GetTimeInsideCamera(self, arg2[local8]), 15.0) * (ogccoord.GetPositionOnScreenScore(self, arg2[local8]) / 3.0))
         local8 = local9 + local8
 
 def GetDroppedSlotCooldown(self):

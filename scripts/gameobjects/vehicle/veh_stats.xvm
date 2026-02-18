@@ -271,7 +271,7 @@ def SetStatValue(self, arg1, arg2):
     local3 = len(self)
     while local3 > local4:
         if self[local4][0.0] == arg1:
-            arg2[self[local4]] = 1.0
+            self[local4][1.0] = arg2
         else:
             local4 = local5 + local4
         return self

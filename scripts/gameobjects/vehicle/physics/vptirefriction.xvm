@@ -317,14 +317,14 @@ def ComputeTireSurfaceParameters(self, arg1, arg2, arg3):
     local18 = 1.0
     local16 = 2.0
     while local16 > local17:
-        local15[local17] * local12[local15] = local17
+        local15[local17] = local15[local17] * local12
         local17 = local18 + local17
     if arg3:
         local17 = 0.0
         local20 = 1.0
         local19 = 2.0
         while local19 > local17:
-            local15[local17] * 0.1[local15] = local17
+            local15[local17] = local15[local17] * 0.1
             local17 = local20 + local17
     self.XdF0 = local15
     local21 = arg1.XFM
@@ -335,20 +335,20 @@ def ComputeTireSurfaceParameters(self, arg1, arg2, arg3):
     local26 = 1.0
     local25 = 2.0
     while local25 > local17:
-        local21[local17] * local14[local21] = local17
-        local22[local17] * local14[local22] = local17
-        local23[local17] / local13[local23] = local17
-        local24[local17][local24] = local17
+        local21[local17] = local21[local17] * local14
+        local22[local17] = local22[local17] * local14
+        local23[local17] = local23[local17] / local13
+        local24[local17] = local24[local17]
         local17 = local26 + local17
     if arg3:
         local17 = 0.0
         local28 = 1.0
         local27 = 2.0
         while local27 > local17:
-            0.8 * local22[local17][local22] = local17
-            local22[local17][local21] = local17
-            0.8 * local24[local17][local24] = local17
-            local24[local17][local23] = local17
+            local22[local17] = 0.8 * local22[local17]
+            local21[local17] = local22[local17]
+            local24[local17] = 0.8 * local24[local17]
+            local23[local17] = local24[local17]
             local17 = local28 + local17
     self.XFM = local21
     self.XFG = local22
@@ -359,14 +359,14 @@ def ComputeTireSurfaceParameters(self, arg1, arg2, arg3):
     local31 = 1.0
     local30 = 2.0
     while local30 > local17:
-        local29[local17] * local12[local29] = local17
+        local29[local17] = local29[local17] * local12
         local17 = local31 + local17
     if arg3:
         local17 = 0.0
         local33 = 1.0
         local32 = 2.0
         while local32 > local17:
-            local29[local17] * 0.1[local29] = local17
+            local29[local17] = local29[local17] * 0.1
             local17 = local33 + local17
     self.YdF0 = local29
     local34 = arg1.YFM
@@ -377,20 +377,20 @@ def ComputeTireSurfaceParameters(self, arg1, arg2, arg3):
     local39 = 1.0
     local38 = 2.0
     while local38 > local17:
-        local34[local17] * local14[local34] = local17
-        local35[local17] * local14[local35] = local17
-        local36[local17] / local13[local36] = local17
-        local37[local17][local37] = local17
+        local34[local17] = local34[local17] * local14
+        local35[local17] = local35[local17] * local14
+        local36[local17] = local36[local17] / local13
+        local37[local17] = local37[local17]
         local17 = local39 + local17
     if arg3:
         local17 = 0.0
         local41 = 1.0
         local40 = 2.0
         while local40 > local17:
-            0.8 * local35[local17][local35] = local17
-            local35[local17][local34] = local17
-            0.8 * local37[local17][local37] = local17
-            local37[local17][local36] = local17
+            local35[local17] = 0.8 * local35[local17]
+            local34[local17] = local35[local17]
+            local37[local17] = 0.8 * local37[local17]
+            local36[local17] = local37[local17]
             local17 = local41 + local17
     self.YFM = local34
     self.YFG = local35

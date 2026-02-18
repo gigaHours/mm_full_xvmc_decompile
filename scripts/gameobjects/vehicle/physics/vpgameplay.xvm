@@ -458,7 +458,7 @@ def UpdateCruiseMode(self, arg1, arg2):
     local17 = 4.0
     while local17 > local18:
         local20 = vector.Add(local7[local18], vector.Set(0.0, local16 * math.Lerp(math.Rand(), local12, local13) * arg2, local16 * math.Lerp(math.Rand(), local12, local13) * arg2, 0.0))
-        vector.Set(0.0, fmod(local20.y, local16), fmod(local20.z, local16), 0.0)[local7] = local18
+        local7[local18] = vector.Set(0.0, fmod(local20.y, local16), fmod(local20.z, local16), 0.0)
         local18 = local19 + local18
     local18 = 0.0
     local22 = 1.0

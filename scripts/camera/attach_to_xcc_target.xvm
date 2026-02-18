@@ -29,8 +29,8 @@ def EnterAlignedTransition(self, arg1, arg2):
     local13 = len(local3)
     while local13 > local14:
         local16 = matrix.MulVec(local9, local3[local14])
-        local16[local11] = local14
-        vector.Dot(arg1.CameraTransform.r2, vector.Normalize(vector.Sub(local16, local10)))[local12] = local14
+        local11[local14] = local16
+        local12[local14] = vector.Dot(arg1.CameraTransform.r2, vector.Normalize(vector.Sub(local16, local10)))
         local14 = local15 + local14
     local17 = none
     local19 = 0.0
@@ -55,7 +55,7 @@ def EnterAlignedTransition(self, arg1, arg2):
             if ValidateCamera(arg1.CameraTransform.r3, local11[local21], local10, self.Properties.target_radius):
                 local17 = local3[local21]
             else:
-                none[local12] = local21
+                local12[local21] = none
                 local19 = local20 + local19
             if local17 != none:
                 self.Properties.selected_position = local17

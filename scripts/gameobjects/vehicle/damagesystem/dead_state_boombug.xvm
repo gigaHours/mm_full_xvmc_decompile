@@ -43,7 +43,7 @@ def SpawnBarrel(self, arg1, arg2, arg3):
         local10 = math.Floor(math.Rand() * len(local5))
         if local5[local10][1.0]:
             local6 = local5[local10][0.0]
-            false[local5[local10]] = 1.0
+            local5[local10][1.0] = false
         else:
             local8 = local9 + local8
         local4.spawnPositions = local5
@@ -64,9 +64,9 @@ def SpawnBarrel(self, arg1, arg2, arg3):
                     local16 = local4.debug_barrels
                     local17 = local4.debug_velocities
                     local18 = local4.debug_targets
-                    local11[local16] = local4.debug_num_barrels
-                    local13[local18] = local4.debug_num_barrels
-                    local15[local17] = local4.debug_num_barrels
+                    local16[local4.debug_num_barrels] = local11
+                    local18[local4.debug_num_barrels] = local13
+                    local17[local4.debug_num_barrels] = local15
                     local4.debug_barrels = local16
                     local4.debug_targets = local18
                     local4.debug_velocities = local17
@@ -127,7 +127,7 @@ def SpawnMultipleBarrels(self):
     local5 = 1.0
     local3 = len(local1.spawnPositions)
     while local3 > local4:
-        true[local2[local4]] = 1.0
+        local2[local4][1.0] = true
         local4 = local5 + local4
     local1.spawnPositions = local2
     local6 = game.GetTransform(local1.car).r3

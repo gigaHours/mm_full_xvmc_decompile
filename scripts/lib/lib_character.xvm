@@ -48,7 +48,7 @@ def CastRays(self, arg1, arg2, arg3):
         local9 = arg1[local7]
         local10 = local9[0.0]
         local11 = local9[1.0]
-        raycast.AddRay(self, local10, local11)[local5] = local7
+        local5[local7] = raycast.AddRay(self, local10, local11)
         local7 = local8 + local7
     local12 = none
     raycast.CastRays(self)

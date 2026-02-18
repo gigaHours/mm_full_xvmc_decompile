@@ -17,15 +17,15 @@ def ApplyTumbleImpulse(self, arg1, arg2):
         local10 = true
     if vector.Length(local6) > 2.1 and 90.0 > vector.Length(local6):
         local11 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        animation.GetPoseJointIndex(self, "Spine2")[local11] = 0.0
-        animation.GetPoseJointIndex(self, "LeftArm")[local11] = 1.0
-        animation.GetPoseJointIndex(self, "RightArm")[local11] = 2.0
-        animation.GetPoseJointIndex(self, "LeftUpLeg")[local11] = 3.0
-        animation.GetPoseJointIndex(self, "RightUpLeg")[local11] = 4.0
-        animation.GetPoseJointIndex(self, "RightHand")[local11] = 5.0
-        animation.GetPoseJointIndex(self, "LeftHand")[local11] = 6.0
-        animation.GetPoseJointIndex(self, "LeftFoot")[local11] = 7.0
-        animation.GetPoseJointIndex(self, "RightFoot")[local11] = 8.0
+        local11[0.0] = animation.GetPoseJointIndex(self, "Spine2")
+        local11[1.0] = animation.GetPoseJointIndex(self, "LeftArm")
+        local11[2.0] = animation.GetPoseJointIndex(self, "RightArm")
+        local11[3.0] = animation.GetPoseJointIndex(self, "LeftUpLeg")
+        local11[4.0] = animation.GetPoseJointIndex(self, "RightUpLeg")
+        local11[5.0] = animation.GetPoseJointIndex(self, "RightHand")
+        local11[6.0] = animation.GetPoseJointIndex(self, "LeftHand")
+        local11[7.0] = animation.GetPoseJointIndex(self, "LeftFoot")
+        local11[8.0] = animation.GetPoseJointIndex(self, "RightFoot")
         local13 = 0.0
         local14 = 1.0
         local12 = len(local11)

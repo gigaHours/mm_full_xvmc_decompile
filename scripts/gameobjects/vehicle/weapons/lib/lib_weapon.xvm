@@ -563,7 +563,7 @@ def SaveGuiTargets(self):
     local3 = GetEmptyGuiTarget()
     local4 = local1.UI_target_index
     while 20.0 > local4:
-        local3[local2] = local4
+        local2[local4] = local3
         local4 = local4 + 1.0
     local1.UI_targets = local2
     local1.UI_target_index = local4
@@ -808,7 +808,7 @@ def AddGuiTarget(self, arg1, arg2, arg3):
     local4 = scriptgo.GetProperties(self)
     if 20.0 > local4.UI_target_index:
         local5 = local4.UI_targets
-        [arg1, arg2, arg3][local5] = local4.UI_target_index
+        local5[local4.UI_target_index] = [arg1, arg2, arg3]
         local4.UI_targets = local5
         local4.UI_target_index = local4.UI_target_index + 1.0
 
