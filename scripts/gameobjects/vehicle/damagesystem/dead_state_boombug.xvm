@@ -44,42 +44,41 @@ def SpawnBarrel(self, arg1, arg2, arg3):
         if local5[local10][1.0]:
             local6 = local5[local10][0.0]
             local5[local10][1.0] = false
-        else:
-            local8 = local9 + local8
-        local4.spawnPositions = local5
-        if local6 != none:
-            local11 = game.CloneFactoryCreateInstanceWithParent(local4.clone_factory, local4.clone_property_name_hash, local6)
-            if local11 != none:
-                physics.EnableDestructibleObject(local11)
-                local12 = vector.Set(-7.0 + math.Rand() * 14.0, 0.0, -7.0 + math.Rand() * 14.0, 0.0)
-                local13 = vector.Add(local12, arg2)
-                local14 = physics.GenerateProjectileVelocity(local11, arg1, local13)
-                local15 = vector.Scale(local14, arg3)
-                if local15 == none:
-                    __debugout("UNABLE TO GENERATE VELOCITY")
-                    local15 = vector.Set((math.Rand() * 2.0 - 1.0) * 6.0, 10.0 + math.Rand() * 5.0, -3.0 - math.Rand() * 4.0, 0.0)
-                    local15 = matrix.Rotate(local4.transform, local15)
-                    local14 = local15
-                if 0.0 == 1.0:
-                    local16 = local4.debug_barrels
-                    local17 = local4.debug_velocities
-                    local18 = local4.debug_targets
-                    local16[local4.debug_num_barrels] = local11
-                    local18[local4.debug_num_barrels] = local13
-                    local17[local4.debug_num_barrels] = local15
-                    local4.debug_barrels = local16
-                    local4.debug_targets = local18
-                    local4.debug_velocities = local17
-                    local4.debug_num_barrels = local4.debug_num_barrels + 1.0
-                local19 = vector.Set(math.Rand() * 10.0 - 5.0, math.Rand() * 10.0 - 5.0, math.Rand() * 10.0 - 5.0, 0.0)
-                local20 = local19
-                local21 = local15
-                local22 = game.GetChildWithNameHash(local11, @7985D8BF)
-                physics.TrajectoryWarningStart(local22, local14, arg1 + 3.0, 0.5, 0.5, 20.0)
-                physics.SetVelocity(local11, local21)
-                physics.SetAngularVelocity(local11, local20)
-                physics.SetCollisionSystemGroup(local11, local4.system_group)
-        return
+            break
+        local8 = local9 + local8
+    local4.spawnPositions = local5
+    if local6 != none:
+        local11 = game.CloneFactoryCreateInstanceWithParent(local4.clone_factory, local4.clone_property_name_hash, local6)
+        if local11 != none:
+            physics.EnableDestructibleObject(local11)
+            local12 = vector.Set(-7.0 + math.Rand() * 14.0, 0.0, -7.0 + math.Rand() * 14.0, 0.0)
+            local13 = vector.Add(local12, arg2)
+            local14 = physics.GenerateProjectileVelocity(local11, arg1, local13)
+            local15 = vector.Scale(local14, arg3)
+            if local15 == none:
+                __debugout("UNABLE TO GENERATE VELOCITY")
+                local15 = vector.Set((math.Rand() * 2.0 - 1.0) * 6.0, 10.0 + math.Rand() * 5.0, -3.0 - math.Rand() * 4.0, 0.0)
+                local15 = matrix.Rotate(local4.transform, local15)
+                local14 = local15
+            if 0.0 == 1.0:
+                local16 = local4.debug_barrels
+                local17 = local4.debug_velocities
+                local18 = local4.debug_targets
+                local16[local4.debug_num_barrels] = local11
+                local18[local4.debug_num_barrels] = local13
+                local17[local4.debug_num_barrels] = local15
+                local4.debug_barrels = local16
+                local4.debug_targets = local18
+                local4.debug_velocities = local17
+                local4.debug_num_barrels = local4.debug_num_barrels + 1.0
+            local19 = vector.Set(math.Rand() * 10.0 - 5.0, math.Rand() * 10.0 - 5.0, math.Rand() * 10.0 - 5.0, 0.0)
+            local20 = local19
+            local21 = local15
+            local22 = game.GetChildWithNameHash(local11, @7985D8BF)
+            physics.TrajectoryWarningStart(local22, local14, arg1 + 3.0, 0.5, 0.5, 20.0)
+            physics.SetVelocity(local11, local21)
+            physics.SetAngularVelocity(local11, local20)
+            physics.SetCollisionSystemGroup(local11, local4.system_group)
 
 def PlayerExplode(self):
     local1 = scriptgo.GetProperties(self)

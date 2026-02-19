@@ -51,21 +51,19 @@ def EnterAlignedTransition(self, arg1, arg2):
             local14 = local23 + local14
         if local4 > 0.0:
             local4 = local4 - 1.0
-        else:
-            if ValidateCamera(arg1.CameraTransform.r3, local11[local21], local10, self.Properties.target_radius):
-                local17 = local3[local21]
-            else:
-                local12[local21] = none
-                local19 = local20 + local19
-            if local17 != none:
-                self.Properties.selected_position = local17
-                local24 = matrix.MulVec(local9, local17)
-                self.Properties.frozen_position = matrix.LookAtMatrix(local24, vector.Set(0.0, 1.0, 0.0, 0.0), vector.Add(local9.r3, vector.Set(0.0, 1.0, 0.0, 0.0)))
-            else:
-                self.Properties.freeze_starting_position = true
-                self.Properties.frozen_position = matrix.LookAtMatrix(arg1.CameraTransform.r3, vector.Set(0.0, 1.0, 0.0, 0.0), local10)
-            Update(self, arg2)
-            return
+        elif ValidateCamera(arg1.CameraTransform.r3, local11[local21], local10, self.Properties.target_radius):
+            local17 = local3[local21]
+            break
+        local12[local21] = none
+        local19 = local20 + local19
+    if local17 != none:
+        self.Properties.selected_position = local17
+        local24 = matrix.MulVec(local9, local17)
+        self.Properties.frozen_position = matrix.LookAtMatrix(local24, vector.Set(0.0, 1.0, 0.0, 0.0), vector.Add(local9.r3, vector.Set(0.0, 1.0, 0.0, 0.0)))
+    else:
+        self.Properties.freeze_starting_position = true
+        self.Properties.frozen_position = matrix.LookAtMatrix(arg1.CameraTransform.r3, vector.Set(0.0, 1.0, 0.0, 0.0), local10)
+    Update(self, arg2)
 
 def ValidateCamera(self, arg1, arg2, arg3):
     local4 = 0.2

@@ -381,20 +381,19 @@ def FilterGlobalTargets(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7):
                                         local41 = lib_color.ORANGE(0.3)
                                         local42 = debug.ProjectPosition(local30.Position)
                         if not local24:
-                            pass
-                        else:
-                            local28 = local29 + local28
-                        if not local24:
-                            local17.aim_status = AIM_STATUS_EMPTY()
-                            local17.is_reachable = false
-                        if local8.debug_enabled and local25:
-                            if not local24:
-                                debug.DrawLine(local17.ray.From, local17.ray.To, lib_color.RED(1.0))
-                            elif local8.debug_enabled:
-                                debug.DrawLine(local17.ray.From, local17.ray.To, lib_color.GREEN(1.0))
-                        local14 = local23 + local14
+                            break
+                        local28 = local29 + local28
             else:
                 local24 = false
+            if not local24:
+                local17.aim_status = AIM_STATUS_EMPTY()
+                local17.is_reachable = false
+            if local8.debug_enabled and local25:
+                if not local24:
+                    debug.DrawLine(local17.ray.From, local17.ray.To, lib_color.RED(1.0))
+                elif local8.debug_enabled:
+                    debug.DrawLine(local17.ray.From, local17.ray.To, lib_color.GREEN(1.0))
+        local14 = local23 + local14
 
 def IsNextState(self, arg1):
     local2 = scriptgo.GetProperties(self)

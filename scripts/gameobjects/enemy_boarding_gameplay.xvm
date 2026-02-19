@@ -191,13 +191,12 @@ def PlaySwayReactionAnim(self, arg1, arg2):
                         local4 = "ACT_FALL_OFF_LEFT"
             else:
                 local4 = "ACT_FALL_OFF_FWD"
-        else:
-            local15 = local16 + local15
-        if none != local4:
-            local19 = playerstats.GetPlayerStats()
-            local19.difficultyScalingBoarding = math.Max(local19.difficultyScalingBoarding + 1.0 / 1.2, 1.0)
-            game.QueueAct(local3.char, local4)
-        return
+            break
+        local15 = local16 + local15
+    if none != local4:
+        local19 = playerstats.GetPlayerStats()
+        local19.difficultyScalingBoarding = math.Max(local19.difficultyScalingBoarding + 1.0 / 1.2, 1.0)
+        game.QueueAct(local3.char, local4)
 
 def SetDebugOutputState(self):
     local1 = vehicle.GetGlobalProperties()

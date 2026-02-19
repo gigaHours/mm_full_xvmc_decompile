@@ -223,26 +223,24 @@ def RecomputeGearbox():
     while 50.0 > local13:
         local14 = scriptgo.Call2(local12, @29E932B7, local0, vector.Set(local13, 0.0, 0.0, 0.0))
         if local14 * local13 > local11:
-            pass
-        else:
-            local13 = local13 + 1.0
-        local13 = math.Min(50.0, local13 + 1.0)
-        local15 = local13 / local1.Axles[1.0].LeftWheel.Radius / local9
-        local16 = 1.0 / local15
-        local17 = local5[local7]
-        local18 = 1.0 / local17
-        local19 = len(local5) - local7 - 2.0
-        local21 = 0.0
-        local22 = 1.0
-        local20 = local19
-        while local20 > local21:
-            local23 = 1.0 / math.Lerp((local21 + 1.0) / local19, local18, local15)
-            local6[local21] = local6[local21] * local5[local7 + local21 + 1.0] / local23
-            local5[local7 + local21 + 1.0] = local23
-            local21 = local22 + local21
-        local2.GearRatios = local5
-        local2.AutoUpshifts = local6
-        return
+            break
+        local13 = local13 + 1.0
+    local13 = math.Min(50.0, local13 + 1.0)
+    local15 = local13 / local1.Axles[1.0].LeftWheel.Radius / local9
+    local16 = 1.0 / local15
+    local17 = local5[local7]
+    local18 = 1.0 / local17
+    local19 = len(local5) - local7 - 2.0
+    local21 = 0.0
+    local22 = 1.0
+    local20 = local19
+    while local20 > local21:
+        local23 = 1.0 / math.Lerp((local21 + 1.0) / local19, local18, local15)
+        local6[local21] = local6[local21] * local5[local7 + local21 + 1.0] / local23
+        local5[local7 + local21 + 1.0] = local23
+        local21 = local22 + local21
+    local2.GearRatios = local5
+    local2.AutoUpshifts = local6
 
 def GetArmorUpgradeLevel():
     local0 = game.GetGameObjectByAlias("garage.state")

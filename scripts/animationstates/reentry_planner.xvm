@@ -21,10 +21,9 @@ def OnEnter(self, arg1):
                 local10 = math.Lerp(local9, local2[local5][1.0], local2[local5][2.0])
                 game.SetBlackboardValueToObject(self, @6172F52A, local10)
                 local3 = true
-            else:
-                local5 = local6 + local5
-            if local3 == false:
-                if false:
-                    debug.LogInfo("====== WARNING: COULD NOT FIND A MATCHING SEGMENT FOR THE REENTRY PLANNER!  ====== ", [])
-                game.SetBlackboardValueToObject(self, @6172F52A, -1.0)
-            return
+                break
+        local5 = local6 + local5
+    if local3 == false:
+        if false:
+            debug.LogInfo("====== WARNING: COULD NOT FIND A MATCHING SEGMENT FOR THE REENTRY PLANNER!  ====== ", [])
+        game.SetBlackboardValueToObject(self, @6172F52A, -1.0)

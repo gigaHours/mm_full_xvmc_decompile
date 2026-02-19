@@ -36,33 +36,32 @@ def LoadVehicleAnimSet(self):
                 local2 = local5[local7]
                 if local4 == local2[0.0]:
                     local3 = local2[1.0]
-                else:
-                    local7 = local8 + local7
-                if false:
-                    debug.LogInfo("Using modelName: %s, got set: %f", [local4, local3])
-                if local1.current_set != local3:
-                    UnloadCurrentSet(self)
-                    local9 = "veh.shotgun.anims.load.set01"
-                    local10 = @AA19E064
-                    if 2.0 == local3:
-                        local9 = "veh.shotgun.anims.load.set02"
-                        local10 = @2F1C43E6
-                    elif 3.0 == local3:
-                        local9 = "veh.shotgun.anims.load.set03"
-                        local10 = @F54DED44
-                    elif 4.0 == local3:
-                        local9 = "veh.shotgun.anims.load.set04"
-                        local10 = @FE366423
-                    local1.current_set = local3
-                    local1.current_mod = local10
-                    game.SendEvent(local9, "")
-                    if false:
-                        debug.LogInfo("LoadVehicleAnimSet, event: %s", [local9])
-                elif false:
-                    debug.LogInfo("Same Set loaded already, current_set: %f", [local1.current_set])
-                return
+                    break
+                local7 = local8 + local7
+            if false:
+                debug.LogInfo("Using modelName: %s, got set: %f", [local4, local3])
     elif false:
         debug.LogInfo("veh_shotgun_anim_loader, has no car!", [])
+    if local1.current_set != local3:
+        UnloadCurrentSet(self)
+        local9 = "veh.shotgun.anims.load.set01"
+        local10 = @AA19E064
+        if 2.0 == local3:
+            local9 = "veh.shotgun.anims.load.set02"
+            local10 = @2F1C43E6
+        elif 3.0 == local3:
+            local9 = "veh.shotgun.anims.load.set03"
+            local10 = @F54DED44
+        elif 4.0 == local3:
+            local9 = "veh.shotgun.anims.load.set04"
+            local10 = @FE366423
+        local1.current_set = local3
+        local1.current_mod = local10
+        game.SendEvent(local9, "")
+        if false:
+            debug.LogInfo("LoadVehicleAnimSet, event: %s", [local9])
+    elif false:
+        debug.LogInfo("Same Set loaded already, current_set: %f", [local1.current_set])
 
 def GetCurrentSet(self):
     local1 = scriptgo.GetProperties(self)

@@ -88,36 +88,35 @@ def PerformUpdateAgregates(self, arg1):
     while local44 > local45:
         if local41[local45] > local43 and local45 > 0.0:
             local43 = math.Lerp(math.Scale01(local43, local41[local45 - 1.0], local41[local45]), local42[local45 - 1.0], local42[local45])
-        else:
-            local45 = local46 + local45
-        if false:
-            debug.LogInfo("Ride Height rating: %f", [local43])
-        local47 = 0.0
-        "\n    if simulatedAccelerationTime != 0:    \n        avgAcceleration = (100.0 / 3.6) / simulatedAccelerationTime\n        if DEBUG:\n            debug.LogInfo(\"avg acceleration: %f\", [avgAccelera"
-        local47 = math.Clamp(0.5 * (local10 + local11) - 0.5 * ((2.0 * local4 + local5) / 3.0) - 0.5 * local8, -0.5, 0.5)
-        local47 = math.Scale(local47, -0.5, 0.5, -1.0, 1.0)
-        vehicle.SetStat(@0BBCBB37, local20, arg1)
-        vehicle.SetStat(@358D358A, local23, arg1)
-        vehicle.SetStat(@9E433D2D, local24, arg1)
-        vehicle.SetStat(@555B281B, local25, arg1)
-        vehicle.SetStat(@A377C501, local29, arg1)
-        vehicle.SetStat(@29169278, local47, arg1)
-        vehicle.SetStat(@76A3F018, local9, arg1)
-        vehicle.SetStat(@9C8288E6, local16, arg1)
-        vehicle.SetStat(@8920F5F7, local14, arg1)
-        vehicle.SetStat(@7C73FFB9, local6, arg1)
-        if false:
-            debug.LogInfo("attack_stat: %f", [local20])
-            debug.LogInfo("defense_stat: %f", [local23])
-            debug.LogInfo("weapons_stat: %f", [local24])
-            debug.LogInfo("top_speed_stat: %f", [local25])
-            debug.LogInfo("acceleration_stat: %f", [local29])
-            debug.LogInfo("handling_stat: %f", [local47])
-            debug.LogInfo("boost: %f", [local9])
-            debug.LogInfo("wheel_armour: %f", [local16])
-            debug.LogInfo("repair_speed: %f", [local14])
-            debug.LogInfo("boarding_defence: %f", [local6])
-        return
+            break
+        local45 = local46 + local45
+    if false:
+        debug.LogInfo("Ride Height rating: %f", [local43])
+    local47 = 0.0
+    "\n    if simulatedAccelerationTime != 0:    \n        avgAcceleration = (100.0 / 3.6) / simulatedAccelerationTime\n        if DEBUG:\n            debug.LogInfo(\"avg acceleration: %f\", [avgAccelera"
+    local47 = math.Clamp(0.5 * (local10 + local11) - 0.5 * ((2.0 * local4 + local5) / 3.0) - 0.5 * local8, -0.5, 0.5)
+    local47 = math.Scale(local47, -0.5, 0.5, -1.0, 1.0)
+    vehicle.SetStat(@0BBCBB37, local20, arg1)
+    vehicle.SetStat(@358D358A, local23, arg1)
+    vehicle.SetStat(@9E433D2D, local24, arg1)
+    vehicle.SetStat(@555B281B, local25, arg1)
+    vehicle.SetStat(@A377C501, local29, arg1)
+    vehicle.SetStat(@29169278, local47, arg1)
+    vehicle.SetStat(@76A3F018, local9, arg1)
+    vehicle.SetStat(@9C8288E6, local16, arg1)
+    vehicle.SetStat(@8920F5F7, local14, arg1)
+    vehicle.SetStat(@7C73FFB9, local6, arg1)
+    if false:
+        debug.LogInfo("attack_stat: %f", [local20])
+        debug.LogInfo("defense_stat: %f", [local23])
+        debug.LogInfo("weapons_stat: %f", [local24])
+        debug.LogInfo("top_speed_stat: %f", [local25])
+        debug.LogInfo("acceleration_stat: %f", [local29])
+        debug.LogInfo("handling_stat: %f", [local47])
+        debug.LogInfo("boost: %f", [local9])
+        debug.LogInfo("wheel_armour: %f", [local16])
+        debug.LogInfo("repair_speed: %f", [local14])
+        debug.LogInfo("boarding_defence: %f", [local6])
 
 def UpdateAgregates(self, arg1):
     if arg1:
@@ -272,6 +271,6 @@ def SetStatValue(self, arg1, arg2):
     while local3 > local4:
         if self[local4][0.0] == arg1:
             self[local4][1.0] = arg2
-        else:
-            local4 = local5 + local4
-        return self
+            break
+        local4 = local5 + local4
+    return self

@@ -12,10 +12,9 @@ def Enter(self, arg1):
         while local4 > local5:
             if character.IsContextBitSet(local2[local5][0.0], 8.0):
                 local3 = 1.0
-            else:
-                local5 = local6 + local5
-            if not local3:
-                character.BroadcastDialogueIntent(@BB2993A7)
-            return
+                break
+            local5 = local6 + local5
+        if not local3:
+            character.BroadcastDialogueIntent(@BB2993A7)
     elif character.IsContextBitSet(self, 7.0):
         character.BroadcastDialogueIntent(@E35B3BA6)
