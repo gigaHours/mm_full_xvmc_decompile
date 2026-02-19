@@ -1,4 +1,5 @@
 module vehicle_debug_damage_display
+#! flags: 0x1
 
 def Add(self, arg1):
     local2 = scriptgo.GetProperties(self)

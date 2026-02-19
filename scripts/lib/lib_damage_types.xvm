@@ -1,4 +1,5 @@
 module lib_damage_types
+#! flags: 0x1
 
 def DAMAGE_COLLISION():
     return 2.0

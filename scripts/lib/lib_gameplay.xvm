@@ -1,4 +1,5 @@
 module lib_gameplay
+#! flags: 0x1
 
 def IsInPlayerEnemyFaction(self):
     local1 = character.GetFaction(self)

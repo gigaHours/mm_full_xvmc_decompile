@@ -1,4 +1,5 @@
 module lib_harpoontarget_type
+#! flags: 0x1
 
 def ExitHookedVehicleTarget(self):
     local1 = scriptgo.GetProperties(self)

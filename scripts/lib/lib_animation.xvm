@@ -1,4 +1,5 @@
 module lib_animation
+#! flags: 0x1
 
 def ResetAdditiveLoopCounter(self):
     game.SetBlackboardValueToObject(self, @1BB518B4, 0.0)

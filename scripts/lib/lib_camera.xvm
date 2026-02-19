@@ -1,4 +1,5 @@
 module lib_camera
+#! flags: 0x1
 import @80A1852C
 
 def BLEND_OPTION_BOTH_ACTIVE():

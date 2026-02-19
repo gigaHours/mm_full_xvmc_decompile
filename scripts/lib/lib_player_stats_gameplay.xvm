@@ -1,4 +1,5 @@
 module lib_player_stats_gameplay
+#! flags: 0x1
 
 def Init(self):
     scriptgo.RegisterEventHandler(self, "ply.fury.reset", "ResetState")

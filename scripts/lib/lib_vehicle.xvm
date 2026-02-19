@@ -1,4 +1,5 @@
 module lib_vehicle
+#! flags: 0x1
 
 def GetVehicleCameraCoordinator():
     return lib_camera.GetInVehicleCameraCoordinator()

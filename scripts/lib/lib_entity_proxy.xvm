@@ -1,4 +1,5 @@
 module lib_entity_proxy
+#! flags: 0x1
 
 def GetExplosionHandler(self):
     local1 = SafeGetChildByScriptName(self, "explosion_damage_handler.xpy")

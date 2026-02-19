@@ -1,4 +1,5 @@
 module lib_weapon
+#! flags: 0x1
 import @42D0E955
 import @F76070AE
 import @58351C01

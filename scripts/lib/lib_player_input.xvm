@@ -1,4 +1,5 @@
 module lib_player_input
+#! flags: 0x1
 
 def FuryInput():
     if input.GetButtonInput(@D364E8FC) > 0.0:

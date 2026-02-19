@@ -1,4 +1,5 @@
 module lib_takedown
+#! flags: 0x1
 
 def TriggerCollisionTakedown(self):
     local1 = lib_entity_proxy.GetCollision(self)

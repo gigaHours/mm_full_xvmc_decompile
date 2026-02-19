@@ -1,4 +1,5 @@
 module lib_math
+#! flags: 0x1
 
 def ComputeAcceleration(self, arg1, arg2):
     local3 = vector.Sub(arg1, self)

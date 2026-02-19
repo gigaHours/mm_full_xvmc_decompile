@@ -1,4 +1,5 @@
 module lib_weakspot
+#! flags: 0x1
 
 def IsBulletBlocked(self):
     local1 = scriptgo.GetProperties(self)

@@ -1,4 +1,5 @@
 module lib_harpoontarget
+#! flags: 0x1
 
 def Disable(self, arg1):
     local2 = scriptgo.GetProperties(self)

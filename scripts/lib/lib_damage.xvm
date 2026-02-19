@@ -1,4 +1,5 @@
 module lib_damage
+#! flags: 0x1
 
 def FadeCollisionDamping(self, arg1):
     return math.Max(self - 20.0 / 0.25 * arg1, 0.0)

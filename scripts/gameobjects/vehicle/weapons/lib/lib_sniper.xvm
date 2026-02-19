@@ -1,4 +1,5 @@
 module lib_sniper
+#! flags: 0x1
 
 def STATE_AIM_ID():
     return 1.0

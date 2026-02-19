@@ -1,4 +1,5 @@
 module lib_hoodornament
+#! flags: 0x1
 import @46F71871
 import @58351C01
 

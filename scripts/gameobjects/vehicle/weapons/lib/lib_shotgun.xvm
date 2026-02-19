@@ -1,4 +1,5 @@
 module lib_shotgun
+#! flags: 0x1
 
 def SLOWMO_AIM_OGC_WITH_VEHICLES():
     return [0.1, 0.1, 0.5]

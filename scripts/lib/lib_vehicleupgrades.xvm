@@ -1,4 +1,5 @@
 module lib_vehicleupgrades
+#! flags: 0x1
 
 def GetRepairSpeedUpgradeLevel():
     local0 = game.GetGameObjectByAlias("garage.state")

@@ -1,4 +1,5 @@
 module lib_color
+#! flags: 0x1
 
 def WEAKSPOT_GREY(self):
     return vector.Set(0.2, 0.2, 0.2, self)
